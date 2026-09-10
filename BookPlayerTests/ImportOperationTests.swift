@@ -726,6 +726,18 @@ final class ExternalProgressServiceTests: XCTestCase {
       lock.unlock()
       return try await answer(resource)
     }
+
+    func progress(
+      forBatch resources: [SimpleExternalResource]
+    ) async throws -> [String: ExternalPlaybackProgress] {
+      var out: [String: ExternalPlaybackProgress] = [:]
+      for resource in resources {
+        if let progress = try await progress(for: resource) {
+          out[resource.providerId] = progress
+        }
+      }
+      return out
+    }
   }
 
   private func makeResource(provider: String, id: String) -> SimpleExternalResource {
@@ -736,6 +748,28 @@ final class ExternalProgressServiceTests: XCTestCase {
       lastSyncedAt: nil,
       hostId: "guid-host",
       libraryItem: nil
+    )
+  }
+
+  private func makeLibraryItem(resources: [SimpleExternalResource]?) -> SimpleLibraryItem {
+    SimpleLibraryItem(
+      title: "Book",
+      details: "Author",
+      speed: 1,
+      currentTime: 0,
+      duration: 1000,
+      percentCompleted: 0,
+      isFinished: false,
+      relativePath: "book-\(resources?.first?.providerId ?? "none").m4b",
+      remoteURL: nil,
+      artworkURL: nil,
+      orderRank: 0,
+      parentFolder: nil,
+      originalFileName: "book.m4b",
+      lastPlayDate: nil,
+      type: .book,
+      uuid: "UUID-\(resources?.first?.providerId ?? "none")",
+      externalResources: resources
     )
   }
 
@@ -973,6 +1007,54 @@ final class ExternalProgressServiceTests: XCTestCase {
     try? await Task.sleep(nanoseconds: 600_000_000)
 
     XCTAssertTrue(received.isEmpty, "signing out stops a refresh already in flight")
+  }
+
+  /// The gap this closes: the list refresh collected Jellyfin resources only and handed them
+  /// to an ingest typed to a Jellyfin item, so AudiobookShelf items were never refreshed.
+  func testRefreshItemsFoldsInBothProviders() async {
+    let libraryService = LibraryServiceProtocolMock()
+    let jellyfin = ProviderStub { _ in
+      ExternalPlaybackProgress(currentTime: 120, lastPlayedDate: Date(timeIntervalSince1970: 500))
+    }
+    let abs = ProviderStub { _ in
+      ExternalPlaybackProgress(currentTime: 340, lastPlayedDate: Date(timeIntervalSince1970: 900))
+    }
+
+    let sut = ExternalProgressService()
+    sut.setup(libraryService: libraryService, providers: [.jellyfin: jellyfin, .audiobookshelf: abs])
+
+    await sut.refreshItems([
+      makeLibraryItem(resources: [makeResource(provider: "jellyfin", id: "jf-1")]),
+      makeLibraryItem(resources: [makeResource(provider: "audiobookshelf", id: "abs-1")]),
+      makeLibraryItem(resources: [makeResource(provider: "hardcover", id: "12345")]),
+    ])
+
+    XCTAssertEqual(jellyfin.requested, ["jf-1"])
+    XCTAssertEqual(abs.requested, ["abs-1"], "AudiobookShelf items refresh too")
+
+    let ingested = libraryService.handleSyncFromExternalResourceProviderNameProgressByProviderIdReceivedInvocations
+    XCTAssertEqual(
+      Set(ingested.map(\.providerName)),
+      ["jellyfin", "audiobookshelf"],
+      "each provider folds its own answers in, under its own provider name"
+    )
+    XCTAssertFalse(
+      ingested.contains { $0.providerName == "hardcover" },
+      "hardcover hosts nothing, so it is never batched"
+    )
+  }
+
+  func testRefreshItemsDoesNothingWithoutMediaServerResources() async {
+    let libraryService = LibraryServiceProtocolMock()
+    let jellyfin = ProviderStub { _ in XCTFail("must not be asked"); return nil }
+
+    let sut = ExternalProgressService()
+    sut.setup(libraryService: libraryService, providers: [.jellyfin: jellyfin])
+
+    await sut.refreshItems([makeLibraryItem(resources: nil)])
+
+    XCTAssertTrue(jellyfin.requested.isEmpty)
+    XCTAssertEqual(libraryService.handleSyncFromExternalResourceProviderNameProgressByProviderIdCallsCount, 0)
   }
 
   func testTeardownCancelsAnInFlightRefresh() async {

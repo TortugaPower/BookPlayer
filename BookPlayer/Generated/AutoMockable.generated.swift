@@ -10,7 +10,6 @@ import AppKit
 #endif
 
 import Combine
-import CoreData
 import BookPlayerKit
 @testable import BookPlayer
 class LibraryServiceProtocolMock: LibraryServiceProtocol {
@@ -1141,19 +1140,19 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     }
     //MARK: - handleSyncFromExternalResource
 
-    var handleSyncFromExternalResourceRemoteItemsDictionaryCallsCount = 0
-    var handleSyncFromExternalResourceRemoteItemsDictionaryCalled: Bool {
-        return handleSyncFromExternalResourceRemoteItemsDictionaryCallsCount > 0
+    var handleSyncFromExternalResourceProviderNameProgressByProviderIdCallsCount = 0
+    var handleSyncFromExternalResourceProviderNameProgressByProviderIdCalled: Bool {
+        return handleSyncFromExternalResourceProviderNameProgressByProviderIdCallsCount > 0
     }
-    var handleSyncFromExternalResourceRemoteItemsDictionaryReceivedRemoteItemsDictionary: [String: JellyfinLibraryItem]?
-    var handleSyncFromExternalResourceRemoteItemsDictionaryReceivedInvocations: [[String: JellyfinLibraryItem]] = []
-    var handleSyncFromExternalResourceRemoteItemsDictionaryClosure: (([String: JellyfinLibraryItem]) -> Void)?
+    var handleSyncFromExternalResourceProviderNameProgressByProviderIdReceivedArguments: (providerName: String, progressByProviderId: [String: ExternalPlaybackProgress])?
+    var handleSyncFromExternalResourceProviderNameProgressByProviderIdReceivedInvocations: [(providerName: String, progressByProviderId: [String: ExternalPlaybackProgress])] = []
+    var handleSyncFromExternalResourceProviderNameProgressByProviderIdClosure: ((String, [String: ExternalPlaybackProgress]) -> Void)?
     @MainActor
-    func handleSyncFromExternalResource(remoteItemsDictionary: [String: JellyfinLibraryItem]) {
-        handleSyncFromExternalResourceRemoteItemsDictionaryCallsCount += 1
-        handleSyncFromExternalResourceRemoteItemsDictionaryReceivedRemoteItemsDictionary = remoteItemsDictionary
-        handleSyncFromExternalResourceRemoteItemsDictionaryReceivedInvocations.append(remoteItemsDictionary)
-        handleSyncFromExternalResourceRemoteItemsDictionaryClosure?(remoteItemsDictionary)
+    func handleSyncFromExternalResource(providerName: String, progressByProviderId: [String: ExternalPlaybackProgress]) {
+        handleSyncFromExternalResourceProviderNameProgressByProviderIdCallsCount += 1
+        handleSyncFromExternalResourceProviderNameProgressByProviderIdReceivedArguments = (providerName: providerName, progressByProviderId: progressByProviderId)
+        handleSyncFromExternalResourceProviderNameProgressByProviderIdReceivedInvocations.append((providerName: providerName, progressByProviderId: progressByProviderId))
+        handleSyncFromExternalResourceProviderNameProgressByProviderIdClosure?(providerName, progressByProviderId)
     }
 }
 class PlaybackServiceProtocolMock: PlaybackServiceProtocol {

@@ -116,6 +116,7 @@ class MainCoordinator: NSObject {
       .environment(\.playbackService, playbackService)
       .environment(\.preferencesService, preferencesService)
       .environment(\.concurrenceService, concurrenceService)
+      .environment(\.externalProgressService, externalProgressService)
     )
     vc.modalPresentationStyle = .fullScreen
     vc.modalTransitionStyle = .crossDissolve

@@ -32,6 +32,36 @@ public protocol ExternalProgressProviding: Sendable {
   /// The position that resource's OWN server reports, or nil when no saved connection matches
   /// its host — the server isn't configured on this device, so there is nothing to compare.
   func progress(for resource: SimpleExternalResource) async throws -> ExternalPlaybackProgress?
+
+  /// Positions for many resources at once, keyed by providerId.
+  ///
+  /// The resources may span SEVERAL servers of the same provider, so each is resolved to its
+  /// own connection and queried there — a batch is not one request. A resource whose host
+  /// resolves to nothing is simply absent from the result.
+  func progress(forBatch resources: [SimpleExternalResource]) async throws -> [String: ExternalPlaybackProgress]
+}
+
+extension ExternalProgressProviding {
+  /// Groups resources by the connection that owns them, so a caller can query each server
+  /// with only its own ids. Shared by both adapters: the grouping rule is the resolution
+  /// contract, not provider-specific.
+  func grouped<C: IntegrationHostIdentifiable>(
+    _ resources: [SimpleExternalResource],
+    by connections: [C]
+  ) -> [(connection: C, resources: [SimpleExternalResource])] {
+    var byConnectionIndex: [Int: [SimpleExternalResource]] = [:]
+
+    for resource in resources {
+      guard
+        let connection = IntegrationHostResolver.connection(for: resource.hostId, in: connections),
+        let index = connections.firstIndex(where: { $0.stableHostId == connection.stableHostId })
+      else { continue }
+
+      byConnectionIndex[index, default: []].append(resource)
+    }
+
+    return byConnectionIndex.map { (connections[$0.key], $0.value) }
+  }
 }
 
 /// Stateless: the connection service is built per call rather than held.
@@ -66,6 +96,30 @@ public struct JellyfinProgressProvider: ExternalProgressProviding {
       isFinished: item.isFinished
     )
   }
+
+  public func progress(
+    forBatch resources: [SimpleExternalResource]
+  ) async throws -> [String: ExternalPlaybackProgress] {
+    let service = await JellyfinConnectionService()
+    await service.setup()
+
+    var progress: [String: ExternalPlaybackProgress] = [:]
+
+    for group in grouped(resources, by: await service.connections) {
+      await service.useConnection(group.connection)
+
+      let items = try await service.updateItemsFromJellyfin(group.resources)
+      for (providerId, item) in items {
+        progress[providerId] = ExternalPlaybackProgress(
+          currentTime: TimeInterval(item.currentSeconds ?? 0),
+          lastPlayedDate: item.lastPlayedDate,
+          isFinished: item.isFinished
+        )
+      }
+    }
+
+    return progress
+  }
 }
 
 /// Same shape as `JellyfinProgressProvider`, including why it holds no connection service.
@@ -92,5 +146,28 @@ public struct AudiobookShelfProgressProvider: ExternalProgressProviding {
       lastPlayedDate: item.lastPlayedDate,
       isFinished: item.isFinished
     )
+  }
+
+  public func progress(
+    forBatch resources: [SimpleExternalResource]
+  ) async throws -> [String: ExternalPlaybackProgress] {
+    let service = await AudiobookShelfConnectionService()
+    await service.setup()
+
+    var progress: [String: ExternalPlaybackProgress] = [:]
+
+    for group in grouped(resources, by: await service.connections) {
+      await service.useConnection(group.connection)
+
+      for item in try await service.fetchItems(ids: group.resources.map(\.providerId)) {
+        progress[item.id] = ExternalPlaybackProgress(
+          currentTime: item.currentTime ?? 0,
+          lastPlayedDate: item.lastPlayedDate,
+          isFinished: item.isFinished
+        )
+      }
+    }
+
+    return progress
   }
 }

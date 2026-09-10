@@ -186,7 +186,11 @@ public protocol LibraryServiceProtocol: AnyObject {
   // Sourcery-generated mock property names.
   @MainActor func insertItems(fromResources resources: [SimpleExternalResource]) async -> [SimpleLibraryItem]
   
-  @MainActor func handleSyncFromExternalResource(remoteItemsDictionary: [String: JellyfinLibraryItem])
+  /// Fold positions reported by a provider's servers into the local rows.
+  @MainActor func handleSyncFromExternalResource(
+    providerName: String,
+    progressByProviderId: [String: ExternalPlaybackProgress]
+  )
 }
 
 // swiftlint:disable force_cast
@@ -2941,13 +2945,19 @@ extension LibraryService {
     return snapshots
   }
   
-  @MainActor public func handleSyncFromExternalResource(remoteItemsDictionary: [String: JellyfinLibraryItem]) {
-    let remoteKeys = Array(remoteItemsDictionary.keys)
-    
+  /// Provider-neutral on purpose: this only ever used the position, the date and the finished
+  /// flag, and typing it to `JellyfinLibraryItem` is what kept AudiobookShelf items from being
+  /// refreshed at all — the caller could not even express an ABS batch.
+  @MainActor public func handleSyncFromExternalResource(
+    providerName: String,
+    progressByProviderId: [String: ExternalPlaybackProgress]
+  ) {
+    let remoteKeys = Array(progressByProviderId.keys)
+
     let fetch: NSFetchRequest<ExternalResource> = ExternalResource.fetchRequest()
     fetch.predicate = NSPredicate(
       format: "%K == %@ AND %K IN %@",
-      #keyPath(ExternalResource.providerName), ExternalResource.ProviderName.jellyfin.rawValue,
+      #keyPath(ExternalResource.providerName), providerName,
       #keyPath(ExternalResource.providerId), remoteKeys
     )
     let context = self.dataManager.getContext()
@@ -2958,7 +2968,7 @@ extension LibraryService {
       for localResource in localResources {
         // We already know this exists because of our predicate!
         guard let localItem = localResource.libraryItem,
-              let remoteItem = remoteItemsDictionary[localResource.providerId] else {
+              let remoteItem = progressByProviderId[localResource.providerId] else {
           continue
         }
         
@@ -2966,7 +2976,7 @@ extension LibraryService {
         let remoteDate = remoteItem.lastPlayedDate ?? .distantPast
         
         if remoteDate > localDate {
-          localItem.currentTime = Double(remoteItem.currentSeconds ?? 0)
+          localItem.currentTime = remoteItem.currentTime
           localItem.isFinished = remoteItem.isFinished ?? localItem.isFinished
           localItem.lastPlayDate = remoteDate
           // The library row's progress bar renders percentCompleted, not currentTime —

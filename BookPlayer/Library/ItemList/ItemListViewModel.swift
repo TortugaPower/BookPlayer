@@ -18,6 +18,7 @@ final class ItemListViewModel: ObservableObject, BPLogger {
   let playerState: PlayerState
   private let syncService: SyncService
   private let listSyncRefreshService: ListSyncRefreshService
+  private let externalProgressService: ExternalProgressService
   private let loadingState: LoadingOverlayState
   private let listState: ListStateManager
   let singleFileDownloadService: SingleFileDownloadService
@@ -107,6 +108,7 @@ final class ItemListViewModel: ObservableObject, BPLogger {
     playerState: PlayerState,
     syncService: SyncService,
     listSyncRefreshService: ListSyncRefreshService,
+    externalProgressService: ExternalProgressService,
     loadingState: LoadingOverlayState,
     listState: ListStateManager,
     singleFileDownloadService: SingleFileDownloadService
@@ -118,6 +120,7 @@ final class ItemListViewModel: ObservableObject, BPLogger {
     self.playerState = playerState
     self.syncService = syncService
     self.listSyncRefreshService = listSyncRefreshService
+    self.externalProgressService = externalProgressService
     self.loadingState = loadingState
     self.listState = listState
     self.singleFileDownloadService = singleFileDownloadService
@@ -868,37 +871,11 @@ extension ItemListViewModel {
     }
   }
   
+  /// Fold in what the items' own media servers report. The grouping-by-server and the
+  /// per-provider batching live in ExternalProgressService now, which is also why
+  /// AudiobookShelf items refresh here at all — this used to collect Jellyfin resources only.
   func updateFromResource() async {
-    let jellyfinResources = self.items.compactMap { item in
-      item.externalResources?.first { $0.providerName == ExternalResource.ProviderName.jellyfin.rawValue }
-    }
-    guard !jellyfinResources.isEmpty else { return }
-
-    // A throwaway service instance: pinning connections on the SHARED environment service
-    // would silently repoint the UI's active connection after this refresh.
-    let jellyfinService = JellyfinConnectionService()
-    jellyfinService.setup()
-
-    // Resources can belong to DIFFERENT servers — group them by their resolved connection and
-    // query each server for its own items. Resources whose host doesn't match any saved
-    // connection are skipped (their provider ids mean nothing to another server).
-    let connections = jellyfinService.connections
-    var resourcesByConnectionID: [String: [SimpleExternalResource]] = [:]
-    for resource in jellyfinResources {
-      guard let connection = IntegrationHostResolver.connection(for: resource.hostId, in: connections) else { continue }
-      resourcesByConnectionID[connection.id, default: []].append(resource)
-    }
-
-    var results: [String: JellyfinLibraryItem] = [:]
-    for (connectionID, resources) in resourcesByConnectionID {
-      guard let connection = connections.first(where: { $0.id == connectionID }) else { continue }
-      jellyfinService.useConnection(connection)
-      guard let batch = try? await jellyfinService.updateItemsFromJellyfin(resources) else { continue }
-      results.merge(batch) { _, new in new }
-    }
-    guard !results.isEmpty else { return }
-
-    libraryService.handleSyncFromExternalResource(remoteItemsDictionary: results)
+    await externalProgressService.refreshItems(items)
   }
 }
 

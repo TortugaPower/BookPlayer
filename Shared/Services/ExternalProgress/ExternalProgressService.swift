@@ -113,6 +113,39 @@ public final class ExternalProgressService {
     stateLock.unlock()
   }
 
+  /// Refresh the positions of items already on screen, so a list shows what the user's other
+  /// devices did without waiting for them to open each book.
+  ///
+  /// Every provider is asked in parallel and each folds its own answers in, so AudiobookShelf
+  /// items refresh alongside Jellyfin ones — they never did before, because the ingest was
+  /// typed to a Jellyfin item and the caller collected only Jellyfin resources.
+  public func refreshItems(_ items: [SimpleLibraryItem]) async {
+    let resources = items.flatMap { $0.externalResources?.mediaServerResources ?? [] }
+    guard !resources.isEmpty else { return }
+
+    let byProvider = Dictionary(grouping: resources) { $0.providerName }
+
+    await withTaskGroup(of: (String, [String: ExternalPlaybackProgress]).self) { group in
+      for (providerName, providerResources) in byProvider {
+        guard
+          let name = ExternalResource.ProviderName(rawValue: providerName),
+          let provider = providers[name]
+        else { continue }
+
+        group.addTask {
+          (providerName, (try? await provider.progress(forBatch: providerResources)) ?? [:])
+        }
+      }
+
+      for await (providerName, progress) in group where !progress.isEmpty {
+        await libraryService.handleSyncFromExternalResource(
+          providerName: providerName,
+          progressByProviderId: progress
+        )
+      }
+    }
+  }
+
   /// Cancels any refresh in flight. Called on logout, the same lifecycle hook SyncService uses.
   public func teardown() {
     stateLock.lock()
