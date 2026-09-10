@@ -1080,3 +1080,175 @@ final class ExternalProgressServiceTests: XCTestCase {
     XCTAssertTrue(received.isEmpty, "logout stops work that is already in flight")
   }
 }
+
+// MARK: - External stream resolution
+
+/// Stream URLs, auth headers and the unresolved-host flag. None of this could be tested while
+/// the logic sat inside PlaybackService.getPlayableChapters with its own KeychainService().
+final class ExternalStreamResolverTests: XCTestCase {
+  private func makeResource(provider: String, id: String, hostId: String?) -> SimpleExternalResource {
+    SimpleExternalResource(
+      providerName: provider,
+      providerId: id,
+      syncStatus: ExternalResource.SyncStatus.stream.rawValue,
+      lastSyncedAt: nil,
+      hostId: hostId,
+      libraryItem: nil
+    )
+  }
+
+  private func makeKeychain(customHeaders: [String: String] = [:]) throws -> KeychainStub {
+    let keychain = KeychainStub()
+    try keychain.set(
+      [
+        JellyfinConnectionData(
+          serverId: "GUID-JELLY",
+          url: URL(string: "https://jelly.example.com")!,
+          serverName: "Jelly",
+          userID: "u1",
+          userName: "user",
+          accessToken: "jelly-token",
+          customHeaders: customHeaders
+        )
+      ],
+      key: .jellyfinConnection
+    )
+    return keychain
+  }
+
+  func testResolvesTheResourcesOwnServerWithItsAuthHeader() throws {
+    let sut = ExternalStreamResolver(keychain: try makeKeychain())
+
+    let source = sut.streamSource(for: makeResource(provider: "jellyfin", id: "item-1", hostId: "guid-jelly"))
+
+    XCTAssertEqual(source?.url.host, "jelly.example.com")
+    XCTAssertEqual(
+      source?.headers["Authorization"],
+      "MediaBrowser Token=\"jelly-token\"",
+      "the integration's own token authorises the stream, never the BookPlayer JWT"
+    )
+  }
+
+  /// The contract shared with the Android app: an unmatched host resolves to nothing rather
+  /// than streaming from whichever server happens to be configured.
+  func testDoesNotFallBackToAnotherServer() throws {
+    let sut = ExternalStreamResolver(keychain: try makeKeychain())
+
+    XCTAssertNil(
+      sut.streamSource(for: makeResource(provider: "jellyfin", id: "item-1", hostId: "guid-somewhere-else"))
+    )
+  }
+
+  /// Custom headers exist for reverse-proxy gates; the integration's Authorization must win,
+  /// and a lowercase user-configured key must not fight it.
+  func testIntegrationAuthorizationWinsOverACustomHeader() throws {
+    let keychain = try makeKeychain(customHeaders: [
+      "CF-Access-Client-Id": "cf-id",
+      "authorization": "Bearer user-configured",
+    ])
+    let sut = ExternalStreamResolver(keychain: keychain)
+
+    let source = sut.streamSource(for: makeResource(provider: "jellyfin", id: "item-1", hostId: "guid-jelly"))
+
+    XCTAssertEqual(source?.headers["CF-Access-Client-Id"], "cf-id", "proxy gates survive")
+    XCTAssertEqual(source?.headers["Authorization"], "MediaBrowser Token=\"jelly-token\"")
+    XCTAssertEqual(
+      source?.headers.filter { $0.key.caseInsensitiveCompare("Authorization") == .orderedSame }.count,
+      1,
+      "one Authorization header, not two spellings of it"
+    )
+  }
+
+  func testHardcoverStreamsFromNowhere() throws {
+    let sut = ExternalStreamResolver(keychain: try makeKeychain())
+
+    XCTAssertNil(sut.streamSource(for: makeResource(provider: "hardcover", id: "12345", hostId: nil)))
+  }
+}
+
+/// The flag PlaybackService puts on every chapter, now reachable because resolution is injected.
+final class PlayableChapterExternalHostTests: XCTestCase {
+  private struct ResolverStub: ExternalStreamResolving {
+    let source: ExternalStreamSource?
+    func streamSource(for resource: SimpleExternalResource) -> ExternalStreamSource? { source }
+  }
+
+  private func makeItem(resources: [SimpleExternalResource]?) -> SimpleLibraryItem {
+    SimpleLibraryItem(
+      title: "Book",
+      details: "Author",
+      speed: 1,
+      currentTime: 0,
+      duration: 100,
+      percentCompleted: 0,
+      isFinished: false,
+      relativePath: "book.m4b",
+      remoteURL: nil,
+      artworkURL: nil,
+      orderRank: 0,
+      parentFolder: nil,
+      originalFileName: "book.m4b",
+      lastPlayDate: nil,
+      type: .book,
+      uuid: "UUID",
+      externalResources: resources
+    )
+  }
+
+  private func makeSUT(resolved: Bool) -> PlaybackService {
+    let libraryService = LibraryServiceProtocolMock()
+    libraryService.getChaptersFromReturnValue = [
+      SimpleChapter(title: "Chapter", start: 0, duration: 100, index: 1)
+    ]
+
+    let sut = PlaybackService()
+    sut.setup(
+      libraryService: libraryService,
+      streamResolver: ResolverStub(
+        source: resolved
+          ? ExternalStreamSource(
+            url: URL(string: "https://jelly.example.com/stream")!,
+            headers: ["Authorization": "MediaBrowser Token=\"t\""]
+          )
+          : nil
+      )
+    )
+    return sut
+  }
+
+  private func mediaServerResource() -> SimpleExternalResource {
+    SimpleExternalResource(
+      providerName: "jellyfin",
+      providerId: "item-1",
+      syncStatus: ExternalResource.SyncStatus.stream.rawValue,
+      lastSyncedAt: nil,
+      hostId: "guid-jelly",
+      libraryItem: nil
+    )
+  }
+
+  func testResolvedResourceCarriesTheStreamUrlAndNoUnresolvedFlag() throws {
+    let chapters = try makeSUT(resolved: true).getPlayableChapters(book: makeItem(resources: [mediaServerResource()]))
+
+    XCTAssertEqual(chapters.first?.externalUrl?.host, "jelly.example.com")
+    XCTAssertEqual(chapters.first?.externalHeaders["Authorization"], "MediaBrowser Token=\"t\"")
+    XCTAssertFalse(chapters.first?.hasUnresolvedExternalHost ?? true)
+  }
+
+  /// The case the Media Servers shortcut depends on: a media-server item whose host resolves
+  /// to nothing on this device.
+  func testUnresolvedHostSetsTheFlagWithNoStreamUrl() throws {
+    let chapters = try makeSUT(resolved: false).getPlayableChapters(book: makeItem(resources: [mediaServerResource()]))
+
+    XCTAssertNil(chapters.first?.externalUrl)
+    XCTAssertTrue(chapters.first?.hasUnresolvedExternalHost ?? false)
+  }
+
+  /// A plain local book has no media server, so a missing file is not a server problem.
+  func testItemWithoutResourcesNeverSetsTheFlag() throws {
+    let chapters = try makeSUT(resolved: false).getPlayableChapters(book: makeItem(resources: nil))
+
+    XCTAssertNil(chapters.first?.externalUrl)
+    XCTAssertFalse(chapters.first?.hasUnresolvedExternalHost ?? true)
+  }
+}

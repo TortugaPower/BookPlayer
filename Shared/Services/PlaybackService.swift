@@ -32,11 +32,18 @@ public protocol PlaybackServiceProtocol {
 @Observable
 public final class PlaybackService: PlaybackServiceProtocol {
   var libraryService: LibraryServiceProtocol!
+  /// Defaulted so watchOS keeps its one-argument `setup` — the watch stores no media-server
+  /// connections, so resolution there correctly finds nothing.
+  var streamResolver: ExternalStreamResolving = ExternalStreamResolver()
 
   public init() {}
 
-  public func setup(libraryService: LibraryServiceProtocol) {
+  public func setup(
+    libraryService: LibraryServiceProtocol,
+    streamResolver: ExternalStreamResolving = ExternalStreamResolver()
+  ) {
     self.libraryService = libraryService
+    self.streamResolver = streamResolver
   }
 
   public func updatePlaybackTime(item: PlayableItem, time: Double) {
@@ -221,57 +228,12 @@ public final class PlaybackService: PlaybackServiceProtocol {
     /// Ignore chapters that don't have the duration set properly
     chapters = chapters.filter { $0.duration > 0 }
 
-    // Resolve connection info once for the book
-    var externalUrl: URL?
-    var externalHeaders: [String: String] = [:]
-    
+    // Resolution — which server, which URL, which auth headers — belongs to the resolver;
+    // this only records the outcome onto the chapters.
     let externalResource = book.externalResources?.streamingResource
-    if let providerRaw = externalResource?.providerName,
-       let provider = ExternalResource.ProviderName(rawValue: providerRaw) {
-      
-      let keychainService = KeychainService()
-      let hostId = externalResource?.hostId ?? ""
-      
-      switch provider {
-      case .jellyfin:
-        let connections: [JellyfinConnectionData] = (try? keychainService.get(.jellyfinConnection)) ?? []
-        // Resolved by stable host identity ONLY — no first-connection fallback. A resource whose
-        // host doesn't match any saved server must surface as missing (connect-your-server), not
-        // silently stream from whichever server happens to be configured (shared Android contract).
-        let connection = IntegrationHostResolver.connection(for: hostId, in: connections)
-        
-        if let connection = connection, let externalResource = externalResource {
-          let urlString = connection.buildDownloadUrl(providerId: externalResource.providerId)
-          externalUrl = URL(string: urlString)
-          // Custom headers first (reverse-proxy gates like Cloudflare Access), then the
-          // integration's own Authorization so it always wins on conflict.
-          // Case-insensitive dedup: a user-configured lowercase "authorization" must not
-          // fight the integration's own header (same rule as JellyfinHeaderInjector).
-          externalHeaders = connection.customHeaders.filter {
-            $0.key.caseInsensitiveCompare("Authorization") != .orderedSame
-          }
-          externalHeaders["Authorization"] = "MediaBrowser Token=\"\(connection.accessToken)\""
-        }
-        
-      case .audiobookshelf:
-        let connections: [AudiobookShelfConnectionData] = (try? keychainService.get(.audiobookshelfConnection)) ?? []
-        let connection = IntegrationHostResolver.connection(for: hostId, in: connections)
-        
-        if let connection = connection, let externalResource = externalResource {
-          let urlString = connection.buildAudiobookshelfDownloadUrl(providerId: externalResource.providerId)
-          externalUrl = URL(string: urlString)
-          // Case-insensitive dedup: a user-configured lowercase "authorization" must not
-          // fight the integration's own header (same rule as JellyfinHeaderInjector).
-          externalHeaders = connection.customHeaders.filter {
-            $0.key.caseInsensitiveCompare("Authorization") != .orderedSame
-          }
-          externalHeaders["Authorization"] = "Bearer \(connection.apiToken)"
-        }
-        
-      default:
-        break
-      }
-    }
+    let streamSource = externalResource.flatMap { streamResolver.streamSource(for: $0) }
+    let externalUrl = streamSource?.url
+    let externalHeaders = streamSource?.headers ?? [:]
 
     // The resource exists but nothing matched its host, which is the only way the switch
     // above leaves externalUrl nil for a media-server item: the file can't be streamed or
