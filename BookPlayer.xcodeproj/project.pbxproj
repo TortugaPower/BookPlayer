@@ -284,6 +284,8 @@
 		41F1A20D254B0A0C0043FCF3 /* Sentry in Frameworks */ = {isa = PBXBuildFile; productRef = 41F1A20C254B0A0C0043FCF3 /* Sentry */; };
 		41F1A228254B0C6C0043FCF3 /* ZipArchive in Frameworks */ = {isa = PBXBuildFile; productRef = 41F1A227254B0C6C0043FCF3 /* ZipArchive */; };
 		45FE3490229249F95A3CF5FF /* IntegrationHostResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3451CA062919E03CEB975E92 /* IntegrationHostResolver.swift */; };
+		F2083D16D6C22A37C49AC2B7 /* ExternalProgressProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97ADE40DF29059A5B97E37D6 /* ExternalProgressProviding.swift */; };
+		ED7E919E39E0454432171664 /* ExternalProgressService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C85605CDB6C6075AADBE2D15 /* ExternalProgressService.swift */; };
 		4645F9FD2D1E46AC00A04257 /* SwipeInlineTip.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4645F9FC2D1E46AC00A04257 /* SwipeInlineTip.swift */; };
 		465D87522D3195D600A4AA47 /* BookmarksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 465D87512D3195D600A4AA47 /* BookmarksView.swift */; };
 		465D87542D31965100A4AA47 /* BookmarksViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 465D87532D31965100A4AA47 /* BookmarksViewModel.swift */; };
@@ -935,6 +937,8 @@
 		AE284AB4D4139ED869288F99 /* IntegrationConnectionPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A8030B619D18CA088DAA40A /* IntegrationConnectionPayload.swift */; };
 		B14881000000000000000001 /* IntegrationCustomHeadersSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B14881000000000000000002 /* IntegrationCustomHeadersSectionView.swift */; };
 		B16A2A4FFFE86D46E799A773 /* IntegrationHostResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3451CA062919E03CEB975E92 /* IntegrationHostResolver.swift */; };
+		CF9C88BC3DDD1AE5833E2106 /* ExternalProgressProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97ADE40DF29059A5B97E37D6 /* ExternalProgressProviding.swift */; };
+		CDA937D56B8AFBA03402E979 /* ExternalProgressService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C85605CDB6C6075AADBE2D15 /* ExternalProgressService.swift */; };
 		B26B34D894351E8452FBB64B /* IntegrationServerInformationSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = A5F919ABFCEF9B58EFE9D82E /* IntegrationServerInformationSectionView.swift */; };
 		B7F1E4A9D2C5B8F0A6E3C12A /* IntegrationImageSizing.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4D9C8B6E5F1D2A7C4E9B81B /* IntegrationImageSizing.swift */; };
 		BF96AEBA456420ADE446427F /* URL+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5126F120258E9F18009965DC /* URL+BookPlayer.swift */; };
@@ -1147,6 +1151,8 @@
 		2E070421575334E1CD85C049 /* IntegrationLibraryViewModelProtocol.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = IntegrationLibraryViewModelProtocol.swift; sourceTree = "<group>"; };
 		3373A34FC2536111E50BF868 /* PasskeyEmailInputView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PasskeyEmailInputView.swift; sourceTree = "<group>"; };
 		3451CA062919E03CEB975E92 /* IntegrationHostResolver.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = IntegrationHostResolver.swift; sourceTree = "<group>"; };
+		97ADE40DF29059A5B97E37D6 /* ExternalProgressProviding.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ExternalProgressProviding.swift; sourceTree = "<group>"; };
+		C85605CDB6C6075AADBE2D15 /* ExternalProgressService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ExternalProgressService.swift; sourceTree = "<group>"; };
 		35C564A7BDE3A2D98E02BF8B /* IntegrationConnectedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationConnectedView.swift; sourceTree = "<group>"; };
 		3724BB21B1B88177C60BE4D8 /* IntegrationConnectionFormViewModelProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationConnectionFormViewModelProtocol.swift; sourceTree = "<group>"; };
 		377C4C967D9AE1D471C2207C /* WebAuthenticating.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WebAuthenticating.swift; sourceTree = "<group>"; };
@@ -2835,6 +2841,7 @@
 				64957AF0989CEBEEEC40E4BB /* Preferences */,
 				FEEDBABE0000000000000001 /* SharedWidgetStore.swift */,
 				9911FBAA2F71CD1600DC9A2B /* ConcurrentSync */,
+				D95DF238A734AE606D62DADB /* ExternalProgress */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -3400,6 +3407,15 @@
 				8AE4AAC42CCBA16F00BAA927 /* JellyfinConnectionViewModel.swift */,
 			);
 			path = "Connection Screen";
+			sourceTree = "<group>";
+		};
+		D95DF238A734AE606D62DADB /* ExternalProgress */ = {
+			isa = PBXGroup;
+			children = (
+				97ADE40DF29059A5B97E37D6 /* ExternalProgressProviding.swift */,
+				C85605CDB6C6075AADBE2D15 /* ExternalProgressService.swift */,
+			);
+			path = ExternalProgress;
 			sourceTree = "<group>";
 		};
 		9911FBAA2F71CD1600DC9A2B /* ConcurrentSync */ = {
@@ -4792,6 +4808,8 @@
 				EF5A25679D73F58A5D551D01 /* IntegrationConnectionStore.swift in Sources */,
 				8AC2579BAAAAFE0091DA9285 /* PKCE.swift in Sources */,
 				45FE3490229249F95A3CF5FF /* IntegrationHostResolver.swift in Sources */,
+				F2083D16D6C22A37C49AC2B7 /* ExternalProgressProviding.swift in Sources */,
+				ED7E919E39E0454432171664 /* ExternalProgressService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5414,6 +5432,8 @@
 				F575EA7BBE6C619D27225281 /* IntegrationConnectionStore.swift in Sources */,
 				77980C5A9B7CF1A948FE7CF1 /* PKCE.swift in Sources */,
 				B16A2A4FFFE86D46E799A773 /* IntegrationHostResolver.swift in Sources */,
+				CF9C88BC3DDD1AE5833E2106 /* ExternalProgressProviding.swift in Sources */,
+				CDA937D56B8AFBA03402E979 /* ExternalProgressService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

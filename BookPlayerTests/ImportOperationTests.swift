@@ -697,3 +697,252 @@ final class ItemDetailsLoadTests: XCTestCase {
     XCTAssertTrue(sut.resolvedExternalHosts.isEmpty)
   }
 }
+
+// MARK: - External progress pull
+
+/// The inbound half of media-server progress sync, extracted out of ItemListViewModel.
+@MainActor
+final class ExternalProgressServiceTests: XCTestCase {
+  /// Records what it was asked and answers from a script, so a test can assert the fan-out
+  /// without a server, a keychain, or a network.
+  private final class ProviderStub: ExternalProgressProviding, @unchecked Sendable {
+    private let lock = NSLock()
+    private var _requested: [String] = []
+    private let answer: @Sendable (SimpleExternalResource) async throws -> ExternalPlaybackProgress?
+
+    var requested: [String] {
+      lock.lock()
+      defer { lock.unlock() }
+      return _requested
+    }
+
+    init(answer: @escaping @Sendable (SimpleExternalResource) async throws -> ExternalPlaybackProgress?) {
+      self.answer = answer
+    }
+
+    func progress(for resource: SimpleExternalResource) async throws -> ExternalPlaybackProgress? {
+      lock.lock()
+      _requested.append(resource.providerId)
+      lock.unlock()
+      return try await answer(resource)
+    }
+  }
+
+  private func makeResource(provider: String, id: String) -> SimpleExternalResource {
+    SimpleExternalResource(
+      providerName: provider,
+      providerId: id,
+      syncStatus: ExternalResource.SyncStatus.stream.rawValue,
+      lastSyncedAt: nil,
+      hostId: "guid-host",
+      libraryItem: nil
+    )
+  }
+
+  private func makeItem(uuid: String, currentTime: TimeInterval, lastPlayDate: Date?) -> PlayableItem {
+    PlayableItem(
+      title: "Book",
+      author: "Author",
+      chapters: [
+        PlayableChapter(
+          title: "Chapter",
+          author: "Author",
+          start: 0,
+          duration: 1000,
+          relativePath: "book.m4b",
+          remoteURL: nil,
+          externalURL: nil,
+          index: 1
+        )
+      ],
+      currentTime: currentTime,
+      duration: 1000,
+      relativePath: "book.m4b",
+      uuid: uuid,
+      parentFolder: nil,
+      percentCompleted: 0,
+      lastPlayDate: lastPlayDate,
+      isFinished: false,
+      isBoundBook: false
+    )
+  }
+
+  // MARK: the decision rule
+
+  func testPromptsWhenTheRemoteDateIsNewerBeyondTheThreshold() {
+    let position = ExternalProgressService.promptablePosition(
+      localTime: 100,
+      localDate: Date(timeIntervalSince1970: 1000),
+      candidates: [ExternalPlaybackProgress(currentTime: 90, lastPlayedDate: Date(timeIntervalSince1970: 1100))]
+    )
+
+    XCTAssertEqual(position?.currentTime, 90, "a newer date prompts even when the position is behind")
+  }
+
+  func testDoesNotPromptInsideTheThreshold() {
+    let position = ExternalProgressService.promptablePosition(
+      localTime: 100,
+      localDate: Date(timeIntervalSince1970: 1000),
+      candidates: [ExternalPlaybackProgress(currentTime: 110, lastPlayedDate: Date(timeIntervalSince1970: 1005))]
+    )
+
+    XCTAssertNil(position, "10s of drift on the book you are listening to is not another device")
+  }
+
+  func testPromptsWhenTheRemotePositionIsFartherWithoutADate() {
+    let position = ExternalProgressService.promptablePosition(
+      localTime: 100,
+      localDate: Date(timeIntervalSince1970: 1000),
+      candidates: [ExternalPlaybackProgress(currentTime: 400, lastPlayedDate: nil)]
+    )
+
+    XCTAssertEqual(position?.currentTime, 400, "a server reporting no date still counts on position")
+  }
+
+  /// The rule SyncService.handleSyncedLastPlayed uses for our own cloud: newest date wins.
+  func testNewestCandidateWinsAcrossServers() {
+    let older = ExternalPlaybackProgress(currentTime: 900, lastPlayedDate: Date(timeIntervalSince1970: 1100))
+    let newer = ExternalPlaybackProgress(currentTime: 300, lastPlayedDate: Date(timeIntervalSince1970: 2000))
+
+    let position = ExternalProgressService.promptablePosition(
+      localTime: 100,
+      localDate: Date(timeIntervalSince1970: 1000),
+      candidates: [older, newer]
+    )
+
+    XCTAssertEqual(position, newer, "the most recently played server wins, not the farthest position")
+  }
+
+  func testNoCandidatesMeansNoPrompt() {
+    XCTAssertNil(
+      ExternalProgressService.promptablePosition(localTime: 100, localDate: nil, candidates: [])
+    )
+  }
+
+  // MARK: the service
+
+  func testAsksEveryLinkedServerConcurrentlyAndPublishesTheNewest() async {
+    let libraryService = LibraryServiceProtocolMock()
+    libraryService.findResourcesForReturnValue = [
+      makeResource(provider: "jellyfin", id: "jf-1"),
+      makeResource(provider: "audiobookshelf", id: "abs-1"),
+    ]
+
+    let jellyfin = ProviderStub { _ in
+      ExternalPlaybackProgress(currentTime: 800, lastPlayedDate: Date(timeIntervalSince1970: 1100))
+    }
+    let abs = ProviderStub { _ in
+      ExternalPlaybackProgress(currentTime: 200, lastPlayedDate: Date(timeIntervalSince1970: 5000))
+    }
+
+    let sut = ExternalProgressService()
+    sut.setup(libraryService: libraryService, providers: [.jellyfin: jellyfin, .audiobookshelf: abs])
+
+    var received: [ExternalPlaybackProgress] = []
+    let cancellable = sut.promptablePositionPublisher.sink { received.append($0) }
+    defer { cancellable.cancel() }
+
+    sut.refreshProgress(for: makeItem(uuid: "UUID", currentTime: 100, lastPlayDate: Date(timeIntervalSince1970: 1000)))
+    try? await Task.sleep(nanoseconds: 300_000_000)
+
+    XCTAssertEqual(jellyfin.requested, ["jf-1"], "both servers are asked")
+    XCTAssertEqual(abs.requested, ["abs-1"])
+    XCTAssertEqual(received.count, 1)
+    XCTAssertEqual(received.first?.currentTime, 200, "the newest date wins across providers")
+  }
+
+  func testOneFailingServerDoesNotSilenceTheOther() async {
+    let libraryService = LibraryServiceProtocolMock()
+    libraryService.findResourcesForReturnValue = [
+      makeResource(provider: "jellyfin", id: "jf-1"),
+      makeResource(provider: "audiobookshelf", id: "abs-1"),
+    ]
+
+    let failing = ProviderStub { _ in throw URLError(.timedOut) }
+    let working = ProviderStub { _ in
+      ExternalPlaybackProgress(currentTime: 700, lastPlayedDate: Date(timeIntervalSince1970: 9000))
+    }
+
+    let sut = ExternalProgressService()
+    sut.setup(libraryService: libraryService, providers: [.jellyfin: failing, .audiobookshelf: working])
+
+    var received: [ExternalPlaybackProgress] = []
+    let cancellable = sut.promptablePositionPublisher.sink { received.append($0) }
+    defer { cancellable.cancel() }
+
+    sut.refreshProgress(for: makeItem(uuid: "UUID", currentTime: 0, lastPlayDate: nil))
+    try? await Task.sleep(nanoseconds: 300_000_000)
+
+    XCTAssertEqual(received.first?.currentTime, 700, "a thrown error takes out only its own provider")
+  }
+
+  /// Hardcover shares the resource relationship but hosts nothing, so it must never be asked.
+  func testSkipsResourcesWithNoMediaServerProvider() async {
+    let libraryService = LibraryServiceProtocolMock()
+    libraryService.findResourcesForReturnValue = [makeResource(provider: "hardcover", id: "12345")]
+
+    let jellyfin = ProviderStub { _ in XCTFail("hardcover must not reach a provider"); return nil }
+
+    let sut = ExternalProgressService()
+    sut.setup(libraryService: libraryService, providers: [.jellyfin: jellyfin])
+
+    var received: [ExternalPlaybackProgress] = []
+    let cancellable = sut.promptablePositionPublisher.sink { received.append($0) }
+    defer { cancellable.cancel() }
+
+    sut.refreshProgress(for: makeItem(uuid: "UUID", currentTime: 0, lastPlayDate: nil))
+    try? await Task.sleep(nanoseconds: 200_000_000)
+
+    XCTAssertTrue(jellyfin.requested.isEmpty)
+    XCTAssertTrue(received.isEmpty)
+  }
+
+  /// The bug that started the extraction: a slow answer for a book the user already left
+  /// must not raise a prompt carrying that book's position.
+  func testAnswerForASupersededItemIsDiscarded() async {
+    let libraryService = LibraryServiceProtocolMock()
+    libraryService.findResourcesForReturnValue = [makeResource(provider: "jellyfin", id: "jf-1")]
+
+    let slow = ProviderStub { _ in
+      try? await Task.sleep(nanoseconds: 250_000_000)
+      return ExternalPlaybackProgress(currentTime: 900, lastPlayedDate: Date(timeIntervalSince1970: 9000))
+    }
+
+    let sut = ExternalProgressService()
+    sut.setup(libraryService: libraryService, providers: [.jellyfin: slow])
+
+    var received: [ExternalPlaybackProgress] = []
+    let cancellable = sut.promptablePositionPublisher.sink { received.append($0) }
+    defer { cancellable.cancel() }
+
+    sut.refreshProgress(for: makeItem(uuid: "FIRST", currentTime: 0, lastPlayDate: nil))
+    // A different book starts before the first answer lands.
+    sut.refreshProgress(for: makeItem(uuid: "SECOND", currentTime: 0, lastPlayDate: nil))
+    try? await Task.sleep(nanoseconds: 700_000_000)
+
+    XCTAssertEqual(received.count, 1, "only the item that is playing now can prompt")
+  }
+
+  func testTeardownCancelsAnInFlightRefresh() async {
+    let libraryService = LibraryServiceProtocolMock()
+    libraryService.findResourcesForReturnValue = [makeResource(provider: "jellyfin", id: "jf-1")]
+
+    let slow = ProviderStub { _ in
+      try? await Task.sleep(nanoseconds: 250_000_000)
+      return ExternalPlaybackProgress(currentTime: 900, lastPlayedDate: Date(timeIntervalSince1970: 9000))
+    }
+
+    let sut = ExternalProgressService()
+    sut.setup(libraryService: libraryService, providers: [.jellyfin: slow])
+
+    var received: [ExternalPlaybackProgress] = []
+    let cancellable = sut.promptablePositionPublisher.sink { received.append($0) }
+    defer { cancellable.cancel() }
+
+    sut.refreshProgress(for: makeItem(uuid: "UUID", currentTime: 0, lastPlayDate: nil))
+    sut.teardown()
+    try? await Task.sleep(nanoseconds: 600_000_000)
+
+    XCTAssertTrue(received.isEmpty, "logout stops work that is already in flight")
+  }
+}
