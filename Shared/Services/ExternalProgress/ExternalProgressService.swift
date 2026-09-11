@@ -35,6 +35,7 @@ public final class ExternalProgressService {
   private var refreshTask: Task<Void, Never>?
   private var requestedUuid: String?
   private var disposeBag = Set<AnyCancellable>()
+  private var notificationCenter: NotificationCenter = .default
 
   public init() {}
 
@@ -43,10 +44,12 @@ public final class ExternalProgressService {
     providers: [ExternalResource.ProviderName: ExternalProgressProviding] = [
       .jellyfin: JellyfinProgressProvider(),
       .audiobookshelf: AudiobookShelfProgressProvider(),
-    ]
+    ],
+    notificationCenter: NotificationCenter = .default
   ) {
     self.libraryService = libraryService
     self.providers = providers
+    self.notificationCenter = notificationCenter
 
     bindObservers()
   }
@@ -55,14 +58,14 @@ public final class ExternalProgressService {
   /// can decide whether a refresh happens — the point of moving this off a view model.
   /// `.bookPlayed` is posted by PlayerManager for every playback start, phone or CarPlay.
   private func bindObservers() {
-    NotificationCenter.default.publisher(for: .bookPlayed)
+    notificationCenter.publisher(for: .bookPlayed)
       .compactMap { $0.userInfo?["book"] as? PlayableItem }
       .sink { [weak self] item in
         self?.refreshProgress(for: item)
       }
       .store(in: &disposeBag)
 
-    NotificationCenter.default.publisher(for: .logout)
+    notificationCenter.publisher(for: .logout)
       .sink { [weak self] _ in
         self?.teardown()
       }
@@ -82,11 +85,16 @@ public final class ExternalProgressService {
     let localDate = item.lastPlayDate
 
     stateLock.lock()
+    defer { stateLock.unlock() }
+
     refreshTask?.cancel()
     requestedUuid = uuid
-    stateLock.unlock()
-
-    let task = Task { [weak self] in
+    // Created under the same lock it is stored under. Creating it outside let a second call
+    // interleave between creation and storage, leaving refreshTask pointing at the task it
+    // had just cancelled while the live one ran unreferenced — correct output only by luck
+    // of the isStillRequested check, and a teardown that would miss the live task. Holding
+    // the lock here is safe: the body touches it only after its first await.
+    refreshTask = Task { [weak self] in
       guard let self else { return }
 
       let resources = (self.libraryService.findResources(for: uuid) ?? []).mediaServerResources
@@ -103,10 +111,6 @@ public final class ExternalProgressService {
 
       self.promptablePositionPublisher.send(position)
     }
-
-    stateLock.lock()
-    refreshTask = task
-    stateLock.unlock()
   }
 
   /// Refresh the positions of items already on screen, so a list shows what the user's other

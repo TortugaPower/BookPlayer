@@ -701,10 +701,16 @@ final class ItemDetailsLoadTests: XCTestCase {
 // MARK: - External progress pull
 
 /// The inbound half of media-server progress sync, extracted out of ItemListViewModel.
+///
+/// Waits are expectations fulfilled by the publisher, never fixed sleeps: the service's timing
+/// is what's under test, and a fixed wait either flakes on a slow runner or hides a real
+/// delay. Notifications go through a private center so nothing here can reach a real
+/// service alive elsewhere in the test process.
 @MainActor
 final class ExternalProgressServiceTests: XCTestCase {
   /// Records what it was asked and answers from a script, so a test can assert the fan-out
-  /// without a server, a keychain, or a network.
+  /// without a server, a keychain, or a network. A slow answer sleeps WITHOUT swallowing
+  /// cancellation, so a cancelled refresh provably reaches the provider.
   private final class ProviderStub: ExternalProgressProviding, @unchecked Sendable {
     private let lock = NSLock()
     private var _requested: [String] = []
@@ -738,6 +744,22 @@ final class ExternalProgressServiceTests: XCTestCase {
       }
       return out
     }
+  }
+
+  private var notificationCenter: NotificationCenter!
+  private var received: [ExternalPlaybackProgress] = []
+  private var cancellable: AnyCancellable?
+
+  override func setUp() {
+    super.setUp()
+    notificationCenter = NotificationCenter()
+    received = []
+  }
+
+  override func tearDown() {
+    cancellable?.cancel()
+    cancellable = nil
+    super.tearDown()
   }
 
   private func makeResource(provider: String, id: String) -> SimpleExternalResource {
@@ -801,6 +823,42 @@ final class ExternalProgressServiceTests: XCTestCase {
     )
   }
 
+  private func makeSUT(
+    resources: [SimpleExternalResource],
+    providers: [ExternalResource.ProviderName: ExternalProgressProviding]
+  ) -> (ExternalProgressService, LibraryServiceProtocolMock) {
+    let libraryService = LibraryServiceProtocolMock()
+    libraryService.findResourcesForReturnValue = resources
+
+    let sut = ExternalProgressService()
+    sut.setup(libraryService: libraryService, providers: providers, notificationCenter: notificationCenter)
+    return (sut, libraryService)
+  }
+
+  /// Subscribes and returns an expectation that fulfils once per published position.
+  private func expectPublish(from sut: ExternalProgressService, count: Int = 1, inverted: Bool = false) -> XCTestExpectation {
+    let expectation = expectation(description: inverted ? "nothing published" : "position published")
+    expectation.isInverted = inverted
+    if !inverted {
+      expectation.expectedFulfillmentCount = count
+      expectation.assertForOverFulfill = true
+    }
+    cancellable = sut.promptablePositionPublisher
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] position in
+        self?.received.append(position)
+        expectation.fulfill()
+      }
+    return expectation
+  }
+
+  private func slowStub(_ progress: ExternalPlaybackProgress) -> ProviderStub {
+    ProviderStub { _ in
+      try await Task.sleep(nanoseconds: 250_000_000)
+      return progress
+    }
+  }
+
   // MARK: the decision rule
 
   func testPromptsWhenTheRemoteDateIsNewerBeyondTheThreshold() {
@@ -844,172 +902,140 @@ final class ExternalProgressServiceTests: XCTestCase {
   // MARK: the service
 
   func testAsksEveryLinkedServerConcurrentlyAndPublishesTheNewest() async {
-    let libraryService = LibraryServiceProtocolMock()
-    libraryService.findResourcesForReturnValue = [
-      makeResource(provider: "jellyfin", id: "jf-1"),
-      makeResource(provider: "audiobookshelf", id: "abs-1"),
-    ]
-
     let jellyfin = ProviderStub { _ in
       ExternalPlaybackProgress(currentTime: 800, lastPlayedDate: Date(timeIntervalSince1970: 1100))
     }
     let abs = ProviderStub { _ in
       ExternalPlaybackProgress(currentTime: 200, lastPlayedDate: Date(timeIntervalSince1970: 5000))
     }
-
-    let sut = ExternalProgressService()
-    sut.setup(libraryService: libraryService, providers: [.jellyfin: jellyfin, .audiobookshelf: abs])
-
-    var received: [ExternalPlaybackProgress] = []
-    let cancellable = sut.promptablePositionPublisher.sink { received.append($0) }
-    defer { cancellable.cancel() }
+    let (sut, _) = makeSUT(
+      resources: [makeResource(provider: "jellyfin", id: "jf-1"), makeResource(provider: "audiobookshelf", id: "abs-1")],
+      providers: [.jellyfin: jellyfin, .audiobookshelf: abs]
+    )
+    let published = expectPublish(from: sut)
 
     sut.refreshProgress(for: makeItem(uuid: "UUID", currentTime: 100, lastPlayDate: Date(timeIntervalSince1970: 1000)))
-    try? await Task.sleep(nanoseconds: 300_000_000)
+    await fulfillment(of: [published], timeout: 2)
 
     XCTAssertEqual(jellyfin.requested, ["jf-1"], "both servers are asked")
     XCTAssertEqual(abs.requested, ["abs-1"])
-    XCTAssertEqual(received.count, 1)
-    XCTAssertEqual(received.first?.currentTime, 200, "the newest date wins across providers")
+    XCTAssertEqual(received.map(\.currentTime), [200], "the newest date wins across providers")
   }
 
   func testOneFailingServerDoesNotSilenceTheOther() async {
-    let libraryService = LibraryServiceProtocolMock()
-    libraryService.findResourcesForReturnValue = [
-      makeResource(provider: "jellyfin", id: "jf-1"),
-      makeResource(provider: "audiobookshelf", id: "abs-1"),
-    ]
-
     let failing = ProviderStub { _ in throw URLError(.timedOut) }
     let working = ProviderStub { _ in
       ExternalPlaybackProgress(currentTime: 700, lastPlayedDate: Date(timeIntervalSince1970: 9000))
     }
-
-    let sut = ExternalProgressService()
-    sut.setup(libraryService: libraryService, providers: [.jellyfin: failing, .audiobookshelf: working])
-
-    var received: [ExternalPlaybackProgress] = []
-    let cancellable = sut.promptablePositionPublisher.sink { received.append($0) }
-    defer { cancellable.cancel() }
+    let (sut, _) = makeSUT(
+      resources: [makeResource(provider: "jellyfin", id: "jf-1"), makeResource(provider: "audiobookshelf", id: "abs-1")],
+      providers: [.jellyfin: failing, .audiobookshelf: working]
+    )
+    let published = expectPublish(from: sut)
 
     sut.refreshProgress(for: makeItem(uuid: "UUID", currentTime: 0, lastPlayDate: nil))
-    try? await Task.sleep(nanoseconds: 300_000_000)
+    await fulfillment(of: [published], timeout: 2)
 
-    XCTAssertEqual(received.first?.currentTime, 700, "a thrown error takes out only its own provider")
+    XCTAssertEqual(received.map(\.currentTime), [700], "a thrown error takes out only its own provider")
   }
 
   /// Hardcover shares the resource relationship but hosts nothing, so it must never be asked.
   func testSkipsResourcesWithNoMediaServerProvider() async {
-    let libraryService = LibraryServiceProtocolMock()
-    libraryService.findResourcesForReturnValue = [makeResource(provider: "hardcover", id: "12345")]
-
     let jellyfin = ProviderStub { _ in XCTFail("hardcover must not reach a provider"); return nil }
-
-    let sut = ExternalProgressService()
-    sut.setup(libraryService: libraryService, providers: [.jellyfin: jellyfin])
-
-    var received: [ExternalPlaybackProgress] = []
-    let cancellable = sut.promptablePositionPublisher.sink { received.append($0) }
-    defer { cancellable.cancel() }
+    let (sut, _) = makeSUT(
+      resources: [makeResource(provider: "hardcover", id: "12345")],
+      providers: [.jellyfin: jellyfin]
+    )
+    let nothing = expectPublish(from: sut, inverted: true)
 
     sut.refreshProgress(for: makeItem(uuid: "UUID", currentTime: 0, lastPlayDate: nil))
-    try? await Task.sleep(nanoseconds: 200_000_000)
+    await fulfillment(of: [nothing], timeout: 0.3)
 
     XCTAssertTrue(jellyfin.requested.isEmpty)
-    XCTAssertTrue(received.isEmpty)
   }
 
   /// The bug that started the extraction: a slow answer for a book the user already left
-  /// must not raise a prompt carrying that book's position.
+  /// must not raise a prompt carrying that book's position. With cancellation propagating
+  /// into the stub, the superseded refresh never even completes.
   func testAnswerForASupersededItemIsDiscarded() async {
-    let libraryService = LibraryServiceProtocolMock()
-    libraryService.findResourcesForReturnValue = [makeResource(provider: "jellyfin", id: "jf-1")]
-
-    let slow = ProviderStub { _ in
-      try? await Task.sleep(nanoseconds: 250_000_000)
-      return ExternalPlaybackProgress(currentTime: 900, lastPlayedDate: Date(timeIntervalSince1970: 9000))
-    }
-
-    let sut = ExternalProgressService()
-    sut.setup(libraryService: libraryService, providers: [.jellyfin: slow])
-
-    var received: [ExternalPlaybackProgress] = []
-    let cancellable = sut.promptablePositionPublisher.sink { received.append($0) }
-    defer { cancellable.cancel() }
+    let slow = slowStub(ExternalPlaybackProgress(currentTime: 900, lastPlayedDate: Date(timeIntervalSince1970: 9000)))
+    let (sut, _) = makeSUT(
+      resources: [makeResource(provider: "jellyfin", id: "jf-1")],
+      providers: [.jellyfin: slow]
+    )
+    let published = expectPublish(from: sut, count: 1)
 
     sut.refreshProgress(for: makeItem(uuid: "FIRST", currentTime: 0, lastPlayDate: nil))
     // A different book starts before the first answer lands.
     sut.refreshProgress(for: makeItem(uuid: "SECOND", currentTime: 0, lastPlayDate: nil))
-    try? await Task.sleep(nanoseconds: 700_000_000)
+    await fulfillment(of: [published], timeout: 2)
 
     XCTAssertEqual(received.count, 1, "only the item that is playing now can prompt")
+    XCTAssertEqual(slow.requested, ["jf-1", "jf-1"], "both refreshes reached the provider; only one survived")
   }
 
   /// The point of the extraction: the pull is driven by the notification the player posts for
-  /// EVERY playback start, so it no longer depends on which UI holds a delegate slot — a
-  /// car-only session used to get an empty implementation and never pull at all.
+  /// EVERY playback start, so it no longer depends on which UI holds a delegate slot.
   func testRefreshesFromTheBookPlayedNotification() async {
-    let libraryService = LibraryServiceProtocolMock()
-    libraryService.findResourcesForReturnValue = [makeResource(provider: "jellyfin", id: "jf-1")]
-
     let jellyfin = ProviderStub { _ in
       ExternalPlaybackProgress(currentTime: 600, lastPlayedDate: Date(timeIntervalSince1970: 9000))
     }
+    let (sut, _) = makeSUT(
+      resources: [makeResource(provider: "jellyfin", id: "jf-1")],
+      providers: [.jellyfin: jellyfin]
+    )
+    let published = expectPublish(from: sut)
 
-    let sut = ExternalProgressService()
-    sut.setup(libraryService: libraryService, providers: [.jellyfin: jellyfin])
-
-    var received: [ExternalPlaybackProgress] = []
-    let cancellable = sut.promptablePositionPublisher.sink { received.append($0) }
-    defer { cancellable.cancel() }
-
-    NotificationCenter.default.post(
+    notificationCenter.post(
       name: .bookPlayed,
       object: nil,
       userInfo: ["book": makeItem(uuid: "UUID", currentTime: 0, lastPlayDate: nil)]
     )
-    try? await Task.sleep(nanoseconds: 400_000_000)
+    await fulfillment(of: [published], timeout: 2)
 
     XCTAssertEqual(jellyfin.requested, ["jf-1"], "playback start alone drives the pull")
-    XCTAssertEqual(received.first?.currentTime, 600)
+    XCTAssertEqual(received.map(\.currentTime), [600])
   }
 
   func testLogoutNotificationCancelsInFlightWork() async {
-    let libraryService = LibraryServiceProtocolMock()
-    libraryService.findResourcesForReturnValue = [makeResource(provider: "jellyfin", id: "jf-1")]
-
-    let slow = ProviderStub { _ in
-      try? await Task.sleep(nanoseconds: 250_000_000)
-      return ExternalPlaybackProgress(currentTime: 900, lastPlayedDate: Date(timeIntervalSince1970: 9000))
-    }
-
-    let sut = ExternalProgressService()
-    sut.setup(libraryService: libraryService, providers: [.jellyfin: slow])
-
-    var received: [ExternalPlaybackProgress] = []
-    let cancellable = sut.promptablePositionPublisher.sink { received.append($0) }
-    defer { cancellable.cancel() }
+    let slow = slowStub(ExternalPlaybackProgress(currentTime: 900, lastPlayedDate: Date(timeIntervalSince1970: 9000)))
+    let (sut, _) = makeSUT(
+      resources: [makeResource(provider: "jellyfin", id: "jf-1")],
+      providers: [.jellyfin: slow]
+    )
+    let nothing = expectPublish(from: sut, inverted: true)
 
     sut.refreshProgress(for: makeItem(uuid: "UUID", currentTime: 0, lastPlayDate: nil))
-    NotificationCenter.default.post(name: .logout, object: nil)
-    try? await Task.sleep(nanoseconds: 600_000_000)
-
-    XCTAssertTrue(received.isEmpty, "signing out stops a refresh already in flight")
+    notificationCenter.post(name: .logout, object: nil)
+    // Longer than the stub's sleep, so an un-cancelled refresh WOULD have published by now.
+    await fulfillment(of: [nothing], timeout: 0.6)
   }
+
+  func testTeardownCancelsAnInFlightRefresh() async {
+    let slow = slowStub(ExternalPlaybackProgress(currentTime: 900, lastPlayedDate: Date(timeIntervalSince1970: 9000)))
+    let (sut, _) = makeSUT(
+      resources: [makeResource(provider: "jellyfin", id: "jf-1")],
+      providers: [.jellyfin: slow]
+    )
+    let nothing = expectPublish(from: sut, inverted: true)
+
+    sut.refreshProgress(for: makeItem(uuid: "UUID", currentTime: 0, lastPlayDate: nil))
+    sut.teardown()
+    await fulfillment(of: [nothing], timeout: 0.6)
+  }
+
+  // MARK: the list refresh
 
   /// The gap this closes: the list refresh collected Jellyfin resources only and handed them
   /// to an ingest typed to a Jellyfin item, so AudiobookShelf items were never refreshed.
   func testRefreshItemsFoldsInBothProviders() async {
-    let libraryService = LibraryServiceProtocolMock()
     let jellyfin = ProviderStub { _ in
       ExternalPlaybackProgress(currentTime: 120, lastPlayedDate: Date(timeIntervalSince1970: 500))
     }
     let abs = ProviderStub { _ in
       ExternalPlaybackProgress(currentTime: 340, lastPlayedDate: Date(timeIntervalSince1970: 900))
     }
-
-    let sut = ExternalProgressService()
-    sut.setup(libraryService: libraryService, providers: [.jellyfin: jellyfin, .audiobookshelf: abs])
+    let (sut, libraryService) = makeSUT(resources: [], providers: [.jellyfin: jellyfin, .audiobookshelf: abs])
 
     await sut.refreshItems([
       makeLibraryItem(resources: [makeResource(provider: "jellyfin", id: "jf-1")]),
@@ -1033,39 +1059,13 @@ final class ExternalProgressServiceTests: XCTestCase {
   }
 
   func testRefreshItemsDoesNothingWithoutMediaServerResources() async {
-    let libraryService = LibraryServiceProtocolMock()
     let jellyfin = ProviderStub { _ in XCTFail("must not be asked"); return nil }
-
-    let sut = ExternalProgressService()
-    sut.setup(libraryService: libraryService, providers: [.jellyfin: jellyfin])
+    let (sut, libraryService) = makeSUT(resources: [], providers: [.jellyfin: jellyfin])
 
     await sut.refreshItems([makeLibraryItem(resources: nil)])
 
     XCTAssertTrue(jellyfin.requested.isEmpty)
     XCTAssertEqual(libraryService.handleSyncFromExternalResourceProviderNameProgressByProviderIdCallsCount, 0)
-  }
-
-  func testTeardownCancelsAnInFlightRefresh() async {
-    let libraryService = LibraryServiceProtocolMock()
-    libraryService.findResourcesForReturnValue = [makeResource(provider: "jellyfin", id: "jf-1")]
-
-    let slow = ProviderStub { _ in
-      try? await Task.sleep(nanoseconds: 250_000_000)
-      return ExternalPlaybackProgress(currentTime: 900, lastPlayedDate: Date(timeIntervalSince1970: 9000))
-    }
-
-    let sut = ExternalProgressService()
-    sut.setup(libraryService: libraryService, providers: [.jellyfin: slow])
-
-    var received: [ExternalPlaybackProgress] = []
-    let cancellable = sut.promptablePositionPublisher.sink { received.append($0) }
-    defer { cancellable.cancel() }
-
-    sut.refreshProgress(for: makeItem(uuid: "UUID", currentTime: 0, lastPlayDate: nil))
-    sut.teardown()
-    try? await Task.sleep(nanoseconds: 600_000_000)
-
-    XCTAssertTrue(received.isEmpty, "logout stops work that is already in flight")
   }
 }
 
