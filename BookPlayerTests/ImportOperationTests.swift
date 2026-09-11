@@ -1240,3 +1240,79 @@ final class PlayableChapterExternalHostTests: XCTestCase {
     XCTAssertFalse(chapters.first?.hasUnresolvedExternalHost ?? true)
   }
 }
+
+// MARK: - Resume offer routing
+
+/// One surface asks, never two: the arbiter is the single subscriber to the service.
+@MainActor
+final class ResumeOfferArbiterTests: XCTestCase {
+  private final class PresenterSpy: ResumeOfferPresenting {
+    var presentedTimes: [TimeInterval] = []
+    func presentResumeOffer(at remoteTime: TimeInterval) { presentedTimes.append(remoteTime) }
+  }
+
+  private let position = ExternalPlaybackProgress(currentTime: 480, lastPlayedDate: Date())
+
+  func testWithoutCarPlayThePhoneGetsTheOffer() {
+    let playerState = PlayerState()
+    let sut = ResumeOfferArbiter(playerState: playerState, isAppActive: { false })
+
+    sut.route(position)
+
+    XCTAssertTrue(playerState.showResumePopup)
+    XCTAssertEqual(playerState.remotePlayTime, 480)
+  }
+
+  /// The driving case: phone in a pocket, car connected. The car asks and the phone's flag is
+  /// never raised, so unlocking the phone later cannot ask the same question again.
+  func testCarPlayGetsTheOfferWhenTheAppIsInactive() {
+    let playerState = PlayerState()
+    let car = PresenterSpy()
+    let sut = ResumeOfferArbiter(playerState: playerState, isAppActive: { false })
+    sut.carPlayPresenter = car
+
+    sut.route(position)
+
+    XCTAssertEqual(car.presentedTimes, [480])
+    XCTAssertFalse(playerState.showResumePopup, "an offer routed to the car leaves no phone flag behind")
+    XCTAssertNil(playerState.remotePlayTime)
+  }
+
+  /// Phone in hand with the car connected: the SwiftUI alert is the better surface, and the
+  /// car must stay quiet rather than ask in parallel.
+  func testThePhoneWinsWhenTheAppIsActiveEvenWithCarPlayConnected() {
+    let playerState = PlayerState()
+    let car = PresenterSpy()
+    let sut = ResumeOfferArbiter(playerState: playerState, isAppActive: { true })
+    sut.carPlayPresenter = car
+
+    sut.route(position)
+
+    XCTAssertTrue(car.presentedTimes.isEmpty)
+    XCTAssertTrue(playerState.showResumePopup)
+  }
+
+  func testAnOfferAlreadyShowingIsNotClobbered() {
+    let playerState = PlayerState()
+    playerState.showResumePopup = true
+    playerState.remotePlayTime = 120
+    let sut = ResumeOfferArbiter(playerState: playerState, isAppActive: { true })
+
+    sut.route(position)
+
+    XCTAssertEqual(playerState.remotePlayTime, 120, "the prompt the user is looking at keeps its position")
+  }
+
+  /// Disconnecting the car must hand the next offer back to the phone.
+  func testAReleasedPresenterFallsBackToThePhone() {
+    let playerState = PlayerState()
+    let sut = ResumeOfferArbiter(playerState: playerState, isAppActive: { false })
+    var car: PresenterSpy? = PresenterSpy()
+    sut.carPlayPresenter = car
+    car = nil
+
+    sut.route(position)
+
+    XCTAssertTrue(playerState.showResumePopup, "a weak presenter that went away is the same as none")
+  }
+}

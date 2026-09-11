@@ -174,18 +174,6 @@ class MainCoordinator: NSObject {
         self?.playerState.loadedBookRelativePath = item?.relativePath
       }
       .store(in: &disposeBag)
-
-    // The service decides WHETHER a remote position is worth offering; this only decides
-    // where the offer lands. PlayerState is app-layer, so a Shared service can't write it.
-    externalProgressService.promptablePositionPublisher
-      .receive(on: DispatchQueue.main)
-      .sink { [weak self] position in
-        guard let self, !playerState.showResumePopup else { return }
-
-        playerState.remotePlayTime = position.currentTime
-        playerState.showResumePopup = true
-      }
-      .store(in: &disposeBag)
   }
 
   func loadPlayer(_ relativePath: String, autoplay: Bool, showPlayer: Bool) {

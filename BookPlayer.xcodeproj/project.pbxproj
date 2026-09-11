@@ -561,6 +561,7 @@
 		63B4A3C42E93749300784A22 /* DynamicAccessibilityLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B4A3C32E93749300784A22 /* DynamicAccessibilityLabel.swift */; };
 		63B4A3C62E93858C00784A22 /* PlayerControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B4A3C52E93858C00784A22 /* PlayerControlsView.swift */; };
 		63B50F052B692E4200BCABBA /* ListSyncRefreshService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B50F042B692E4200BCABBA /* ListSyncRefreshService.swift */; };
+		D071ABD44684949C58C7D8D0 /* ResumeOfferArbiter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42B6A047D0689D9E2E2D9749 /* ResumeOfferArbiter.swift */; };
 		63B760E82C31FFC600AA98C7 /* SupportFlowCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B760E72C31FFC600AA98C7 /* SupportFlowCoordinator.swift */; };
 		63B760F72C32734000AA98C7 /* SecondOnboardingResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B760F62C32734000AA98C7 /* SecondOnboardingResponse.swift */; };
 		63B760F92C32738E00AA98C7 /* StoryAccountSubscriptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B760F82C32738E00AA98C7 /* StoryAccountSubscriptionService.swift */; };
@@ -1665,6 +1666,7 @@
 		63B4A3C32E93749300784A22 /* DynamicAccessibilityLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicAccessibilityLabel.swift; sourceTree = "<group>"; };
 		63B4A3C52E93858C00784A22 /* PlayerControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerControlsView.swift; sourceTree = "<group>"; };
 		63B50F042B692E4200BCABBA /* ListSyncRefreshService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListSyncRefreshService.swift; sourceTree = "<group>"; };
+		42B6A047D0689D9E2E2D9749 /* ResumeOfferArbiter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ResumeOfferArbiter.swift; sourceTree = "<group>"; };
 		63B760E72C31FFC600AA98C7 /* SupportFlowCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportFlowCoordinator.swift; sourceTree = "<group>"; };
 		63B760F62C32734000AA98C7 /* SecondOnboardingResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecondOnboardingResponse.swift; sourceTree = "<group>"; };
 		63B760F82C32738E00AA98C7 /* StoryAccountSubscriptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryAccountSubscriptionService.swift; sourceTree = "<group>"; };
@@ -3338,6 +3340,7 @@
 				4193E201243A91AE004D6A82 /* ActionParserService.swift */,
 				9F82DF9B27DFE46B001B0EA8 /* PhoneWatchConnectivityService.swift */,
 				63B50F042B692E4200BCABBA /* ListSyncRefreshService.swift */,
+				42B6A047D0689D9E2E2D9749 /* ResumeOfferArbiter.swift */,
 				8A9D0D2F2CD0E06F007A924D /* SingleFileDownloadService.swift */,
 			);
 			path = Services;
@@ -5173,6 +5176,7 @@
 				99329DB72F3AA8F6003F8E73 /* PlayControlsRowView.swift in Sources */,
 				416AAC3323F51031005AD04F /* LocalizableButton.swift in Sources */,
 				63B50F052B692E4200BCABBA /* ListSyncRefreshService.swift in Sources */,
+				D071ABD44684949C58C7D8D0 /* ResumeOfferArbiter.swift in Sources */,
 				416A297D2568671F00605395 /* AVPlayer+BookPlayer.swift in Sources */,
 				634BA5A52C176B5A0015314D /* StoryActionView.swift in Sources */,
 				8A9D0D302CD0E074007A924D /* SingleFileDownloadService.swift in Sources */,

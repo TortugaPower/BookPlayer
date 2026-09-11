@@ -26,11 +26,18 @@ final class AppServices: BPLogger {
 
   var pendingURLActions = [Action]()
 
-  let playerState = PlayerState()
+  let playerState: PlayerState
+  /// Eager, like playerState: CarPlay registers here from connect(), which on a cold launch
+  /// into the car runs before CoreServices exist. Its subscription is bound in setup below.
+  let resumeOfferArbiter: ResumeOfferArbiter
 
   let reviewPromptService = ReviewPromptService()
 
-  private init() {}
+  private init() {
+    let playerState = PlayerState()
+    self.playerState = playerState
+    self.resumeOfferArbiter = ResumeOfferArbiter(playerState: playerState)
+  }
 
   // MARK: - Core Services Setup
 
@@ -123,6 +130,7 @@ final class AppServices: BPLogger {
 
       let externalProgressService = ExternalProgressService()
       externalProgressService.setup(libraryService: libraryService)
+      resumeOfferArbiter.bind(to: externalProgressService)
 
       let coreServices = CoreServices(
         accountService: accountService,
