@@ -15,7 +15,6 @@ final class ItemListViewModel: ObservableObject, BPLogger {
   private let libraryService: LibraryService
   private let playbackService: PlaybackService
   let playerManager: PlayerManager
-  let playerState: PlayerState
   private let syncService: SyncService
   private let listSyncRefreshService: ListSyncRefreshService
   private let externalProgressService: ExternalProgressService
@@ -105,7 +104,6 @@ final class ItemListViewModel: ObservableObject, BPLogger {
     libraryService: LibraryService,
     playbackService: PlaybackService,
     playerManager: PlayerManager,
-    playerState: PlayerState,
     syncService: SyncService,
     listSyncRefreshService: ListSyncRefreshService,
     externalProgressService: ExternalProgressService,
@@ -117,7 +115,6 @@ final class ItemListViewModel: ObservableObject, BPLogger {
     self.libraryService = libraryService
     self.playbackService = playbackService
     self.playerManager = playerManager
-    self.playerState = playerState
     self.syncService = syncService
     self.listSyncRefreshService = listSyncRefreshService
     self.externalProgressService = externalProgressService

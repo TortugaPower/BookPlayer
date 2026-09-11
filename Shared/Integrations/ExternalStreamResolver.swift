@@ -33,7 +33,7 @@ public protocol ExternalStreamResolving {
 /// logic used to sit in the middle of `PlaybackService.getPlayableChapters` with its own
 /// `KeychainService()`, which meant nothing about streaming URLs, auth headers, or the
 /// unresolved-host flag could be verified without a real keychain.
-public struct ExternalStreamResolver: ExternalStreamResolving {
+public struct ExternalStreamResolver: ExternalStreamResolving, BPLogger {
   private let keychain: KeychainServiceProtocol
 
   public init(keychain: KeychainServiceProtocol = KeychainService()) {
@@ -44,9 +44,14 @@ public struct ExternalStreamResolver: ExternalStreamResolving {
     switch ExternalResource.ProviderName(rawValue: resource.providerName) {
     case .jellyfin:
       guard
-        let connection: JellyfinConnectionData = connection(for: resource, key: .jellyfinConnection),
-        let url = URL(string: connection.buildDownloadUrl(providerId: resource.providerId))
+        let connection: JellyfinConnectionData = connection(for: resource, key: .jellyfinConnection)
       else { return nil }
+      guard let url = URL(string: connection.buildDownloadUrl(providerId: resource.providerId)) else {
+        // A matched server whose URL won't build is a defect, not a missing connection — but
+        // the caller can only express "no source", so say so here.
+        Self.logger.error("Jellyfin connection resolved but no stream URL could be built for \(resource.providerId)")
+        return nil
+      }
 
       return ExternalStreamSource(
         url: url,
@@ -58,9 +63,12 @@ public struct ExternalStreamResolver: ExternalStreamResolving {
 
     case .audiobookshelf:
       guard
-        let connection: AudiobookShelfConnectionData = connection(for: resource, key: .audiobookshelfConnection),
-        let url = URL(string: connection.buildAudiobookshelfDownloadUrl(providerId: resource.providerId))
+        let connection: AudiobookShelfConnectionData = connection(for: resource, key: .audiobookshelfConnection)
       else { return nil }
+      guard let url = URL(string: connection.buildAudiobookshelfDownloadUrl(providerId: resource.providerId)) else {
+        Self.logger.error("AudiobookShelf connection resolved but no stream URL could be built for \(resource.providerId)")
+        return nil
+      }
 
       return ExternalStreamSource(
         url: url,

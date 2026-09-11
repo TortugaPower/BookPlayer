@@ -32,9 +32,9 @@ public protocol PlaybackServiceProtocol {
 @Observable
 public final class PlaybackService: PlaybackServiceProtocol {
   var libraryService: LibraryServiceProtocol!
-  /// Defaulted so watchOS keeps its one-argument `setup` — the watch stores no media-server
-  /// connections, so resolution there correctly finds nothing.
-  var streamResolver: ExternalStreamResolving = ExternalStreamResolver()
+  /// Injected in `setup`, whose default keeps watchOS on its one-argument call — the watch
+  /// stores no media-server connections, so resolution there correctly finds nothing.
+  var streamResolver: ExternalStreamResolving!
 
   public init() {}
 
@@ -235,9 +235,9 @@ public final class PlaybackService: PlaybackServiceProtocol {
     let externalUrl = streamSource?.url
     let externalHeaders = streamSource?.headers ?? [:]
 
-    // The resource exists but nothing matched its host, which is the only way the switch
-    // above leaves externalUrl nil for a media-server item: the file can't be streamed or
-    // re-downloaded on this device until its server is added.
+    // The resource exists but no stream source could be built for it — in practice because
+    // no saved connection matched its host; the resolver logs the one other way. Either way
+    // the file can't be streamed or re-downloaded on this device until its server is added.
     let hasUnresolvedExternalHost = externalResource != nil && externalUrl == nil
 
     // If no chapters, create a single one using the book metadata
