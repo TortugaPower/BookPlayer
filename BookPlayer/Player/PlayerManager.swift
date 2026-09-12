@@ -15,9 +15,12 @@ import Sentry
 
 // swiftlint:disable:next file_length
 
-final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
+final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject, BPLogger {
   private let libraryService: LibraryServiceProtocol
   private let playbackService: PlaybackServiceProtocol
+  /// Narrow read of the streaming entitlement (pro or lite), not the whole account
+  /// service — the media-servers shortcut is only actionable for a tier that can stream.
+  private let hasStreamingEnabled: () -> Bool
   private let syncService: SyncServiceProtocol
   private let speedService: SpeedServiceProtocol
   private let userActivityManager: UserActivityManager
@@ -34,17 +37,25 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   private var isPlayingSubscription: AnyCancellable?
   /// Tracks the brief muted play used to claim Now Playing on CarPlay connect, so we can pause once it starts
   private var nowPlayingClaimSubscription: AnyCancellable?
+  /// Named + cancelled-before-rebind: bound on every player recreation (init, .failed,
+  /// mediaServicesWereReset) — a disposeBag entry would accumulate one sink per recreation.
+  private var playerLoadingStateSubscription: AnyCancellable?
+  /// Named + cancelled-before-rebind: bound on EVERY chapter/item load — a disposeBag entry
+  /// leaks one KVO publisher (which retains its AVPlayerItem) per loaded chapter.
+  private var playerItemStatusSubscription: AnyCancellable?
   private var periodicTimeObserver: Any?
   private var disposeBag = Set<AnyCancellable>()
   /// Flag determining if it should resume playback after finishing up loading an item
   @Published private var playbackQueued: Bool?
   /// Flag determining if it's in the process of fetching the URL for playback
   @Published private var isFetchingRemoteURL: Bool?
+  @Published var playerIsLoadingURL: Bool = false
   /// Prevent loop from automatic URL refreshes
   private var canFetchRemoteURL = true
   /// Set when audio-session activation fails in the current process, so a later
   /// successful activation can tell whether recovery required an app relaunch.
   private var audioSessionFailedThisSession = false
+  private var canFetchExternalURL = true
   private var hasObserverRegistered = false
   private var observeStatus: Bool = false {
     didSet {
@@ -67,7 +78,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   private var loadChapterTask: Task<(), Never>?
   @Published var currentItem: PlayableItem?
   @Published var currentSpeed: Float = 1.0
-
+  
   var nowPlayingInfo = [String: Any]()
 
   private let queue = OperationQueue()
@@ -78,7 +89,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     syncService: SyncServiceProtocol,
     speedService: SpeedServiceProtocol,
     shakeMotionService: ShakeMotionServiceProtocol,
-    widgetReloadService: WidgetReloadServiceProtocol
+    widgetReloadService: WidgetReloadServiceProtocol,
+    hasStreamingEnabled: @escaping () -> Bool
   ) {
     self.libraryService = libraryService
     self.playbackService = playbackService
@@ -87,6 +99,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     self.userActivityManager = UserActivityManager(libraryService: libraryService)
     self.shakeMotionService = shakeMotionService
     self.widgetReloadService = widgetReloadService
+    self.hasStreamingEnabled = hasStreamingEnabled
     super.init()
 
     setupPlayerInstance()
@@ -170,6 +183,50 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     audioPlayer.allowsExternalPlayback = false
 
     bindTimeControlPassthroughPublisher()
+    setupPlayerObservers(player: audioPlayer)
+  }
+  
+  private func updatePlayerIsLoadingURL(_ isLoading: Bool) {
+    if Thread.isMainThread {
+      self.playerIsLoadingURL = isLoading
+    } else {
+      DispatchQueue.main.async {
+        self.playerIsLoadingURL = isLoading
+      }
+    }
+  }
+
+  private func setupPlayerObservers(player: AVPlayer?) {
+    guard let player = player else { return }
+    
+    // 2. Observe Buffering (AVPlayer TimeControlStatus)
+    playerLoadingStateSubscription?.cancel()
+    playerLoadingStateSubscription = player.publisher(for: \.timeControlStatus)
+      // AVFoundation delivers this KVO off-main; the sink reads currentItem, which is
+      // mutated on main — hop before reading, like the player's other sinks
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self, weak player] status in
+        guard let self = self, let player = player else { return }
+        // Same remote-only gate as the item-status observer: a stalled/seeking LOCAL book
+        // must not flash the streaming buffering overlay.
+        guard self.isStreamingChapter(self.currentItem?.currentChapter) else { return }
+        
+        switch status {
+        case .waitingToPlayAtSpecifiedRate:
+          if player.reasonForWaitingToPlay == .toMinimizeStalls {
+            // We are actively buffering mid-playback (or right after hitting play)
+            self.updatePlayerIsLoadingURL(true)
+          }
+        case .playing, .paused:
+          // If the item status is still .unknown, we are still preparing
+          if self.playerItem?.status == .readyToPlay {
+            self.updatePlayerIsLoadingURL(false)
+          }
+        @unknown default:
+          break
+        }
+      }
+      
   }
 
   func currentItemPublisher() -> AnyPublisher<PlayableItem?, Never> {
@@ -187,7 +244,6 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   @MainActor
   func loadRemoteURLAsset(for chapter: PlayableChapter, forceRefresh: Bool) async throws -> AVURLAsset {
     let fileURL: URL
-
     if !forceRefresh,
       let chapterURL = chapter.remoteURL
     {
@@ -204,16 +260,16 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
 
     // TODO: Check if there's a way to reduce the time this operation takes
     // it's currently a bottleneck when streaming playback
-    await asset.loadValues(forKeys: [
-      "duration",
-      "playable",
-      "preferredRate",
-      "preferredVolume",
-      "hasProtectedContent",
-      "providesPreciseDurationAndTiming",
-      "commonMetadata",
-      "metadata",
-    ])
+    _ = try? await asset.load(
+      .duration,
+      .isPlayable,
+      .preferredRate,
+      .preferredVolume,
+      .hasProtectedContent,
+      .providesPreciseDurationAndTiming,
+      .commonMetadata,
+      .metadata
+    )
 
     guard !Task.isCancelled else {
       throw BookPlayerError.cancelledTask
@@ -250,15 +306,60 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     return asset
   }
 
-  func loadPlayerItem(for chapter: PlayableChapter, forceRefreshURL: Bool) async throws {
+  @MainActor
+  func loadPlayerItem(for chapter: PlayableChapter, forceRefreshURL: Bool) async throws -> PlayableChapter {
+    // Reset unconditionally: the flag's setters are gated on remote loads, so a LOCAL load
+    // that interrupts a buffering stream would otherwise leave the overlay stuck on.
+    updatePlayerIsLoadingURL(false)
+
     let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(chapter.relativePath)
 
     let asset: AVURLAsset
 
-    if syncService.isActive,
-      !FileManager.default.fileExists(atPath: fileURL.path)
+    if !FileManager.default.fileExists(atPath: fileURL.path)
     {
-      asset = try await loadRemoteURLAsset(for: chapter, forceRefresh: forceRefreshURL)
+      if let externalUrl = chapter.externalUrl {
+        // Media-server chapters ALWAYS stream from their external URL — a forced refresh
+        // must not reroute them to the cloud/S3 presign path (their fresh URL comes from
+        // the chapter rebuild during reload, resolved against the local connection).
+        asset = AVURLAsset(url: externalUrl, options: [
+          AVURLAssetPreferPreciseDurationAndTimingKey: false,
+          "AVURLAssetHTTPHeaderFieldsKey": chapter.externalHeaders
+        ])
+
+        // Only load metadata if duration is unknown, to avoid network bottleneck
+        if chapter.duration == 0 {
+          do {
+            _ = try await asset.load(.duration, .isPlayable)
+          } catch {
+            // Deliberately non-fatal: a dead stream fails LOUDLY at the player-item
+            // level right after (the .failed -> session-expired alert path). The only
+            // silent case is a transient metadata-only failure — playback proceeds with
+            // duration 0 (degraded scrubber/progress), so log it for diagnosability.
+            Self.logger.warning("External stream metadata load failed; continuing with duration 0: \(error)")
+          }
+
+          await libraryService.loadChaptersIfNeeded(relativePath: chapter.relativePath, asset: asset)
+          // The awaits above can outlive this load (user tapped another book) — applying the
+          // refreshed item afterwards would clobber the newer load's state.
+          // The repo's own cancellation error: Swift's CancellationError would fall through
+          // to the GENERIC catch in loadChapterTask and pop a spurious alert on the very
+          // normal tap-another-book-mid-load path.
+          if Task.isCancelled { throw BookPlayerError.cancelledTask }
+          if let libraryItem = libraryService.getSimpleItem(with: chapter.relativePath),
+             let updatedItem = try? playbackService.getPlayableItem(from: libraryItem) {
+            currentItem = updatedItem
+            // Invariant: EVERY currentItem reassignment rebinds the chapter subscription —
+            // otherwise .chapterChange keeps firing off the orphaned item and the
+            // end-of-chapter sleep timer + Now Playing chapter title silently break.
+            bindPlayableChapterSubscription(to: updatedItem, dropInitialReplay: true)
+          }
+        }
+      } else if syncService.isActive {
+        asset = try await loadRemoteURLAsset(for: chapter, forceRefresh: forceRefreshURL)
+      } else {
+        asset = AVURLAsset(url: fileURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: false])
+      }
     } else {
       asset = AVURLAsset(url: fileURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
     }
@@ -268,11 +369,62 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
       self.playerItem?.removeObserver(self, forKeyPath: "status")
       self.hasObserverRegistered = false
     }
-
+    
     self.playerItem = AVPlayerItem(asset: asset)
     self.playerItem?.audioTimePitchAlgorithm = .timeDomain
+    
+    if chapter.externalUrl != nil {
+      // Buffer a reasonable amount for streaming (20 seconds)
+      self.playerItem?.preferredForwardBufferDuration = 20
+    }
+    
+    setupPlayerItemObservers(playerItem: playerItem)
+
+    return self.currentItem?.currentChapter ?? chapter
+  }
+  
+  /// True only when the chapter actually streams: it has a remote source AND no local
+  /// copy on disk — the same branch condition loadPlayerItem plays by. A downloaded
+  /// cloud book keeps its remoteURL forever, so checking URLs alone would flash the
+  /// buffering overlay over purely local playback.
+  private func isStreamingChapter(_ chapter: PlayableChapter?) -> Bool {
+    guard let chapter,
+          chapter.externalUrl != nil || chapter.remoteURL != nil else {
+      return false
+    }
+    let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(chapter.relativePath)
+    return !FileManager.default.fileExists(atPath: fileURL.path)
   }
 
+  func setupPlayerItemObservers(playerItem: AVPlayerItem?) {
+    guard let playerItem else {
+      return
+    }
+
+    // Local files attach ready almost instantly but still emit the initial .unknown —
+    // only streamed/remote loads should drive the buffering overlay.
+    let isRemoteLoad = isStreamingChapter(currentItem?.currentChapter)
+    playerItemStatusSubscription?.cancel()
+    playerItemStatusSubscription = playerItem.publisher(for: \.status)
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] status in
+        guard let self = self, isRemoteLoad else { return }
+
+        switch status {
+        case .readyToPlay:
+          // The item is fully loaded and ready to be played
+          self.updatePlayerIsLoadingURL(false)
+        case .failed:
+          self.updatePlayerIsLoadingURL(false)
+        case .unknown:
+          // Still evaluating the asset
+          self.updatePlayerIsLoadingURL(true)
+        @unknown default:
+          break
+        }
+      }
+
+  }
   func load(_ item: PlayableItem, autoplay: Bool) {
     load(item, autoplay: autoplay, forceRefreshURL: false)
   }
@@ -365,22 +517,43 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     SharedWidgetStore.store(item)
   }
 
+  /// Whether a failed load should offer the Media Servers shortcut: the tier can stream at
+  /// all, and going to Media Servers could actually fix this chapter's failure. Not private
+  /// so the entitlement wiring itself is testable, and shared by both alert sites so the
+  /// rule can't drift between them.
+  func offersMediaServers(for chapter: PlayableChapter) -> Bool {
+    hasStreamingEnabled() && chapter.needsMediaServer()
+  }
+
   func loadChapterMetadata(_ chapter: PlayableChapter, autoplay: Bool? = nil, forceRefreshURL: Bool = false) {
     if let autoplay {
       playbackQueued = autoplay
     }
-
+    
     loadChapterTask = Task { @MainActor [unowned self] in
       do {
-        try await self.loadPlayerItem(for: chapter, forceRefreshURL: forceRefreshURL)
-        self.loadChapterOperation(chapter)
+        let updatedChapter = try await self.loadPlayerItem(for: chapter, forceRefreshURL: forceRefreshURL)
+        self.loadChapterOperation(updatedChapter)
       } catch BookPlayerError.cancelledTask {
         /// Do nothing, as it was cancelled to load another item
       } catch {
+        var actions = [BPActionItem.okAction]
+        
+        if offersMediaServers(for: chapter) {
+          actions.append(
+            BPActionItem(title: "media_servers_title".localized) {
+              NotificationCenter.default.post(name: .showMediaServers, object: nil)
+            }
+          )
+        }
+        
         self.playbackQueued = nil
         self.isFetchingRemoteURL = nil
         self.observeStatus = false
-        self.showErrorAlert(title: "\("error_title".localized) Metadata", error.localizedDescription)
+        // The load died before the item attached — nothing will ever flip the buffering
+        // overlay off, so clear it here or it covers the player indefinitely.
+        self.updatePlayerIsLoadingURL(false)
+        self.showErrorAlert(title: "\("error_title".localized) Metadata", error.localizedDescription, actions: actions)
         return
       }
     }
@@ -396,6 +569,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
         DispatchQueue.main.async { [weak self] in
           self?.playbackQueued = nil
           self?.isFetchingRemoteURL = nil
+          // The item was never attached, so nothing else flips the buffering overlay off.
+          self?.updatePlayerIsLoadingURL(false)
           NotificationCenter.default.post(name: .bookReady, object: nil, userInfo: ["loaded": false])
         }
         return
@@ -407,6 +582,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
       // Update UI on main thread
       DispatchQueue.main.async {
         self.isFetchingRemoteURL = nil
+        
         self.audioPlayer.replaceCurrentItem(with: playerItem)
 
         self.currentSpeed = self.speedService.getSpeed(relativePath: chapter.relativePath)
@@ -844,6 +1020,7 @@ extension PlayerManager {
   func prepareForPlayback(_ currentItem: PlayableItem) async -> Bool {
     /// Allow refetching remote URL if the action was initiating by the user
     canFetchRemoteURL = true
+    canFetchExternalURL = true
 
     guard let playerItem else {
       /// Check if the playbable item is in the process of being set
@@ -1058,6 +1235,8 @@ extension PlayerManager {
 
       setNowPlayingBookTitle(chapter: currentItem.currentChapter)
 
+      // ExternalProgressService self-subscribes to this: the media-server progress pull no
+      // longer depends on which UI happens to hold the delegate slot.
       NotificationCenter.default.post(name: .bookPlayed, object: nil, userInfo: ["book": currentItem])
     }
   }
@@ -1152,10 +1331,25 @@ extension PlayerManager {
       {
         loadAndRefreshURL(item: currentItem)
         canFetchRemoteURL = false
+      } else if let currentItem,
+                currentItem.currentChapter.externalUrl != nil,
+                canFetchExternalURL {
+        loadAndRefreshURL(item: currentItem)
+        canFetchExternalURL = false
       } else {
         /// Avoid showing any alert if playback is not queued, this could be from the initial app launch
         /// where we preload the player with the last played item
         if playbackQueued == true {
+          var actions = [BPActionItem.okAction]
+          
+          if let chapter = currentItem?.currentChapter, offersMediaServers(for: chapter) {
+            actions.append(
+              BPActionItem(title: "media_servers_title".localized) {
+                NotificationCenter.default.post(name: .showMediaServers, object: nil)
+              }
+            )
+          }
+
           if let nsError = item.error as? NSError {
             let errorDescription = """
               \(nsError.localizedDescription)
@@ -1166,9 +1360,9 @@ extension PlayerManager {
               Additional Info
               \(nsError.userInfo)
               """
-            showErrorAlert(title: "\("error_title".localized) \(nsError.code)", errorDescription)
+            showErrorAlert(title: "\("error_title".localized) \(nsError.code)", errorDescription, actions: actions)
           } else {
-            showErrorAlert(title: "error_title".localized, item.error?.localizedDescription)
+            showErrorAlert(title: "error_title".localized, item.error?.localizedDescription, actions: actions)
           }
         }
 
@@ -1247,6 +1441,11 @@ extension PlayerManager {
   private func stopPlayback() {
     observeStatus = false
     playbackQueued = nil
+    // Stopping mid-buffer never reaches .readyToPlay, so the status sinks won't
+    // clear the streaming buffering overlay — reset it on teardown, and release
+    // the item-status sink promptly (it retains its AVPlayerItem until rebind)
+    updatePlayerIsLoadingURL(false)
+    playerItemStatusSubscription?.cancel()
 
     audioPlayer.pause()
     playTask?.cancel()
@@ -1509,11 +1708,22 @@ extension PlayerManager {
 }
 
 extension PlayerManager {
-  private func showErrorAlert(title: String, _ message: String?) {
+  private func showErrorAlert(title: String, _ message: String?, actions: [BPActionItem]? = nil) {
     DispatchQueue.main.async {
-      WindowHelper.activeWindow?.rootViewController?
-        .getTopVisibleViewController()?
-        .showAlert(title, message: message)
+      let viewController = WindowHelper.activeWindow?.rootViewController?
+        .getTopVisibleViewController()
+      
+      if let actions = actions {
+        let content = BPAlertContent(
+          title: title,
+          message: message,
+          style: .alert,
+          actionItems: actions
+        )
+        viewController?.showAlert(content)
+      } else {
+        viewController?.showAlert(title, message: message)
+      }
     }
   }
 }

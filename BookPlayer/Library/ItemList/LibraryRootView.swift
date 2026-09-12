@@ -36,6 +36,7 @@ struct LibraryRootView: View {
 
   @EnvironmentObject private var playerManager: PlayerManager
   @EnvironmentObject private var importManager: ImportManager
+  @EnvironmentObject private var externalImportEvents: ExternalImportEvents
   @EnvironmentObject private var singleFileDownloadService: SingleFileDownloadService
   @EnvironmentObject private var listSyncRefreshService: ListSyncRefreshService
 
@@ -45,6 +46,7 @@ struct LibraryRootView: View {
   @Environment(\.playbackService) private var playbackService
   @Environment(\.syncService) private var syncService
   @Environment(\.hardcoverService) private var hardcoverService
+  @Environment(\.externalProgressService) private var externalProgressService
   @Environment(\.scenePhase) private var scenePhase
 
   var body: some View {
@@ -57,6 +59,7 @@ struct LibraryRootView: View {
           playerManager: playerManager,
           syncService: syncService,
           listSyncRefreshService: listSyncRefreshService,
+          externalProgressService: externalProgressService,
           loadingState: loadingState,
           listState: listState,
           singleFileDownloadService: singleFileDownloadService
@@ -71,6 +74,7 @@ struct LibraryRootView: View {
             playerManager: playerManager,
             syncService: syncService,
             listSyncRefreshService: listSyncRefreshService,
+            externalProgressService: externalProgressService,
             loadingState: loadingState,
             listState: listState,
             singleFileDownloadService: singleFileDownloadService
@@ -119,11 +123,16 @@ struct LibraryRootView: View {
           DispatchQueue.main.async {
             self.importOperationState.isOperationActive = false
             self.importOperationState.processingTitle = ""
-            self.handleOperationCompletion(operation.processedFiles, suggestedFolderName: operation.suggestedFolderName)
+            self.handleOperationCompletion(.local(files: operation.processedFiles), suggestedFolderName: operation.suggestedFolderName)
           }
         }
 
         importManager.start(operation)
+      }
+      .onReceive(externalImportEvents.confirmedBatches) { externalResources in
+        Task {
+          self.handleOperationCompletion(.external(files: externalResources), suggestedFolderName: nil)
+        }
       }
     }
     .tint(theme.linkColor)
@@ -183,15 +192,30 @@ struct LibraryRootView: View {
     }
   }
 
-  func handleOperationCompletion(_ files: [URL], suggestedFolderName: String?) {
-    guard !files.isEmpty else {
+  func handleOperationCompletion(_ importSource: ImportSource, suggestedFolderName: String?) {
+    let filesCount: Int
+    switch importSource {
+    case .local(let files):
+      filesCount = files.count
+    case .external(let externals):
+      filesCount = externals.count
+    }
+    
+    guard filesCount > 0 else {
       return
     }
 
     Task { @MainActor in
-      let processedItems = await libraryService.insertItems(from: files)
+      let processedItems: [SimpleLibraryItem]
+      switch importSource {
+      case .local(let files):
+        processedItems = await libraryService.insertItems(from: files)
+      case .external(let externals):
+        processedItems = await libraryService.insertItems(fromResources: externals)
+      }
+      
       var itemIdentifiers = processedItems.map({ $0.relativePath })
-      var itemIdentifiersPairs = processedItems.map({ LibraryItemRef(relativePath: $0.relativePath, uuid: $0.uuid) })
+      let itemIdentifiersPairs = processedItems.map({ LibraryItemRef(relativePath: $0.relativePath, uuid: $0.uuid) })
       do {
         await syncService.scheduleUpload(items: processedItems)
         /// Move imported files to current selected folder so the user can see them

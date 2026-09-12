@@ -1,0 +1,916 @@
+//
+//  JellyfinConnectionService.swift
+//  BookPlayer
+//
+//  Created by Lysann Tranvouez on 2024-11-20.
+//  Copyright © 2024 BookPlayer LLC. All rights reserved.
+//
+
+import Get
+import JellyfinAPI
+import os
+
+#if os(watchOS)
+import WatchKit
+#else
+import UIKit
+#endif
+
+/// Applies user-defined custom HTTP headers (e.g. Cloudflare Access Service Tokens)
+/// to every outgoing `JellyfinClient` request. Skips `Authorization` so the Jellyfin
+/// client's own MediaBrowser token is never overwritten.
+///
+/// `willSendRequest` is invoked on `Get.APIClient`'s actor executor, while
+/// `setCustomHeaders(_:)` is typically called from `@MainActor`. The dictionary
+/// is therefore guarded by `OSAllocatedUnfairLock`.
+public final class JellyfinHeaderInjector: APIClientDelegate, @unchecked Sendable {
+  private let lockedHeaders: OSAllocatedUnfairLock<[String: String]>
+
+  public init(customHeaders: [String: String] = [:]) {
+    self.lockedHeaders = OSAllocatedUnfairLock(initialState: customHeaders)
+  }
+
+  public func setCustomHeaders(_ headers: [String: String]) {
+    lockedHeaders.withLock { $0 = headers }
+  }
+
+  public func client(_ client: APIClient, willSendRequest request: inout URLRequest) async throws {
+    let headers = lockedHeaders.withLock { $0 }
+    for (key, value) in headers where key.caseInsensitiveCompare("Authorization") != .orderedSame {
+      request.setValue(value, forHTTPHeaderField: key)
+    }
+  }
+}
+
+@MainActor
+@Observable
+public class JellyfinConnectionService: BPLogger {
+  /// `nonisolated` so the `nonisolated init` below can read it without crossing isolation.
+  private nonisolated static let activeConnectionIDKey = "jellyfin_active_connection_id"
+
+  /// Keychain persistence, de-duplication and active-selection bookkeeping, shared with
+  /// AudiobookShelf. Reads below forward into it so views keep observing through this service.
+  private let store: IntegrationConnectionStore<JellyfinConnectionData>
+
+  /// Polling cadence for Quick Connect, in seconds. Matches the JellyfinAPI helper's own
+  /// default and is comfortable for the server, which expects the client to poll
+  /// `/QuickConnect/Connect` periodically until the user enters the code.
+  private static let quickConnectPollIntervalSeconds = 5
+
+  /// Maximum number of Quick Connect polls before the helper aborts with `.maxPollingHit`.
+  /// At a 5-second cadence this gives the user roughly a 16-minute window to enter the code
+  /// on another device before this one gives up.
+  private static let quickConnectMaxPolls = 200
+
+  public var connections: [JellyfinConnectionData] { store.connections }
+  /// A connection pinned by the sync/stream engine for a specific external resource —
+  /// overrides the UI's active selection until cleared. Set via ``useConnection(_:)``.
+  private var manualConnection: JellyfinConnectionData?
+  public var connection: JellyfinConnectionData? {
+    if let manualConnection { return manualConnection }
+    return store.active
+  }
+
+  /// Pins `connection` and rebuilds the client against it (used when consuming a stream
+  /// for a resource whose host resolved to a non-active saved server).
+  public func useConnection(_ connection: JellyfinConnectionData) {
+    manualConnection = connection
+    rebuildClient(for: connection)
+  }
+
+  /// Vendor device identifier forwarded to Jellyfin as the client device id.
+  public var deviceIdentifier: String? {
+#if os(watchOS)
+    return WKInterfaceDevice.current().identifierForVendor?.uuidString
+#else
+    return UIDevice.current.identifierForVendor?.uuidString
+#endif
+  }
+  public var client: JellyfinClient?
+  public var headerInjector: JellyfinHeaderInjector?
+
+  public var activeConnectionID: String? { store.activeConnectionID }
+
+  public nonisolated init(keychainService: KeychainServiceProtocol = KeychainService()) {
+    self.store = IntegrationConnectionStore(
+      keychainKey: .jellyfinConnection,
+      activeIDDefaultsKey: Self.activeConnectionIDKey,
+      keychain: keychainService
+    )
+  }
+
+  public func setup() {
+    store.reload()
+    // Bring the live client up for whichever connection ended up active.
+    rebuildClient(for: connection)
+  }
+
+  /// Transient result of validating a server's reachability. Carries the client +
+  /// header injector that the caller hands back to ``signIn(pending:...)`` to commit
+  /// the connection. Until that commit, neither `self.client` nor `self.headerInjector`
+  /// are mutated, so an in-flight Add Server flow can't corrupt the active library
+  /// session.
+  public struct PendingServer {
+    public let serverName: String
+    public let client: JellyfinClient
+    public let injector: JellyfinHeaderInjector
+    /// Whether this server reports Quick Connect as enabled. Probed during `findServer` so the UI can
+    /// offer the affordance only when it can actually work — admins can turn Quick Connect off, and a
+    /// button that always appears sends those users into a flow that fails with a server error.
+    public let quickConnectEnabled: Bool
+  }
+
+  /// Validates server reachability without mutating service state. Returns a
+  /// ``PendingServer`` that the caller hands back to ``signIn(pending:...)``.
+  public func findServer(
+    at absolutePath: String,
+    customHeaders: [String: String] = [:]
+  ) async throws -> PendingServer {
+    guard let (client, injector) = makeClientAndInjector(
+      serverUrlString: absolutePath,
+      customHeaders: customHeaders
+    ) else {
+      throw IntegrationError.noClient("Jellyfin")
+    }
+
+    let publicSystemInfo = try await client.send(Paths.getPublicSystemInfo)
+
+    let quickConnectEnabled = await Self.isQuickConnectEnabled(on: client)
+    // The probe swallows its own errors — including cancellation — so check explicitly before handing
+    // back a result. Without this, a Connect the user already abandoned still returns a valid
+    // `PendingServer`, and the caller writes `pendingServer` / `signInFlow` for it. Because `onConnect`
+    // cancels the previous attempt on every tap, a slow first probe could land *after* a second attempt
+    // to a different URL and overwrite `pendingServer` with the wrong server's client — while the form
+    // shows the other one, and sign-in sends the typed credentials there.
+    try Task.checkCancellation()
+
+    return PendingServer(
+      serverName: publicSystemInfo.value.serverName ?? "",
+      client: client,
+      injector: injector,
+      quickConnectEnabled: quickConnectEnabled
+    )
+  }
+
+  /// Best-effort probe of `/QuickConnect/Enabled`.
+  ///
+  /// Deliberately non-throwing: a server too old to expose the endpoint, or one that errors, simply
+  /// isn't offered Quick Connect — the safe default. Failing `findServer` over a capability probe would
+  /// block password sign-in for no reason.
+  private static func isQuickConnectEnabled(on client: JellyfinClient) async -> Bool {
+    guard let response = try? await client.send(Paths.getQuickConnectEnabled) else { return false }
+    // The endpoint answers with a bare JSON boolean; fall back to a text compare if that ever changes.
+    if let enabled = try? JSONDecoder().decode(Bool.self, from: response.value) {
+      return enabled
+    }
+    return String(data: response.value, encoding: .utf8)?
+      .trimmingCharacters(in: .whitespacesAndNewlines)
+      .lowercased() == "true"
+  }
+
+  /// Sign in using a ``PendingServer`` returned from ``findServer(at:customHeaders:)``.
+  /// Only on success does this method commit to `self.client` / `self.headerInjector`
+  /// and append to `connections`.
+  public func signIn(
+    pending: PendingServer,
+    username: String,
+    password: String,
+    serverName: String,
+    customHeaders: [String: String] = [:],
+    replacingID: String? = nil
+  ) async throws {
+    let result = try await pending.client.signIn(username: username, password: password)
+    // Bail out before persisting if the caller cancelled while the auth round-trip was
+    // in flight (e.g. the user swiped the sheet down). Otherwise the cancelled sign-in
+    // still ends up saved.
+    try Task.checkCancellation()
+
+    guard
+      let accessToken = result.accessToken,
+      let userID = result.user?.id
+    else {
+      throw IntegrationError.unexpectedResponse(code: nil)
+    }
+
+    // The store de-duplicates on canonical-url + userID and, on a re-auth, carries the existing
+    // connection's id and selectedLibraryId forward — so the user picks up exactly where they left
+    // off (same library context, same outbound references) rather than on a fresh record they have
+    // to re-configure.
+    let serverURL = pending.client.configuration.url
+    // Capture the server's stable GUID (System/Info id) — the cross-device host identity for
+    // synced external resources. Best-effort: a failed info call must never fail the sign-in,
+    // and must not wipe a previously captured id.
+    let publicSystemInfo = try? await pending.client.send(Paths.getPublicSystemInfo)
+    let serverId = publicSystemInfo?.value.id
+    store.upsert(url: serverURL, userID: userID, replacingID: replacingID) { existing in
+      JellyfinConnectionData(
+        id: existing?.id ?? UUID().uuidString,
+        serverId: serverId ?? existing?.serverId,
+        url: serverURL,
+        serverName: serverName,
+        userID: userID,
+        userName: username,
+        accessToken: accessToken,
+        selectedLibraryId: existing?.selectedLibraryId,
+        customHeaders: customHeaders
+      )
+    }
+
+    // Commit the transient client + injector now that the connection is persisted.
+    self.client = pending.client
+    self.headerInjector = pending.injector
+    pending.injector.setCustomHeaders(customHeaders)
+  }
+
+  /// Builds a Quick Connect controller bound to a validated server's client.
+  ///
+  /// The reworked add-server flow keeps the `JellyfinClient` transient inside ``PendingServer``
+  /// and only commits it on a successful sign-in. Quick Connect needs a working client *before*
+  /// any credentials exist, so it runs against the pending client rather than `self.client`.
+  public func makeQuickConnectController(
+    using client: JellyfinClient
+  ) -> JellyfinAPI.QuickConnect {
+    JellyfinAPI.QuickConnect(
+      client: client,
+      pollInterval: Self.quickConnectPollIntervalSeconds,
+      maxPolls: Self.quickConnectMaxPolls
+    )
+  }
+
+  /// Completes a Quick Connect sign-in against a validated ``PendingServer``: exchanges the
+  /// authorized `secret` for an access token and persists the connection in the same shape as
+  /// ``signIn(pending:username:password:serverName:customHeaders:)``.
+  ///
+  /// Returns the username taken from the auth response — Quick Connect doesn't expose it
+  /// client-side before authentication, so the Connected screen relies on this for its
+  /// "signed in as X" line.
+  public func signInWithQuickConnect(
+    pending: PendingServer,
+    secret: String,
+    serverName: String,
+    customHeaders: [String: String] = [:],
+    replacingID: String? = nil
+  ) async throws -> String {
+    let result = try await pending.client.signIn(quickConnectSecret: secret)
+    // Bail out before persisting if the caller cancelled while the exchange was in flight.
+    try Task.checkCancellation()
+
+    guard
+      let accessToken = result.accessToken,
+      let userID = result.user?.id,
+      let userName = result.user?.name
+    else {
+      throw IntegrationError.unexpectedResponse(code: nil)
+    }
+
+    // Identical persistence to the password path: the store de-duplicates on canonical-url + userID
+    // and carries the existing connection's id and selectedLibraryId forward on a re-auth, so the
+    // user lands back in the same library context with the same outbound references.
+    let serverURL = pending.client.configuration.url
+    // Same stable-GUID capture as the password path (see signIn).
+    let publicSystemInfo = try? await pending.client.send(Paths.getPublicSystemInfo)
+    let serverId = publicSystemInfo?.value.id
+    store.upsert(url: serverURL, userID: userID, replacingID: replacingID) { existing in
+      JellyfinConnectionData(
+        id: existing?.id ?? UUID().uuidString,
+        serverId: serverId ?? existing?.serverId,
+        url: serverURL,
+        serverName: serverName,
+        userID: userID,
+        userName: userName,
+        accessToken: accessToken,
+        selectedLibraryId: existing?.selectedLibraryId,
+        customHeaders: customHeaders
+      )
+    }
+
+    // Commit the transient client + injector now that the connection is persisted.
+    self.client = pending.client
+    self.headerInjector = pending.injector
+    pending.injector.setCustomHeaders(customHeaders)
+
+    return userName
+  }
+
+  public func updateCustomHeaders(_ headers: [String: String]) {
+    guard let activeID = connection?.id else { return }
+    updateCustomHeaders(id: activeID, headers)
+  }
+
+  /// Persist `headers` to the connection with the given id, regardless of which is active.
+  /// If `id` happens to be the active connection, the live header injector is also updated.
+  public func updateCustomHeaders(id: String, _ headers: [String: String]) {
+    guard store.updateCustomHeaders(id: id, headers) else { return }
+    if id == connection?.id {
+      headerInjector?.setCustomHeaders(headers)
+    }
+  }
+
+  public func saveSelectedLibrary(id: String?) {
+    guard let activeID = connection?.id else { return }
+    store.setSelectedLibrary(id: activeID, libraryId: id)
+  }
+
+  public func activateConnection(id: String) {
+    guard store.setActive(id: id) else { return }
+    rebuildClient(for: connection)
+  }
+
+  public func deleteConnection(id: String) {
+    // Capture the old client BEFORE we mutate state, so the fire-and-forget
+    // signOut doesn't race with the rebuildClient call below (and so signOut
+    // is invoked on the connection the user actually asked us to remove).
+    let oldClientToSignOut: JellyfinClient? = {
+      guard let data = connections.first(where: { $0.id == id }),
+            data.id == connection?.id else { return nil }
+      return client
+    }()
+
+    guard store.remove(id: id) != nil else { return }
+
+    // The store has already persisted the remainder (or cleared the Keychain entry entirely once
+    // the last connection went), so all that's left is pointing the live client at whatever is
+    // active now — `connection` is nil when none remain, which clears it.
+    rebuildClient(for: connection)
+
+    if let oldClientToSignOut {
+      Task {
+        do {
+          try await oldClientToSignOut.signOut()
+        } catch {
+          Self.logger.warning("Jellyfin signOut during delete failed: \(error.localizedDescription)")
+        }
+      }
+    }
+  }
+
+  /// Rebuilds `client` (and the underlying `headerInjector`) for the given saved connection,
+  /// or clears it when `data == nil`. Centralized so callers can't forget to forward
+  /// `customHeaders` — earlier copies of `activateConnection` / `deleteConnection` dropped them,
+  /// which broke connections behind Cloudflare Access until the next app launch.
+  private func rebuildClient(for data: JellyfinConnectionData?) {
+    guard let data else {
+      client = nil
+      return
+    }
+    client = createClient(
+      serverUrlString: data.url.absoluteString,
+      accessToken: data.accessToken,
+      customHeaders: data.customHeaders
+    )
+  }
+
+  public func deleteConnection() {
+    if let id = connection?.id {
+      deleteConnection(id: id)
+    }
+  }
+
+  public func fetchTopLevelItems() async throws -> [JellyfinLibraryItem] {
+    guard
+      let connection
+    else {
+      throw IntegrationError.noClient("Jellyfin")
+    }
+
+    let parameters = Paths.GetUserViewsParameters(userID: connection.userID)
+
+    let response = try await send(Paths.getUserViews(parameters: parameters))
+
+    try Task.checkCancellation()
+
+    let userViews = (response.value.items ?? [])
+      .compactMap { JellyfinLibraryItem(apiItem: $0) }
+
+    return userViews
+  }
+
+  public func fetchItems(
+    in folderID: String?,
+    startIndex: Int?,
+    limit: Int?,
+    sortBy: JellyfinLayout.SortBy,
+    searchTerm: String? = nil,
+    recursive: Bool = false
+  ) async throws -> (items: [JellyfinLibraryItem], nextStartIndex: Int, maxCountItems: Int) {
+    // Require a search term when no folder is scoped, to avoid accidental expensive server-wide fetches
+    let effectiveSearchTerm = searchTerm.flatMap { $0.isEmpty ? nil : $0 }
+    guard folderID != nil || effectiveSearchTerm != nil else {
+      return ([], 0, 0)
+    }
+
+    let orderBy: [JellyfinAPI.ItemSortBy]
+    let sortOrder: [JellyfinAPI.SortOrder]
+    switch sortBy {
+      case .recent:
+        orderBy = [.dateCreated]
+        sortOrder = [.descending]
+      case .name:
+        orderBy = [.name]
+        sortOrder = [.ascending]
+      case .smart:
+        orderBy = [.isFolder, .sortName]
+        sortOrder = [.ascending]
+    }
+
+    // Use the normalized term everywhere below: a raw empty string ("") would otherwise
+    // count as "searching" — forcing a recursive audiobook-only fetch that drops the
+    // folder's subfolders and sends searchTerm="" to the server
+    let isRecursive = recursive || effectiveSearchTerm != nil || folderID == nil
+    let itemTypes: [JellyfinAPI.BaseItemKind] = (recursive || effectiveSearchTerm != nil) ? [.audioBook] : [.audioBook, .folder]
+
+    let parameters = Paths.GetItemsParameters(
+      startIndex: startIndex,
+      limit: limit,
+      isRecursive: isRecursive,
+      searchTerm: effectiveSearchTerm,
+      sortOrder: sortOrder,
+      parentID: folderID,
+      fields: [.sortName],
+      includeItemTypes: itemTypes,
+      sortBy: orderBy,
+      enableUserData: false,
+      imageTypeLimit: 1,
+      enableImageTypes: [.primary]
+    )
+
+    let response = try await send(Paths.getItems(parameters: parameters))
+    try Task.checkCancellation()
+
+    // Compute the next page offset from what we sent, not from the response echo —
+    // some Jellyfin server configurations omit `startIndex` / `totalRecordCount`,
+    // which previously stalled pagination at the first page.
+    let nextStartItemIndex = (startIndex ?? 0) + (response.value.items?.count ?? 0)
+    let maxNumItems = response.value.totalRecordCount ?? Int.max
+
+    let items = (response.value.items ?? [])
+      .filter { item in item.id != nil }
+      .compactMap { item -> JellyfinLibraryItem? in
+        return JellyfinLibraryItem(apiItem: item)
+      }
+
+    return (items, nextStartItemIndex, maxNumItems)
+  }
+
+  /// Hydrates the given item ids with their media sources (container/path), which list
+  /// responses don't carry. Virtual import requires the REAL file extension — items the
+  /// server reports without one are skipped by the importer, never guessed.
+  public func fetchItems(ids: [String]) async throws -> [JellyfinLibraryItem] {
+    guard !ids.isEmpty else { return [] }
+
+    var hydrated: [JellyfinLibraryItem] = []
+    // The ids travel in the query string — chunk so a whole-folder import can't
+    // overflow the URL length limit.
+    let chunkSize = 100
+    for start in stride(from: 0, to: ids.count, by: chunkSize) {
+      let chunk = Array(ids[start..<min(start + chunkSize, ids.count)])
+      var parameters = Paths.GetItemsParameters()
+      parameters.ids = chunk
+      parameters.fields = [.mediaSources, .path]
+      parameters.enableUserData = true
+      let response = try await send(Paths.getItems(parameters: parameters))
+      try Task.checkCancellation()
+      hydrated.append(
+        contentsOf: (response.value.items ?? []).compactMap { JellyfinLibraryItem(apiItem: $0) }
+      )
+    }
+    return hydrated
+  }
+
+  /// Fetch audiobooks filtered by album artist ID.
+  ///
+  /// Current callers pass `limit: nil` to fetch all matches in a single response
+  /// and ignore the returned `nextStartIndex` / `maxCountItems`. Those fields are
+  /// kept for symmetry with `fetchItems` so future paginated callers can adopt them.
+  public func fetchItemsByArtist(
+    artistID: String,
+    parentID: String?,
+    startIndex: Int?,
+    limit: Int?,
+    sortBy: JellyfinLayout.SortBy
+  ) async throws -> (items: [JellyfinLibraryItem], nextStartIndex: Int, maxCountItems: Int) {
+    let orderBy: [JellyfinAPI.ItemSortBy]
+    let sortOrder: [JellyfinAPI.SortOrder]
+    switch sortBy {
+    case .recent:
+      orderBy = [.dateCreated]
+      sortOrder = [.descending]
+    case .name:
+      orderBy = [.name]
+      sortOrder = [.ascending]
+    case .smart:
+      orderBy = [.sortName]
+      sortOrder = [.ascending]
+    }
+
+    let parameters = Paths.GetItemsParameters(
+      startIndex: startIndex,
+      limit: limit,
+      isRecursive: true,
+      sortOrder: sortOrder,
+      parentID: parentID,
+      fields: [.sortName],
+      includeItemTypes: [.audioBook],
+      sortBy: orderBy,
+      enableUserData: false,
+      imageTypeLimit: 1,
+      enableImageTypes: [.primary],
+      albumArtistIDs: [artistID]
+    )
+
+    let response = try await send(Paths.getItems(parameters: parameters))
+    try Task.checkCancellation()
+
+    let nextStartItemIndex = (startIndex ?? 0) + (response.value.items?.count ?? 0)
+    let maxNumItems = response.value.totalRecordCount ?? Int.max
+
+    let items = (response.value.items ?? [])
+      .compactMap { JellyfinLibraryItem(apiItem: $0) }
+
+    return (items, nextStartItemIndex, maxNumItems)
+  }
+
+  /// Fetch album artists in a library.
+  public func fetchAlbumArtists(
+    parentID: String?,
+    startIndex: Int? = nil,
+    limit: Int? = nil,
+    searchTerm: String? = nil
+  ) async throws -> (items: [JellyfinLibraryItem], total: Int) {
+    let parameters = Paths.GetAlbumArtistsParameters(
+      startIndex: startIndex,
+      limit: limit,
+      searchTerm: searchTerm,
+      parentID: parentID,
+      fields: [.sortName],
+      imageTypeLimit: 1,
+      sortBy: [.sortName],
+      sortOrder: [.ascending]
+    )
+
+    let response = try await send(Paths.getAlbumArtists(parameters: parameters))
+    try Task.checkCancellation()
+
+    let items = (response.value.items ?? [])
+      .compactMap { JellyfinLibraryItem(authorApiItem: $0) }
+    let total = response.value.totalRecordCount ?? items.count
+
+    return (items, total)
+  }
+
+  /// Fetch narrators by scanning audiobook items for People with "Narrator" role or type.
+  /// Jellyfin doesn't have a native "Narrator" person kind, so we extract them from item metadata.
+  public func fetchNarrators(
+    parentID: String? = nil,
+    searchTerm: String? = nil,
+    limit: Int? = nil
+  ) async throws -> (items: [JellyfinLibraryItem], total: Int) {
+    // Fetch all audiobooks with People metadata
+    let parameters = Paths.GetItemsParameters(
+      isRecursive: true,
+      parentID: parentID,
+      fields: [.people],
+      includeItemTypes: [.audioBook],
+      enableUserData: false,
+      imageTypeLimit: 0,
+      enableImages: false
+    )
+
+    let response = try await send(Paths.getItems(parameters: parameters))
+    try Task.checkCancellation()
+
+    // Extract unique narrators from People arrays
+    var seenNames = Set<String>()
+    var narratorItems = [JellyfinLibraryItem]()
+
+    for apiItem in response.value.items ?? [] {
+      for person in apiItem.people ?? [] {
+        guard let name = person.name, !name.isEmpty else { continue }
+
+        let isNarrator =
+          person.role?.localizedCaseInsensitiveContains("narrator") == true
+          || person.type?.rawValue.localizedCaseInsensitiveContains("narrator") == true
+
+        guard isNarrator, !seenNames.contains(name) else { continue }
+        seenNames.insert(name)
+
+        let id = person.id ?? name
+        narratorItems.append(
+          JellyfinLibraryItem(id: id, name: name, kind: .narrator)
+        )
+      }
+    }
+
+    narratorItems.sort { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
+
+    return (narratorItems, narratorItems.count)
+  }
+
+  /// Fetch audiobooks by a specific narrator (person name or ID).
+  ///
+  /// Current callers pass `limit: nil` to fetch all matches in a single response
+  /// and ignore the returned `nextStartIndex` / `maxCountItems`. Those fields are
+  /// kept for symmetry with `fetchItems` so future paginated callers can adopt them.
+  public func fetchItemsByPerson(
+    personID: String,
+    personName: String?,
+    parentID: String?,
+    startIndex: Int?,
+    limit: Int?,
+    sortBy: JellyfinLayout.SortBy
+  ) async throws -> (items: [JellyfinLibraryItem], nextStartIndex: Int, maxCountItems: Int) {
+    let orderBy: [JellyfinAPI.ItemSortBy]
+    let sortOrder: [JellyfinAPI.SortOrder]
+    switch sortBy {
+    case .recent:
+      orderBy = [.dateCreated]
+      sortOrder = [.descending]
+    case .name:
+      orderBy = [.name]
+      sortOrder = [.ascending]
+    case .smart:
+      orderBy = [.sortName]
+      sortOrder = [.ascending]
+    }
+
+    // Use person name for matching (more reliable for narrators extracted from metadata)
+    let parameters = Paths.GetItemsParameters(
+      startIndex: startIndex,
+      limit: limit,
+      isRecursive: true,
+      sortOrder: sortOrder,
+      parentID: parentID,
+      fields: [.sortName],
+      includeItemTypes: [.audioBook],
+      sortBy: orderBy,
+      enableUserData: false,
+      imageTypeLimit: 1,
+      enableImageTypes: [.primary],
+      person: personName ?? personID
+    )
+
+    let response = try await send(Paths.getItems(parameters: parameters))
+    try Task.checkCancellation()
+
+    let nextStartItemIndex = (startIndex ?? 0) + (response.value.items?.count ?? 0)
+    let maxNumItems = response.value.totalRecordCount ?? Int.max
+
+    let items = (response.value.items ?? [])
+      .compactMap { JellyfinLibraryItem(apiItem: $0) }
+
+    return (items, nextStartItemIndex, maxNumItems)
+  }
+
+  public func fetchItemDetails(for id: String) async throws -> JellyfinAudiobookDetailsData {
+    let response = try await send(Paths.getItem(itemID: id))
+    try Task.checkCancellation()
+
+    let itemInfo = response.value
+    let artist: String? = itemInfo.albumArtist
+    let filePath: String? = itemInfo.mediaSources?.first?.path ?? itemInfo.path
+    let fileSize: Int? = itemInfo.mediaSources?.first?.size
+    let runtimeInSeconds: TimeInterval? =
+      (itemInfo.runTimeTicks != nil) ? TimeInterval(itemInfo.runTimeTicks!) / 10000000.0 : nil
+
+    return JellyfinAudiobookDetailsData(
+      artist: artist,
+      filePath: filePath,
+      fileSize: fileSize,
+      overview: itemInfo.overview,
+      runtimeInSeconds: runtimeInSeconds,
+      genres: itemInfo.genres,
+      tags: itemInfo.tags
+    )
+  }
+
+  /// Fetches one library item by id (used to refresh a synced external resource's metadata).
+  public func fetchItem(for id: String) async throws -> JellyfinLibraryItem? {
+    let response = try await send(Paths.getItem(itemID: id))
+    try Task.checkCancellation()
+    return JellyfinLibraryItem(apiItem: response.value)
+  }
+
+  /// Pushes playback progress for one item (`updateItemUserData`), mirroring what the Android
+  /// app's external-update task sends. Routed through ``send(_:)`` so a mid-session 401/403
+  /// surfaces as the typed re-auth signal instead of a generic error.
+  public func updateItemProgress(_ itemId: String, positionTicks: Int, percentCompleted: Double) async throws {
+    let userDataDto = UpdateUserItemDataDto(
+      playbackPositionTicks: positionTicks,
+      playedPercentage: percentCompleted
+    )
+    _ = try await send(Paths.updateItemUserData(itemID: itemId, userDataDto))
+  }
+
+  /// Batch-fetches the Jellyfin items backing the given synced external resources, keyed by
+  /// provider item id — one round-trip instead of N when refreshing a list.
+  public func updateItemsFromJellyfin(_ externalResources: [SimpleExternalResource]) async throws -> [String: JellyfinLibraryItem] {
+    guard !externalResources.isEmpty, let myId = connection?.userID else { return [:] }
+
+    let request = Paths.getItems(parameters: Paths.GetItemsParameters(userID: myId, ids: externalResources.map(\.providerId)))
+    let response = try await send(request)
+
+    var itemsDictionary: [String: JellyfinLibraryItem] = [:]
+    for item in response.value.items ?? [] {
+      guard let jellyfinItem = JellyfinLibraryItem(apiItem: item) else { continue }
+      itemsDictionary[jellyfinItem.id] = jellyfinItem
+    }
+    return itemsDictionary
+  }
+
+  public func fetchAudiobookDownloadRequests(for folderID: String) async throws -> [URLRequest] {
+    let parameters = Paths.GetItemsParameters(
+      isRecursive: false,
+      parentID: folderID,
+      includeItemTypes: [.audioBook],
+      enableUserData: false,
+      enableImages: false
+    )
+
+    let response = try await send(Paths.getItems(parameters: parameters))
+    try Task.checkCancellation()
+
+    let audiobooks = (response.value.items ?? [])
+      .filter { item in item.id != nil }
+      .compactMap { item -> JellyfinLibraryItem? in
+        return JellyfinLibraryItem(apiItem: item)
+      }
+
+    return audiobooks.compactMap { audiobook in
+      do {
+        return try createItemDownloadRequest(audiobook)
+      } catch {
+        Self.logger.warning("Failed to create download request for audiobook \(audiobook.id): \(error)")
+        return nil
+      }
+    }
+  }
+
+  private func send<T>(
+    _ request: Request<T>
+  ) async throws -> Response<T> where T: Decodable {
+    guard let client else {
+      throw IntegrationError.noClient("Jellyfin")
+    }
+
+    do {
+      return try await client.send(request)
+    } catch APIError.unacceptableStatusCode(let status)
+            where (status == 401 || status == 403) && connection != nil {
+      // Mid-session unauthorized — the saved access token is no longer accepted (server
+      // invalidated, revoked, or password rotated). Surface this as a typed re-auth signal so
+      // the UI can offer a "sign in again to {server}" path instead of dumping the user into
+      // the generic add-server form (which is the C2 trap: users re-add the same server and
+      // end up with duplicates).
+      //
+      // The `connection != nil` clause guards pre-sign-in calls (e.g. the api-client probe
+      // inside `findServer`) — we only re-auth when there's actually a session to re-auth.
+      throw IntegrationError.sessionExpired(
+        serverName: connection?.serverName ?? "Jellyfin"
+      )
+    }
+  }
+
+  /// Pure factory: builds a client + injector pair without touching `self`. Used by
+  /// ``findServer(at:customHeaders:)`` (which must not mutate state) and by
+  /// ``createClient(serverUrlString:accessToken:customHeaders:)`` (which commits).
+  private func makeClientAndInjector(
+    serverUrlString: String,
+    accessToken: String? = nil,
+    customHeaders: [String: String] = [:]
+  ) -> (JellyfinClient, JellyfinHeaderInjector)? {
+    let mainBundleInfo = Bundle.main.infoDictionary
+    let clientName = mainBundleInfo?[kCFBundleNameKey as String] as? String
+    let clientVersion = mainBundleInfo?[kCFBundleVersionKey as String] as? String
+#if os(watchOS)
+    let deviceID = WKInterfaceDevice.current().identifierForVendor
+    let deviceName = WKInterfaceDevice.current().name
+#else
+    let deviceID = UIDevice.current.identifierForVendor
+    let deviceName = UIDevice.current.name
+#endif
+    guard let url = URL(string: serverUrlString), let clientName, let clientVersion, let deviceID else {
+      Self.logger.error(
+        "cannot build Jellyfin API client. \(serverUrlString), \(clientName), \(clientVersion), \(String(reflecting: deviceID))"
+      )
+      return nil
+    }
+    let configuration = JellyfinClient.Configuration(
+      url: url,
+      client: clientName,
+      deviceName: deviceName,
+      deviceID: "\(deviceID.uuidString)-\(clientName)",
+      version: clientVersion
+    )
+    let injector = JellyfinHeaderInjector(customHeaders: customHeaders)
+    let client = JellyfinClient(
+      configuration: configuration,
+      delegate: injector,
+      accessToken: accessToken
+    )
+    return (client, injector)
+  }
+
+  /// Builds a client + commits the underlying injector to `self.headerInjector`.
+  /// Used by ``rebuildClient(for:)`` to swap in a saved connection's client.
+  private func createClient(
+    serverUrlString: String,
+    accessToken: String? = nil,
+    customHeaders: [String: String] = [:]
+  ) -> JellyfinClient? {
+    guard let (client, injector) = makeClientAndInjector(
+      serverUrlString: serverUrlString,
+      accessToken: accessToken,
+      customHeaders: customHeaders
+    ) else {
+      return nil
+    }
+    self.headerInjector = injector
+    return client
+  }
+
+  public func createItemDownloadUrl(_ item: JellyfinLibraryItem) throws -> URL {
+    guard let client else {
+      throw IntegrationError.noClient("Jellyfin")
+    }
+
+    let request = Paths.getDownload(itemID: item.id)
+    let components = try createUrlComponentsForApiRequest(request)
+
+    guard let url = components.url else {
+      throw IntegrationError.urlFromComponents(components)
+    }
+
+    return url
+  }
+
+  /// Returns a URLRequest for downloading a library item, carrying the user-defined
+  /// custom HTTP headers (needed for servers behind Cloudflare Access etc.).
+  public func createItemDownloadRequest(_ item: JellyfinLibraryItem) throws -> URLRequest {
+    let url = try createItemDownloadUrl(item)
+    var request = wrapWithCustomHeaders(url)
+    // Token rides Jellyfin's native header, NOT the query string: URLs land in server
+    // logs, proxy logs, and download-manager UI, and the caller builds a URLRequest
+    // anyway. Background URLSession preserves request headers across app relaunches.
+    if let token = client?.accessToken {
+      request.setValue(token, forHTTPHeaderField: "X-Emby-Token")
+    }
+    return request
+  }
+
+  /// Wraps an arbitrary URL (e.g. a cover image) in a URLRequest carrying the current
+  /// connection's custom HTTP headers. Skips `Authorization` so the Jellyfin token is preserved.
+  public func wrapWithCustomHeaders(_ url: URL) -> URLRequest {
+    var request = URLRequest(url: url)
+    for (key, value) in connection?.customHeaders ?? [:]
+    where key.caseInsensitiveCompare("Authorization") != .orderedSame {
+      request.setValue(value, forHTTPHeaderField: key)
+    }
+    return request
+  }
+
+  public func createItemImageURL(_ item: JellyfinLibraryItem, size: CGSize?, quality: Int? = nil) throws -> URL {
+    var parameters = Paths.GetItemImageParameters()
+
+    if let size {
+      parameters.fillWidth = Int(size.width)
+      parameters.fillHeight = Int(size.height)
+    }
+    parameters.quality = quality
+
+    let request = Paths.getItemImage(itemID: item.id, imageType: "Primary", parameters: parameters)
+    let components = try createUrlComponentsForApiRequest(request)
+
+    guard let url = components.url else {
+      throw IntegrationError.urlFromComponents(components)
+    }
+
+    return url
+  }
+
+  private func createUrlComponentsForApiRequest<Response>(
+    _ request: Request<Response>
+  ) throws -> URLComponents {
+    guard let client else {
+      throw IntegrationError.noClient("Jellyfin")
+    }
+
+    guard let requestUrl = request.url else {
+      throw IntegrationError.urlMalformed(nil)
+    }
+
+    let requestAbsoluteUrl =
+      requestUrl.scheme == nil
+      ? client.configuration.url.appendingPathComponent(requestUrl.absoluteString)
+      : requestUrl
+
+    guard var components = URLComponents(url: requestAbsoluteUrl, resolvingAgainstBaseURL: false) else {
+      throw IntegrationError.urlMalformed(requestUrl)
+    }
+
+    if let query = request.query, !query.isEmpty {
+      components.queryItems = query.map(URLQueryItem.init)
+    }
+
+    return components
+  }
+}

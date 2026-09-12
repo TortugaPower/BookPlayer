@@ -16,6 +16,9 @@ struct MainView: View {
   @State private var listState = ListStateManager()
   @StateObject private var theme = ThemeViewModel()
   @StateObject private var keyboardObserver = KeyboardObserver()
+  /// A wire between SwiftUI views that MainCoordinator never touches, so it's owned here.
+  /// Injected below, where the integration sheets and the library tab both inherit it.
+  @StateObject private var externalImportEvents = ExternalImportEvents()
   @Environment(\.libraryService) private var libraryService
   @Environment(\.playerState) private var playerState
   @Environment(\.syncService) private var syncService
@@ -102,16 +105,40 @@ struct MainView: View {
           libraryService: libraryService,
           playbackService: playbackService,
           playerManager: playerManager,
-          syncService: syncService
+          syncService: syncService,
         )
       }
       .presentationBackground(.clear)
+      .alert("resume_playback_alert_title".localized, isPresented: playerState.showResumePopupBinding(whenPlayerVisible: true)) {
+        Button("yes_button".localized) { playerManager.jumpTo(playerState.remotePlayTime ?? 0)}
+        Button("ignore_button".localized, role: .cancel) { }
+      } message: {
+        Text(String(format: "resume_playback_alert_message".localized, TimeParser.formatTime(playerState.remotePlayTime ?? 0)))
+      }
+    }
+    // Posted by PlayerManager when a book can't play because its media server isn't
+    // configured here. Lives at this level because both pieces of state it writes are
+    // owned above: the cover has to come down before the sheet can present, since the
+    // sheet is attached underneath it.
+    .onReceive(NotificationCenter.default.publisher(for: .showMediaServers)) { _ in
+      playerState.isShowingPlayer = false
+      listState.activeIntegrationSheet = .mediaServers
+    }
+    // Sibling copy of the resume alert (see showResumePopupBinding): playback also starts
+    // with the player CLOSED — mini-player, CarPlay, remote commands, last-book restore —
+    // and the copy inside the cover isn't in the hierarchy then, silently dropping the prompt
+    .alert("resume_playback_alert_title".localized, isPresented: playerState.showResumePopupBinding(whenPlayerVisible: false)) {
+      Button("yes_button".localized) { playerManager.jumpTo(playerState.remotePlayTime ?? 0)}
+      Button("ignore_button".localized, role: .cancel) { }
+    } message: {
+      Text(String(format: "resume_playback_alert_message".localized, TimeParser.formatTime(playerState.remotePlayTime ?? 0)))
     }
     .accessibilityAction(.magicTap) {
       playerManager.playPause()
     }
     .environment(\.tabBarContentHeight, tabBarContentHeight)
     .environmentObject(theme)
+    .environmentObject(externalImportEvents)
     .environment(\.listState, listState)
     .tint(theme.linkColor)
     .onChange(of: scheme) {

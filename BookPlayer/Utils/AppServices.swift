@@ -26,11 +26,18 @@ final class AppServices: BPLogger {
 
   var pendingURLActions = [Action]()
 
-  let playerState = PlayerState()
+  let playerState: PlayerState
+  /// Eager, like playerState: CarPlay registers here from connect(), which on a cold launch
+  /// into the car runs before CoreServices exist. Its subscription is bound in setup below.
+  let resumeOfferArbiter: ResumeOfferArbiter
 
   let reviewPromptService = ReviewPromptService()
 
-  private init() {}
+  private init() {
+    let playerState = PlayerState()
+    self.playerState = playerState
+    self.resumeOfferArbiter = ResumeOfferArbiter(playerState: playerState)
+  }
 
   // MARK: - Core Services Setup
 
@@ -77,10 +84,18 @@ final class AppServices: BPLogger {
       let accountService = makeAccountService(dataManager: dataManager)
       let audioMetadataService = makeAudioMetadataService()
       let libraryService = makeLibraryService(dataManager: dataManager, audioMetadataService: audioMetadataService)
+      let tasksDataManager = TasksDataManager()
+      let concurrenceService = makeConcurrenceService(
+        libraryService: libraryService,
+        getAccessLevel: { accountService.getAccessLevel() },
+        tasksDataManager: tasksDataManager,
+        dataManager: dataManager
+      )
       let syncService = makeSyncService(
         accountService: accountService,
         libraryService: libraryService,
-        dataManager: dataManager
+        concurrenceService: concurrenceService,
+        tasksDataManager: tasksDataManager
       )
       let playbackService = makePlaybackService(libraryService: libraryService)
       let playerManager = PlayerManager(
@@ -89,7 +104,8 @@ final class AppServices: BPLogger {
         syncService: syncService,
         speedService: SpeedService(libraryService: libraryService),
         shakeMotionService: ShakeMotionService(),
-        widgetReloadService: WidgetReloadService()
+        widgetReloadService: WidgetReloadService(),
+        hasStreamingEnabled: { accountService.hasStreamingEnabled() }
       )
       let watchService = PhoneWatchConnectivityService(
         libraryService: libraryService,
@@ -102,7 +118,7 @@ final class AppServices: BPLogger {
         playbackService: playbackService,
         playerManager: playerManager
       )
-      let hardcoverService = makeHardcoverService(libraryService: libraryService)
+      let hardcoverService = makeHardcoverService(libraryService: libraryService, syncService: syncService)
 
       let preferencesService = PreferencesSyncService()
       preferencesService.setup(
@@ -111,6 +127,10 @@ final class AppServices: BPLogger {
       )
       libraryService.preferencesService = preferencesService
       Task { await preferencesService.bootstrap() }
+
+      let externalProgressService = ExternalProgressService()
+      externalProgressService.setup(libraryService: libraryService)
+      resumeOfferArbiter.bind(to: externalProgressService)
 
       let coreServices = CoreServices(
         accountService: accountService,
@@ -122,6 +142,8 @@ final class AppServices: BPLogger {
         playerManager: playerManager,
         preferencesService: preferencesService,
         syncService: syncService,
+        concurrenceService: concurrenceService,
+        externalProgressService: externalProgressService,
         watchService: watchService
       )
 
@@ -223,13 +245,32 @@ final class AppServices: BPLogger {
   private func makeSyncService(
     accountService: AccountService,
     libraryService: LibraryService,
-    dataManager: DataManager
+    concurrenceService: ConcurrenceService,
+    tasksDataManager: TasksDataManager
   ) -> SyncService {
     let service = SyncService()
     service.setup(
       isActive: accountService.hasSyncEnabled(),
       libraryService: libraryService,
       accountService: accountService,
+      concurrenceService: concurrenceService,
+      tasksDataManager: tasksDataManager
+    )
+    return service
+  }
+
+  private func makeConcurrenceService(
+    libraryService: LibraryService,
+    getAccessLevel: @escaping () -> AccessLevel,
+    tasksDataManager: TasksDataManager,
+    dataManager: DataManager
+  ) -> ConcurrenceService {
+    let service = ConcurrenceService()
+    service.setup(
+      libraryService: libraryService,
+      getAccessLevel: getAccessLevel,
+      tasksDataManager: tasksDataManager,
+      networkClient: NetworkClient(),
       dataManager: dataManager
     )
     return service
@@ -257,9 +298,9 @@ final class AppServices: BPLogger {
     return service
   }
 
-  private func makeHardcoverService(libraryService: LibraryService) -> HardcoverService {
+  private func makeHardcoverService(libraryService: LibraryService, syncService: SyncService) -> HardcoverService {
     let service = HardcoverService()
-    service.setup(libraryService: libraryService)
+    service.setup(libraryService: libraryService, syncService: syncService)
     return service
   }
 }

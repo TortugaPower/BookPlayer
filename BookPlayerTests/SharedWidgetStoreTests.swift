@@ -34,6 +34,7 @@ class SharedWidgetStoreTests: XCTestCase {
       duration: 100,
       relativePath: relativePath,
       remoteURL: nil,
+      externalURL: nil,
       index: 0
     )
     return PlayableItem(

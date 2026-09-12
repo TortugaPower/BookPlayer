@@ -10,14 +10,13 @@ import Foundation
 import SwiftData
 import Combine
 
-public final class TasksDataManager {
+public final class TasksDataManager: BPLogger {
   public let container: ModelContainer
   private let tasksCountSubject = CurrentValueSubject<Int, Never>(0)
+  private let concurrentTasksCountSubject = CurrentValueSubject<Int, Never>(0)
 
   public init() {
     let schema = Schema([
-      SyncTasksContainer.self,
-      SyncTaskReferenceModel.self,
       UploadTaskModel.self,
       UpdateTaskModel.self,
       MoveTaskModel.self,
@@ -26,13 +25,55 @@ public final class TasksDataManager {
       SetBookmarkTaskModel.self,
       RenameFolderTaskModel.self,
       ArtworkUploadTaskModel.self,
-      MatchUuidsTaskModel.self
+      MatchUuidsTaskModel.self,
+      UploadExternalResourceTaskModel.self,
+      ExternalResourceToDownloadTaskModel.self,
+      DeleteExternalResourceTaskModel.self,
+      ConcurrentTasksContainer.self,
+      ConcurrentTaskReferenceModel.self,
+      ExternalUpdateTaskModel.self,
+      ConcurrentUploadTaskModel.self,
     ])
 
     let storeURL = DataManager.getSyncTasksSwiftDataURL()
     let modelConfiguration = ModelConfiguration(url: storeURL, cloudKitDatabase: .none)
 
-    container = try! ModelContainer(for: schema, migrationPlan: MigrationPlan.self, configurations: [modelConfiguration])
+    do {
+      container = try ModelContainer(for: schema, migrationPlan: MigrationPlan.self, configurations: [modelConfiguration])
+    } catch {
+      // An unloadable store here is a PERMANENT launch crash-loop under try! — e.g. a store
+      // written by a schema revision the migration plan no longer knows (dev builds between
+      // schema edits hit exactly this). The task queue is recoverable state: queued work is
+      // re-derivable, a crashed app is not. Destroy and recreate rather than trap forever.
+      // ONLY for store-compatibility errors though: a bug thrown by the custom v2ToV3
+      // migration stage must keep crashing (the store is healthy — nuking it would silently
+      // discard queued tasks a code fix could still migrate).
+      let cocoaCode = ((error as NSError).underlyingErrors.first as? NSError)?.code ?? (error as NSError).code
+      // ONLY unknown/incompatible-model codes: the generic migration-failure range
+      // (134110 etc.) can surface a BUG in the custom v2ToV3 stage, and nuking the store
+      // there would silently discard queued tasks a code fix could still migrate.
+      let incompatibleStoreCodes: Set<Int> = [
+        134504,  // Cannot use staged migration with an unknown model version
+        134100,  // The model used to open the store is incompatible
+      ]
+      guard incompatibleStoreCodes.contains(cocoaCode) else {
+        fatalError("Sync-tasks container failed to load: \(error)")
+      }
+      Self.logger.error("Sync-tasks store unloadable (\(error)); setting aside: \(storeURL.path)")
+      // Move ASIDE, never delete: 134100 also fires when an OLDER build runs over a store
+      // written by a NEWER schema (TestFlight rollback) — pending deletes/bookmarks there
+      // are not re-derivable, and the set-aside copy survives for the eventual re-upgrade
+      // (or support recovery). Only one generation is kept.
+      let fm = FileManager.default
+      for suffix in ["", "-wal", "-shm"] {
+        let src = URL(fileURLWithPath: storeURL.path + suffix)
+        let dst = URL(fileURLWithPath: storeURL.path + suffix + ".incompatible")
+        try? fm.removeItem(at: dst)
+        try? fm.moveItem(at: src, to: dst)
+      }
+      // A second failure on a FRESH store is a programming error — crashing is correct.
+      container = try! ModelContainer(for: schema, migrationPlan: MigrationPlan.self, configurations: [modelConfiguration])
+    }
 
     // Initialize task count from database
     initializeTasksCount()
@@ -54,17 +95,29 @@ public final class TasksDataManager {
       .eraseToAnyPublisher()
   }
   
+  public func observeConcurrentTasksCount() -> AnyPublisher<Int, Never> {
+    return concurrentTasksCountSubject
+      .receive(on: DispatchQueue.main)
+      .eraseToAnyPublisher()
+  }
+  
+  /// Publish updated counts for both queue groups from the unified container:
+  /// `tasksCountSubject` tracks the serial sync queue, `concurrentTasksCountSubject`
+  /// tracks everything else (provider updates, file uploads).
   public func notifyTasksChanged(context: ModelContext) {
-    let descriptor = FetchDescriptor<SyncTasksContainer>()
+    let descriptor = FetchDescriptor<ConcurrentTasksContainer>()
 
     do {
-      let containers = try context.fetch(descriptor)
-      let count = containers.first?.tasks.count ?? 0
-      tasksCountSubject.send(count)
+      let tasks = try context.fetch(descriptor).first?.tasks ?? []
+      let syncCount = tasks.filter { $0.queueKey == TaskQueueKey.sync }.count
+      tasksCountSubject.send(syncCount)
+      concurrentTasksCountSubject.send(tasks.count - syncCount)
     } catch {
       tasksCountSubject.send(0)
+      concurrentTasksCountSubject.send(0)
     }
   }
+
   
   public func deleteAllTasks(with context: ModelContext) throws {
     // Task payload models are standalone (no relationships), so a store-level
@@ -78,23 +131,31 @@ public final class TasksDataManager {
     try context.delete(model: RenameFolderTaskModel.self)
     try context.delete(model: ArtworkUploadTaskModel.self)
     try context.delete(model: MatchUuidsTaskModel.self)
+    try context.delete(model: UploadExternalResourceTaskModel.self)
+    try context.delete(model: ExternalResourceToDownloadTaskModel.self)
+    try context.delete(model: DeleteExternalResourceTaskModel.self)
 
-    // SyncTaskReferenceModel.container participates in a cascade relationship with
-    // SyncTasksContainer. A store-level batch delete runs below the object graph and
-    // skips relationship-maintenance (cascade/nullify) entirely, which trips a
-    // constraint-trigger / optimistic-lock error on that inverse. Delete through the
+    try context.delete(model: ConcurrentUploadTaskModel.self)
+    try context.delete(model: ExternalUpdateTaskModel.self)
+
+    // ConcurrentTaskReferenceModel.container participates in a cascade relationship
+    // with ConcurrentTasksContainer. A store-level batch delete runs below the object
+    // graph and skips relationship-maintenance (cascade/nullify) entirely, which trips
+    // a constraint-trigger / optimistic-lock error on that inverse. Delete through the
     // object graph instead: removing each container cascades to its task references.
-    let containers = try context.fetch(FetchDescriptor<SyncTasksContainer>())
+    let containers = try context.fetch(FetchDescriptor<ConcurrentTasksContainer>())
     for container in containers {
       context.delete(container)
     }
     // Defensively clear any references that aren't attached to a container.
-    let orphanedReferences = try context.fetch(FetchDescriptor<SyncTaskReferenceModel>())
+    let orphanedReferences = try context.fetch(FetchDescriptor<ConcurrentTaskReferenceModel>())
     for reference in orphanedReferences {
       context.delete(reference)
     }
 
     try context.save()
+
+    notifyTasksChanged(context: context)
   }
 
   public func deleteTaskModel(
@@ -173,21 +234,44 @@ public final class TasksDataManager {
       if let task = try context.fetch(descriptor).first {
         context.delete(task)
       }
+    case .externalResource:
+      let descriptor = FetchDescriptor<UploadExternalResourceTaskModel>(
+        predicate: #Predicate<UploadExternalResourceTaskModel> { task in task.id == id }
+      )
+      if let task = try context.fetch(descriptor).first {
+        context.delete(task)
+      }
+    case .externalResourceToDownload:
+      let descriptor = FetchDescriptor<ExternalResourceToDownloadTaskModel>(
+        predicate: #Predicate<ExternalResourceToDownloadTaskModel> { task in task.id == id }
+      )
+      if let task = try context.fetch(descriptor).first {
+        context.delete(task)
+      }
+    case .deleteExternalResource:
+      let descriptor = FetchDescriptor<DeleteExternalResourceTaskModel>(
+        predicate: #Predicate<DeleteExternalResourceTaskModel> { task in task.id == id }
+      )
+      if let task = try context.fetch(descriptor).first {
+        context.delete(task)
+      }
+    case .externalUpdate:
+      let descriptor = FetchDescriptor<ExternalUpdateTaskModel>(
+        predicate: #Predicate<ExternalUpdateTaskModel> { task in task.id == id }
+      )
+      if let task = try context.fetch(descriptor).first {
+        context.delete(task)
+      }
+    case .uploadFile:
+      let descriptor = FetchDescriptor<ConcurrentUploadTaskModel>(
+        predicate: #Predicate<ConcurrentUploadTaskModel> { task in task.id == id }
+      )
+      if let task = try context.fetch(descriptor).first {
+        context.delete(task)
+      }
     }
   }
 
-  public func deleteReferenceModel(
-    with id: String,
-    jobType: SyncJobType,
-    context: ModelContext
-  ) throws {
-    let descriptor = FetchDescriptor<SyncTaskReferenceModel>(
-      predicate: #Predicate<SyncTaskReferenceModel> { task in task.taskID == id }
-    )
-    if let task = try context.fetch(descriptor).first {
-      context.delete(task)
-    }
-  }
 
   // swiftlint:disable force_cast
   public func createTaskModel(
@@ -197,24 +281,7 @@ public final class TasksDataManager {
   ) {
     switch jobType {
     case .upload:
-      let task = UploadTaskModel(
-        id: parameters["id"] as! String,
-        uuid: parameters["uuid"] as! String,
-        relativePath: parameters["relativePath"] as! String,
-        originalFileName: parameters["originalFileName"] as! String,
-        title: parameters["title"] as! String,
-        details: parameters["details"] as! String,
-        speed: parameters["speed"] as? Float,
-        currentTime: parameters["currentTime"] as! Double,
-        duration: parameters["duration"] as! Double,
-        percentCompleted: parameters["percentCompleted"] as! Double,
-        isFinished: parameters["isFinished"] as! Bool,
-        orderRank: parameters["orderRank"] as! Int,
-        lastPlayDateTimestamp: parameters["lastPlayDateTimestamp"] as? Double,
-        type: parameters["type"] as! Int16,
-      )
-      context.insert(task)
-
+      context.insert(buildUploadTask(parameters))
     case .update:
       let task = UpdateTaskModel(
         id: parameters["id"] as! String,
@@ -293,7 +360,88 @@ public final class TasksDataManager {
         uuids: parameters["uuids"] as! [String: String]
       )
       context.insert(task)
+    case .externalResource:
+      context.insert(buildUploadExternalResourceTask(parameters))
+    case .externalResourceToDownload:
+      let task = ExternalResourceToDownloadTaskModel(
+        id: parameters["id"] as! String,
+        // The producer types uuid as String? and only inserts it `if let` — match
+        // storeTask's defensive read instead of trapping on a persisted absence
+        uuid: parameters["uuid"] as? String ?? "",
+        uploaded: parameters["uploaded"] as? Bool ?? false
+      )
+      context.insert(task)
+    case .deleteExternalResource:
+      context.insert(buildDeleteExternalResourceTask(parameters))
+    case .externalUpdate:
+      context.insert(buildExternalUpdateTask(parameters))
+    case .uploadFile:
+      let task = ConcurrentUploadTaskModel(
+        id: parameters["id"] as! String,
+        uuid: parameters["uuid"] as! String,
+        filePath: parameters["filePath"] as! String,
+        remotePath: parameters["remotePath"] as? String
+      )
+      context.insert(task)
     }
+  }
+
+  private func buildExternalUpdateTask(_ parameters: [String: Any]) -> ExternalUpdateTaskModel {
+    return ExternalUpdateTaskModel(
+      id: parameters["id"] as! String,
+      providerName: parameters["providerName"] as! String,
+      providerId: parameters["providerId"] as! String,
+      title: parameters["title"] as? String,
+      details: parameters["details"] as? String,
+      currentTime: parameters["currentTime"] as? Double,
+      percentCompleted: parameters["percentCompleted"] as? Double,
+      isFinished: parameters["isFinished"] as? Bool,
+      lastPlayDateTimestamp: parameters["lastPlayDateTimestamp"] as? Double,
+      hostId: parameters["hostId"] as? String,
+    )
+  }
+
+  private func buildUploadExternalResourceTask(_ parameters: [String: Any]) -> UploadExternalResourceTaskModel {
+    return UploadExternalResourceTaskModel(
+      id: parameters["id"] as! String,
+      uuid: parameters["uuid"] as! String,
+      providerId: parameters["providerId"] as! String,
+      providerName: parameters["providerName"] as! String,
+      lastSyncedAt: parameters["lastSyncedAt"] as? Date,
+      syncStatus: parameters["syncStatus"] as! String,
+      processedFile: parameters["processedFile"] as! Bool,
+      hostId: parameters["hostId"] as? String
+    )
+  }
+
+  private func buildDeleteExternalResourceTask(_ parameters: [String: Any]) -> DeleteExternalResourceTaskModel {
+    return DeleteExternalResourceTaskModel(
+      id: parameters["id"] as! String,
+      uuid: parameters["uuid"] as! String,
+      relativePath: parameters["relativePath"] as! String,
+      providerName: parameters["providerName"] as! String,
+      providerId: parameters["providerId"] as! String
+    )
+  }
+
+  private func buildUploadTask(_ parameters: [String: Any]) -> UploadTaskModel {
+    return UploadTaskModel(
+      id: parameters["id"] as! String,
+      uuid: parameters["uuid"] as! String,
+      relativePath: parameters["relativePath"] as! String,
+      originalFileName: parameters["originalFileName"] as! String,
+      title: parameters["title"] as! String,
+      details: parameters["details"] as! String,
+      speed: parameters["speed"] as? Float,
+      currentTime: parameters["currentTime"] as! Double,
+      duration: parameters["duration"] as! Double,
+      percentCompleted: parameters["percentCompleted"] as! Double,
+      isFinished: parameters["isFinished"] as! Bool,
+      orderRank: parameters["orderRank"] as! Int,
+      lastPlayDateTimestamp: parameters["lastPlayDateTimestamp"] as? Double,
+      type: parameters["type"] as! Int16,
+      provider: parameters["provider"] as? String
+    )
   }
 
   // swiftlint:enable force_cast
@@ -357,6 +505,31 @@ public final class TasksDataManager {
           predicate: #Predicate<MatchUuidsTaskModel> { task in task.id == id }
         )
         return try context.fetch(descriptor).first
+      case .externalResource:
+        let descriptor = FetchDescriptor<UploadExternalResourceTaskModel>(
+          predicate: #Predicate<UploadExternalResourceTaskModel> { task in task.id == id }
+        )
+        return try context.fetch(descriptor).first
+      case .externalResourceToDownload:
+        let descriptor = FetchDescriptor<ExternalResourceToDownloadTaskModel>(
+          predicate: #Predicate<ExternalResourceToDownloadTaskModel> { task in task.id == id }
+        )
+        return try context.fetch(descriptor).first
+      case .deleteExternalResource:
+        let descriptor = FetchDescriptor<DeleteExternalResourceTaskModel>(
+          predicate: #Predicate<DeleteExternalResourceTaskModel> { task in task.id == id }
+        )
+        return try context.fetch(descriptor).first
+      case .externalUpdate:
+        let descriptor = FetchDescriptor<ExternalUpdateTaskModel>(
+          predicate: #Predicate<ExternalUpdateTaskModel> { task in task.id == id }
+        )
+        return try context.fetch(descriptor).first
+      case .uploadFile:
+        let descriptor = FetchDescriptor<ConcurrentUploadTaskModel>(
+          predicate: #Predicate<ConcurrentUploadTaskModel> { task in task.id == id }
+        )
+        return try context.fetch(descriptor).first
       }
     } catch {
       return nil
@@ -366,7 +539,10 @@ public final class TasksDataManager {
   public func updateTaskModel(_ task: UpdateTaskModel, with parameters: [String: Any]) {
     if let title = parameters["title"] as? String { task.title = title }
     if let details = parameters["details"] as? String { task.details = details }
-    if let speed = parameters["speed"] as? Double { task.speed = speed }
+    // The scheduler boxes a Swift Float here (LibraryItem.speed) and an Any-boxed Float
+    // fails `as? Double` — which silently dropped every COALESCED speed change (the
+    // create paths read `as? Float` and were fine). NSNumber bridging accepts both.
+    if let speed = parameters["speed"] as? NSNumber { task.speed = speed.doubleValue }
     if let currentTime = parameters["currentTime"] as? Double { task.currentTime = currentTime }
     if let duration = parameters["duration"] as? Double { task.duration = duration }
     if let percentCompleted = parameters["percentCompleted"] as? Double { task.percentCompleted = percentCompleted }
@@ -378,18 +554,25 @@ public final class TasksDataManager {
     if let type = parameters["type"] as? Int16 { task.type = type }
   }
   
-  /// Initialize the tasks count from the database on startup
+  /// Initialize both task counts from the database on startup
   private func initializeTasksCount() {
     let context = ModelContext(container)
-    
-    do {
-      let descriptor = FetchDescriptor<SyncTasksContainer>()
-      let containers = try context.fetch(descriptor)
-      let count = containers.first?.tasks.count ?? 0
-      tasksCountSubject.send(count)
-    } catch {
-      // If there's an error reading from the database, keep the default value of 0
-      tasksCountSubject.send(0)
+    notifyTasksChanged(context: context)
+  }
+  
+  public func updateExternalUpdateTaskModel(
+    for task: ExternalUpdateTaskModel,
+    with parameters: [String: Any],
+    in context: ModelContext
+  ) {
+    if let title = parameters["title"] as? String { task.title = title }
+    if let details = parameters["details"] as? String { task.details = details }
+    if let currentTime = parameters["currentTime"] as? Double { task.currentTime = currentTime }
+    if let percentCompleted = parameters["percentCompleted"] as? Double { task.percentCompleted = percentCompleted }
+    if let isFinished = parameters["isFinished"] as? Bool { task.isFinished = isFinished }
+    if let lastPlayDateTimestamp = parameters["lastPlayDateTimestamp"] as? Double {
+      task.lastPlayDateTimestamp = lastPlayDateTimestamp
     }
+    if let hostId = parameters["hostId"] as? String { task.hostId = hostId }
   }
 }

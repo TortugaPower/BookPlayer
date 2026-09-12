@@ -40,40 +40,51 @@ final class PlayerLoaderService: @unchecked Sendable {
     autoplay: Bool,
     recordAsLastBook: Bool = true
   ) async throws {
-    let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(relativePath)
-
-    if syncService.isActive == false,
-      !FileManager.default.fileExists(atPath: fileURL.path)
-    {
+    // The loader's contract is a RELATIVE PATH — every launch surface speaks paths (App
+    // Intents, CarPlay, search, watch, last-book restore, deep links). Resolution to the
+    // item (and its uuid) happens here, in one place. A path that no longer resolves
+    // (stale last-book restore, CarPlay/watch reference to a deleted item) must THROW —
+    // develop surfaced fileMissing here, and a silent return leaves the tap doing
+    // nothing with no explanation.
+    guard let libraryItem = self.libraryService.getSimpleItem(with: relativePath)
+    else {
       throw BPPlayerError.fileMissing(relativePath: relativePath)
     }
-
-    // Only load if loaded book is a different one
+    
+    let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(libraryItem.relativePath)
+    
+    if syncService.isActive == false,
+       libraryItem.externalResources?.isEmpty ?? true,
+       !FileManager.default.fileExists(atPath: fileURL.path)
+    {
+      throw BPPlayerError.fileMissing(relativePath: libraryItem.relativePath)
+    }
+    
+    // Only load if loaded book is a different one. Guard on a REAL uuid: two items
+    // carrying a placeholder/empty uuid would otherwise match as "already loaded" and
+    // the second tap would silently no-op (same rule as PlayableItem.id).
     if playerManager.hasLoadedBook() == true,
-      relativePath == playerManager.currentItem?.relativePath
+       Constants.isRealUuid(libraryItem.uuid),
+       libraryItem.uuid == playerManager.currentItem?.uuid
     {
       if autoplay {
         playerManager.play()
       }
       return
     }
-
-    guard
-      let libraryItem = self.libraryService.getSimpleItem(with: relativePath)
-    else { return }
-
+    
     /// If the selected item is a bound book, check that the contents are loaded
     if syncService.isActive == true,
-      libraryItem.type == .bound,
-      libraryService.getMaxItemsCount(at: relativePath) == 0
+       libraryItem.type == .bound,
+       libraryService.getMaxItemsCount(at: libraryItem.relativePath) == 0
     {
-      _ = try await syncService.syncListContents(at: relativePath)
+      _ = try await syncService.syncListContents(at: libraryItem.relativePath)
     }
-
+    
     let item = try self.playbackService.getPlayableItem(from: libraryItem)
-
+    
     playerManager.load(item, autoplay: autoplay)
-
+    
     if recordAsLastBook {
       libraryService.setLibraryLastBook(with: item.relativePath)
     }

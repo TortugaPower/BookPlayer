@@ -10,20 +10,20 @@ import BookPlayerKit
 import SwiftUI
 
 @MainActor
-final class ItemListViewModel: ObservableObject {
+final class ItemListViewModel: ObservableObject, BPLogger {
   let libraryNode: LibraryNode
   private let libraryService: LibraryService
   private let playbackService: PlaybackService
   let playerManager: PlayerManager
   private let syncService: SyncService
   private let listSyncRefreshService: ListSyncRefreshService
+  private let externalProgressService: ExternalProgressService
   private let loadingState: LoadingOverlayState
   private let listState: ListStateManager
   let singleFileDownloadService: SingleFileDownloadService
-
   /// Reference to ongoing library fetch task
   var contentsFetchTask: Task<(), Error>?
-
+  
   @Published var items: [SimpleLibraryItem] = []
   @Published var isLoading: Bool = false
   @Published var canLoadMore: Bool = true
@@ -106,6 +106,7 @@ final class ItemListViewModel: ObservableObject {
     playerManager: PlayerManager,
     syncService: SyncService,
     listSyncRefreshService: ListSyncRefreshService,
+    externalProgressService: ExternalProgressService,
     loadingState: LoadingOverlayState,
     listState: ListStateManager,
     singleFileDownloadService: SingleFileDownloadService
@@ -116,6 +117,7 @@ final class ItemListViewModel: ObservableObject {
     self.playerManager = playerManager
     self.syncService = syncService
     self.listSyncRefreshService = listSyncRefreshService
+    self.externalProgressService = externalProgressService
     self.loadingState = loadingState
     self.listState = listState
     self.singleFileDownloadService = singleFileDownloadService
@@ -265,6 +267,7 @@ final class ItemListViewModel: ObservableObject {
       contentsFetchTask = Task {
         do {
           try await listSyncRefreshService.syncList(at: libraryNode.folderRelativePath)
+          await updateFromResource()
           await MainActor.run {
             listState.reloadAll()
           }
@@ -371,6 +374,7 @@ final class ItemListViewModel: ObservableObject {
       isUnfinished: true
     )
 
+    // loadPlayer's contract is a RELATIVE PATH — a uuid silently no-ops the lookup.
     return nextPlayableItem?.relativePath
   }
 }
@@ -750,7 +754,7 @@ extension ItemListViewModel {
         if item.type == .folder || item.type == .bound {
           try DataManager.createBackingFolderIfNeeded(fileURL)
         }
-
+        
         try await syncService.downloadRemoteFiles(for: item)
         loadingState.show = false
       } catch {
@@ -862,6 +866,13 @@ extension ItemListViewModel {
 
       loadingState.error = BookPlayerError.networkError("Code \(statusCode)\n\(HTTPURLResponse.localizedString(forStatusCode: statusCode))")
     }
+  }
+  
+  /// Fold in what the items' own media servers report. The grouping-by-server and the
+  /// per-provider batching live in ExternalProgressService now, which is also why
+  /// AudiobookShelf items refresh here at all — this used to collect Jellyfin resources only.
+  func updateFromResource() async {
+    await externalProgressService.refreshItems(items)
   }
 }
 

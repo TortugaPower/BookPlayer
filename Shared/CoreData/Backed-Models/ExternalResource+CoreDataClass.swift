@@ -1,0 +1,26 @@
+//
+//  ExternalResource+CoreDataClass.swift
+//  BookPlayer
+//
+//  Created by Pedro Iñiguez on 13/3/26.
+//  Copyright © 2026 BookPlayer LLC. All rights reserved.
+//
+
+import Foundation
+import CoreData
+import SwiftUI
+
+extension ExternalResource {
+  public enum SyncStatus: String, Codable {
+    case notSynced = "not_synced"
+    case stream = "stream"
+    case downloaded = "downloaded"
+  }
+  
+  public enum ProviderName: String, Codable {
+    case jellyfin
+    case hardcover
+    case audiobookshelf
+    
+  }
+}

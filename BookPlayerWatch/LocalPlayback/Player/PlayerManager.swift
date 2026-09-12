@@ -36,6 +36,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   @Published private var playbackQueued: Bool?
   /// Flag determining if it's in the process of fetching the URL for playback
   @Published private var isFetchingRemoteURL: Bool?
+  @Published var playerIsLoadingURL: Bool = false
   /// Prevent loop from automatic URL refreshes
   private var canFetchRemoteURL = true
   private var hasObserverRegistered = false
@@ -62,7 +63,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   @Published var currentSpeed: Float = 1.0
   @Published private(set) var currentPlaybackTime: TimeInterval = 0
   @Published var error: Error?
-
+  
   var nowPlayingInfo = [String: Any]()
 
   private let queue = OperationQueue()
@@ -193,16 +194,15 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
 
     // TODO: Check if there's a way to reduce the time this operation takes
     // it's currently a bottleneck when streaming playback
-    await asset.loadValues(forKeys: [
-      "duration",
-      "playable",
-      "preferredRate",
-      "preferredVolume",
-      "hasProtectedContent",
-      "providesPreciseDurationAndTiming",
-      "commonMetadata",
-      "metadata",
-    ])
+    _ = try? await asset.load(
+      .duration,
+      .isPlayable,
+      .preferredRate,
+      .preferredVolume,
+      .providesPreciseDurationAndTiming,
+      .commonMetadata,
+      .metadata
+    )
 
     guard !Task.isCancelled else {
       throw BookPlayerError.cancelledTask

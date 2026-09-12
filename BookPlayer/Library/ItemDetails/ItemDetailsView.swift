@@ -53,6 +53,20 @@ struct ItemDetailsView: View {
         progress: viewModel.progress,
         lastPlayedDate: viewModel.lastPlayedDate
       )
+
+      // The gate lives HERE: the view renders unconditional content, the caller
+      // decides presence. Hardcover-only items have no hosted resources, so an item
+      // linked to Hardcover alone shows just the section above.
+      let hostedResources = viewModel.hostedExternalResources
+      if !hostedResources.isEmpty {
+        ItemDetailsExternalResourceSectionView(
+          externalResources: hostedResources,
+          resolvedHosts: viewModel.resolvedExternalHosts
+        )
+      }
+    }
+    .task {
+      await viewModel.load()
     }
     .onChange(of: viewModel.selectedImage) {
       viewModel.artworkIsUpdated = true
@@ -128,3 +142,4 @@ struct ItemDetailsView: View {
     .applyListStyle(with: theme, background: theme.systemGroupedBackgroundColor)
   }
 }
+

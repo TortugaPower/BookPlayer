@@ -33,6 +33,9 @@ final class PlayerViewModel: ObservableObject {
   @Published var sleepText: String?
   @Published var sleepAccessibilityLabel: String?
   @Published var hasNextChapter = false
+  /// Mirrors playerManager.playerIsLoadingURL: the view can't observe an @Published on a
+  /// nested ObservableObject, so the buffering overlay would only update coincidentally.
+  @Published var isLoadingURL = false
   @Published var hasPreviousChapter = false
   @Published var lastBookmark: SimpleBookmark?
   @Published var sheetStyle: PlayerSheetStyle?
@@ -121,6 +124,9 @@ final class PlayerViewModel: ObservableObject {
   }
   
   func bindBookObservers() {
+    // Called on every player appear — drop the previous generation of sinks or each
+    // open appends another copy of every subscription below
+    disposeBag.removeAll()
     bindBookPlayingProgressEvents()
     bindNotificationSubscribers()
     bindBookSharedObservers()
@@ -195,6 +201,14 @@ final class PlayerViewModel: ObservableObject {
   }
   
   func bindBookPlayingProgressEvents() {
+    self.playerManager.$playerIsLoadingURL
+      .removeDuplicates()
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] isLoading in
+        self?.isLoadingURL = isLoading
+      }
+      .store(in: &disposeBag)
+
     self.playerManager.isPlayingPublisher()
       .removeDuplicates()
       .receive(on: DispatchQueue.main)

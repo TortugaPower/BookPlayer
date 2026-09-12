@@ -32,8 +32,6 @@ struct ItemListView: View {
   @Environment(\.syncService) var syncService
   @Environment(\.hardcoverService) var hardcoverService
   @Environment(\.playerLoaderService) private var playerLoaderService
-  @Environment(\.jellyfinService) var jellyfinService
-  @Environment(\.audiobookshelfService) var audiobookshelfService
   @Environment(\.preferencesService) var preferencesService
   @Environment(\.listState) var listState
   @Environment(\.playerState) private var playerState
