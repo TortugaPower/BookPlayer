@@ -16,6 +16,9 @@ struct MainView: View {
   @State private var listState = ListStateManager()
   @StateObject private var theme = ThemeViewModel()
   @StateObject private var keyboardObserver = KeyboardObserver()
+  /// A wire between SwiftUI views that MainCoordinator never touches, so it's owned here.
+  /// Injected below, where the integration sheets and the library tab both inherit it.
+  @StateObject private var externalImportEvents = ExternalImportEvents()
   @Environment(\.libraryService) private var libraryService
   @Environment(\.playerState) private var playerState
   @Environment(\.syncService) private var syncService
@@ -135,6 +138,7 @@ struct MainView: View {
     }
     .environment(\.tabBarContentHeight, tabBarContentHeight)
     .environmentObject(theme)
+    .environmentObject(externalImportEvents)
     .environment(\.listState, listState)
     .tint(theme.linkColor)
     .onChange(of: scheme) {

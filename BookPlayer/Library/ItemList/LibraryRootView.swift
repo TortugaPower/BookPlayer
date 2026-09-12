@@ -36,7 +36,7 @@ struct LibraryRootView: View {
 
   @EnvironmentObject private var playerManager: PlayerManager
   @EnvironmentObject private var importManager: ImportManager
-  @EnvironmentObject private var externalImportBus: ExternalImportBus
+  @EnvironmentObject private var externalImportEvents: ExternalImportEvents
   @EnvironmentObject private var singleFileDownloadService: SingleFileDownloadService
   @EnvironmentObject private var listSyncRefreshService: ListSyncRefreshService
 
@@ -129,7 +129,7 @@ struct LibraryRootView: View {
 
         importManager.start(operation)
       }
-      .onReceive(externalImportBus.confirmedBatches) { externalResources in
+      .onReceive(externalImportEvents.confirmedBatches) { externalResources in
         Task {
           self.handleOperationCompletion(.external(files: externalResources), suggestedFolderName: nil)
         }
