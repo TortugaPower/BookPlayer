@@ -1908,22 +1908,6 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
             return queuedJobsCountReturnValue
         }
     }
-    //MARK: - observeTasksCount
-
-    var observeTasksCountCallsCount = 0
-    var observeTasksCountCalled: Bool {
-        return observeTasksCountCallsCount > 0
-    }
-    var observeTasksCountReturnValue: AnyPublisher<Int, Never>!
-    var observeTasksCountClosure: (() -> AnyPublisher<Int, Never>)?
-    func observeTasksCount() -> AnyPublisher<Int, Never> {
-        observeTasksCountCallsCount += 1
-        if let observeTasksCountClosure = observeTasksCountClosure {
-            return observeTasksCountClosure()
-        } else {
-            return observeTasksCountReturnValue
-        }
-    }
     //MARK: - canSyncListContents
 
     var canSyncListContentsAtIgnoreLastTimestampCallsCount = 0
@@ -2199,22 +2183,6 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
         scheduleExternalResourceDeletionProviderNameProviderIdRelativePathUuidReceivedArguments = (providerName: providerName, providerId: providerId, relativePath: relativePath, uuid: uuid)
         scheduleExternalResourceDeletionProviderNameProviderIdRelativePathUuidReceivedInvocations.append((providerName: providerName, providerId: providerId, relativePath: relativePath, uuid: uuid))
         scheduleExternalResourceDeletionProviderNameProviderIdRelativePathUuidClosure?(providerName, providerId, relativePath, uuid)
-    }
-    //MARK: - getAllQueuedJobs
-
-    var getAllQueuedJobsCallsCount = 0
-    var getAllQueuedJobsCalled: Bool {
-        return getAllQueuedJobsCallsCount > 0
-    }
-    var getAllQueuedJobsReturnValue: [SyncTaskReference]!
-    var getAllQueuedJobsClosure: (() async -> [SyncTaskReference])?
-    func getAllQueuedJobs() async -> [SyncTaskReference] {
-        getAllQueuedJobsCallsCount += 1
-        if let getAllQueuedJobsClosure = getAllQueuedJobsClosure {
-            return await getAllQueuedJobsClosure()
-        } else {
-            return getAllQueuedJobsReturnValue
-        }
     }
     //MARK: - getAllQueuedJobsWithParams
 

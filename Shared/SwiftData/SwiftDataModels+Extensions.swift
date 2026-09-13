@@ -47,7 +47,7 @@ extension UploadTaskModel: DictionaryConvertible {
     }
 
     /// Provider-backed items skip the device file upload (the server pulls the file
-    /// from the provider instead) — see `ConcurrenceService.handleFinishedOperation`
+    /// from the provider instead) — see `SyncQueueService.handleFinishedOperation`
     if let provider {
       dict["provider"] = provider
     }
@@ -267,7 +267,7 @@ extension ExternalUpdateTaskModel: DictionaryConvertible {
   }
 }
 
-extension ConcurrentUploadTaskModel: DictionaryConvertible {
+extension UploadFileTaskModel: DictionaryConvertible {
   public func toDictionaryPayload() -> [String: Any] {
     var dictionary: [String: Any] = [
       "id": id,

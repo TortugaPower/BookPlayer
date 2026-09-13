@@ -46,14 +46,6 @@ struct ProfileView: View {
         case .queueTasks:
           QueuedTasksView()
             .miniPlayerSafeAreaInset()
-        case .queue(let queueKey):
-          if queueKey == TaskQueueKey.sync {
-            QueuedSyncTasksView()
-              .miniPlayerSafeAreaInset()
-          } else {
-            ConcurrentSyncTasksView(queueKey: queueKey)
-              .miniPlayerSafeAreaInset()
-          }
         }
       }
       .sheet(isPresented: $showLogin) {

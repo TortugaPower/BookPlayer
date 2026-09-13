@@ -1,5 +1,5 @@
 //
-//  ConcurrentTasksProgressMonitor.swift
+//  SyncQueueProgressMonitor.swift
 //  BookPlayer
 //
 //  Created by Pedro Iñiguez on 25/3/26.
@@ -27,9 +27,9 @@ public class TaskProgressTracker {
 
 @Observable
 @MainActor
-public class ConcurrentTaskProgressMonitor {
+public class SyncQueueProgressMonitor {
   // Shared instance so both the UI and the Orchestrator can access it easily
-  public static let shared = ConcurrentTaskProgressMonitor()
+  public static let shared = SyncQueueProgressMonitor()
   
   // A dictionary mapping the Task ID to a progress double (0.0 to 1.0)
   public var activeTasks: [String: TaskProgressTracker] = [:]

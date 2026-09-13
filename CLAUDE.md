@@ -137,7 +137,7 @@ first. Reordering boot risks a launch crash.
 - `@MainActor final class AppServices` with `static let shared` + `private init()`. Owns the async
   `setupCoreServicesTask`, the `DatabaseInitializer`, and a shared `PlayerState`.
 - `CoreServices` (`BookPlayer/Utils/CoreServices.swift`) is a struct of exactly **12 services**: `accountService`,
-  `concurrenceService`, `externalProgressService` (pulls media-server playback positions; self-subscribes to
+  `syncQueueService`, `externalProgressService` (pulls media-server playback positions; self-subscribes to
   `.bookPlayed` so the pull never depends on which UI is attached),
   `dataManager`, `hardcoverService`, `libraryService`, `playbackService`, `playerLoaderService`, `playerManager`,
   `preferencesService` (`PreferencesSyncService`), `syncService`, `watchService` (`PhoneWatchConnectivityService`).
@@ -160,8 +160,8 @@ first. Reordering boot risks a launch crash.
   live in `BookPlayer/Utils/Extensions/Environment+BookPlayer.swift` (`@Entry`). **Each `@Entry` default is a
   throwaway placeholder (an un-`setup()` service).** A view that reads the environment default instead of the
   injected instance gets a non-functional service: stored-property reads return inert defaults, but METHODS that
-  touch un-`setup()` dependencies trap on their implicitly-unwrapped optionals (`SyncService.observeTasksCount`,
-  `ConcurrenceService.observeConcurrentTasksCount`, and siblings all behave this way — it is the pattern, not a
+  touch un-`setup()` dependencies trap on their implicitly-unwrapped optionals
+  (`SyncQueueService.observeQueueCounts` and siblings all behave this way — it is the pattern, not a
   defect). Verify real injection by `MainCoordinator`; previews that exercise such views must construct and
   inject set-up services (see `ProfileSyncTasksSectionView`'s preview), never rely on the defaults.
 - **App Intents DI:** only `playerLoaderService` and `libraryService` are registered via
@@ -245,21 +245,30 @@ CarPlay event bus. Declared in `Shared/Extensions/Notification+BookPlayerKit.swi
 
 - `TasksDataManager.swift` owns the `ModelContainer`. **Store is `applicationSupportDirectory/bp-synctasks.sqlite`
   — the app-support dir, NOT the App Group**, separate from the CoreData store. CloudKit disabled.
-  Container-build failure with an incompatible-store code (cocoa 134504/134100) MOVES the store aside
-  (`.incompatible` suffix, never deleted) and retries fresh; any other failure — including a fresh-store
-  failure — still crashes (`fatalError`).
+  Before the container is built, `storeIsUnknownToMigrationPlan(at:)` checks the store's own metadata against
+  every `MigrationPlan.schemas` model; a store none of them can open (dev builds between schema edits, an older
+  build over a newer store) is MOVED aside (`.incompatible` suffix, never deleted) and a fresh one is created.
+  Don't match Cocoa codes (134504/134100) on the thrown error instead — SwiftData wraps them opaquely, so that
+  guard never fired. Any load failure that remains — a custom-migration-stage bug, a corrupt file, a fresh store
+  that won't open — still crashes (`fatalError`).
 - Versioned schema: `SchemaV1` (10 models) → `SchemaV2` (11 models, adds `MatchUuidsTaskModel` + a `uuid` field)
-  → `SchemaV3` (unified concurrent-task container: `ConcurrentTaskReferenceModel` with per-queue keys, plus
-  `ExternalUpdateTaskModel`/`ConcurrentUploadTaskModel` payloads). App code always uses the V3 typealiases.
+  → `SchemaV3` (unified concurrent-task container: `QueuedTaskReferenceModel` with per-queue keys, plus
+  `ExternalUpdateTaskModel`/`UploadFileTaskModel` payloads). App code always uses the V3 typealiases.
 - `MigrationPlan.swift` (`SchemaMigrationPlan`) has a **custom `v1ToV2` stage that reads UUIDs out of the CoreData
   `LibraryItem` table** — it requires `MigrationPlan.injectedCoreDataContext` to be set first, else
   **`fatalError`** (the `v2ToV3` stage also uses the injected context, but degrades gracefully when absent).
   This is the coupling between the two stores; set it before the `ModelContainer` is built.
 - **`ModelContext` is per-actor and not `Sendable`.** All task-queue reads/writes go through
-  `public actor ConcurrentTasksRepository: ModelActor` (`Shared/Services/ConcurrentSync/`) with a single
+  `public actor SyncQueueRepository: ModelActor` (`Shared/Services/SyncQueue/`) with a single
   confined `ModelContext` (it replaced the old `SyncTasksStorage` actor). Do not share/pass a `ModelContext`
-  across actors or threads. Execution lives in `ConcurrenceService` (OperationQueue): the `sync` queue key runs
+  across actors or threads. Execution lives in `SyncQueueService` (OperationQueue): the `sync` queue key runs
   BookPlayer-server jobs serially; provider-named keys (externalUpdate pushes) and `uploadFile` run concurrently.
+  **The engine is the single owner of queue counts:** `observeQueueCounts()` publishes one per-lane `QueueCounts`
+  snapshot (the Profile row shows its `total`; the single Queued Tasks screen — one `DisclosureGroup` per lane,
+  sync first — reads `count(in:)` for its headers and lists every lane through `getOrderedQueuedJobs`).
+  `SyncService.canSyncListContents` gates list refresh on the `sync` lane only (repository `getTasksCount(in:)`),
+  and `AppDelegate.handleAppRefresh` waits on `laneDrained(TaskQueueKey.sync)` — S3 uploads and provider pushes
+  never block a refresh or hold a background window open (pushes retry forever against an unreachable server).
 - **Realm is gone** (Realm → SwiftData migration is complete). Only inert remnants remain
   (`DataManager.getSyncTasksRealmURL()` is dead; a stale comment in `LibraryService`). Don't reintroduce it.
 
@@ -325,7 +334,7 @@ lines). It is the highest-risk file in the app.
   logout→login can't let a late `resetAllJobs()` wipe freshly-scheduled jobs — preserve this ordering. Every
   `schedule*` method short-circuits on `guard isActive`.
 - **Sync = the `pro` OR `lite` entitlement** (`hasSyncEnabled()`); `lite` gets DB-backed sync only —
-  S3 file uploads are gated per-job via `ConcurrenceService.accessPolicy` (`.uploadFile` is pro-only,
+  S3 file uploads are gated per-job via `SyncQueueService.accessPolicy` (`.uploadFile` is pro-only,
   `.externalUpdate` — progress pushes to the USER'S OWN media server — is available on every tier,
   matching the Android app). Job types (`SyncJobType`): `upload, update, move,
   renameFolder, delete, shallowDelete, setBookmark, deleteBookmark, uploadArtwork, matchUuid`.
@@ -501,7 +510,7 @@ The crash surfaces and invariants most likely to be broken by a change. (The ful
 2. **CoreData model change without the full 5-step manual-migration ritual** (auto-inference is OFF) → crashes
    existing installs.
 3. **SwiftData:** don't share a `ModelContext` across actors; the sync-queue lives behind the
-   `ConcurrentTasksRepository` actor; `MigrationPlan.injectedCoreDataContext` must be set before the container
+   `SyncQueueRepository` actor; `MigrationPlan.injectedCoreDataContext` must be set before the container
    is built.
 4. **Retain cycles / Combine leaks:** missing `[weak self]` in a sink; an `AnyCancellable` not stored; a named
    subscription not `.cancel()`'d before rebind (`PlayerManager` depends on this).

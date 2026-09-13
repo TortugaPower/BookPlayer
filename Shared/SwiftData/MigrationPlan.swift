@@ -138,9 +138,9 @@ public enum MigrationPlan: SchemaMigrationPlan, BPLogger {
       }
     },
     didMigrate: { context in
-      let descriptor = FetchDescriptor<SchemaV3.ConcurrentTasksContainer>()
+      let descriptor = FetchDescriptor<SchemaV3.SyncQueueContainer>()
       let containers = try context.fetch(descriptor)
-      let tasksContainer = containers.first ?? SchemaV3.ConcurrentTasksContainer()
+      let tasksContainer = containers.first ?? SchemaV3.SyncQueueContainer()
       if containers.isEmpty {
         context.insert(tasksContainer)
       }
@@ -148,7 +148,7 @@ public enum MigrationPlan: SchemaMigrationPlan, BPLogger {
       // 1. Replay the stashed V2 sync queue, preserving its FIFO order.
       var nextPosition = (tasksContainer.tasks.map(\.position).max() ?? -1) + 1
       for reference in stashedSyncReferences.sorted(by: { $0.position < $1.position }) {
-        let migrated = SchemaV3.ConcurrentTaskReferenceModel(
+        let migrated = SchemaV3.QueuedTaskReferenceModel(
           queueKey: TaskQueueKey.sync,
           taskID: reference.taskID,
           jobType: reference.jobType,
@@ -244,7 +244,7 @@ public enum MigrationPlan: SchemaMigrationPlan, BPLogger {
         )
         context.insert(task)
 
-        let reference = SchemaV3.ConcurrentTaskReferenceModel(
+        let reference = SchemaV3.QueuedTaskReferenceModel(
           queueKey: TaskQueueKey.sync,
           taskID: taskId,
           jobType: .externalResource,

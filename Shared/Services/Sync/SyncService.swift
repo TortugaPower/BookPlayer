@@ -40,8 +40,6 @@ public protocol SyncServiceProtocol {
 
   /// Count of the currently queued sync jobs
   func queuedJobsCount() async -> Int
-  /// Observe the queued jobs count
-  func observeTasksCount() -> AnyPublisher<Int, Never>
   /// Check if we can safely fetch the list contents
   func canSyncListContents(at relativePath: String?, ignoreLastTimestamp: Bool) async -> Bool
 
@@ -90,8 +88,6 @@ public protocol SyncServiceProtocol {
   /// Delete an external resource on the server
   func scheduleExternalResourceDeletion(providerName: String, providerId: String, relativePath: String, uuid: String)
 
-  /// Get all queued jobs
-  func getAllQueuedJobs() async -> [SyncTaskReference]
   /// Get all queued jobs with full parameters for debugging
   func getAllQueuedJobsWithParams() async -> [SyncTask]
   /// Get last sync error information for debugging
@@ -116,8 +112,7 @@ public protocol SyncServiceProtocol {
 public final class SyncService: SyncServiceProtocol, BPLogger {
   private var libraryService: LibrarySyncProtocol!
   private var accountService: AccountServiceProtocol!
-  private var concurrenceService: ConcurrenceServiceProtocol!
-  private var tasksCountService: SyncTasksCountService!
+  private var syncQueueService: SyncQueueServiceProtocol!
   var jobManager: JobSchedulerProtocol!
   private var client: NetworkClientProtocol!
   /// Owned here: writes go through `updateSyncEnabled(_:)` / `logout()`, mutated on the
@@ -173,8 +168,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     isActive: Bool,
     libraryService: LibrarySyncProtocol,
     accountService: AccountServiceProtocol,
-    concurrenceService: ConcurrenceServiceProtocol,
-    tasksDataManager: TasksDataManager,
+    syncQueueService: SyncQueueServiceProtocol,
     client: NetworkClientProtocol = NetworkClient(),
     streamResolver: ExternalStreamResolving = ExternalStreamResolver()
   ) {
@@ -182,9 +176,8 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     self.streamResolver = streamResolver
     self.libraryService = libraryService
     self.accountService = accountService
-    self.concurrenceService = concurrenceService
-    self.tasksCountService = SyncTasksCountService(tasksDataManager: tasksDataManager)
-    self.jobManager = SyncJobScheduler(tasksRepository: concurrenceService.taskContainer)
+    self.syncQueueService = syncQueueService
+    self.jobManager = SyncJobScheduler(tasksRepository: syncQueueService.taskContainer)
     self.client = client
     self.provider = NetworkProvider(client: client)
 
@@ -261,10 +254,6 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   /// Count of the currently queued sync jobs
   public func queuedJobsCount() async -> Int {
     return await jobManager.queuedJobsCount()
-  }
-
-  public func observeTasksCount() -> AnyPublisher<Int, Never> {
-    return tasksCountService.observeTasksCount()
   }
 
   public func canSyncListContents(at relativePath: String?, ignoreLastTimestamp: Bool) async -> Bool {
@@ -612,16 +601,12 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     }
   }
 
-  public func getAllQueuedJobs() async -> [SyncTaskReference] {
-    return await jobManager.getAllQueuedJobs()
-  }
-
   public func getAllQueuedJobsWithParams() async -> [SyncTask] {
     return await jobManager.getAllQueuedJobsWithParams()
   }
 
   public func getLastSyncError() -> SyncErrorInfo? {
-    return concurrenceService.lastSyncError
+    return syncQueueService.lastSyncError
   }
 
   public func cancelAllJobs() {
@@ -645,7 +630,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
         // Clearing the persisted rows isn't enough (develop parity): an operation
         // already executing keeps uploading after the lapse without this. Scoped so
         // in-flight externalUpdate pushes survive — they run on every tier.
-        self.concurrenceService.cancelServerQueueOperations()
+        self.syncQueueService.cancelServerQueueOperations()
       }
     }
   }

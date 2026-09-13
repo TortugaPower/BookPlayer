@@ -26,10 +26,10 @@ public enum SchemaV3: VersionedSchema {
       ArtworkUploadTaskModel.self,
       MatchUuidsTaskModel.self,
       UploadExternalResourceTaskModel.self,
-      ConcurrentTasksContainer.self,
-      ConcurrentTaskReferenceModel.self,
+      SyncQueueContainer.self,
+      QueuedTaskReferenceModel.self,
       ExternalUpdateTaskModel.self,
-      ConcurrentUploadTaskModel.self,
+      UploadFileTaskModel.self,
       ExternalResourceToDownloadTaskModel.self,
       DeleteExternalResourceTaskModel.self
     ]
@@ -283,17 +283,17 @@ public enum SchemaV3: VersionedSchema {
   /// The `"sync"` key holds the serial BookPlayer-server queue; every other key
   /// is a provider/upload queue that runs concurrently with the rest.
   @Model
-  public class ConcurrentTasksContainer {
-    @Relationship(deleteRule: .cascade, inverse: \ConcurrentTaskReferenceModel.container)
-    public var tasks: [ConcurrentTaskReferenceModel] = []
+  public class SyncQueueContainer {
+    @Relationship(deleteRule: .cascade, inverse: \QueuedTaskReferenceModel.container)
+    public var tasks: [QueuedTaskReferenceModel] = []
 
-    public var orderedTasks: [ConcurrentTaskReferenceModel] { tasks.sorted { $0.position < $1.position } }
+    public var orderedTasks: [QueuedTaskReferenceModel] { tasks.sorted { $0.position < $1.position } }
 
     public var allQueueKeys: [String] {
       Array(Set(tasks.map { $0.queueKey }))
     }
 
-    public func orderedTasks(for queueKey: String) -> [ConcurrentTaskReferenceModel] {
+    public func orderedTasks(for queueKey: String) -> [QueuedTaskReferenceModel] {
       tasks
         .filter { $0.queueKey == queueKey }
         .sorted { $0.position < $1.position }
@@ -303,7 +303,7 @@ public enum SchemaV3: VersionedSchema {
   }
 
   @Model
-  public class ConcurrentTaskReferenceModel {
+  public class QueuedTaskReferenceModel {
     @Attribute(.unique) public var id: String
     public var taskID: String
     public var jobType: SyncJobType
@@ -311,7 +311,7 @@ public enum SchemaV3: VersionedSchema {
     public var queueKey: String
     public var uuid: String = ""
     public var relativePath: String = ""
-    public var container: ConcurrentTasksContainer?
+    public var container: SyncQueueContainer?
 
     public init(
       id: String = UUID().uuidString,
@@ -374,7 +374,7 @@ public enum SchemaV3: VersionedSchema {
   }
   
   @Model
-  public class ConcurrentUploadTaskModel {
+  public class UploadFileTaskModel {
     @Attribute(.unique) public var id: String
     public var filePath: String
     public var remotePath: String?

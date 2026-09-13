@@ -10,8 +10,6 @@ import Foundation
 
 enum ProfileScreen: Hashable {
   case account
-  /// Active queues overview
+  /// Every queued task, one collapsible section per lane
   case queueTasks
-  /// Task list for one queue key
-  case queue(String)
 }

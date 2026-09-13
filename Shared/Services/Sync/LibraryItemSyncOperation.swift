@@ -337,7 +337,7 @@ extension LibraryItemSyncOperation {
     // The bytes are on S3 now — failing the operation on a flaky confirmation would
     // retry the uploaded:false branch and re-upload the entire (potentially multi-GB)
     // file. Retry just the confirmation instead, mirroring the synced:true handling
-    // in ConcurrenceService.handleFinishedOperation.
+    // in SyncQueueService.handleFinishedOperation.
     var confirmationError: Error?
     for attempt in 1...3 {
       do {
@@ -348,7 +348,7 @@ extension LibraryItemSyncOperation {
       } catch {
         confirmationError = error
         Self.logger.error("uploaded:true confirmation attempt \(attempt) failed for \(self.uuid): \(error.localizedDescription)")
-        // Space out the attempts (same 2s as the ConcurrenceService sibling): a single
+        // Space out the attempts (same 2s as the SyncQueueService sibling): a single
         // transient blip would otherwise burn all three back-to-back in under a second
         // and re-upload the file anyway
         if attempt < 3 {
@@ -362,7 +362,7 @@ extension LibraryItemSyncOperation {
     // still thinks the object isn't uploaded, so the next external_set round-trip
     // heals cheaply (it answers url == null for an already-existing object, which the
     // nil-url branch above consumes). Same bytes-are-on-S3 semantics as the
-    // FileUploadOperation confirmation in ConcurrenceService.handleFinishedOperation.
+    // FileUploadOperation confirmation in SyncQueueService.handleFinishedOperation.
     if let confirmationError {
       Self.logger.error(
         "uploaded:true confirmation exhausted for \(self.uuid), consuming (bytes on S3): \(confirmationError.localizedDescription)"
