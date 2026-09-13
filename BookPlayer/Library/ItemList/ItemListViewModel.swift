@@ -171,6 +171,31 @@ final class ItemListViewModel: ObservableObject {
     isLoading = false
   }
 
+  /// Re-fetches the currently-visible window so a live sort key ("Most recent"
+  /// while playing) can reorder rows without resetting the user's scroll position
+  /// to the top of a long list. Fetches from offset 0 covering all loaded items.
+  @MainActor
+  func reloadItemsPreservingOffset() {
+    guard !items.isEmpty else {
+      reloadItems()
+      return
+    }
+
+    isLoading = true
+
+    let limit = items.count + offset
+    let fetchedItems =
+      libraryService.fetchContents(
+        at: libraryNode.folderRelativePath,
+        limit: limit,
+        offset: 0
+      ) ?? []
+
+    items = fetchedItems
+    canLoadMore = fetchedItems.count == limit
+    isLoading = false
+  }
+
   // MARK: - Search
 
   /// Reacts to query/scope changes: debounces then runs a scoped database search, or restores the

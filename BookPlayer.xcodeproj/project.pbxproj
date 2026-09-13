@@ -293,6 +293,7 @@
 		5163037679ED3EE0D1866A8F /* AppServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0FC8B923A5506F865253B97C /* AppServices.swift */; };
 		52AA441379FD94339FEECB55 /* SortPreferencesResolving.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C6BC9E7E76B9BAB7A0D88D2 /* SortPreferencesResolving.swift */; };
 		59384C1A0B33B9EB42AE4C75 /* ChaptersViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F496A2BF4CBFFC745C453D42 /* ChaptersViewModelTests.swift */; };
+		A1B2C3D4E5F60001LISTV01 /* ItemListViewModelReloadTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60002LISTV01 /* ItemListViewModelReloadTests.swift */; };
 		5A9506FC8DAB858289E0EF89 /* IntegrationServerAddressTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 623E13D0C96857091397B5EF /* IntegrationServerAddressTests.swift */; };
 		5E20E8B93A65A58C51F1FF52 /* PKCETests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5A989BA90E16F60920A1DB0 /* PKCETests.swift */; };
 		62793611272CBE910097837D /* ImportFileItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4163E3102148606600072AA2 /* ImportFileItem.swift */; };
@@ -1862,6 +1863,7 @@
 		F1E6918C51C370C2E89B24F9 /* PreferencesAPI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PreferencesAPI.swift; sourceTree = "<group>"; };
 		F4388D9707FA7C85F9D07E75 /* WebAuthenticatingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WebAuthenticatingTests.swift; sourceTree = "<group>"; };
 		F496A2BF4CBFFC745C453D42 /* ChaptersViewModelTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ChaptersViewModelTests.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F60002LISTV01 /* ItemListViewModelReloadTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ItemListViewModelReloadTests.swift; sourceTree = "<group>"; };
 		F5A989BA90E16F60920A1DB0 /* PKCETests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PKCETests.swift; sourceTree = "<group>"; };
 		F6F0D505E060FDAEB6DB68E3 /* IntegrationLibraryListView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = IntegrationLibraryListView.swift; sourceTree = "<group>"; };
 		F78387C7EDD9105363712F34 /* VideoFullscreenViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoFullscreenViewController.swift; sourceTree = "<group>"; };
@@ -3241,6 +3243,7 @@
 			isa = PBXGroup;
 			children = (
 				F496A2BF4CBFFC745C453D42 /* ChaptersViewModelTests.swift */,
+				A1B2C3D4E5F60002LISTV01 /* ItemListViewModelReloadTests.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -5009,6 +5012,7 @@
 				1A26F7D72FFD6D625A313FC5 /* AudioMetadataServiceTests.swift in Sources */,
 				466E4B7066F10717C8CE7B3E /* LibraryServiceReloadChaptersTests.swift in Sources */,
 				59384C1A0B33B9EB42AE4C75 /* ChaptersViewModelTests.swift in Sources */,
+				A1B2C3D4E5F60001LISTV01 /* ItemListViewModelReloadTests.swift in Sources */,
 				5E20E8B93A65A58C51F1FF52 /* PKCETests.swift in Sources */,
 				02C668174D24A70B4CD6FCB1 /* IntegrationConnectionStoreTests.swift in Sources */,
 				8A0883CB5B4914B2DCB70A5E /* AudiobookShelfOIDCFlowTests.swift in Sources */,

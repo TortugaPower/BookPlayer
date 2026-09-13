@@ -90,6 +90,17 @@ struct ItemListView: View {
         guard model.libraryNode.matchesSortPrefKey(key) else { return }
         listState.reloadAll()
       }
+      .onReceive(NotificationCenter.default.publisher(for: .bookPlayed)) { _ in
+        guard isSortedByMostRecent, !model.isFiltering, !model.editMode.isEditing else { return }
+        model.reloadItemsPreservingOffset()
+      }
+  }
+
+  private var isSortedByMostRecent: Bool {
+    guard case .automatic(.mostRecent) = preferencesService.effectiveSort(forLocation: currentLocation) else {
+      return false
+    }
+    return true
   }
 
   @ViewBuilder
