@@ -5,6 +5,7 @@
 //  Copyright © 2026 BookPlayer LLC. All rights reserved.
 //
 
+import Combine
 import Foundation
 import SwiftData
 import XCTest
@@ -286,5 +287,123 @@ extension ConcurrentSyncTests {
 
     XCTAssertEqual(service.accessPolicy[.uploadFile], true, "mid-session upgrade must reach the policy")
     XCTAssertEqual(service.accessPolicy[.externalUpdate], true)
+  }
+}
+
+// MARK: - Queue counts (engine-owned)
+
+extension ConcurrentSyncTests {
+  private func syncUpdateParams(id: String, relativePath: String) -> [String: Any] {
+    [
+      "id": id,
+      "uuid": UUID().uuidString,
+      "jobType": SyncJobType.update.rawValue,
+      "queueKey": TaskQueueKey.sync,
+      "relativePath": relativePath,
+    ]
+  }
+
+  private func uploadFileParams(id: String) -> [String: Any] {
+    [
+      "id": id,
+      "jobType": SyncJobType.uploadFile.rawValue,
+      "queueKey": TaskQueueKey.uploadFile,
+      "filePath": "/tmp/\(id).m4b",
+      "remotePath": "https://s3/\(id)",
+      "uuid": id,
+    ]
+  }
+
+  /// First snapshot satisfying `predicate`. The publisher replays its latest value on
+  /// subscribe, so a state reached BEFORE subscribing still resolves.
+  private func awaitCounts(
+    from publisher: AnyPublisher<QueueCounts, Never>,
+    timeout: TimeInterval = 3,
+    where predicate: @escaping (QueueCounts) -> Bool
+  ) async throws -> QueueCounts {
+    let matched = expectation(description: "queue counts matched")
+    var result: QueueCounts?
+    let subscription = publisher.sink { counts in
+      guard result == nil, predicate(counts) else { return }
+      result = counts
+      matched.fulfill()
+    }
+    await fulfillment(of: [matched], timeout: timeout)
+    subscription.cancel()
+    return try XCTUnwrap(result)
+  }
+
+  func testQueueCounts_totalAndPerLane() {
+    let counts = QueueCounts(byQueueKey: [TaskQueueKey.sync: 2, "jellyfin": 3])
+    XCTAssertEqual(counts.total, 5)
+    XCTAssertEqual(counts.count(in: "jellyfin"), 3)
+    XCTAssertEqual(counts.count(in: TaskQueueKey.uploadFile), 0, "an absent lane reads as zero")
+    XCTAssertEqual(QueueCounts().total, 0)
+  }
+
+  /// The engine owns every lane, so ONE publisher carries all counts: the Profile row sums
+  /// it, the sectioned screen reads one lane at a time.
+  func testQueueCounts_trackEveryLane() async throws {
+    try await repository.storeTask(parameters: externalUpdateParams(id: "j1", providerId: "a"))
+    try await repository.storeTask(parameters: externalUpdateParams(id: "j2", providerId: "b"))
+    try await repository.storeTask(parameters: uploadFileParams(id: "u1"))
+    try await repository.storeTask(parameters: syncUpdateParams(id: "s1", relativePath: "book.m4b"))
+
+    let counts = try await awaitCounts(from: tasksDataManager.observeQueueCounts()) { $0.total == 4 }
+    XCTAssertEqual(counts.count(in: "jellyfin"), 2)
+    XCTAssertEqual(counts.count(in: TaskQueueKey.uploadFile), 1)
+    XCTAssertEqual(counts.count(in: TaskQueueKey.sync), 1)
+    XCTAssertEqual(counts.byQueueKey.count, 3)
+  }
+
+  func testQueueCounts_drainedLaneLeavesTheSnapshot() async throws {
+    try await repository.storeTask(parameters: externalUpdateParams(id: "j1"))
+    _ = try await awaitCounts(from: tasksDataManager.observeQueueCounts()) { $0.total == 1 }
+    let next = await repository.getNextTask(for: "jellyfin")
+    let task = try XCTUnwrap(next)
+
+    await repository.pop(task)
+
+    let counts = try await awaitCounts(from: tasksDataManager.observeQueueCounts()) { $0.total == 0 }
+    XCTAssertEqual(counts.count(in: "jellyfin"), 0)
+    XCTAssertNil(counts.byQueueKey["jellyfin"])
+  }
+
+  /// Pins the list-refresh gate: `SyncService.canSyncListContents` reads the sync lane only
+  /// (`getTasksCount(in:)`), so a heavy S3 upload or a provider push never blocks a refresh.
+  func testSyncLaneCount_ignoresUploadsAndProviderPushes() async throws {
+    try await repository.storeTask(parameters: uploadFileParams(id: "u1"))
+    try await repository.storeTask(parameters: externalUpdateParams(id: "j1"))
+
+    let syncLaneCount = await repository.getTasksCount(in: TaskQueueKey.sync)
+    XCTAssertEqual(syncLaneCount, 0)
+    let counts = try await awaitCounts(from: tasksDataManager.observeQueueCounts()) { $0.total == 2 }
+    XCTAssertEqual(counts.count(in: TaskQueueKey.sync), 0)
+  }
+
+  /// The engine forwards the store owner's publisher — no second bookkeeping anywhere.
+  func testEngine_observeQueueCounts_forwardsTheStoreOwner() async throws {
+    let service = ConcurrenceService(maxConcurrentTasks: 1)
+    service.taskContainer = repository
+    service.tasksDataManager = tasksDataManager
+    try await repository.storeTask(parameters: externalUpdateParams(id: "j1"))
+
+    let counts = try await awaitCounts(from: service.observeQueueCounts()) { $0.total == 1 }
+    XCTAssertEqual(counts.count(in: "jellyfin"), 1)
+  }
+
+  /// Background refresh waits on this: only the named lane matters, whatever the others hold.
+  func testLaneDrained_followsOnlyTheNamedLane() {
+    let subject = CurrentValueSubject<QueueCounts, Never>(
+      QueueCounts(byQueueKey: [TaskQueueKey.sync: 1, TaskQueueKey.uploadFile: 3])
+    )
+    var seen = [Bool]()
+    let subscription = subject.laneDrained(TaskQueueKey.sync).sink { seen.append($0) }
+    defer { subscription.cancel() }
+
+    subject.send(QueueCounts(byQueueKey: [TaskQueueKey.uploadFile: 3]))
+    subject.send(QueueCounts(byQueueKey: [TaskQueueKey.uploadFile: 3, "jellyfin": 2]))
+
+    XCTAssertEqual(seen, [false, true, true])
   }
 }

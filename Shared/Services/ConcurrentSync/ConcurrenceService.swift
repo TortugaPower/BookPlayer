@@ -29,7 +29,10 @@ public protocol ConcurrenceServiceProtocol {
     dataManager: DataManager
   )
 
-  func observeConcurrentTasksCount() -> AnyPublisher<Int, Never>
+  /// Pending-task counts for every lane, delivered on main; replays the current snapshot
+  /// on subscribe. The engine owns all queues, so this is the single source for any count
+  /// shown in the UI — per lane via `count(in:)`, or `total`.
+  func observeQueueCounts() -> AnyPublisher<QueueCounts, Never>
 
   func getAllQueuedJobs() async -> [ConcurrentSyncTask]
 
@@ -76,7 +79,8 @@ public class ConcurrenceService: ConcurrenceServiceProtocol, BPLogger {
   private let policyLock = NSLock()
   private var disposeBag = Set<AnyCancellable>()
   private var listeningTask: Task<Void, Never>?
-  public var tasksCountService: ConcurrentTasksCountService!
+  /// Owner of the store and of the per-lane counts. Internal for @testable injection.
+  var tasksDataManager: TasksDataManager!
   private var _lastSyncError: SyncErrorInfo?
   /// Last sync error information for debugging. Writers hop to main, but readers
   /// (SyncService.getLastSyncError) call from arbitrary threads — same lock
@@ -117,7 +121,7 @@ public class ConcurrenceService: ConcurrenceServiceProtocol, BPLogger {
     self.networkClient = networkClient
     self.dataManager = dataManager
     self.taskContainer = ConcurrentTasksRepository(tasksDataManager: tasksDataManager)
-    self.tasksCountService = ConcurrentTasksCountService(tasksDataManager: tasksDataManager)
+    self.tasksDataManager = tasksDataManager
     startListeningForNewTasks()
     bindObservers()
     bindAccountObserver()
@@ -212,8 +216,8 @@ public class ConcurrenceService: ConcurrenceServiceProtocol, BPLogger {
     await enqueueNextTask(for: queueKey)
   }
 
-  public func observeConcurrentTasksCount() -> AnyPublisher<Int, Never> {
-    return tasksCountService.observeConcurrentTasksCount()
+  public func observeQueueCounts() -> AnyPublisher<QueueCounts, Never> {
+    return tasksDataManager.observeQueueCounts()
   }
 
   private func enqueueNextTask(for queueKey: String) async {

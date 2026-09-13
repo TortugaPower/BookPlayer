@@ -132,6 +132,7 @@
 		4160A09223F2DE130039166B /* Localizable.stringsdict in Resources */ = {isa = PBXBuildFile; fileRef = 4160A09423F2DE130039166B /* Localizable.stringsdict */; };
 		4160A0A123F304530039166B /* LocalizableLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4160A0A023F304530039166B /* LocalizableLabel.swift */; };
 		4163E313214AC43000072AA2 /* ImportOperationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4163E312214AC43000072AA2 /* ImportOperationTests.swift */; };
+		28EEB2588DE468A6B8C15272 /* RefreshTaskOperationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65962B5F03D221629A83C22C /* RefreshTaskOperationTests.swift */; };
 		41640A3724416EE8004FB97B /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = 41640A3624416EE8004FB97B /* Intents.intentdefinition */; settings = {ATTRIBUTES = (no_codegen, ); }; };
 		41640A452441ACE2004FB97B /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = 41640A3624416EE8004FB97B /* Intents.intentdefinition */; };
 		4165EE0520A743D500616EDF /* BookPlayer.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 4165EDF920A743D500616EDF /* BookPlayer.xcdatamodeld */; };
@@ -511,8 +512,6 @@
 		638487CE2EC77B1200DF442B /* AudiobookShelfAudiobookDetailsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638487CB2EC77B1200DF442B /* AudiobookShelfAudiobookDetailsViewModel.swift */; };
 		638761D32E62BD7A009332E8 /* ItemListSelectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638761D22E62BD7A009332E8 /* ItemListSelectionView.swift */; };
 		638D91A82E60AAA600B62BDD /* ImportOperationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638D91A72E60AAA600B62BDD /* ImportOperationState.swift */; };
-		638E64CE2B8E1CFD00DCFA3B /* SyncTasksCountService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638E64CD2B8E1CFD00DCFA3B /* SyncTasksCountService.swift */; };
-		638E64CF2B8E1CFD00DCFA3B /* SyncTasksCountService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 638E64CD2B8E1CFD00DCFA3B /* SyncTasksCountService.swift */; };
 		6397206F2CA71D600045A4DB /* .swift-format in Resources */ = {isa = PBXBuildFile; fileRef = 6397206E2CA71D600045A4DB /* .swift-format */; };
 		639720722CAAF8290045A4DB /* LastPlayedProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639720712CAAF8290045A4DB /* LastPlayedProvider.swift */; };
 		639720832CAB0C380045A4DB /* LastPlayedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639720822CAB0C380045A4DB /* LastPlayedView.swift */; };
@@ -699,9 +698,9 @@
 		9911FBB92F72F46900DC9A2B /* ConcurrentSyncTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBB72F72F46200DC9A2B /* ConcurrentSyncTask.swift */; };
 		9911FBBB2F736C0500DC9A2B /* ConcurrentSyncTasksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBBA2F736BFC00DC9A2B /* ConcurrentSyncTasksView.swift */; };
 		9911FBBE2F74527800DC9A2B /* ConcurrentTaskProgressMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBBD2F74526F00DC9A2B /* ConcurrentTaskProgressMonitor.swift */; };
+		F99B9D63217ABDAFED95696A /* QueueCounts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25C877CDD6114F67F0CD2AFC /* QueueCounts.swift */; };
 		9911FBBF2F74527800DC9A2B /* ConcurrentTaskProgressMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBBD2F74526F00DC9A2B /* ConcurrentTaskProgressMonitor.swift */; };
-		9911FBC12F7465EA00DC9A2B /* ConcurrentTasksCountService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBC02F7465DC00DC9A2B /* ConcurrentTasksCountService.swift */; };
-		9911FBC22F7465EA00DC9A2B /* ConcurrentTasksCountService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBC02F7465DC00DC9A2B /* ConcurrentTasksCountService.swift */; };
+		7AA06DC64EDBA7F10753CF4C /* QueueCounts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25C877CDD6114F67F0CD2AFC /* QueueCounts.swift */; };
 		9911FBC42F76122400DC9A2B /* FileUploadOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBC32F76121C00DC9A2B /* FileUploadOperation.swift */; };
 		9911FBC52F76122400DC9A2B /* FileUploadOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBC32F76121C00DC9A2B /* FileUploadOperation.swift */; };
 		9911FBC72F7738CC00DC9A2B /* SyncableExternalResource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBC62F7738C100DC9A2B /* SyncableExternalResource.swift */; };
@@ -1260,6 +1259,7 @@
 		4161D496245660B800D1C01B /* ro */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ro; path = ro.lproj/Localizable.strings; sourceTree = "<group>"; };
 		4163E3102148606600072AA2 /* ImportFileItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportFileItem.swift; sourceTree = "<group>"; };
 		4163E312214AC43000072AA2 /* ImportOperationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportOperationTests.swift; sourceTree = "<group>"; };
+		65962B5F03D221629A83C22C /* RefreshTaskOperationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshTaskOperationTests.swift; sourceTree = "<group>"; };
 		4163E314214ACB4300072AA2 /* DataTestUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataTestUtils.swift; sourceTree = "<group>"; };
 		41640A1F24416774004FB97B /* IntentsUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IntentsUI.framework; path = System/Library/Frameworks/IntentsUI.framework; sourceTree = SDKROOT; };
 		41640A3624416EE8004FB97B /* Intents.intentdefinition */ = {isa = PBXFileReference; lastKnownFileType = file.intentdefinition; path = Intents.intentdefinition; sourceTree = "<group>"; };
@@ -1624,7 +1624,6 @@
 		638761D22E62BD7A009332E8 /* ItemListSelectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemListSelectionView.swift; sourceTree = "<group>"; };
 		638A9B40CE7EECEF80FA9935 /* AudiobookShelfConnectionViewModelTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AudiobookShelfConnectionViewModelTests.swift; sourceTree = "<group>"; };
 		638D91A72E60AAA600B62BDD /* ImportOperationState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportOperationState.swift; sourceTree = "<group>"; };
-		638E64CD2B8E1CFD00DCFA3B /* SyncTasksCountService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncTasksCountService.swift; sourceTree = "<group>"; };
 		6397206E2CA71D600045A4DB /* .swift-format */ = {isa = PBXFileReference; lastKnownFileType = text; path = ".swift-format"; sourceTree = "<group>"; };
 		639720712CAAF8290045A4DB /* LastPlayedProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LastPlayedProvider.swift; sourceTree = "<group>"; };
 		639720822CAB0C380045A4DB /* LastPlayedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LastPlayedView.swift; sourceTree = "<group>"; };
@@ -1779,7 +1778,7 @@
 		9911FBB72F72F46200DC9A2B /* ConcurrentSyncTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcurrentSyncTask.swift; sourceTree = "<group>"; };
 		9911FBBA2F736BFC00DC9A2B /* ConcurrentSyncTasksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcurrentSyncTasksView.swift; sourceTree = "<group>"; };
 		9911FBBD2F74526F00DC9A2B /* ConcurrentTaskProgressMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcurrentTaskProgressMonitor.swift; sourceTree = "<group>"; };
-		9911FBC02F7465DC00DC9A2B /* ConcurrentTasksCountService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcurrentTasksCountService.swift; sourceTree = "<group>"; };
+		25C877CDD6114F67F0CD2AFC /* QueueCounts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueueCounts.swift; sourceTree = "<group>"; };
 		9911FBC32F76121C00DC9A2B /* FileUploadOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileUploadOperation.swift; sourceTree = "<group>"; };
 		9911FBC62F7738C100DC9A2B /* SyncableExternalResource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncableExternalResource.swift; sourceTree = "<group>"; };
 		9911FBD62F7CACE200DC9A2B /* QueuedTasksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueuedTasksView.swift; sourceTree = "<group>"; };
@@ -2467,6 +2466,7 @@
 				69343D34213A079B000C425E /* Services */,
 				63833DF82AAC134600496246 /* PerformanceTests */,
 				4163E312214AC43000072AA2 /* ImportOperationTests.swift */,
+				65962B5F03D221629A83C22C /* RefreshTaskOperationTests.swift */,
 				41C3CF7D20AEA5E5007C3EF4 /* DataManagerTests.swift */,
 				9F8A9A5D27AC3F8C0093AA1C /* PlayableItemTests.swift */,
 				689E2BCD29DC1D9253949A53 /* PlayableChapterTests.swift */,
@@ -3429,8 +3429,8 @@
 		9911FBAA2F71CD1600DC9A2B /* ConcurrentSync */ = {
 			isa = PBXGroup;
 			children = (
-				9911FBC02F7465DC00DC9A2B /* ConcurrentTasksCountService.swift */,
 				9911FBBD2F74526F00DC9A2B /* ConcurrentTaskProgressMonitor.swift */,
+				25C877CDD6114F67F0CD2AFC /* QueueCounts.swift */,
 				9911FBB72F72F46200DC9A2B /* ConcurrentSyncTask.swift */,
 				9911FBB12F71E54600DC9A2B /* ConcurrentTasksRepository.swift */,
 				9911FBAE2F71D03100DC9A2B /* ConcurrenceService.swift */,
@@ -3835,7 +3835,6 @@
 				9F9F3B6F280E4E4B004359DA /* SyncService.swift */,
 				9FDDD2DD289BEE590020C428 /* SyncJobScheduler.swift */,
 				63C6C30F2B54F14800FFE0D8 /* LibraryItemSyncOperation.swift */,
-				638E64CD2B8E1CFD00DCFA3B /* SyncTasksCountService.swift */,
 			);
 			path = Sync;
 			sourceTree = "<group>";
@@ -4697,7 +4696,6 @@
 				3FF5BA6A2E10EA8000B82BCC /* HardcoverBook+CoreDataClass.swift in Sources */,
 				63344C022EA7097D00B90DF7 /* DatabaseBackupService.swift in Sources */,
 				41C23402272E1960006BC7B8 /* SimpleTheme.swift in Sources */,
-				638E64CF2B8E1CFD00DCFA3B /* SyncTasksCountService.swift in Sources */,
 				992D6E1C2FA98CBE0091849F /* AudiobookShelfLibrary.swift in Sources */,
 				63125D132C36D97400D35533 /* EventsService.swift in Sources */,
 				3F6640902E172DF500356522 /* MappingModel_v9_to_v10.xcmappingmodel in Sources */,
@@ -4733,6 +4731,7 @@
 				9FC1E45D2814E6A500522FA8 /* NetworkProvider.swift in Sources */,
 				9FC1E4602814F66F00522FA8 /* AccountAPI.swift in Sources */,
 				9911FBBF2F74527800DC9A2B /* ConcurrentTaskProgressMonitor.swift in Sources */,
+				7AA06DC64EDBA7F10753CF4C /* QueueCounts.swift in Sources */,
 				9FC1E4792816001400522FA8 /* KeychainService.swift in Sources */,
 				99D995902F71AB6800BAF216 /* JellyfinLibraryItem.swift in Sources */,
 				4140EA7F227289D20009F794 /* Library+CoreDataProperties.swift in Sources */,
@@ -4790,7 +4789,6 @@
 				9911FBB62F72486D00DC9A2B /* ExternalUpdateProgressOperation.swift in Sources */,
 				41C233FE272E1958006BC7B8 /* SimpleLibraryItem.swift in Sources */,
 				996D4CD22F98A45300FC3B57 /* IntegrationError.swift in Sources */,
-				9911FBC12F7465EA00DC9A2B /* ConcurrentTasksCountService.swift in Sources */,
 				416AAC3523F515B0005AD04F /* String+BookPlayer.swift in Sources */,
 				99D995952F71ABBD00BAF216 /* JellyfinAudiobookDetailsData.swift in Sources */,
 				6308260B2AF5B66D002ACE0D /* UserDefaults+BookPlayer.swift in Sources */,
@@ -5269,6 +5267,7 @@
 				9F8A9A5E27AC3F8C0093AA1C /* PlayableItemTests.swift in Sources */,
 				232F1DA50BB33EB5A629B8B7 /* PlayableChapterTests.swift in Sources */,
 				4163E313214AC43000072AA2 /* ImportOperationTests.swift in Sources */,
+				28EEB2588DE468A6B8C15272 /* RefreshTaskOperationTests.swift in Sources */,
 				0CEC6B48350FC9C0A0B7D1C0 /* SyncTasksStorageTests.swift in Sources */,
 				1A26F7D72FFD6D625A313FC5 /* AudioMetadataServiceTests.swift in Sources */,
 				466E4B7066F10717C8CE7B3E /* LibraryServiceReloadChaptersTests.swift in Sources */,
@@ -5292,6 +5291,7 @@
 			files = (
 				996D4CC52F98A25100FC3B57 /* MappingModel_v10_to_v11.xcmappingmodel in Sources */,
 				9911FBBE2F74527800DC9A2B /* ConcurrentTaskProgressMonitor.swift in Sources */,
+				F99B9D63217ABDAFED95696A /* QueueCounts.swift in Sources */,
 				9FC1E46C2815A8CA00522FA8 /* LibraryAPI.swift in Sources */,
 				9FAFC9F42995BB5C00FD531E /* RemoteFileURLResponse.swift in Sources */,
 				9911FBB92F72F46900DC9A2B /* ConcurrentSyncTask.swift in Sources */,
@@ -5303,7 +5303,6 @@
 				412AB7092701421600969618 /* ManualOrderMigrationUtils.swift in Sources */,
 				63344C032EA7097D00B90DF7 /* DatabaseBackupService.swift in Sources */,
 				9F1345B82938DF360089B1DE /* UIFont+BookPlayer.swift in Sources */,
-				9911FBC22F7465EA00DC9A2B /* ConcurrentTasksCountService.swift in Sources */,
 				639AC98C2AD9F2840053AFC6 /* BPTaskDownloadDelegate.swift in Sources */,
 				9FFCC08F289418CA00F4952E /* SimpleChapter.swift in Sources */,
 				9911FBC42F76122400DC9A2B /* FileUploadOperation.swift in Sources */,
@@ -5420,7 +5419,6 @@
 				41C233FD272E1957006BC7B8 /* SimpleLibraryItem.swift in Sources */,
 				3FA43BF82E110B4900DF9B1F /* SimpleHardcoverBook.swift in Sources */,
 				41A1B12A226F88C500EA0400 /* Folder+CoreDataProperties.swift in Sources */,
-				638E64CE2B8E1CFD00DCFA3B /* SyncTasksCountService.swift in Sources */,
 				9911FBAD2F71CD6300DC9A2B /* AsyncOperation.swift in Sources */,
 				99F3C1FE2F5FC2F200AC91A2 /* SchemaV1SyncTasksModels.swift in Sources */,
 				9911FBB32F71E54C00DC9A2B /* ConcurrentTasksRepository.swift in Sources */,

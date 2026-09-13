@@ -19,6 +19,7 @@ struct QueuedSyncTasksView: View {
   @State private var networkMonitor = NetworkMonitor()
 
   @Environment(\.syncService) private var syncService
+  @Environment(\.concurrenceService) private var concurrenceService
   @EnvironmentObject private var theme: ThemeViewModel
 
   var body: some View {
@@ -85,8 +86,9 @@ struct QueuedSyncTasksView: View {
       Text("sync_tasks_alert_description")
     }
     .onReceive(
-      syncService.observeTasksCount()
-      .dropFirst()
+      concurrenceService.observeQueueCounts()
+        .map { $0.count(in: TaskQueueKey.sync) }
+        .dropFirst()
     ) { count in
       guard jobsCount != count else { return }
 

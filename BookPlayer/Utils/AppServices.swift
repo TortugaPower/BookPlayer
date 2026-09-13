@@ -94,8 +94,7 @@ final class AppServices: BPLogger {
       let syncService = makeSyncService(
         accountService: accountService,
         libraryService: libraryService,
-        concurrenceService: concurrenceService,
-        tasksDataManager: tasksDataManager
+        concurrenceService: concurrenceService
       )
       let playbackService = makePlaybackService(libraryService: libraryService)
       let playerManager = PlayerManager(
@@ -245,16 +244,14 @@ final class AppServices: BPLogger {
   private func makeSyncService(
     accountService: AccountService,
     libraryService: LibraryService,
-    concurrenceService: ConcurrenceService,
-    tasksDataManager: TasksDataManager
+    concurrenceService: ConcurrenceService
   ) -> SyncService {
     let service = SyncService()
     service.setup(
       isActive: accountService.hasSyncEnabled(),
       libraryService: libraryService,
       accountService: accountService,
-      concurrenceService: concurrenceService,
-      tasksDataManager: tasksDataManager
+      concurrenceService: concurrenceService
     )
     return service
   }

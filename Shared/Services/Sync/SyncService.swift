@@ -40,8 +40,6 @@ public protocol SyncServiceProtocol {
 
   /// Count of the currently queued sync jobs
   func queuedJobsCount() async -> Int
-  /// Observe the queued jobs count
-  func observeTasksCount() -> AnyPublisher<Int, Never>
   /// Check if we can safely fetch the list contents
   func canSyncListContents(at relativePath: String?, ignoreLastTimestamp: Bool) async -> Bool
 
@@ -117,7 +115,6 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   private var libraryService: LibrarySyncProtocol!
   private var accountService: AccountServiceProtocol!
   private var concurrenceService: ConcurrenceServiceProtocol!
-  private var tasksCountService: SyncTasksCountService!
   var jobManager: JobSchedulerProtocol!
   private var client: NetworkClientProtocol!
   /// Owned here: writes go through `updateSyncEnabled(_:)` / `logout()`, mutated on the
@@ -174,7 +171,6 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     libraryService: LibrarySyncProtocol,
     accountService: AccountServiceProtocol,
     concurrenceService: ConcurrenceServiceProtocol,
-    tasksDataManager: TasksDataManager,
     client: NetworkClientProtocol = NetworkClient(),
     streamResolver: ExternalStreamResolving = ExternalStreamResolver()
   ) {
@@ -183,7 +179,6 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     self.libraryService = libraryService
     self.accountService = accountService
     self.concurrenceService = concurrenceService
-    self.tasksCountService = SyncTasksCountService(tasksDataManager: tasksDataManager)
     self.jobManager = SyncJobScheduler(tasksRepository: concurrenceService.taskContainer)
     self.client = client
     self.provider = NetworkProvider(client: client)
@@ -261,10 +256,6 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   /// Count of the currently queued sync jobs
   public func queuedJobsCount() async -> Int {
     return await jobManager.queuedJobsCount()
-  }
-
-  public func observeTasksCount() -> AnyPublisher<Int, Never> {
-    return tasksCountService.observeTasksCount()
   }
 
   public func canSyncListContents(at relativePath: String?, ignoreLastTimestamp: Bool) async -> Bool {

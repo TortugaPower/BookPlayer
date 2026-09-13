@@ -85,8 +85,7 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate, ObservableObject {
         isActive: accountService.hasSyncEnabled(),
         libraryService: libraryService,
         accountService: accountService,
-        concurrenceService: concurrenceService,
-        tasksDataManager: tasksDataManager
+        concurrenceService: concurrenceService
       )
       let playbackService = PlaybackService()
       playbackService.setup(libraryService: libraryService)

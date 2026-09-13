@@ -39,7 +39,6 @@ enum QueueDisplay {
 struct QueuedTasksView: View {
   @State private var queues = [QueueSummary]()
 
-  @Environment(\.syncService) private var syncService
   @Environment(\.concurrenceService) private var concurrenceService
   @EnvironmentObject private var theme: ThemeViewModel
 
@@ -71,10 +70,7 @@ struct QueuedTasksView: View {
     .toolbarColorScheme(theme.useDarkVariant ? .dark : .light, for: .navigationBar)
     .navigationTitle("queued_tasks_title".localized)
     .navigationBarTitleDisplayMode(.inline)
-    .onReceive(syncService.observeTasksCount()) { _ in
-      reloadQueues()
-    }
-    .onReceive(concurrenceService.observeConcurrentTasksCount()) { _ in
+    .onReceive(concurrenceService.observeQueueCounts()) { _ in
       reloadQueues()
     }
     .onAppear {
@@ -94,31 +90,22 @@ struct QueuedTasksView: View {
 // CLAUDE.md's DI section) — previews must construct + setup() + inject, same as
 // ProfileSyncTasksSectionView's preview.
 #Preview {
-  @Previewable var services: (sync: SyncService, concurrence: ConcurrenceService) = {
+  @Previewable var concurrenceService: ConcurrenceService = {
     let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: ""))
     let audioMetadataService = AudioMetadataService()
     let libraryService = LibraryService()
     libraryService.setup(dataManager: dataManager, audioMetadataService: audioMetadataService)
     let accountService = AccountService()
     accountService.setup(dataManager: dataManager)
-    let tasksDataManager = TasksDataManager()
     let concurrenceService = ConcurrenceService()
     concurrenceService.setup(
       libraryService: libraryService,
       getAccessLevel: { accountService.getAccessLevel() },
-      tasksDataManager: tasksDataManager,
+      tasksDataManager: TasksDataManager(),
       networkClient: NetworkClient(),
       dataManager: dataManager
     )
-    let syncService = SyncService()
-    syncService.setup(
-      isActive: true,
-      libraryService: libraryService,
-      accountService: accountService,
-      concurrenceService: concurrenceService,
-      tasksDataManager: tasksDataManager
-    )
-    return (syncService, concurrenceService)
+    return concurrenceService
   }()
 
   ZStack {
@@ -126,6 +113,5 @@ struct QueuedTasksView: View {
     QueuedTasksView()
   }
   .environmentObject(ThemeViewModel())
-  .environment(\.syncService, services.sync)
-  .environment(\.concurrenceService, services.concurrence)
+  .environment(\.concurrenceService, concurrenceService)
 }

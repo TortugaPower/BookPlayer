@@ -12,8 +12,7 @@ import Combine
 
 public final class TasksDataManager: BPLogger {
   public let container: ModelContainer
-  private let tasksCountSubject = CurrentValueSubject<Int, Never>(0)
-  private let concurrentTasksCountSubject = CurrentValueSubject<Int, Never>(0)
+  private let queueCountsSubject = CurrentValueSubject<QueueCounts, Never>(QueueCounts())
 
   public init() {
     let schema = Schema([
@@ -85,40 +84,27 @@ public final class TasksDataManager: BPLogger {
     initializeTasksCount()
   }
 
-  public func getTasksCount() -> Int {
-    tasksCountSubject.value
+  /// Pending-task counts per queue key, delivered on main. Replays the latest snapshot on
+  /// subscribe, then emits after every store/pop.
+  public func observeQueueCounts() -> AnyPublisher<QueueCounts, Never> {
+    return queueCountsSubject
+      .receive(on: DispatchQueue.main)
+      .eraseToAnyPublisher()
   }
 
-  public func observeTasksCount() -> AnyPublisher<Int, Never> {
-    return tasksCountSubject
-      .receive(on: DispatchQueue.main)
-      .eraseToAnyPublisher()
-  }
-  
-  public func observeConcurrentTasksCount() -> AnyPublisher<Int, Never> {
-    return concurrentTasksCountSubject
-      .receive(on: DispatchQueue.main)
-      .eraseToAnyPublisher()
-  }
-  
-  /// Publish updated counts for both queue groups from the unified container:
-  /// `tasksCountSubject` tracks the serial sync queue, `concurrentTasksCountSubject`
-  /// tracks everything else (provider updates, file uploads).
+  /// Recount every lane from the unified container and publish the snapshot.
   public func notifyTasksChanged(context: ModelContext) {
     let descriptor = FetchDescriptor<ConcurrentTasksContainer>()
 
     do {
       let tasks = try context.fetch(descriptor).first?.tasks ?? []
-      let syncCount = tasks.filter { $0.queueKey == TaskQueueKey.sync }.count
-      tasksCountSubject.send(syncCount)
-      concurrentTasksCountSubject.send(tasks.count - syncCount)
+      let counts = Dictionary(grouping: tasks, by: { $0.queueKey }).mapValues(\.count)
+      queueCountsSubject.send(QueueCounts(byQueueKey: counts))
     } catch {
-      tasksCountSubject.send(0)
-      concurrentTasksCountSubject.send(0)
+      queueCountsSubject.send(QueueCounts())
     }
   }
 
-  
   public func deleteAllTasks(with context: ModelContext) throws {
     // Task payload models are standalone (no relationships), so a store-level
     // batch delete is safe and fast.

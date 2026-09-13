@@ -94,7 +94,7 @@ struct ConcurrentSyncTasksView: View {
       Text("sync_tasks_alert_description".localized)
     }
     .onReceive(
-      concurrenceService.observeConcurrentTasksCount()
+      concurrenceService.observeQueueCounts().map { $0.count(in: queueKey) }
     ) { count in
       guard globalTasksCount != count else { return }
 

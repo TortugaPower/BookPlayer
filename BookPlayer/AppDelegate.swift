@@ -451,9 +451,14 @@ extension AppDelegate {
   }
 
   func handleAppRefresh(task: BGAppRefreshTask) {
-    guard let syncService = AppServices.shared.coreServices?.syncService else { return }
+    guard let concurrenceService = AppServices.shared.coreServices?.concurrenceService else { return }
 
-    let refreshOperation = RefreshTaskOperation(syncService: syncService)
+    // Sync lane only: metadata pushes are what the refresh window is for. Provider pushes
+    // retry forever against an unreachable home server, and S3 uploads already run on a
+    // background URLSession — neither should keep the process awake until expiration.
+    let refreshOperation = RefreshTaskOperation(
+      queueDrained: concurrenceService.observeQueueCounts().laneDrained(TaskQueueKey.sync)
+    )
 
     refreshOperation.completionBlock = { [weak self] in
       let success = !refreshOperation.isCancelled

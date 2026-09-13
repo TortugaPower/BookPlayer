@@ -127,8 +127,7 @@ struct BookView: View {
       isActive: true,
       libraryService: libraryService,
       accountService: accountService,
-      concurrenceService: concurrenceService,
-      tasksDataManager: tasksDataManager
+      concurrenceService: concurrenceService
     )
 
     return syncService

@@ -1888,22 +1888,6 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
             return queuedJobsCountReturnValue
         }
     }
-    //MARK: - observeTasksCount
-
-    var observeTasksCountCallsCount = 0
-    var observeTasksCountCalled: Bool {
-        return observeTasksCountCallsCount > 0
-    }
-    var observeTasksCountReturnValue: AnyPublisher<Int, Never>!
-    var observeTasksCountClosure: (() -> AnyPublisher<Int, Never>)?
-    func observeTasksCount() -> AnyPublisher<Int, Never> {
-        observeTasksCountCallsCount += 1
-        if let observeTasksCountClosure = observeTasksCountClosure {
-            return observeTasksCountClosure()
-        } else {
-            return observeTasksCountReturnValue
-        }
-    }
     //MARK: - canSyncListContents
 
     var canSyncListContentsAtIgnoreLastTimestampCallsCount = 0
