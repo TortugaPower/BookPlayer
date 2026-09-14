@@ -19,8 +19,8 @@ final class QueuedTaskDisplayTests: XCTestCase {
     jobType: SyncJobType = .externalUpdate,
     uuid: String = "",
     relativePath: String = ""
-  ) -> ConcurrentSyncTask {
-    ConcurrentSyncTask(
+  ) -> QueuedSyncTask {
+    QueuedSyncTask(
       id: id,
       queueKey: lane,
       jobType: jobType,
@@ -49,7 +49,7 @@ final class QueuedTaskDisplayTests: XCTestCase {
   }
 
   func testGroupedByLane_drainedLanesHaveNoSection() {
-    XCTAssertTrue([ConcurrentSyncTask]().groupedByLane().isEmpty)
+    XCTAssertTrue([QueuedSyncTask]().groupedByLane().isEmpty)
     XCTAssertEqual([task("j1", lane: "jellyfin")].groupedByLane().map(\.queueKey), ["jellyfin"])
   }
 

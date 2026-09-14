@@ -1,5 +1,5 @@
 //
-//  ConcurrentSyncTests.swift
+//  SyncQueueTests.swift
 //  BookPlayerTests
 //
 //  Copyright © 2026 BookPlayer LLC. All rights reserved.
@@ -13,12 +13,12 @@ import XCTest
 @testable import BookPlayer
 @testable import BookPlayerKit
 
-/// First dedicated coverage for the unified concurrent-sync engine: task persistence
+/// First dedicated coverage for the sync-queue engine: task persistence
 /// round-trips (notably `hostId`, whose omission silently discarded every persisted progress
 /// push), queue ordering, the per-tier access policy, and the operation state machine.
-final class ConcurrentSyncTests: XCTestCase {
+final class SyncQueueTests: XCTestCase {
   private var tasksDataManager: TasksDataManager!
-  private var repository: ConcurrentTasksRepository!
+  private var repository: SyncQueueRepository!
 
   override func setUpWithError() throws {
     let schema = Schema([
@@ -34,15 +34,15 @@ final class ConcurrentSyncTests: XCTestCase {
       UploadExternalResourceTaskModel.self,
       ExternalResourceToDownloadTaskModel.self,
       DeleteExternalResourceTaskModel.self,
-      ConcurrentTasksContainer.self,
-      ConcurrentTaskReferenceModel.self,
+      SyncQueueContainer.self,
+      QueuedTaskReferenceModel.self,
       ExternalUpdateTaskModel.self,
-      ConcurrentUploadTaskModel.self,
+      UploadFileTaskModel.self,
     ])
     let config = ModelConfiguration(isStoredInMemoryOnly: true, cloudKitDatabase: .none)
     let container = try ModelContainer(for: schema, configurations: config)
     tasksDataManager = TasksDataManager(container: container)
-    repository = ConcurrentTasksRepository(tasksDataManager: tasksDataManager)
+    repository = SyncQueueRepository(tasksDataManager: tasksDataManager)
   }
 
   override func tearDown() {
@@ -136,27 +136,27 @@ final class ConcurrentSyncTests: XCTestCase {
   /// `externalUpdate` targets the USER'S OWN media server, so it stays available on every
   /// tier (Android parity); `uploadFile` (S3) is PRO-only.
   func testAccessPolicy_perTier() {
-    let service = ConcurrenceService(maxConcurrentTasks: 1)
+    let service = SyncQueueService(maxConcurrentTasks: 1)
 
-    service.updateConcurrentService(.pro)
+    service.updateAccessPolicy(.pro)
     XCTAssertEqual(service.accessPolicy[.externalUpdate], true)
     XCTAssertEqual(service.accessPolicy[.uploadFile], true)
 
-    service.updateConcurrentService(.lite)
+    service.updateAccessPolicy(.lite)
     XCTAssertEqual(service.accessPolicy[.externalUpdate], true)
     XCTAssertEqual(service.accessPolicy[.uploadFile], false)
 
-    service.updateConcurrentService(.free)
+    service.updateAccessPolicy(.free)
     XCTAssertEqual(service.accessPolicy[.externalUpdate], true)
     XCTAssertEqual(service.accessPolicy[.uploadFile], false)
 
-    service.updateConcurrentService(.plus)
+    service.updateAccessPolicy(.plus)
     XCTAssertEqual(service.accessPolicy[.externalUpdate], true)
     XCTAssertEqual(service.accessPolicy[.uploadFile], false)
   }
 
   func testScheduleMetadataUpdate_gatedByPolicy() async throws {
-    let service = ConcurrenceService(maxConcurrentTasks: 1)
+    let service = SyncQueueService(maxConcurrentTasks: 1)
     service.taskContainer = repository
 
     // Denied: nothing is persisted.
@@ -181,7 +181,7 @@ final class ConcurrentSyncTests: XCTestCase {
   }
 
   func testScheduleFileUpload_gatedByPolicy() async throws {
-    let service = ConcurrenceService(maxConcurrentTasks: 1)
+    let service = SyncQueueService(maxConcurrentTasks: 1)
     service.taskContainer = repository
 
     service.accessPolicy = [.uploadFile: false]
@@ -262,18 +262,18 @@ final class ConcurrentSyncTests: XCTestCase {
 
 // MARK: - Policy ownership (self-refresh on account updates)
 
-extension ConcurrentSyncTests {
+extension SyncQueueTests {
   /// The mid-session-upgrade pin: the service re-derives its per-job policy from
   /// .accountUpdate on its own — no coordinator wiring. Before this, an upgrade left
   /// file uploads gated off until the next app start unless every platform remembered
   /// to forward the new level manually.
   @MainActor
   func testAccessPolicyRefreshesOnAccountUpdate() {
-    let service = ConcurrenceService(maxConcurrentTasks: 1)
+    let service = SyncQueueService(maxConcurrentTasks: 1)
     var level = AccessLevel.free
     service.getAccessLevel = { level }
     service.bindAccountObserver()
-    service.updateConcurrentService(level)
+    service.updateAccessPolicy(level)
     XCTAssertEqual(service.accessPolicy[.uploadFile], false)
 
     level = .pro
@@ -292,7 +292,7 @@ extension ConcurrentSyncTests {
 
 // MARK: - Queue counts (engine-owned)
 
-extension ConcurrentSyncTests {
+extension SyncQueueTests {
   private func syncUpdateParams(id: String, relativePath: String) -> [String: Any] {
     [
       "id": id,
@@ -383,7 +383,7 @@ extension ConcurrentSyncTests {
 
   /// The engine forwards the store owner's publisher — no second bookkeeping anywhere.
   func testEngine_observeQueueCounts_forwardsTheStoreOwner() async throws {
-    let service = ConcurrenceService(maxConcurrentTasks: 1)
+    let service = SyncQueueService(maxConcurrentTasks: 1)
     service.taskContainer = repository
     service.tasksDataManager = tasksDataManager
     try await repository.storeTask(parameters: externalUpdateParams(id: "j1"))

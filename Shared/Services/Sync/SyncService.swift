@@ -112,7 +112,7 @@ public protocol SyncServiceProtocol {
 public final class SyncService: SyncServiceProtocol, BPLogger {
   private var libraryService: LibrarySyncProtocol!
   private var accountService: AccountServiceProtocol!
-  private var concurrenceService: ConcurrenceServiceProtocol!
+  private var syncQueueService: SyncQueueServiceProtocol!
   var jobManager: JobSchedulerProtocol!
   private var client: NetworkClientProtocol!
   /// Owned here: writes go through `updateSyncEnabled(_:)` / `logout()`, mutated on the
@@ -168,7 +168,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     isActive: Bool,
     libraryService: LibrarySyncProtocol,
     accountService: AccountServiceProtocol,
-    concurrenceService: ConcurrenceServiceProtocol,
+    syncQueueService: SyncQueueServiceProtocol,
     client: NetworkClientProtocol = NetworkClient(),
     streamResolver: ExternalStreamResolving = ExternalStreamResolver()
   ) {
@@ -176,8 +176,8 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     self.streamResolver = streamResolver
     self.libraryService = libraryService
     self.accountService = accountService
-    self.concurrenceService = concurrenceService
-    self.jobManager = SyncJobScheduler(tasksRepository: concurrenceService.taskContainer)
+    self.syncQueueService = syncQueueService
+    self.jobManager = SyncJobScheduler(tasksRepository: syncQueueService.taskContainer)
     self.client = client
     self.provider = NetworkProvider(client: client)
 
@@ -606,7 +606,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   }
 
   public func getLastSyncError() -> SyncErrorInfo? {
-    return concurrenceService.lastSyncError
+    return syncQueueService.lastSyncError
   }
 
   public func cancelAllJobs() {
@@ -630,7 +630,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
         // Clearing the persisted rows isn't enough (develop parity): an operation
         // already executing keeps uploading after the lapse without this. Scoped so
         // in-flight externalUpdate pushes survive — they run on every tier.
-        self.concurrenceService.cancelServerQueueOperations()
+        self.syncQueueService.cancelServerQueueOperations()
       }
     }
   }

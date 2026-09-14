@@ -72,8 +72,8 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate, ObservableObject {
       let libraryService = LibraryService()
       libraryService.setup(dataManager: dataManager, audioMetadataService: audioMetadataService)
       let tasksDataManager = TasksDataManager()
-      let concurrenceService = ConcurrenceService()
-      concurrenceService.setup(
+      let syncQueueService = SyncQueueService()
+      syncQueueService.setup(
         libraryService: libraryService,
         getAccessLevel: { accountService.getAccessLevel() },
         tasksDataManager: tasksDataManager,
@@ -85,7 +85,7 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate, ObservableObject {
         isActive: accountService.hasSyncEnabled(),
         libraryService: libraryService,
         accountService: accountService,
-        concurrenceService: concurrenceService
+        syncQueueService: syncQueueService
       )
       let playbackService = PlaybackService()
       playbackService.setup(libraryService: libraryService)
@@ -119,7 +119,7 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate, ObservableObject {
         dataManager: dataManager,
         accountService: accountService,
         syncService: syncService,
-        concurrenceService: concurrenceService,
+        syncQueueService: syncQueueService,
         libraryService: libraryService,
         playbackService: playbackService,
         playerManager: playerManager,
@@ -317,7 +317,7 @@ extension ExtensionDelegate: PurchasesDelegate {
     coreServices?.updateSyncEnabled(enableSync)
 
     // Same route as iOS's MainCoordinator delegate: AccountService derives the level
-    // and posts .accountUpdate, which ConcurrenceService (and SyncService) observe —
+    // and posts .accountUpdate, which SyncQueueService (and SyncService) observe —
     // this replaced a hand-rolled entitlement parse forwarded manually to the queue.
     coreServices?.accountService.updateAccount(from: customerInfo)
   }

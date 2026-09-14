@@ -36,17 +36,17 @@ enum QueueDisplay {
 /// One collapsible lane on the Queued Tasks screen
 struct QueuedTaskSection: Identifiable {
   let queueKey: String
-  let tasks: [ConcurrentSyncTask]
+  let tasks: [QueuedSyncTask]
 
   var id: String { queueKey }
 }
 
-extension Array where Element == ConcurrentSyncTask {
+extension Array where Element == QueuedSyncTask {
   /// Lanes in display order — the sync lane first, then alphabetically — each keeping the
   /// engine's order (active tasks first) for its own rows. A drained lane has no section.
   func groupedByLane() -> [QueuedTaskSection] {
     var laneOrder = [String]()
-    var tasksByLane = [String: [ConcurrentSyncTask]]()
+    var tasksByLane = [String: [QueuedSyncTask]]()
     for task in self {
       if tasksByLane[task.queueKey] == nil {
         laneOrder.append(task.queueKey)
@@ -64,7 +64,7 @@ extension Array where Element == ConcurrentSyncTask {
   }
 }
 
-extension ConcurrentSyncTask {
+extension QueuedSyncTask {
   /// Sync-lane jobs name the item they touch (the library match names the whole library);
   /// file uploads and provider pushes describe the work instead.
   var displayTitle: String {

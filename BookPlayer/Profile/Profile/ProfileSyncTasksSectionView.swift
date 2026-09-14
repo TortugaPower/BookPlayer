@@ -19,7 +19,7 @@ struct ProfileSyncTasksSectionView: View {
     String(format: "queued_sync_tasks_title".localized, queuedCount)
   }
 
-  @Environment(\.concurrenceService) private var concurrenceService
+  @Environment(\.syncQueueService) private var syncQueueService
   @EnvironmentObject private var theme: ThemeViewModel
 
   var body: some View {
@@ -33,7 +33,7 @@ struct ProfileSyncTasksSectionView: View {
           .foregroundStyle(theme.secondaryColor)
       }
     }
-    .onReceive(concurrenceService.observeQueueCounts()) { counts in
+    .onReceive(syncQueueService.observeQueueCounts()) { counts in
       guard queuedCount != counts.total else { return }
 
       queuedCount = counts.total
@@ -94,15 +94,15 @@ struct ProfileSyncTasksSectionView: View {
 // Environment defaults are un-setup() placeholders whose count methods trap (see
 // CLAUDE.md's DI section) — previews must construct + setup() + inject.
 #Preview {
-  @Previewable var concurrenceService: ConcurrenceService = {
+  @Previewable var syncQueueService: SyncQueueService = {
     let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: ""))
     let audioMetadataService = AudioMetadataService()
     let libraryService = LibraryService()
     libraryService.setup(dataManager: dataManager, audioMetadataService: audioMetadataService)
     let accountService = AccountService()
     accountService.setup(dataManager: dataManager)
-    let concurrenceService = ConcurrenceService()
-    concurrenceService.setup(
+    let syncQueueService = SyncQueueService()
+    syncQueueService.setup(
       libraryService: libraryService,
       getAccessLevel: { accountService.getAccessLevel() },
       tasksDataManager: TasksDataManager(),
@@ -110,10 +110,10 @@ struct ProfileSyncTasksSectionView: View {
       dataManager: dataManager
     )
 
-    return concurrenceService
+    return syncQueueService
   }()
 
   ProfileSyncTasksSectionView()
     .environmentObject(ThemeViewModel())
-    .environment(\.concurrenceService, concurrenceService)
+    .environment(\.syncQueueService, syncQueueService)
 }

@@ -15,15 +15,15 @@ import SwiftUI
 struct QueuedTasksView: View {
   @AppStorage(Constants.UserDefaults.allowCellularData)
   private var allowsCellularData: Bool = false
-  @State private var tasks = [ConcurrentSyncTask]()
+  @State private var tasks = [QueuedSyncTask]()
   @State private var counts = QueueCounts()
   /// Stored inverted on purpose: a lane that appears while the screen is open starts expanded
   @State private var collapsedLanes = Set<String>()
   @State private var showInfoAlert = false
   @State private var networkMonitor = NetworkMonitor()
-  var monitor = ConcurrentTaskProgressMonitor.shared
+  var monitor = SyncQueueProgressMonitor.shared
 
-  @Environment(\.concurrenceService) private var concurrenceService
+  @Environment(\.syncQueueService) private var syncQueueService
   @EnvironmentObject private var theme: ThemeViewModel
 
   private var sections: [QueuedTaskSection] { tasks.groupedByLane() }
@@ -86,7 +86,7 @@ struct QueuedTasksView: View {
       }
     }
     // Replays the current snapshot on subscribe, so this is the initial load as well.
-    .onReceive(concurrenceService.observeQueueCounts()) { snapshot in
+    .onReceive(syncQueueService.observeQueueCounts()) { snapshot in
       counts = snapshot
       reloadTasks()
     }
@@ -160,7 +160,7 @@ struct QueuedTasksView: View {
 
   func reloadTasks() {
     Task { @MainActor in
-      tasks = await concurrenceService.getOrderedQueuedJobs(activeTaskIDs: Set(monitor.activeTasks.keys))
+      tasks = await syncQueueService.getOrderedQueuedJobs(activeTaskIDs: Set(monitor.activeTasks.keys))
     }
   }
 }
@@ -170,27 +170,27 @@ struct QueuedTasksView: View {
 // CLAUDE.md's DI section) — previews must construct + setup() + inject, same as
 // ProfileSyncTasksSectionView's preview.
 #Preview {
-  @Previewable var concurrenceService: ConcurrenceService = {
+  @Previewable var syncQueueService: SyncQueueService = {
     let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: ""))
     let audioMetadataService = AudioMetadataService()
     let libraryService = LibraryService()
     libraryService.setup(dataManager: dataManager, audioMetadataService: audioMetadataService)
     let accountService = AccountService()
     accountService.setup(dataManager: dataManager)
-    let concurrenceService = ConcurrenceService()
-    concurrenceService.setup(
+    let syncQueueService = SyncQueueService()
+    syncQueueService.setup(
       libraryService: libraryService,
       getAccessLevel: { accountService.getAccessLevel() },
       tasksDataManager: TasksDataManager(),
       networkClient: NetworkClient(),
       dataManager: dataManager
     )
-    return concurrenceService
+    return syncQueueService
   }()
 
   NavigationStack {
     QueuedTasksView()
   }
   .environmentObject(ThemeViewModel())
-  .environment(\.concurrenceService, concurrenceService)
+  .environment(\.syncQueueService, syncQueueService)
 }

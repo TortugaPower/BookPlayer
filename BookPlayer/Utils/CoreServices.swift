@@ -19,7 +19,7 @@ struct CoreServices {
   let playerManager: PlayerManager
   let preferencesService: PreferencesSyncService
   let syncService: SyncService
-  let concurrenceService: ConcurrenceService
+  let syncQueueService: SyncQueueService
   let externalProgressService: ExternalProgressService
   let watchService: PhoneWatchConnectivityService
 }

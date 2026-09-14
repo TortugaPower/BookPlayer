@@ -689,17 +689,17 @@
 		9911FBA92F71BD3000DC9A2B /* JellyfinConnectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AAD8A542CEE8849000A4B4B /* JellyfinConnectionService.swift */; };
 		9911FBAC2F71CD6300DC9A2B /* AsyncOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBAB2F71CD5F00DC9A2B /* AsyncOperation.swift */; };
 		9911FBAD2F71CD6300DC9A2B /* AsyncOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBAB2F71CD5F00DC9A2B /* AsyncOperation.swift */; };
-		9911FBAF2F71D03800DC9A2B /* ConcurrenceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBAE2F71D03100DC9A2B /* ConcurrenceService.swift */; };
-		9911FBB02F71D03800DC9A2B /* ConcurrenceService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBAE2F71D03100DC9A2B /* ConcurrenceService.swift */; };
-		9911FBB22F71E54C00DC9A2B /* ConcurrentTasksRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBB12F71E54600DC9A2B /* ConcurrentTasksRepository.swift */; };
-		9911FBB32F71E54C00DC9A2B /* ConcurrentTasksRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBB12F71E54600DC9A2B /* ConcurrentTasksRepository.swift */; };
+		9911FBAF2F71D03800DC9A2B /* SyncQueueService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBAE2F71D03100DC9A2B /* SyncQueueService.swift */; };
+		9911FBB02F71D03800DC9A2B /* SyncQueueService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBAE2F71D03100DC9A2B /* SyncQueueService.swift */; };
+		9911FBB22F71E54C00DC9A2B /* SyncQueueRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBB12F71E54600DC9A2B /* SyncQueueRepository.swift */; };
+		9911FBB32F71E54C00DC9A2B /* SyncQueueRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBB12F71E54600DC9A2B /* SyncQueueRepository.swift */; };
 		9911FBB52F72486D00DC9A2B /* ExternalUpdateProgressOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBB42F72486400DC9A2B /* ExternalUpdateProgressOperation.swift */; };
 		9911FBB62F72486D00DC9A2B /* ExternalUpdateProgressOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBB42F72486400DC9A2B /* ExternalUpdateProgressOperation.swift */; };
-		9911FBB82F72F46900DC9A2B /* ConcurrentSyncTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBB72F72F46200DC9A2B /* ConcurrentSyncTask.swift */; };
-		9911FBB92F72F46900DC9A2B /* ConcurrentSyncTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBB72F72F46200DC9A2B /* ConcurrentSyncTask.swift */; };
-		9911FBBE2F74527800DC9A2B /* ConcurrentTaskProgressMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBBD2F74526F00DC9A2B /* ConcurrentTaskProgressMonitor.swift */; };
+		9911FBB82F72F46900DC9A2B /* QueuedSyncTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBB72F72F46200DC9A2B /* QueuedSyncTask.swift */; };
+		9911FBB92F72F46900DC9A2B /* QueuedSyncTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBB72F72F46200DC9A2B /* QueuedSyncTask.swift */; };
+		9911FBBE2F74527800DC9A2B /* SyncQueueProgressMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBBD2F74526F00DC9A2B /* SyncQueueProgressMonitor.swift */; };
 		F99B9D63217ABDAFED95696A /* QueueCounts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25C877CDD6114F67F0CD2AFC /* QueueCounts.swift */; };
-		9911FBBF2F74527800DC9A2B /* ConcurrentTaskProgressMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBBD2F74526F00DC9A2B /* ConcurrentTaskProgressMonitor.swift */; };
+		9911FBBF2F74527800DC9A2B /* SyncQueueProgressMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBBD2F74526F00DC9A2B /* SyncQueueProgressMonitor.swift */; };
 		7AA06DC64EDBA7F10753CF4C /* QueueCounts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25C877CDD6114F67F0CD2AFC /* QueueCounts.swift */; };
 		9911FBC42F76122400DC9A2B /* FileUploadOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBC32F76121C00DC9A2B /* FileUploadOperation.swift */; };
 		9911FBC52F76122400DC9A2B /* FileUploadOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBC32F76121C00DC9A2B /* FileUploadOperation.swift */; };
@@ -962,7 +962,7 @@
 		C86098383F7FC099EED24AF7 /* IntegrationQuickConnectViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 056B7A76F1A44CEC30562382 /* IntegrationQuickConnectViews.swift */; };
 		C972F5D6BD6375832F59BF7E /* IntegrationHTTPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5265B16421BFC176BFFE4EA5 /* IntegrationHTTPClient.swift */; };
 		CA3B408256F8458669106CF9 /* IntegrationConnectionViewModelProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D91D6855100BD1823B2674F /* IntegrationConnectionViewModelProtocol.swift */; };
-		CB3844DD8C695EAD32A4A811 /* ConcurrentSyncTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF75FEB4DEC37DBE232CD140 /* ConcurrentSyncTests.swift */; };
+		CB3844DD8C695EAD32A4A811 /* SyncQueueTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF75FEB4DEC37DBE232CD140 /* SyncQueueTests.swift */; };
 		CCC7E1CC127610C3687B8A50 /* SortPreferencesResolving.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C6BC9E7E76B9BAB7A0D88D2 /* SortPreferencesResolving.swift */; };
 		D080B0A77D9844C3A0737170 /* IntegrationConnectionFormViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FB91B577BC77F45EDB2AAAA /* IntegrationConnectionFormViewModel.swift */; };
 		D2B95B92F8F84F2FA4B41BF6 /* BookEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = B33D03D266EF46B5B02FBF40 /* BookEntity.swift */; };
@@ -1773,11 +1773,11 @@
 		990442112F88B0FC007E2A44 /* SyncInvitationCard.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncInvitationCard.swift; sourceTree = "<group>"; };
 		990442132F894DD5007E2A44 /* SubscriptionPillView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionPillView.swift; sourceTree = "<group>"; };
 		9911FBAB2F71CD5F00DC9A2B /* AsyncOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AsyncOperation.swift; sourceTree = "<group>"; };
-		9911FBAE2F71D03100DC9A2B /* ConcurrenceService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcurrenceService.swift; sourceTree = "<group>"; };
-		9911FBB12F71E54600DC9A2B /* ConcurrentTasksRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcurrentTasksRepository.swift; sourceTree = "<group>"; };
+		9911FBAE2F71D03100DC9A2B /* SyncQueueService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncQueueService.swift; sourceTree = "<group>"; };
+		9911FBB12F71E54600DC9A2B /* SyncQueueRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncQueueRepository.swift; sourceTree = "<group>"; };
 		9911FBB42F72486400DC9A2B /* ExternalUpdateProgressOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExternalUpdateProgressOperation.swift; sourceTree = "<group>"; };
-		9911FBB72F72F46200DC9A2B /* ConcurrentSyncTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcurrentSyncTask.swift; sourceTree = "<group>"; };
-		9911FBBD2F74526F00DC9A2B /* ConcurrentTaskProgressMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcurrentTaskProgressMonitor.swift; sourceTree = "<group>"; };
+		9911FBB72F72F46200DC9A2B /* QueuedSyncTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueuedSyncTask.swift; sourceTree = "<group>"; };
+		9911FBBD2F74526F00DC9A2B /* SyncQueueProgressMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncQueueProgressMonitor.swift; sourceTree = "<group>"; };
 		25C877CDD6114F67F0CD2AFC /* QueueCounts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueueCounts.swift; sourceTree = "<group>"; };
 		9911FBC32F76121C00DC9A2B /* FileUploadOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileUploadOperation.swift; sourceTree = "<group>"; };
 		9911FBC62F7738C100DC9A2B /* SyncableExternalResource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncableExternalResource.swift; sourceTree = "<group>"; };
@@ -1984,7 +1984,7 @@
 		F78387C7EDD9105363712F34 /* VideoFullscreenViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoFullscreenViewController.swift; sourceTree = "<group>"; };
 		FEEDBABE0000000000000001 /* SharedWidgetStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedWidgetStore.swift; sourceTree = "<group>"; };
 		FEEDBABE0000000000000004 /* SharedWidgetStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedWidgetStoreTests.swift; sourceTree = "<group>"; };
-		FF75FEB4DEC37DBE232CD140 /* ConcurrentSyncTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ConcurrentSyncTests.swift; sourceTree = "<group>"; };
+		FF75FEB4DEC37DBE232CD140 /* SyncQueueTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SyncQueueTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2848,7 +2848,7 @@
 				9FD8FE4C286566FF00EB2C3D /* Sync */,
 				64957AF0989CEBEEEC40E4BB /* Preferences */,
 				FEEDBABE0000000000000001 /* SharedWidgetStore.swift */,
-				9911FBAA2F71CD1600DC9A2B /* ConcurrentSync */,
+				9911FBAA2F71CD1600DC9A2B /* SyncQueue */,
 				D95DF238A734AE606D62DADB /* ExternalProgress */,
 			);
 			path = Services;
@@ -3366,7 +3366,7 @@
 				EC40E520F644AFA46DAD76B0 /* AudioMetadataServiceTests.swift */,
 				A11C418B028982CF431C589F /* LibraryServiceReloadChaptersTests.swift */,
 				5BE48B26D3726D5519F45ED9 /* IntegrationHostResolverTests.swift */,
-				FF75FEB4DEC37DBE232CD140 /* ConcurrentSyncTests.swift */,
+				FF75FEB4DEC37DBE232CD140 /* SyncQueueTests.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -3427,19 +3427,19 @@
 			path = ExternalProgress;
 			sourceTree = "<group>";
 		};
-		9911FBAA2F71CD1600DC9A2B /* ConcurrentSync */ = {
+		9911FBAA2F71CD1600DC9A2B /* SyncQueue */ = {
 			isa = PBXGroup;
 			children = (
-				9911FBBD2F74526F00DC9A2B /* ConcurrentTaskProgressMonitor.swift */,
+				9911FBBD2F74526F00DC9A2B /* SyncQueueProgressMonitor.swift */,
 				25C877CDD6114F67F0CD2AFC /* QueueCounts.swift */,
-				9911FBB72F72F46200DC9A2B /* ConcurrentSyncTask.swift */,
-				9911FBB12F71E54600DC9A2B /* ConcurrentTasksRepository.swift */,
-				9911FBAE2F71D03100DC9A2B /* ConcurrenceService.swift */,
+				9911FBB72F72F46200DC9A2B /* QueuedSyncTask.swift */,
+				9911FBB12F71E54600DC9A2B /* SyncQueueRepository.swift */,
+				9911FBAE2F71D03100DC9A2B /* SyncQueueService.swift */,
 				9911FBAB2F71CD5F00DC9A2B /* AsyncOperation.swift */,
 				9911FBB42F72486400DC9A2B /* ExternalUpdateProgressOperation.swift */,
 				9911FBC32F76121C00DC9A2B /* FileUploadOperation.swift */,
 			);
-			path = ConcurrentSync;
+			path = SyncQueue;
 			sourceTree = "<group>";
 		};
 		992D6E112FA98AEF0091849F /* AudiobookShelf */ = {
@@ -4730,7 +4730,7 @@
 				63E1FF912E6C8C2000F2E003 /* SyncJobType.swift in Sources */,
 				9FC1E45D2814E6A500522FA8 /* NetworkProvider.swift in Sources */,
 				9FC1E4602814F66F00522FA8 /* AccountAPI.swift in Sources */,
-				9911FBBF2F74527800DC9A2B /* ConcurrentTaskProgressMonitor.swift in Sources */,
+				9911FBBF2F74527800DC9A2B /* SyncQueueProgressMonitor.swift in Sources */,
 				7AA06DC64EDBA7F10753CF4C /* QueueCounts.swift in Sources */,
 				9FC1E4792816001400522FA8 /* KeychainService.swift in Sources */,
 				99D995902F71AB6800BAF216 /* JellyfinLibraryItem.swift in Sources */,
@@ -4742,12 +4742,12 @@
 				9FBDBC7E287940D900D315A2 /* ContentsResponse.swift in Sources */,
 				4140EA7C227289C70009F794 /* LibraryItem+CoreDataClass.swift in Sources */,
 				63C6C3122B54F16800FFE0D8 /* LibraryItemSyncOperation.swift in Sources */,
-				9911FBAF2F71D03800DC9A2B /* ConcurrenceService.swift in Sources */,
+				9911FBAF2F71D03800DC9A2B /* SyncQueueService.swift in Sources */,
 				992D6E1A2FA98C8F0091849F /* AudiobookShelfLibraryLevelData.swift in Sources */,
 				638352CE2E67F327009EE79E /* TasksDataManager.swift in Sources */,
 				638352D02E67F327009EE79E /* SyncTasksModels.swift in Sources */,
 				638352D12E67F327009EE79E /* SwiftDataModels+Extensions.swift in Sources */,
-				9911FBB82F72F46900DC9A2B /* ConcurrentSyncTask.swift in Sources */,
+				9911FBB82F72F46900DC9A2B /* QueuedSyncTask.swift in Sources */,
 				4140EA74227289AE0009F794 /* Theme+CoreDataClass.swift in Sources */,
 				4140EA6E227289960009F794 /* DeleteMode.swift in Sources */,
 				9F6BC86727E6D03E002CF2A6 /* WatchApplicationContext.swift in Sources */,
@@ -4776,7 +4776,7 @@
 				996D4CD42F98A50C00FC3B57 /* IntegrationLibraryItemProtocol.swift in Sources */,
 				4124AB2225DFE1A60007C839 /* CoreDataStack.swift in Sources */,
 				9F7B64722803216100895ECC /* Account+CoreDataProperties.swift in Sources */,
-				9911FBB22F71E54C00DC9A2B /* ConcurrentTasksRepository.swift in Sources */,
+				9911FBB22F71E54C00DC9A2B /* SyncQueueRepository.swift in Sources */,
 				9F7B64752803217400895ECC /* Account+CoreDataClass.swift in Sources */,
 				9FBF33ED29F6293C00501639 /* SimpleBookmark.swift in Sources */,
 				639AC98B2AD9F2840053AFC6 /* BPTaskDownloadDelegate.swift in Sources */,
@@ -5281,7 +5281,7 @@
 				E101E3603ACF4DB50AA0037B /* JellyfinQuickConnectTests.swift in Sources */,
 				5A9506FC8DAB858289E0EF89 /* IntegrationServerAddressTests.swift in Sources */,
 				3F058A74415A3AF6C17DA8F4 /* IntegrationHostResolverTests.swift in Sources */,
-				CB3844DD8C695EAD32A4A811 /* ConcurrentSyncTests.swift in Sources */,
+				CB3844DD8C695EAD32A4A811 /* SyncQueueTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5290,11 +5290,11 @@
 			buildActionMask = 2147483647;
 			files = (
 				996D4CC52F98A25100FC3B57 /* MappingModel_v10_to_v11.xcmappingmodel in Sources */,
-				9911FBBE2F74527800DC9A2B /* ConcurrentTaskProgressMonitor.swift in Sources */,
+				9911FBBE2F74527800DC9A2B /* SyncQueueProgressMonitor.swift in Sources */,
 				F99B9D63217ABDAFED95696A /* QueueCounts.swift in Sources */,
 				9FC1E46C2815A8CA00522FA8 /* LibraryAPI.swift in Sources */,
 				9FAFC9F42995BB5C00FD531E /* RemoteFileURLResponse.swift in Sources */,
-				9911FBB92F72F46900DC9A2B /* ConcurrentSyncTask.swift in Sources */,
+				9911FBB92F72F46900DC9A2B /* QueuedSyncTask.swift in Sources */,
 				992D6E172FA98C5C0091849F /* AudiobookShelfLibraryItem.swift in Sources */,
 				4124AB2125DFE1A60007C839 /* CoreDataStack.swift in Sources */,
 				41A1B11F226F88C500EA0400 /* Chapter+CoreDataClass.swift in Sources */,
@@ -5406,7 +5406,7 @@
 				992D6E1D2FA98E1A0091849F /* AudiobookShelfAudiobookDetailsData.swift in Sources */,
 				639AC9892AD9F1D50053AFC6 /* BPDownloadURLSession.swift in Sources */,
 				9F7B64742803217400895ECC /* Account+CoreDataClass.swift in Sources */,
-				9911FBB02F71D03800DC9A2B /* ConcurrenceService.swift in Sources */,
+				9911FBB02F71D03800DC9A2B /* SyncQueueService.swift in Sources */,
 				63E1FF922E6C8C2000F2E003 /* SyncJobType.swift in Sources */,
 				99F3C20A2F62285800AC91A2 /* ApiResponse.swift in Sources */,
 				99D995872F719E7600BAF216 /* JellyfinConnectionService.swift in Sources */,
@@ -5421,7 +5421,7 @@
 				41A1B12A226F88C500EA0400 /* Folder+CoreDataProperties.swift in Sources */,
 				9911FBAD2F71CD6300DC9A2B /* AsyncOperation.swift in Sources */,
 				99F3C1FE2F5FC2F200AC91A2 /* SchemaV1SyncTasksModels.swift in Sources */,
-				9911FBB32F71E54C00DC9A2B /* ConcurrentTasksRepository.swift in Sources */,
+				9911FBB32F71E54C00DC9A2B /* SyncQueueRepository.swift in Sources */,
 				3F66408A2E162ABF00356522 /* AudioMetadataService.swift in Sources */,
 				41EB07152752F17B00EFEE13 /* PlayableItem.swift in Sources */,
 				41A1B11E226F88C500EA0400 /* Theme+CoreDataProperties.swift in Sources */,

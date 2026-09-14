@@ -1,12 +1,12 @@
 //
-//  ConcurrentSyncTask.swift
+//  QueuedSyncTask.swift
 //  BookPlayer
 //
 //  Created by Pedro Iñiguez on 24/3/26.
 //  Copyright © 2026 BookPlayer LLC. All rights reserved.
 //
 
-public struct ConcurrentSyncTask: Identifiable {
+public struct QueuedSyncTask: Identifiable {
   public let id: String
   public let queueKey: String
   public let jobType: SyncJobType

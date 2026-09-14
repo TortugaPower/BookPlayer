@@ -22,7 +22,7 @@ public typealias UploadExternalResourceTaskModel = SchemaV3.UploadExternalResour
 public typealias ExternalResourceToDownloadTaskModel = SchemaV3.ExternalResourceToDownloadTaskModel
 public typealias DeleteExternalResourceTaskModel = SchemaV3.DeleteExternalResourceTaskModel
 
-public typealias ConcurrentTasksContainer = SchemaV3.ConcurrentTasksContainer
-public typealias ConcurrentTaskReferenceModel = SchemaV3.ConcurrentTaskReferenceModel
+public typealias SyncQueueContainer = SchemaV3.SyncQueueContainer
+public typealias QueuedTaskReferenceModel = SchemaV3.QueuedTaskReferenceModel
 public typealias ExternalUpdateTaskModel = SchemaV3.ExternalUpdateTaskModel
-public typealias ConcurrentUploadTaskModel = SchemaV3.ConcurrentUploadTaskModel
+public typealias UploadFileTaskModel = SchemaV3.UploadFileTaskModel

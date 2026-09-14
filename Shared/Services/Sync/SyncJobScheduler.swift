@@ -50,11 +50,11 @@ public protocol JobSchedulerProtocol {
 }
 
 /// Scheduling facade for the serial BookPlayer-server queue: builds task parameters
-/// and persists them under the `sync` queue key. Execution lives in `ConcurrenceService`.
+/// and persists them under the `sync` queue key. Execution lives in `SyncQueueService`.
 public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
-  let tasksRepository: ConcurrentTasksRepositoryProtocol
+  let tasksRepository: SyncQueueRepositoryProtocol
 
-  public init(tasksRepository: ConcurrentTasksRepositoryProtocol) {
+  public init(tasksRepository: SyncQueueRepositoryProtocol) {
     self.tasksRepository = tasksRepository
   }
 

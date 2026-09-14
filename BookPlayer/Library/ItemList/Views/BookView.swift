@@ -115,8 +115,8 @@ struct BookView: View {
     let accountService = AccountService()
     accountService.setup(dataManager: dataManager)
     let tasksDataManager = TasksDataManager()
-    let concurrenceService = ConcurrenceService()
-    concurrenceService.setup(
+    let syncQueueService = SyncQueueService()
+    syncQueueService.setup(
       libraryService: libraryService,
       getAccessLevel: { accountService.getAccessLevel() },
       tasksDataManager: tasksDataManager,
@@ -127,7 +127,7 @@ struct BookView: View {
       isActive: true,
       libraryService: libraryService,
       accountService: accountService,
-      concurrenceService: concurrenceService
+      syncQueueService: syncQueueService
     )
 
     return syncService

@@ -15,7 +15,7 @@ import XCTest
 
 final class SyncTasksRepositoryTests: XCTestCase {
   private var tasksDataManager: TasksDataManager!
-  private var repository: ConcurrentTasksRepository!
+  private var repository: SyncQueueRepository!
 
   override func setUpWithError() throws {
     let schema = Schema([
@@ -31,15 +31,15 @@ final class SyncTasksRepositoryTests: XCTestCase {
       UploadExternalResourceTaskModel.self,
       ExternalResourceToDownloadTaskModel.self,
       DeleteExternalResourceTaskModel.self,
-      ConcurrentTasksContainer.self,
-      ConcurrentTaskReferenceModel.self,
+      SyncQueueContainer.self,
+      QueuedTaskReferenceModel.self,
       ExternalUpdateTaskModel.self,
-      ConcurrentUploadTaskModel.self,
+      UploadFileTaskModel.self,
     ])
     let config = ModelConfiguration(isStoredInMemoryOnly: true, cloudKitDatabase: .none)
     let container = try ModelContainer(for: schema, configurations: config)
     tasksDataManager = TasksDataManager(container: container)
-    repository = ConcurrentTasksRepository(tasksDataManager: tasksDataManager)
+    repository = SyncQueueRepository(tasksDataManager: tasksDataManager)
   }
 
   override func tearDown() {

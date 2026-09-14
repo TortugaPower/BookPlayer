@@ -41,7 +41,7 @@ class AsyncOperation: Operation, @unchecked Sendable {
   
   var onProgress: (@Sendable (Double) -> Void)?
   /// Written from the subclasses' async Tasks / completion sinks, read from the queue
-  /// thread in ConcurrenceService's completionBlock — lock-guarded like `state` so the
+  /// thread in SyncQueueService's completionBlock — lock-guarded like `state` so the
   /// read has a happens-before edge with the write.
   private var _didSucceed = false
   var didSucceed: Bool {

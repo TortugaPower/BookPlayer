@@ -28,10 +28,10 @@ public final class TasksDataManager: BPLogger {
       UploadExternalResourceTaskModel.self,
       ExternalResourceToDownloadTaskModel.self,
       DeleteExternalResourceTaskModel.self,
-      ConcurrentTasksContainer.self,
-      ConcurrentTaskReferenceModel.self,
+      SyncQueueContainer.self,
+      QueuedTaskReferenceModel.self,
       ExternalUpdateTaskModel.self,
-      ConcurrentUploadTaskModel.self,
+      UploadFileTaskModel.self,
     ])
 
     let storeURL = DataManager.getSyncTasksSwiftDataURL()
@@ -94,7 +94,7 @@ public final class TasksDataManager: BPLogger {
 
   /// Recount every lane from the unified container and publish the snapshot.
   public func notifyTasksChanged(context: ModelContext) {
-    let descriptor = FetchDescriptor<ConcurrentTasksContainer>()
+    let descriptor = FetchDescriptor<SyncQueueContainer>()
 
     do {
       let tasks = try context.fetch(descriptor).first?.tasks ?? []
@@ -121,20 +121,20 @@ public final class TasksDataManager: BPLogger {
     try context.delete(model: ExternalResourceToDownloadTaskModel.self)
     try context.delete(model: DeleteExternalResourceTaskModel.self)
 
-    try context.delete(model: ConcurrentUploadTaskModel.self)
+    try context.delete(model: UploadFileTaskModel.self)
     try context.delete(model: ExternalUpdateTaskModel.self)
 
-    // ConcurrentTaskReferenceModel.container participates in a cascade relationship
-    // with ConcurrentTasksContainer. A store-level batch delete runs below the object
+    // QueuedTaskReferenceModel.container participates in a cascade relationship
+    // with SyncQueueContainer. A store-level batch delete runs below the object
     // graph and skips relationship-maintenance (cascade/nullify) entirely, which trips
     // a constraint-trigger / optimistic-lock error on that inverse. Delete through the
     // object graph instead: removing each container cascades to its task references.
-    let containers = try context.fetch(FetchDescriptor<ConcurrentTasksContainer>())
+    let containers = try context.fetch(FetchDescriptor<SyncQueueContainer>())
     for container in containers {
       context.delete(container)
     }
     // Defensively clear any references that aren't attached to a container.
-    let orphanedReferences = try context.fetch(FetchDescriptor<ConcurrentTaskReferenceModel>())
+    let orphanedReferences = try context.fetch(FetchDescriptor<QueuedTaskReferenceModel>())
     for reference in orphanedReferences {
       context.delete(reference)
     }
@@ -249,8 +249,8 @@ public final class TasksDataManager: BPLogger {
         context.delete(task)
       }
     case .uploadFile:
-      let descriptor = FetchDescriptor<ConcurrentUploadTaskModel>(
-        predicate: #Predicate<ConcurrentUploadTaskModel> { task in task.id == id }
+      let descriptor = FetchDescriptor<UploadFileTaskModel>(
+        predicate: #Predicate<UploadFileTaskModel> { task in task.id == id }
       )
       if let task = try context.fetch(descriptor).first {
         context.delete(task)
@@ -362,7 +362,7 @@ public final class TasksDataManager: BPLogger {
     case .externalUpdate:
       context.insert(buildExternalUpdateTask(parameters))
     case .uploadFile:
-      let task = ConcurrentUploadTaskModel(
+      let task = UploadFileTaskModel(
         id: parameters["id"] as! String,
         uuid: parameters["uuid"] as! String,
         filePath: parameters["filePath"] as! String,
@@ -512,8 +512,8 @@ public final class TasksDataManager: BPLogger {
         )
         return try context.fetch(descriptor).first
       case .uploadFile:
-        let descriptor = FetchDescriptor<ConcurrentUploadTaskModel>(
-          predicate: #Predicate<ConcurrentUploadTaskModel> { task in task.id == id }
+        let descriptor = FetchDescriptor<UploadFileTaskModel>(
+          predicate: #Predicate<UploadFileTaskModel> { task in task.id == id }
         )
         return try context.fetch(descriptor).first
       }

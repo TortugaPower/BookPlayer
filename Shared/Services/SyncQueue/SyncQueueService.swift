@@ -1,5 +1,5 @@
 //
-//  SyncOrchestrator.swift
+//  SyncQueueService.swift
 //  BookPlayer
 //
 //  Created by Pedro Iñiguez on 23/3/26.
@@ -10,11 +10,11 @@ import Foundation
 import Combine
 import CoreData
 
-public protocol ConcurrenceServiceProtocol {
+public protocol SyncQueueServiceProtocol {
   var accessPolicy: [SyncJobType: Bool] { get set }
 
   /// Shared repository backing every task queue
-  var taskContainer: ConcurrentTasksRepositoryProtocol! { get }
+  var taskContainer: SyncQueueRepositoryProtocol! { get }
 
   /// Last sync error information for debugging
   var lastSyncError: SyncErrorInfo? { get }
@@ -35,7 +35,7 @@ public protocol ConcurrenceServiceProtocol {
   func observeQueueCounts() -> AnyPublisher<QueueCounts, Never>
 
   /// Every queued task across all lanes, the in-flight ones first (display-level list)
-  func getOrderedQueuedJobs(activeTaskIDs: Set<String>) async -> [ConcurrentSyncTask]
+  func getOrderedQueuedJobs(activeTaskIDs: Set<String>) async -> [QueuedSyncTask]
 
   func scheduleMetadataUpdate(params: [String: Any])
 
@@ -48,9 +48,9 @@ public protocol ConcurrenceServiceProtocol {
   func cancelServerQueueOperations()
 }
 
-public class ConcurrenceService: ConcurrenceServiceProtocol, BPLogger {
+public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
   let operationQueue: OperationQueue
-  public var taskContainer: ConcurrentTasksRepositoryProtocol! // Your DB model
+  public var taskContainer: SyncQueueRepositoryProtocol! // Your DB model
   var libraryService: LibrarySyncProtocol!
   var networkClient: NetworkClientProtocol!
   var dataManager: DataManager!
@@ -115,7 +115,7 @@ public class ConcurrenceService: ConcurrenceServiceProtocol, BPLogger {
     self.getAccessLevel = getAccessLevel
     self.networkClient = networkClient
     self.dataManager = dataManager
-    self.taskContainer = ConcurrentTasksRepository(tasksDataManager: tasksDataManager)
+    self.taskContainer = SyncQueueRepository(tasksDataManager: tasksDataManager)
     self.tasksDataManager = tasksDataManager
     startListeningForNewTasks()
     bindObservers()
@@ -123,7 +123,7 @@ public class ConcurrenceService: ConcurrenceServiceProtocol, BPLogger {
     // Policy BEFORE workers: createOperation consults accessPolicy to decide whether a
     // persisted upload may run — waking workers first only worked because wakeUpWorkers
     // happens to suspend on the repository actor before any pop
-    updateConcurrentService(getAccessLevel())
+    updateAccessPolicy(getAccessLevel())
     wakeUpWorkers()
   }
 
@@ -136,7 +136,7 @@ public class ConcurrenceService: ConcurrenceServiceProtocol, BPLogger {
       .receive(on: DispatchQueue.main)
       .sink { [weak self] _ in
         guard let self else { return }
-        self.updateConcurrentService(self.getAccessLevel())
+        self.updateAccessPolicy(self.getAccessLevel())
       }
       .store(in: &disposeBag)
   }
@@ -239,7 +239,7 @@ public class ConcurrenceService: ConcurrenceServiceProtocol, BPLogger {
 
     operation.onProgress = { progress in
       Task { @MainActor in
-        ConcurrentTaskProgressMonitor.shared.updateProgress(for: nextTask.id, progress: progress)
+        SyncQueueProgressMonitor.shared.updateProgress(for: nextTask.id, progress: progress)
         // Three consumers (SyncJobScheduler, the profile task views) still listen for this
         // notification with a {uuid, relativePath, progress} payload — the old poster was
         // removed with LibraryItemSyncOperation's upload path, silently freezing every
@@ -287,24 +287,24 @@ public class ConcurrenceService: ConcurrenceServiceProtocol, BPLogger {
 
         // 3. AWAIT the recursive call
         await MainActor.run {
-          ConcurrentTaskProgressMonitor.shared.clear(taskID: nextTask.id)
+          SyncQueueProgressMonitor.shared.clear(taskID: nextTask.id)
         }
         await self.enqueueNextTask(for: queueKey)
       }
     }
 
     await MainActor.run {
-      ConcurrentTaskProgressMonitor.shared.markAsProcessing(taskID: nextTask.id)
+      SyncQueueProgressMonitor.shared.markAsProcessing(taskID: nextTask.id)
     }
 
     operationQueue.addOperation(operation)
   }
 
-  public func getOrderedQueuedJobs(activeTaskIDs: Set<String>) async -> [ConcurrentSyncTask] {
+  public func getOrderedQueuedJobs(activeTaskIDs: Set<String>) async -> [QueuedSyncTask] {
     return await taskContainer.getOrderedTasks(activeTaskIDs: activeTaskIDs)
   }
 
-  private func createOperation(for task: ConcurrentSyncTask) -> AsyncOperation? {
+  private func createOperation(for task: QueuedSyncTask) -> AsyncOperation? {
     switch task.jobType {
     case .externalUpdate:
       guard let providerName = task.parameters["providerName"] as? String,
@@ -368,7 +368,7 @@ public class ConcurrenceService: ConcurrenceServiceProtocol, BPLogger {
   }
 
   /// Post-completion side effects for finished sync tasks
-  private func handleFinishedOperation(_ operation: AsyncOperation, task: ConcurrentSyncTask) async {
+  private func handleFinishedOperation(_ operation: AsyncOperation, task: QueuedSyncTask) async {
     // The synced:true confirmation for file-backed books happens HERE, after the bytes are
     // actually on S3 — LibraryItemSyncOperation deliberately no longer confirms when it
     // schedules a file upload (confirming before the PUT lies to the server if the upload
@@ -487,7 +487,7 @@ public class ConcurrenceService: ConcurrenceServiceProtocol, BPLogger {
     }
   }
 
-  func updateConcurrentService(_ accessLevel: AccessLevel) {
+  func updateAccessPolicy(_ accessLevel: AccessLevel) {
     switch accessLevel {
     case .lite:
       accessPolicy = [
@@ -521,7 +521,7 @@ public class ConcurrenceService: ConcurrenceServiceProtocol, BPLogger {
   /// removes the schedule-time temp hard link — same temp-dir-only guard as the
   /// operation's own success/4xx/cancel cleanup paths (a real Processed-folder file
   /// must never be deleted here).
-  private func cleanUpDroppedUploadTempLink(_ task: ConcurrentSyncTask) {
+  private func cleanUpDroppedUploadTempLink(_ task: QueuedSyncTask) {
     guard
       let filePath = task.parameters["filePath"] as? String,
       let fileURL = URL(string: filePath),
@@ -531,7 +531,7 @@ public class ConcurrenceService: ConcurrenceServiceProtocol, BPLogger {
   }
 }
 
-extension ConcurrenceService {
+extension SyncQueueService {
   public func scheduleMetadataUpdate(params: [String: Any]) {
     guard accessPolicy[.externalUpdate] == true else {
       return

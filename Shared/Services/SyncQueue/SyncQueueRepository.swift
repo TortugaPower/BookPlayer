@@ -1,5 +1,5 @@
 //
-//  ConcurrentTasksStore.swift
+//  SyncQueueRepository.swift
 //  BookPlayer
 //
 //  Created by Pedro Iñiguez on 23/3/26.
@@ -10,12 +10,12 @@ import Combine
 import Foundation
 import SwiftData
 
-public protocol ConcurrentTasksRepositoryProtocol: ModelActor {
+public protocol SyncQueueRepositoryProtocol: ModelActor {
   init(tasksDataManager: TasksDataManager)
 
-  func getNextTask(for queueKey: String) -> ConcurrentSyncTask?
+  func getNextTask(for queueKey: String) -> QueuedSyncTask?
 
-  func pop(_ task: ConcurrentSyncTask)
+  func pop(_ task: QueuedSyncTask)
 
   func getAllQueueKeys() -> [String]
 
@@ -23,11 +23,11 @@ public protocol ConcurrentTasksRepositoryProtocol: ModelActor {
 
   /// Every queued task across all lanes in stored order — a display-level list, so
   /// `parameters` is left empty (workers reload payloads through `getNextTask`)
-  func getAllTasks() async -> [ConcurrentSyncTask]
+  func getAllTasks() async -> [QueuedSyncTask]
 
   // Set<String> (not the @MainActor TaskProgressTracker map): only the ids cross the actor
   // boundary — the tracker object is non-Sendable.
-  func getOrderedTasks(activeTaskIDs: Set<String>) async -> [ConcurrentSyncTask]
+  func getOrderedTasks(activeTaskIDs: Set<String>) async -> [QueuedSyncTask]
 
   func getTasksCount(in queueKey: String) -> Int
 
@@ -42,7 +42,7 @@ public protocol ConcurrentTasksRepositoryProtocol: ModelActor {
   func clearAll() throws
 }
 
-public actor ConcurrentTasksRepository: ConcurrentTasksRepositoryProtocol, BPLogger {
+public actor SyncQueueRepository: SyncQueueRepositoryProtocol, BPLogger {
   nonisolated public let modelContainer: ModelContainer
   nonisolated public let modelExecutor: any ModelExecutor
 
@@ -58,7 +58,7 @@ public actor ConcurrentTasksRepository: ConcurrentTasksRepositoryProtocol, BPLog
     self.tasksDataManager = tasksDataManager
   }
 
-  public func getNextTask(for queueKey: String) -> ConcurrentSyncTask? {
+  public func getNextTask(for queueKey: String) -> QueuedSyncTask? {
     guard let tasksContainer = fetchGlobalQueueModel() else { return nil }
 
     for reference in tasksContainer.orderedTasks(for: queueKey) {
@@ -83,7 +83,7 @@ public actor ConcurrentTasksRepository: ConcurrentTasksRepositoryProtocol, BPLog
         continue
       }
 
-      return ConcurrentSyncTask(
+      return QueuedSyncTask(
         id: reference.taskID,
         queueKey: reference.queueKey,
         jobType: reference.jobType,
@@ -96,7 +96,7 @@ public actor ConcurrentTasksRepository: ConcurrentTasksRepositoryProtocol, BPLog
     return nil
   }
 
-  public func pop(_ task: ConcurrentSyncTask) {
+  public func pop(_ task: QueuedSyncTask) {
     guard let tasksContainer = fetchGlobalQueueModel() else { return }
 
     let context = modelContext
@@ -141,10 +141,10 @@ public actor ConcurrentTasksRepository: ConcurrentTasksRepositoryProtocol, BPLog
     tasksDataManager.notifyTasksChanged(context: context)
   }
 
-  private func fetchGlobalQueueModel() -> ConcurrentTasksContainer? {
+  private func fetchGlobalQueueModel() -> SyncQueueContainer? {
     let context = modelContext
 
-    let descriptor = FetchDescriptor<ConcurrentTasksContainer>()
+    let descriptor = FetchDescriptor<SyncQueueContainer>()
     let containers = try? context.fetch(descriptor)
 
     guard let tasksContainer = containers?.first else {
@@ -171,9 +171,9 @@ public actor ConcurrentTasksRepository: ConcurrentTasksRepositoryProtocol, BPLog
     let context = modelContext
 
     // Get or create the tasks container
-    let descriptor = FetchDescriptor<ConcurrentTasksContainer>()
+    let descriptor = FetchDescriptor<SyncQueueContainer>()
     let containers = try context.fetch(descriptor)
-    let tasksContainer = containers.first ?? ConcurrentTasksContainer()
+    let tasksContainer = containers.first ?? SyncQueueContainer()
 
     if containers.isEmpty {
       context.insert(tasksContainer)
@@ -194,7 +194,7 @@ public actor ConcurrentTasksRepository: ConcurrentTasksRepositoryProtocol, BPLog
 
     let nextPosition = (tasksContainer.tasks.map(\.position).max() ?? -1) + 1
     // Create task reference
-    let taskReference = ConcurrentTaskReferenceModel(
+    let taskReference = QueuedTaskReferenceModel(
       queueKey: queueKey,
       taskID: taskId,
       jobType: jobType,
@@ -225,7 +225,7 @@ public actor ConcurrentTasksRepository: ConcurrentTasksRepositoryProtocol, BPLog
     jobType: SyncJobType,
     queueKey: String,
     parameters: [String: Any],
-    tasksContainer: ConcurrentTasksContainer
+    tasksContainer: SyncQueueContainer
   ) -> Bool {
     let queuedReferences = tasksContainer.orderedTasks(for: queueKey)
     /// Skip the head of the queue when looking for a merge target
@@ -298,11 +298,11 @@ public actor ConcurrentTasksRepository: ConcurrentTasksRepositoryProtocol, BPLog
     }
   }
 
-  public func getAllTasks() async -> [ConcurrentSyncTask] {
+  public func getAllTasks() async -> [QueuedSyncTask] {
     guard let tasksContainer = fetchGlobalQueueModel() else { return [] }
 
     return tasksContainer.orderedTasks.map { task in
-      ConcurrentSyncTask(
+      QueuedSyncTask(
         id: task.taskID,
         queueKey: task.queueKey,
         jobType: task.jobType,
@@ -313,7 +313,7 @@ public actor ConcurrentTasksRepository: ConcurrentTasksRepositoryProtocol, BPLog
     }
   }
 
-  public func getOrderedTasks(activeTaskIDs: Set<String>) async -> [ConcurrentSyncTask] {
+  public func getOrderedTasks(activeTaskIDs: Set<String>) async -> [QueuedSyncTask] {
     let concurrentTasks = await self.getAllTasks()
 
     let activeGroup = concurrentTasks.filter { task in
@@ -384,7 +384,7 @@ public actor ConcurrentTasksRepository: ConcurrentTasksRepositoryProtocol, BPLog
       let oldUuid = conflict.key
       let newUuid = conflict.uuid
       let refs = try modelContext.fetch(
-        FetchDescriptor<ConcurrentTaskReferenceModel>(predicate: #Predicate { $0.uuid == oldUuid })
+        FetchDescriptor<QueuedTaskReferenceModel>(predicate: #Predicate { $0.uuid == oldUuid })
       )
       for ref in refs {
         ref.uuid = newUuid
@@ -438,7 +438,7 @@ public actor ConcurrentTasksRepository: ConcurrentTasksRepositoryProtocol, BPLog
           ).first { task.uuid = newUuid }
         case .uploadFile:
           if let task = try modelContext.fetch(
-            FetchDescriptor<ConcurrentUploadTaskModel>(predicate: #Predicate { $0.id == taskId })
+            FetchDescriptor<UploadFileTaskModel>(predicate: #Predicate { $0.id == taskId })
           ).first { task.uuid = newUuid }
         }
       }
