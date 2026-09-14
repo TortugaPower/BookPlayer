@@ -142,7 +142,8 @@ class CarPlayManager: NSObject {
           playerManager: coreServices.playerManager,
           syncService: coreServices.syncService,
           playerLoaderService: coreServices.playerLoaderService,
-          preferencesService: coreServices.preferencesService
+          preferencesService: coreServices.preferencesService,
+          externalProgressService: coreServices.externalProgressService
         )
         self?.listSyncRefreshService = listRefreshService
 

@@ -22,7 +22,7 @@ import Foundation
 /// every tier: it writes the user's position to the user's OWN server. The pull — both the
 /// on-play prompt and the list refresh — is the cross-device sync feature, so it needs the
 /// sync entitlement (`lite` or `pro`, `hasSyncEnabled()`), read live on every call.
-public final class ExternalProgressService {
+public final class ExternalProgressService: ExternalProgressRefreshing {
   /// A remote position worth offering the user, published rather than written into UI state so
   /// both presentations — the SwiftUI alert and CarPlay's own — can consume the one decision.
   public let promptablePositionPublisher = PassthroughSubject<ExternalPlaybackProgress, Never>()
@@ -128,16 +128,18 @@ public final class ExternalProgressService {
     }
   }
 
-  /// Refresh the positions of items already on screen, so a list shows what the user's other
-  /// devices did without waiting for them to open each book.
+  /// Refresh every media-server item at one library level, so the list shows what the user's
+  /// other devices did without waiting for them to open each book.
   ///
-  /// Every provider is asked in parallel and each folds its own answers in, so AudiobookShelf
-  /// items refresh alongside Jellyfin ones — they never did before, because the ingest was
-  /// typed to a Jellyfin item and the caller collected only Jellyfin resources.
-  public func refreshItems(_ items: [SimpleLibraryItem]) async {
+  /// Driven by `ListSyncRefreshService.syncList` right after the cloud sync of the same level,
+  /// on the links that sync just reconciled. Resource-first: one background query returns only
+  /// the media-server rows, so the main thread does nothing here but the ingest. Every provider
+  /// is asked in parallel and each folds its own answers in — AudiobookShelf items refresh
+  /// alongside Jellyfin ones, which they never did while the ingest was typed to a Jellyfin item.
+  public func refreshItems(at relativePath: String?) async {
     guard accountService.hasSyncEnabled() else { return }
 
-    let resources = items.flatMap { $0.externalResources?.mediaServerResources ?? [] }
+    let resources = await libraryService.findMediaServerResources(at: relativePath)
     guard !resources.isEmpty else { return }
 
     let byProvider = Dictionary(grouping: resources) { $0.providerName }

@@ -123,7 +123,8 @@ first. Reordering boot risks a launch crash.
   `setupCoreServicesTask`, the `DatabaseInitializer`, and a shared `PlayerState`.
 - `CoreServices` (`BookPlayer/Utils/CoreServices.swift`) is a struct of exactly **12 services**: `accountService`,
   `syncQueueService`, `externalProgressService` (pulls media-server playback positions for lite/pro accounts;
-  self-subscribes to `.bookPlayed` so the pull never depends on which UI is attached),
+  self-subscribes to `.bookPlayed` for the on-play prompt, and `ListSyncRefreshService.syncList` drives the
+  per-level list pull through the one-method `ExternalProgressRefreshing` seam),
   `dataManager`, `hardcoverService`, `libraryService`, `playbackService`, `playerLoaderService`, `playerManager`,
   `preferencesService` (`PreferencesSyncService`), `syncService`, `watchService` (`PhoneWatchConnectivityService`).
 - **Two-step `init()` + `setup(...)` DI pattern:** services are created empty then configured, e.g.
@@ -136,6 +137,14 @@ first. Reordering boot risks a launch crash.
 - **Services → coordinators:** `CoreServices` is passed whole into `MainCoordinator.init(...)`, which also builds
   coordinator-scoped services (`ImportManager`, `ListSyncRefreshService`, `SingleFileDownloadService`,
   `JellyfinConnectionService`, `AudiobookShelfConnectionService`).
+  `ListSyncRefreshService.syncList(at:)` is the ONE list-refresh entry point (list appear, pull-to-refresh, sync
+  activation, CarPlay): cloud contents for the level → the level's media-server progress pull → preferences pull.
+  The pull runs strictly AFTER the cloud step and never alongside it (cloud writes on the background context, the
+  progress ingest on the view context; no merge policy), whatever the cloud outcome. It is resource-first:
+  `LibraryService.findMediaServerResources(at:)` fetches only the level's media-server `ExternalResource` rows
+  (direct children, providers filtered in SQL from `ProviderName.mediaServerRawValues`) on the background context,
+  so the main thread does nothing but the ingest. `ExternalResource.ProviderName.isMediaServer` is the single
+  exhaustive "is this a media server" switch; `SimpleExternalResource.isMediaServer` and the SQL filter derive from it.
 - **Services → SwiftUI:** `ObservableObject`s (`playerManager`, `importManager`, `singleFileDownloadService`,
   `listSyncRefreshService`) via `.environmentObject`, plus `externalImportEvents`, which `MainView` owns as a
   `@StateObject` and injects itself — the coordinator builds services, not SwiftUI-internal wires; the rest via `.environment(\.key, …)`.

@@ -2379,6 +2379,52 @@ class LibraryServiceExternalResourceTests: XCTestCase {
     let rowsAtPath = sut.fetchIdentifiers().filter { $0 == "twin-1-twin-book.m4b" }
     XCTAssertEqual(rowsAtPath.count, 1, "exactly one row may exist at the synthesized relativePath")
   }
+
+  // MARK: - findMediaServerResources(at:) — the level query behind the list refresh
+
+  /// Root level: every media-server link on a root item, Hardcover filtered out in the query.
+  func testFindMediaServerResourcesAtRootSkipsHardcover() async {
+    let first = makeBook("root-a")
+    let second = makeBook("root-b")
+    _ = await sut.setExternalResource(providerName: "jellyfin", providerId: "jf-1", for: first.uuid)
+    _ = await sut.setExternalResource(providerName: "hardcover", providerId: "hc-1", for: first.uuid)
+    _ = await sut.setExternalResource(providerName: "audiobookshelf", providerId: "abs-1", for: second.uuid)
+
+    let resources = await sut.findMediaServerResources(at: nil)
+
+    XCTAssertEqual(Set(resources.map(\.providerId)), ["jf-1", "abs-1"])
+    XCTAssertFalse(resources.contains { $0.providerName == "hardcover" })
+  }
+
+  /// A level is its direct children only, like the list: a book moved into a folder leaves the
+  /// root result and appears in the folder's, and the folder row itself has no links.
+  func testFindMediaServerResourcesAtFolderReturnsDirectChildrenOnly() async throws {
+    let inFolder = makeBook("folder-book")
+    let atRoot = makeBook("root-book")
+    // Structure first, on the view context; the links after, on the background context.
+    // No merge policy is set anywhere, so a view-context save over a row the background
+    // context just changed is a hard crash, not a conflict to resolve (CLAUDE.md hotlist #1).
+    let folder = try sut.createFolder(with: "Series", inside: nil)
+    try sut.moveItems([LibraryItemRef(relativePath: inFolder.relativePath, uuid: inFolder.uuid)], inside: folder.relativePath)
+    _ = await sut.setExternalResource(providerName: "jellyfin", providerId: "in-folder", for: inFolder.uuid)
+    _ = await sut.setExternalResource(providerName: "jellyfin", providerId: "at-root", for: atRoot.uuid)
+
+    let folderResources = await sut.findMediaServerResources(at: folder.relativePath)
+    let rootResources = await sut.findMediaServerResources(at: nil)
+
+    XCTAssertEqual(folderResources.map(\.providerId), ["in-folder"])
+    XCTAssertEqual(rootResources.map(\.providerId), ["at-root"], "the moved book no longer belongs to root")
+  }
+
+  func testFindMediaServerResourcesAtEmptyLevelIsEmpty() async {
+    _ = makeBook("unlinked")
+
+    let resources = await sut.findMediaServerResources(at: nil)
+    let missingFolder = await sut.findMediaServerResources(at: "Nowhere")
+
+    XCTAssertTrue(resources.isEmpty)
+    XCTAssertTrue(missingFolder.isEmpty)
+  }
 }
 
 // MARK: - Hardcover stub repair

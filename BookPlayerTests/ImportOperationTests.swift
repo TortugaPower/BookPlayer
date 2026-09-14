@@ -775,28 +775,6 @@ final class ExternalProgressServiceTests: XCTestCase {
     )
   }
 
-  private func makeLibraryItem(resources: [SimpleExternalResource]?) -> SimpleLibraryItem {
-    SimpleLibraryItem(
-      title: "Book",
-      details: "Author",
-      speed: 1,
-      currentTime: 0,
-      duration: 1000,
-      percentCompleted: 0,
-      isFinished: false,
-      relativePath: "book-\(resources?.first?.providerId ?? "none").m4b",
-      remoteURL: nil,
-      artworkURL: nil,
-      orderRank: 0,
-      parentFolder: nil,
-      originalFileName: "book.m4b",
-      lastPlayDate: nil,
-      type: .book,
-      uuid: "UUID-\(resources?.first?.providerId ?? "none")",
-      externalResources: resources
-    )
-  }
-
   private func makeItem(uuid: String, currentTime: TimeInterval, lastPlayDate: Date?) -> PlayableItem {
     PlayableItem(
       title: "Book",
@@ -1038,7 +1016,9 @@ final class ExternalProgressServiceTests: XCTestCase {
 
   /// The gap this closes: the list refresh collected Jellyfin resources only and handed them
   /// to an ingest typed to a Jellyfin item, so AudiobookShelf items were never refreshed.
-  func testRefreshItemsFoldsInBothProviders() async {
+  /// The level's links come from ONE resource-first library query, asked for exactly the path
+  /// the list is syncing.
+  func testRefreshItemsAtLevelFoldsInBothProviders() async {
     let jellyfin = ProviderStub { _ in
       ExternalPlaybackProgress(currentTime: 120, lastPlayedDate: Date(timeIntervalSince1970: 500))
     }
@@ -1046,13 +1026,14 @@ final class ExternalProgressServiceTests: XCTestCase {
       ExternalPlaybackProgress(currentTime: 340, lastPlayedDate: Date(timeIntervalSince1970: 900))
     }
     let (sut, libraryService) = makeSUT(resources: [], providers: [.jellyfin: jellyfin, .audiobookshelf: abs])
+    libraryService.findMediaServerResourcesAtReturnValue = [
+      makeResource(provider: "jellyfin", id: "jf-1"),
+      makeResource(provider: "audiobookshelf", id: "abs-1"),
+    ]
 
-    await sut.refreshItems([
-      makeLibraryItem(resources: [makeResource(provider: "jellyfin", id: "jf-1")]),
-      makeLibraryItem(resources: [makeResource(provider: "audiobookshelf", id: "abs-1")]),
-      makeLibraryItem(resources: [makeResource(provider: "hardcover", id: "12345")]),
-    ])
+    await sut.refreshItems(at: "Author/Series")
 
+    XCTAssertEqual(libraryService.findMediaServerResourcesAtReceivedInvocations, ["Author/Series"])
     XCTAssertEqual(jellyfin.requested, ["jf-1"])
     XCTAssertEqual(abs.requested, ["abs-1"], "AudiobookShelf items refresh too")
 
@@ -1062,18 +1043,16 @@ final class ExternalProgressServiceTests: XCTestCase {
       ["jellyfin", "audiobookshelf"],
       "each provider folds its own answers in, under its own provider name"
     )
-    XCTAssertFalse(
-      ingested.contains { $0.providerName == "hardcover" },
-      "hardcover hosts nothing, so it is never batched"
-    )
   }
 
-  func testRefreshItemsDoesNothingWithoutMediaServerResources() async {
+  func testRefreshItemsAtLevelDoesNothingWithoutMediaServerResources() async {
     let jellyfin = ProviderStub { _ in XCTFail("must not be asked"); return nil }
     let (sut, libraryService) = makeSUT(resources: [], providers: [.jellyfin: jellyfin])
+    libraryService.findMediaServerResourcesAtReturnValue = []
 
-    await sut.refreshItems([makeLibraryItem(resources: nil)])
+    await sut.refreshItems(at: nil)
 
+    XCTAssertEqual(libraryService.findMediaServerResourcesAtReceivedInvocations, [nil], "root is asked as nil")
     XCTAssertTrue(jellyfin.requested.isEmpty)
     XCTAssertEqual(libraryService.handleSyncFromExternalResourceProviderNameProgressByProviderIdCallsCount, 0)
   }
@@ -1095,12 +1074,15 @@ final class ExternalProgressServiceTests: XCTestCase {
     XCTAssertTrue(jellyfin.requested.isEmpty)
   }
 
+  /// Gated before the library is even queried: a free account costs no fetch at all.
   func testListPullIsGatedToSyncTiers() async {
     let jellyfin = ProviderStub { _ in XCTFail("a free account must not pull"); return nil }
     let (sut, libraryService) = makeSUT(resources: [], providers: [.jellyfin: jellyfin], syncEnabled: false)
+    libraryService.findMediaServerResourcesAtReturnValue = [makeResource(provider: "jellyfin", id: "jf-1")]
 
-    await sut.refreshItems([makeLibraryItem(resources: [makeResource(provider: "jellyfin", id: "jf-1")])])
+    await sut.refreshItems(at: "Folder")
 
+    XCTAssertEqual(libraryService.findMediaServerResourcesAtCallsCount, 0)
     XCTAssertTrue(jellyfin.requested.isEmpty)
     XCTAssertEqual(libraryService.handleSyncFromExternalResourceProviderNameProgressByProviderIdCallsCount, 0)
   }

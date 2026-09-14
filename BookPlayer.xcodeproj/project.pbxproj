@@ -133,6 +133,7 @@
 		4160A0A123F304530039166B /* LocalizableLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4160A0A023F304530039166B /* LocalizableLabel.swift */; };
 		4163E313214AC43000072AA2 /* ImportOperationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4163E312214AC43000072AA2 /* ImportOperationTests.swift */; };
 		28EEB2588DE468A6B8C15272 /* RefreshTaskOperationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65962B5F03D221629A83C22C /* RefreshTaskOperationTests.swift */; };
+		3EBBB264D481A0F2DF48763E /* ListSyncRefreshServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 098A98893A8783E8BE1C5420 /* ListSyncRefreshServiceTests.swift */; };
 		FDA22898B1CD320A1D8F6C52 /* QueuedTaskDisplayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDC06443EFD052E697036798 /* QueuedTaskDisplayTests.swift */; };
 		41640A3724416EE8004FB97B /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = 41640A3624416EE8004FB97B /* Intents.intentdefinition */; settings = {ATTRIBUTES = (no_codegen, ); }; };
 		41640A452441ACE2004FB97B /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = 41640A3624416EE8004FB97B /* Intents.intentdefinition */; };
@@ -1261,6 +1262,7 @@
 		4163E3102148606600072AA2 /* ImportFileItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportFileItem.swift; sourceTree = "<group>"; };
 		4163E312214AC43000072AA2 /* ImportOperationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportOperationTests.swift; sourceTree = "<group>"; };
 		65962B5F03D221629A83C22C /* RefreshTaskOperationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshTaskOperationTests.swift; sourceTree = "<group>"; };
+		098A98893A8783E8BE1C5420 /* ListSyncRefreshServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListSyncRefreshServiceTests.swift; sourceTree = "<group>"; };
 		EDC06443EFD052E697036798 /* QueuedTaskDisplayTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueuedTaskDisplayTests.swift; sourceTree = "<group>"; };
 		4163E314214ACB4300072AA2 /* DataTestUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataTestUtils.swift; sourceTree = "<group>"; };
 		41640A1F24416774004FB97B /* IntentsUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IntentsUI.framework; path = System/Library/Frameworks/IntentsUI.framework; sourceTree = SDKROOT; };
@@ -2469,6 +2471,7 @@
 				63833DF82AAC134600496246 /* PerformanceTests */,
 				4163E312214AC43000072AA2 /* ImportOperationTests.swift */,
 				65962B5F03D221629A83C22C /* RefreshTaskOperationTests.swift */,
+				098A98893A8783E8BE1C5420 /* ListSyncRefreshServiceTests.swift */,
 				EDC06443EFD052E697036798 /* QueuedTaskDisplayTests.swift */,
 				41C3CF7D20AEA5E5007C3EF4 /* DataManagerTests.swift */,
 				9F8A9A5D27AC3F8C0093AA1C /* PlayableItemTests.swift */,
@@ -5270,6 +5273,7 @@
 				232F1DA50BB33EB5A629B8B7 /* PlayableChapterTests.swift in Sources */,
 				4163E313214AC43000072AA2 /* ImportOperationTests.swift in Sources */,
 				28EEB2588DE468A6B8C15272 /* RefreshTaskOperationTests.swift in Sources */,
+				3EBBB264D481A0F2DF48763E /* ListSyncRefreshServiceTests.swift in Sources */,
 				FDA22898B1CD320A1D8F6C52 /* QueuedTaskDisplayTests.swift in Sources */,
 				0CEC6B48350FC9C0A0B7D1C0 /* SyncTasksStorageTests.swift in Sources */,
 				1A26F7D72FFD6D625A313FC5 /* AudioMetadataServiceTests.swift in Sources */,

@@ -56,6 +56,14 @@ extension [ExternalPlaybackProgress] {
   }
 }
 
+/// The list-refresh entry point `ListSyncRefreshService` drives. One method, so the refresh
+/// service can be tested with a recording stub instead of providers, a keychain or a network.
+public protocol ExternalProgressRefreshing: AnyObject {
+  /// Pull the positions of every media-server item at one library level (root when nil) and
+  /// fold them into the library. Gated to the sync entitlement inside.
+  func refreshItems(at relativePath: String?) async
+}
+
 /// Reads one provider's playback position for a resource.
 ///
 /// `Sendable` so the service can fan the providers out concurrently: an item linked to two

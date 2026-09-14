@@ -181,7 +181,13 @@ public protocol LibraryServiceProtocol: AnyObject {
   func findResource(for providerId: String, providerName: String?) -> SimpleExternalResource?
   
   func findResources(for uuid: String) -> [SimpleExternalResource]?
-  
+
+  /// Media-server links of every item at one library level (root when nil), the way the list
+  /// refresh needs them: one background fetch of the small resource rows, filtered to media
+  /// servers in the predicate, with no item snapshots built. Direct children only, like the
+  /// list itself — a book inside a subfolder belongs to that folder's level.
+  func findMediaServerResources(at relativePath: String?) async -> [SimpleExternalResource]
+
   // fromResources (not from:): overloading insertItems(from: [URL]) collides in the
   // Sourcery-generated mock property names.
   @MainActor func insertItems(fromResources resources: [SimpleExternalResource]) async -> [SimpleLibraryItem]
@@ -2944,7 +2950,36 @@ extension LibraryService {
     }
     return snapshots
   }
-  
+
+  public func findMediaServerResources(at relativePath: String?) async -> [SimpleExternalResource] {
+    // The background context is the one the cloud sync writes a level on, so the links it just
+    // reconciled are visible here directly, and the main thread does nothing for this query.
+    let context = dataManager.getBackgroundContext()
+
+    return await context.perform {
+      let fetch: NSFetchRequest<ExternalResource> = ExternalResource.fetchRequest()
+      let level: NSPredicate
+      if let relativePath {
+        level = NSPredicate(
+          format: "%K == %@",
+          #keyPath(ExternalResource.libraryItem.folder.relativePath),
+          relativePath
+        )
+      } else {
+        level = NSPredicate(format: "%K != nil", #keyPath(ExternalResource.libraryItem.library))
+      }
+      let mediaServers = NSPredicate(
+        format: "%K IN %@",
+        #keyPath(ExternalResource.providerName),
+        ExternalResource.ProviderName.mediaServerRawValues
+      )
+      fetch.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [level, mediaServers])
+
+      let resources = (try? context.fetch(fetch)) ?? []
+      return resources.map { SimpleExternalResource(from: $0, ignoreLibraryItem: true) }
+    }
+  }
+
   /// Provider-neutral on purpose: this only ever used the position, the date and the finished
   /// flag, and typing it to `JellyfinLibraryItem` is what kept AudiobookShelf items from being
   /// refreshed at all — the caller could not even express an ABS batch.

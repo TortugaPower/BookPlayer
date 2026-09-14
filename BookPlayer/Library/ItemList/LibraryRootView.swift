@@ -46,7 +46,6 @@ struct LibraryRootView: View {
   @Environment(\.playbackService) private var playbackService
   @Environment(\.syncService) private var syncService
   @Environment(\.hardcoverService) private var hardcoverService
-  @Environment(\.externalProgressService) private var externalProgressService
   @Environment(\.scenePhase) private var scenePhase
 
   var body: some View {
@@ -59,7 +58,6 @@ struct LibraryRootView: View {
           playerManager: playerManager,
           syncService: syncService,
           listSyncRefreshService: listSyncRefreshService,
-          externalProgressService: externalProgressService,
           loadingState: loadingState,
           listState: listState,
           singleFileDownloadService: singleFileDownloadService
@@ -74,7 +72,6 @@ struct LibraryRootView: View {
             playerManager: playerManager,
             syncService: syncService,
             listSyncRefreshService: listSyncRefreshService,
-            externalProgressService: externalProgressService,
             loadingState: loadingState,
             listState: listState,
             singleFileDownloadService: singleFileDownloadService

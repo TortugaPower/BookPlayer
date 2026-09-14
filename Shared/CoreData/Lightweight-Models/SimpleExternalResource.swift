@@ -44,20 +44,12 @@ public struct SimpleExternalResource: Identifiable, Equatable, Hashable {
 }
 
 extension SimpleExternalResource {
-  /// Whether this link points at a server the user connects to, as opposed to a metadata
-  /// service like Hardcover that has no host and streams nothing.
-  ///
-  /// The switch has NO `default` on purpose: this is the one place the question is answered,
-  /// so adding a provider case becomes a compile error here and whoever adds it has to say
-  /// which side it falls on.
+  /// Whether this link points at a server the user connects to. The answer lives on
+  /// `ExternalResource.ProviderName.isMediaServer`, the one exhaustive switch. A providerName
+  /// this build doesn't know is not streamable: building a URL for it would need
+  /// provider-specific knowledge we don't have.
   public var isMediaServer: Bool {
-    switch ExternalResource.ProviderName(rawValue: providerName) {
-    case .jellyfin, .audiobookshelf: true
-    case .hardcover: false
-    // A providerName this build doesn't know: not streamable, since building a URL for it
-    // would require provider-specific knowledge we don't have.
-    case nil: false
-    }
+    ExternalResource.ProviderName(rawValue: providerName)?.isMediaServer ?? false
   }
 }
 

@@ -19,7 +19,6 @@ class MainCoordinator: NSObject {
 
   let importManager: ImportManager
   let playerManager: PlayerManager
-  let externalProgressService: ExternalProgressService
   let playerLoaderService: PlayerLoaderService
   let singleFileDownloadService: SingleFileDownloadService
   let libraryService: LibraryService
@@ -58,10 +57,10 @@ class MainCoordinator: NSObject {
       playerManager: playerManager,
       syncService: syncService,
       playerLoaderService: coreServices.playerLoaderService,
-      preferencesService: coreServices.preferencesService
+      preferencesService: coreServices.preferencesService,
+      externalProgressService: coreServices.externalProgressService
     )
     self.syncQueueService = coreServices.syncQueueService
-    self.externalProgressService = coreServices.externalProgressService
     self.singleFileDownloadService = SingleFileDownloadService(networkClient: NetworkClient())
     self.watchConnectivityService = coreServices.watchService
     let jellyfinService = JellyfinConnectionService()
@@ -113,7 +112,6 @@ class MainCoordinator: NSObject {
       .environment(\.playbackService, playbackService)
       .environment(\.preferencesService, preferencesService)
       .environment(\.syncQueueService, syncQueueService)
-      .environment(\.externalProgressService, externalProgressService)
     )
     vc.modalPresentationStyle = .fullScreen
     vc.modalTransitionStyle = .crossDissolve

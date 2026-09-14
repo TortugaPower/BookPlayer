@@ -1117,6 +1117,26 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
             return findResourcesForReturnValue
         }
     }
+    //MARK: - findMediaServerResources
+
+    var findMediaServerResourcesAtCallsCount = 0
+    var findMediaServerResourcesAtCalled: Bool {
+        return findMediaServerResourcesAtCallsCount > 0
+    }
+    var findMediaServerResourcesAtReceivedRelativePath: String?
+    var findMediaServerResourcesAtReceivedInvocations: [String?] = []
+    var findMediaServerResourcesAtReturnValue: [SimpleExternalResource]!
+    var findMediaServerResourcesAtClosure: ((String?) async -> [SimpleExternalResource])?
+    func findMediaServerResources(at relativePath: String?) async -> [SimpleExternalResource] {
+        findMediaServerResourcesAtCallsCount += 1
+        findMediaServerResourcesAtReceivedRelativePath = relativePath
+        findMediaServerResourcesAtReceivedInvocations.append(relativePath)
+        if let findMediaServerResourcesAtClosure = findMediaServerResourcesAtClosure {
+            return await findMediaServerResourcesAtClosure(relativePath)
+        } else {
+            return findMediaServerResourcesAtReturnValue
+        }
+    }
     //MARK: - insertItems
 
     var insertItemsFromResourcesCallsCount = 0
