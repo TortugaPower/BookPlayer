@@ -6,76 +6,76 @@
 //  Copyright © 2024 BookPlayer LLC. All rights reserved.
 //
 
+import Combine
+import CoreData
 import Foundation
 import SwiftData
-import Combine
 
 public final class TasksDataManager: BPLogger {
   public let container: ModelContainer
   private let queueCountsSubject = CurrentValueSubject<QueueCounts, Never>(QueueCounts())
 
-  public init() {
-    let schema = Schema([
-      UploadTaskModel.self,
-      UpdateTaskModel.self,
-      MoveTaskModel.self,
-      DeleteTaskModel.self,
-      DeleteBookmarkTaskModel.self,
-      SetBookmarkTaskModel.self,
-      RenameFolderTaskModel.self,
-      ArtworkUploadTaskModel.self,
-      MatchUuidsTaskModel.self,
-      UploadExternalResourceTaskModel.self,
-      ExternalResourceToDownloadTaskModel.self,
-      DeleteExternalResourceTaskModel.self,
-      SyncQueueContainer.self,
-      QueuedTaskReferenceModel.self,
-      ExternalUpdateTaskModel.self,
-      UploadFileTaskModel.self,
-    ])
+  public convenience init() {
+    self.init(storeURL: DataManager.getSyncTasksSwiftDataURL())
+  }
 
-    let storeURL = DataManager.getSyncTasksSwiftDataURL()
+  /// Opens (or creates) the task store at `storeURL`, running `MigrationPlan` when needed.
+  ///
+  /// A store written by a schema the plan does not know can never be opened — dev builds
+  /// between schema edits, or an older build launched over a newer store (TestFlight
+  /// rollback). Left alone that is a permanent launch crash-loop, so it is set aside FIRST,
+  /// decided from the store's own metadata: SwiftData wraps the Cocoa error (134504/134100)
+  /// opaquely, so the code cannot be matched after the fact. Only that case is recoverable.
+  /// Anything else that fails to load — a bug in a custom migration stage, a corrupt file, a
+  /// fresh store that will not open — is a programming error and still crashes: the store is
+  /// healthy, and nuking it would silently discard queued tasks a code fix could still migrate.
+  init(storeURL: URL) {
+    let schema = Schema(versionedSchema: SchemaV3.self)
     let modelConfiguration = ModelConfiguration(url: storeURL, cloudKitDatabase: .none)
+
+    if Self.storeIsUnknownToMigrationPlan(at: storeURL) {
+      Self.logger.error("Sync-tasks store matches no schema in the migration plan; setting aside: \(storeURL.path)")
+      Self.setAsideStore(at: storeURL)
+    }
 
     do {
       container = try ModelContainer(for: schema, migrationPlan: MigrationPlan.self, configurations: [modelConfiguration])
     } catch {
-      // An unloadable store here is a PERMANENT launch crash-loop under try! — e.g. a store
-      // written by a schema revision the migration plan no longer knows (dev builds between
-      // schema edits hit exactly this). The task queue is recoverable state: queued work is
-      // re-derivable, a crashed app is not. Destroy and recreate rather than trap forever.
-      // ONLY for store-compatibility errors though: a bug thrown by the custom v2ToV3
-      // migration stage must keep crashing (the store is healthy — nuking it would silently
-      // discard queued tasks a code fix could still migrate).
-      let cocoaCode = ((error as NSError).underlyingErrors.first as? NSError)?.code ?? (error as NSError).code
-      // ONLY unknown/incompatible-model codes: the generic migration-failure range
-      // (134110 etc.) can surface a BUG in the custom v2ToV3 stage, and nuking the store
-      // there would silently discard queued tasks a code fix could still migrate.
-      let incompatibleStoreCodes: Set<Int> = [
-        134504,  // Cannot use staged migration with an unknown model version
-        134100,  // The model used to open the store is incompatible
-      ]
-      guard incompatibleStoreCodes.contains(cocoaCode) else {
-        fatalError("Sync-tasks container failed to load: \(error)")
-      }
-      Self.logger.error("Sync-tasks store unloadable (\(error)); setting aside: \(storeURL.path)")
-      // Move ASIDE, never delete: 134100 also fires when an OLDER build runs over a store
-      // written by a NEWER schema (TestFlight rollback) — pending deletes/bookmarks there
-      // are not re-derivable, and the set-aside copy survives for the eventual re-upgrade
-      // (or support recovery). Only one generation is kept.
-      let fm = FileManager.default
-      for suffix in ["", "-wal", "-shm"] {
-        let src = URL(fileURLWithPath: storeURL.path + suffix)
-        let dst = URL(fileURLWithPath: storeURL.path + suffix + ".incompatible")
-        try? fm.removeItem(at: dst)
-        try? fm.moveItem(at: src, to: dst)
-      }
-      // A second failure on a FRESH store is a programming error — crashing is correct.
-      container = try! ModelContainer(for: schema, migrationPlan: MigrationPlan.self, configurations: [modelConfiguration])
+      fatalError("Sync-tasks container failed to load: \(error)")
     }
 
     // Initialize task count from database
     initializeTasksCount()
+  }
+
+  /// `true` when a store exists at `storeURL` whose model matches none of `MigrationPlan.schemas`
+  /// — the same check SwiftData's staged migration makes before failing with "unknown model
+  /// version". A missing or unreadable store is NOT unknown: SwiftData gets to report it.
+  static func storeIsUnknownToMigrationPlan(at storeURL: URL) -> Bool {
+    guard
+      FileManager.default.fileExists(atPath: storeURL.path),
+      let metadata = try? NSPersistentStoreCoordinator.metadataForPersistentStore(type: .sqlite, at: storeURL)
+    else { return false }
+
+    return !MigrationPlan.schemas.contains { versionedSchema in
+      guard let model = NSManagedObjectModel.makeManagedObjectModel(for: versionedSchema.models) else {
+        return false
+      }
+      return model.isConfiguration(withName: nil, compatibleWithStoreMetadata: metadata)
+    }
+  }
+
+  /// Move ASIDE, never delete: pending deletes and bookmarks in the store are not
+  /// re-derivable, and the copy survives for the eventual re-upgrade (or support recovery).
+  /// Only one generation is kept.
+  static func setAsideStore(at storeURL: URL) {
+    let fm = FileManager.default
+    for suffix in ["", "-wal", "-shm"] {
+      let src = URL(fileURLWithPath: storeURL.path + suffix)
+      let dst = URL(fileURLWithPath: storeURL.path + suffix + ".incompatible")
+      try? fm.removeItem(at: dst)
+      try? fm.moveItem(at: src, to: dst)
+    }
   }
 
   /// Test-only init that accepts a pre-built container (e.g. in-memory for unit tests).

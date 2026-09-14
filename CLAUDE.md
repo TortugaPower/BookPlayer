@@ -230,9 +230,12 @@ CarPlay event bus. Declared in `Shared/Extensions/Notification+BookPlayerKit.swi
 
 - `TasksDataManager.swift` owns the `ModelContainer`. **Store is `applicationSupportDirectory/bp-synctasks.sqlite`
   — the app-support dir, NOT the App Group**, separate from the CoreData store. CloudKit disabled.
-  Container-build failure with an incompatible-store code (cocoa 134504/134100) MOVES the store aside
-  (`.incompatible` suffix, never deleted) and retries fresh; any other failure — including a fresh-store
-  failure — still crashes (`fatalError`).
+  Before the container is built, `storeIsUnknownToMigrationPlan(at:)` checks the store's own metadata against
+  every `MigrationPlan.schemas` model; a store none of them can open (dev builds between schema edits, an older
+  build over a newer store) is MOVED aside (`.incompatible` suffix, never deleted) and a fresh one is created.
+  Don't match Cocoa codes (134504/134100) on the thrown error instead — SwiftData wraps them opaquely, so that
+  guard never fired. Any load failure that remains — a custom-migration-stage bug, a corrupt file, a fresh store
+  that won't open — still crashes (`fatalError`).
 - Versioned schema: `SchemaV1` (10 models) → `SchemaV2` (11 models, adds `MatchUuidsTaskModel` + a `uuid` field)
   → `SchemaV3` (unified concurrent-task container: `QueuedTaskReferenceModel` with per-queue keys, plus
   `ExternalUpdateTaskModel`/`UploadFileTaskModel` payloads). App code always uses the V3 typealiases.

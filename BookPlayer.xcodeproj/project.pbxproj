@@ -963,6 +963,7 @@
 		C972F5D6BD6375832F59BF7E /* IntegrationHTTPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5265B16421BFC176BFFE4EA5 /* IntegrationHTTPClient.swift */; };
 		CA3B408256F8458669106CF9 /* IntegrationConnectionViewModelProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D91D6855100BD1823B2674F /* IntegrationConnectionViewModelProtocol.swift */; };
 		CB3844DD8C695EAD32A4A811 /* SyncQueueTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF75FEB4DEC37DBE232CD140 /* SyncQueueTests.swift */; };
+		786041B335FF61901E55666C /* TasksDataManagerStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2339A98D9659EA78CB738CF /* TasksDataManagerStoreTests.swift */; };
 		CCC7E1CC127610C3687B8A50 /* SortPreferencesResolving.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C6BC9E7E76B9BAB7A0D88D2 /* SortPreferencesResolving.swift */; };
 		D080B0A77D9844C3A0737170 /* IntegrationConnectionFormViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6FB91B577BC77F45EDB2AAAA /* IntegrationConnectionFormViewModel.swift */; };
 		D2B95B92F8F84F2FA4B41BF6 /* BookEntity.swift in Sources */ = {isa = PBXBuildFile; fileRef = B33D03D266EF46B5B02FBF40 /* BookEntity.swift */; };
@@ -1985,6 +1986,7 @@
 		FEEDBABE0000000000000001 /* SharedWidgetStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedWidgetStore.swift; sourceTree = "<group>"; };
 		FEEDBABE0000000000000004 /* SharedWidgetStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedWidgetStoreTests.swift; sourceTree = "<group>"; };
 		FF75FEB4DEC37DBE232CD140 /* SyncQueueTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SyncQueueTests.swift; sourceTree = "<group>"; };
+		B2339A98D9659EA78CB738CF /* TasksDataManagerStoreTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TasksDataManagerStoreTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -3367,6 +3369,7 @@
 				A11C418B028982CF431C589F /* LibraryServiceReloadChaptersTests.swift */,
 				5BE48B26D3726D5519F45ED9 /* IntegrationHostResolverTests.swift */,
 				FF75FEB4DEC37DBE232CD140 /* SyncQueueTests.swift */,
+				B2339A98D9659EA78CB738CF /* TasksDataManagerStoreTests.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -5282,6 +5285,7 @@
 				5A9506FC8DAB858289E0EF89 /* IntegrationServerAddressTests.swift in Sources */,
 				3F058A74415A3AF6C17DA8F4 /* IntegrationHostResolverTests.swift in Sources */,
 				CB3844DD8C695EAD32A4A811 /* SyncQueueTests.swift in Sources */,
+				786041B335FF61901E55666C /* TasksDataManagerStoreTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
