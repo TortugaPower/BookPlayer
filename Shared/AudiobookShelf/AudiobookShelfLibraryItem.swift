@@ -17,7 +17,6 @@ public struct AudiobookShelfSeriesReference: Codable, Hashable {
 public struct AudiobookShelfLibraryItem: IntegrationLibraryItemProtocol, Codable {
   public enum Kind: String, Codable {
     case audiobook = "book"
-    case podcast = "podcast"
     case library = "library"
     case browseCategory = "browseCategory"
     case series = "series"
@@ -50,6 +49,10 @@ public struct AudiobookShelfLibraryItem: IntegrationLibraryItemProtocol, Codable
   public let progress: Double?
   public let currentTime: TimeInterval?
   public let isFinished: Bool?
+  /// The server's chapter list, empty unless this item came from an EXPANDED payload.
+  /// A streamed item has no other source: nothing opens the file to read embedded ones,
+  /// and ABS chapters can be server-side edits that aren't in the file at all.
+  public let chapters: [ChapterMetadata]
   /// From the progress payload's lastUpdate (ms epoch) — drives the resume-playback
   /// prompt's date comparison, same as Jellyfin's lastPlayedDate
   public let lastPlayedDate: Date?
@@ -78,6 +81,7 @@ public struct AudiobookShelfLibraryItem: IntegrationLibraryItemProtocol, Codable
     currentTime: TimeInterval? = nil,
     isFinished: Bool? = nil,
     lastPlayedDate: Date? = nil,
+    chapters: [ChapterMetadata] = [],
     browseCategory: AudiobookShelfBrowseCategory? = nil,
     filter: AudiobookShelfItemFilter? = nil
   ) {
@@ -100,6 +104,7 @@ public struct AudiobookShelfLibraryItem: IntegrationLibraryItemProtocol, Codable
     self.currentTime = currentTime
     self.isFinished = isFinished
     self.lastPlayedDate = lastPlayedDate
+    self.chapters = chapters
     self.browseCategory = browseCategory
     self.filter = filter
   }
@@ -109,7 +114,7 @@ extension AudiobookShelfLibraryItem {
   public var displayName: String { title }
 
   public var isDownloadable: Bool {
-    kind == .audiobook || kind == .podcast
+    kind == .audiobook
   }
 
   public var isNavigable: Bool {
@@ -118,7 +123,7 @@ extension AudiobookShelfLibraryItem {
 
   public var placeholderImageName: String {
     switch kind {
-    case .podcast, .audiobook: "waveform"
+    case .audiobook: "waveform"
     case .library: "folder"
     case .browseCategory:
       switch browseCategory {
@@ -226,8 +231,57 @@ extension AudiobookShelfLibraryItem {
       coverPath: apiItem.media.coverPath,
       progress: apiItem.userMediaProgress?.progress,
       currentTime: apiItem.userMediaProgress?.currentTime,
-      isFinished: apiItem.userMediaProgress?.isFinished
+      isFinished: apiItem.userMediaProgress?.isFinished,
+      chapters: Self.chapterMetadata(from: apiItem.media.chapters, duration: apiItem.media.duration)
     )
+  }
+
+  /// ABS gives every chapter a start AND an end, so durations are direct — but the list is
+  /// taken verbatim from the media and need not reach the item's end: an m4b whose embedded
+  /// chapter track stops before the trailing silence or credits leaves a gap, since
+  /// `media.duration` sums the audio files while `media.chapters` does not.
+  ///
+  /// The LAST chapter is therefore stretched to the item duration, giving the same total
+  /// coverage the Jellyfin mapping has by construction. Without it a position in that gap
+  /// resolves to no chapter, and `PlayableItem.init` falls back to `chapters[0]` — pinning
+  /// the whole session to chapter 1, which then never advances (the tick only reassigns when
+  /// `getChapter` finds one) and never reaches `chapters.last`, so the book never completes.
+  ///
+  /// Entries that don't describe a positive span are dropped: `getPlayableChapters` filters
+  /// those anyway, and storing them would make the stored list disagree with the playable one.
+  static func chapterMetadata(
+    from chapters: [AudiobookShelfAPIItem.Media.Chapter]?,
+    duration: TimeInterval?
+  ) -> [ChapterMetadata] {
+    guard let chapters else { return [] }
+
+    // Degenerate entries go FIRST, so the stretch below lands on a real chapter — stretching
+    // whatever happened to sort last would resurrect a zero-length one and overlap its
+    // predecessor.
+    let usable = chapters
+      .filter { chapter in
+        guard chapter.end > chapter.start else { return false }
+        guard let duration else { return true }
+        return chapter.start < duration
+      }
+      .sorted { $0.start < $1.start }
+
+    return usable.enumerated().map { index, chapter in
+      let isLast = index == usable.count - 1
+      let end: TimeInterval
+      if let duration, isLast || chapter.end > duration {
+        end = duration
+      } else {
+        end = chapter.end
+      }
+
+      return ChapterMetadata(
+        title: chapter.title,
+        start: chapter.start,
+        duration: end - chapter.start,
+        index: index + 1
+      )
+    }
   }
   
   public init(progressItem: AudiobookShelfAPIItem.UserMediaProgress) {
@@ -262,6 +316,19 @@ public struct AudiobookShelfAPIItem: Codable {
     public let coverPath: String?
     public let duration: TimeInterval?
     public let audioFiles: [AudioFile]?
+    /// Present on EXPANDED media only, alongside `audioFiles` — which is exactly what
+    /// `POST /api/items/batch/get` returns. These are the server's chapters, which the
+    /// user may have edited in ABS and which a multi-file book has instead of embedded
+    /// ones, so they are the authoritative list for an item we only ever stream.
+    public let chapters: [Chapter]?
+
+    /// Only the fields we read, like `AudioFile` below: a malformed element we never look at
+    /// would otherwise throw and take the whole batch response — and the import with it.
+    public struct Chapter: Codable {
+      public let start: TimeInterval
+      public let end: TimeInterval
+      public let title: String
+    }
     
     public struct Metadata: Codable {
       public let title: String
@@ -394,13 +461,17 @@ public struct AudiobookShelfCollectionsResponse: Codable {
 // MARK: - Virtual import
 
 extension AudiobookShelfLibraryItem {
-  /// Builds the virtual-import payload for this item. The file extension is REQUIRED:
-  /// list endpoints return minified items without audio-file metadata, so callers
-  /// hydrate the selection via `fetchItems(ids:)` (POST /api/items/batch/get) and SKIP
-  /// items that have none — the extension is never guessed.
+  /// Builds the virtual-import payload for this item. The file extension and the duration
+  /// are REQUIRED and both come from hydration (`VirtualImportPipeline`): list endpoints
+  /// return minified items without audio-file metadata, so callers hydrate the selection
+  /// via `fetchItems(ids:)` (POST /api/items/batch/get) and SKIP items that have neither
+  /// a real extension nor a measured length — the extension is never guessed, and the
+  /// duration is never defaulted to 0, which would import an unplayable row.
   @MainActor
   public func asVirtualImportResource(
     fileExtension: String,
+    duration: TimeInterval,
+    chapters: [ChapterMetadata] = [],
     connectionService: AudiobookShelfConnectionService,
     artworkSize: CGSize
   ) -> SimpleExternalResource {
@@ -409,10 +480,10 @@ extension AudiobookShelfLibraryItem {
       details: authorName ?? "voiceover_unknown_author".localized,
       speed: 1,
       currentTime: Double(currentTime ?? 0),
-      duration: Double(duration ?? 0),
-      percentCompleted: (progress ?? 0) > 0 && (duration ?? 0) > 0
-        ? Double(progress!) * 100
-        : 0,
+      duration: duration,
+      /// ABS reports progress as a 0-1 fraction; the duration gate the old expression
+      /// carried is now the pipeline's precondition.
+      percentCompleted: max(progress ?? 0, 0) * 100,
       isFinished: isFinished ?? false,
       relativePath: "",
       remoteURL: nil,
@@ -432,7 +503,8 @@ extension AudiobookShelfLibraryItem {
       syncStatus: ExternalResource.SyncStatus.stream.rawValue,
       lastSyncedAt: nil,
       hostId: connectionService.connection?.stableHostId,
-      libraryItem: libraryItem
+      libraryItem: libraryItem,
+      chapters: chapters
     )
   }
 }

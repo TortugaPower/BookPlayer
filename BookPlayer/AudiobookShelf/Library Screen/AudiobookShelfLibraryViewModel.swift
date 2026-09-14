@@ -49,7 +49,6 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
 
   @Published var editMode: EditMode = .inactive
   @Published var selectedItems: Set<AudiobookShelfLibraryItem.ID> = []
-  @Published var useSelectedItems: Bool = false
   @Published var showingDownloadConfirmation = false
   
   var onTransition: BPTransition<Routes>?
@@ -177,7 +176,7 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
 
   func destination(for item: AudiobookShelfLibraryItem) -> AudiobookShelfLibraryLevelData? {
     switch item.kind {
-    case .audiobook, .podcast:
+    case .audiobook:
       return .details(data: item)
     case .library:
       return nil
@@ -234,27 +233,27 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
     }
   }
   
-  func handleImportItems(useSelectedItems: Bool) async {
-    if accountService.hasStreamingEnabled() {
-      await virtualImportFolderAudiobooks(useSelectedItems: useSelectedItems)
-    } else {
-      if useSelectedItems {
-        onDownloadTapped()
-      } else {
-        confirmDownloadFolder()
-      }
+  /// Stream never downloads: without the entitlement it sells the entitlement.
+  @MainActor
+  func onStreamTapped(useSelectedItems: Bool) {
+    guard accountService.hasStreamingEnabled() else {
+      goToSubscribe()
+      return
     }
+    Task { await virtualImportFolderAudiobooks(useSelectedItems: useSelectedItems) }
   }
   
   @MainActor
   func virtualImportFolderAudiobooks(useSelectedItems: Bool) async {
     // Reentrancy guard: a double-tap mid-hydration must not run two imports
     guard !isImporting else { return }
+    // Both branches filter on isDownloadable so a selection can never carry something
+    // the whole-level branch would have skipped
     let audiobooks = useSelectedItems
-    ? selectedItems.compactMap({ id in
-      self.items.first(where: { $0.id == id })
-    })
-    : self.items.filter { $0.kind == .audiobook }
+      ? selectedItems.compactMap({ id in
+        self.items.first(where: { $0.id == id && $0.isDownloadable })
+      })
+      : self.items.filter { $0.isDownloadable }
     
     guard !audiobooks.isEmpty else { return }
     isImporting = true
@@ -264,15 +263,23 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
       let resources = try await VirtualImportPipeline.run(
         items: audiobooks,
         id: \.id,
-        hydrateExtensions: { ids in
+        hydrate: { ids in
           // batch/get returns EXPANDED items (list endpoints are minified without
           // audioFiles); one round-trip for the whole selection
           let hydrated = try await self.connectionService.fetchItems(ids: ids)
-          return hydrated.reduce(into: [:]) { $0[$1.id] = $1.fileExtension }
+          return hydrated.reduce(into: [:]) {
+            $0[$1.id] = HydratedItem(
+              fileExtension: $1.fileExtension,
+              duration: $1.duration,
+              chapters: $1.chapters
+            )
+          }
         },
-        buildResource: { item, fileExtension in
+        buildResource: { item, hydrated in
           item.asVirtualImportResource(
-            fileExtension: fileExtension,
+            fileExtension: hydrated.fileExtension,
+            duration: hydrated.duration,
+            chapters: hydrated.chapters,
             connectionService: self.connectionService,
             artworkSize: CGSize(width: 300, height: 300)
           )
@@ -283,7 +290,7 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
         return
       }
       if resources.count < audiobooks.count {
-        Self.logger.warning("Virtual import skipped \(audiobooks.count - resources.count) item(s) with no audio-file metadata")
+        Self.logger.warning("Virtual import skipped \(audiobooks.count - resources.count) item(s) with no audio-file metadata or no server-measured length")
       }
       // Stage as a VALUE for this screen's own confirmation sheet — the browser
       // stays open beneath it; dismissal happens on confirm
@@ -295,7 +302,6 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
   
   @MainActor
   func onDownloadFolderTapped() {
-    useSelectedItems = false
     showingDownloadConfirmation = true
   }
   
@@ -305,7 +311,7 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
     // Same filter as virtualImportFolderAudiobooks: folder/collection rows at this
     // level would each throw in createItemDownloadRequest (last error wins) while
     // the rest of the loop proceeds — a confusing partial download
-    for item in self.items where item.kind == .audiobook {
+    for item in self.items where item.isDownloadable {
       do {
         let request = try connectionService.createItemDownloadRequest(item)
         requests.append(request)
@@ -342,7 +348,7 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
   
   @MainActor
   func goToSubscribe() {
-    self.navigation.path.append(AudiobookShelfLibraryLevelData.subscribe)
+    navigation.showingSubscribe = true
   }
 
   @MainActor

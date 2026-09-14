@@ -18,15 +18,17 @@ import Foundation
 /// decide whether the feature ran at all: CarPlay claims the same delegate slot and answered
 /// with an empty implementation, so a car-only session silently never pulled.
 ///
-/// Nothing here is entitlement-gated, matching the push: `.externalUpdate` runs on every tier
-/// because it talks to the user's OWN server, and gating only the pull would make the two
-/// directions disagree.
-public final class ExternalProgressService {
+/// The two directions are gated differently on purpose. The push (`.externalUpdate`) runs on
+/// every tier: it writes the user's position to the user's OWN server. The pull — both the
+/// on-play prompt and the list refresh — is the cross-device sync feature, so it needs the
+/// sync entitlement (`lite` or `pro`, `hasSyncEnabled()`), read live on every call.
+public final class ExternalProgressService: ExternalProgressRefreshing {
   /// A remote position worth offering the user, published rather than written into UI state so
   /// both presentations — the SwiftUI alert and CarPlay's own — can consume the one decision.
   public let promptablePositionPublisher = PassthroughSubject<ExternalPlaybackProgress, Never>()
 
   private var libraryService: LibraryServiceProtocol!
+  private var accountService: AccountServiceProtocol!
   private var providers: [ExternalResource.ProviderName: ExternalProgressProviding] = [:]
 
   /// Guards the single in-flight refresh and the uuid it was started for. Non-isolated so the
@@ -41,6 +43,7 @@ public final class ExternalProgressService {
 
   public func setup(
     libraryService: LibraryServiceProtocol,
+    accountService: AccountServiceProtocol,
     providers: [ExternalResource.ProviderName: ExternalProgressProviding] = [
       .jellyfin: JellyfinProgressProvider(),
       .audiobookshelf: AudiobookShelfProgressProvider(),
@@ -48,6 +51,7 @@ public final class ExternalProgressService {
     notificationCenter: NotificationCenter = .default
   ) {
     self.libraryService = libraryService
+    self.accountService = accountService
     self.providers = providers
     self.notificationCenter = notificationCenter
 
@@ -70,6 +74,15 @@ public final class ExternalProgressService {
         self?.teardown()
       }
       .store(in: &disposeBag)
+
+    // A downgrade mid-refresh must not still publish a prompt: the entitlement is checked
+    // at the start of every pull, and here for the one already in flight.
+    notificationCenter.publisher(for: .accountUpdate)
+      .sink { [weak self] _ in
+        guard let self, !self.accountService.hasSyncEnabled() else { return }
+        self.teardown()
+      }
+      .store(in: &disposeBag)
   }
 
   /// Ask every media server this item is linked to where the user is, and publish the answer
@@ -80,6 +93,8 @@ public final class ExternalProgressService {
   /// already moved on from could still raise a prompt carrying that book's position — and the
   /// alert's "resume" then seeks whatever is playing to a timestamp from another book.
   public func refreshProgress(for item: PlayableItem) {
+    guard accountService.hasSyncEnabled() else { return }
+
     let uuid = item.uuid
     let localTime = item.currentTime
     let localDate = item.lastPlayDate
@@ -113,19 +128,23 @@ public final class ExternalProgressService {
     }
   }
 
-  /// Refresh the positions of items already on screen, so a list shows what the user's other
-  /// devices did without waiting for them to open each book.
+  /// Refresh every media-server item at one library level, so the list shows what the user's
+  /// other devices did without waiting for them to open each book.
   ///
-  /// Every provider is asked in parallel and each folds its own answers in, so AudiobookShelf
-  /// items refresh alongside Jellyfin ones — they never did before, because the ingest was
-  /// typed to a Jellyfin item and the caller collected only Jellyfin resources.
-  public func refreshItems(_ items: [SimpleLibraryItem]) async {
-    let resources = items.flatMap { $0.externalResources?.mediaServerResources ?? [] }
+  /// Driven by `ListSyncRefreshService.syncList` right after the cloud sync of the same level,
+  /// on the links that sync just reconciled. Resource-first: one background query returns only
+  /// the media-server rows, so the main thread does nothing here but the ingest. Every provider
+  /// is asked in parallel and each folds its own answers in — AudiobookShelf items refresh
+  /// alongside Jellyfin ones, which they never did while the ingest was typed to a Jellyfin item.
+  public func refreshItems(at relativePath: String?) async {
+    guard accountService.hasSyncEnabled() else { return }
+
+    let resources = await libraryService.findMediaServerResources(at: relativePath)
     guard !resources.isEmpty else { return }
 
     let byProvider = Dictionary(grouping: resources) { $0.providerName }
 
-    await withTaskGroup(of: (String, [String: ExternalPlaybackProgress]).self) { group in
+    await withTaskGroup(of: (String, [String: ExternalItemSnapshot]).self) { group in
       for (providerName, providerResources) in byProvider {
         guard
           let name = ExternalResource.ProviderName(rawValue: providerName),
@@ -133,14 +152,27 @@ public final class ExternalProgressService {
         else { continue }
 
         group.addTask {
-          (providerName, (try? await provider.progress(forBatch: providerResources)) ?? [:])
+          // Only the items that still lack chapters pay for them. In the steady state that
+          // set is empty and this is exactly the progress-only refresh it has always been;
+          // a book whose server has none stays in the small set instead of making every
+          // refresh carry the whole level's chapters forever.
+          let needing = providerResources.filter(\.needsChapters)
+          let rest = providerResources.filter { !$0.needsChapters }
+
+          async let withChapters = provider.snapshots(forBatch: needing, includingChapters: true)
+          async let withoutChapters = provider.snapshots(forBatch: rest, includingChapters: false)
+
+          // Disjoint by construction, so the tie-break only fires when one providerId is
+          // linked twice at this level — and then the answer carrying chapters is the one
+          // worth keeping.
+          return (providerName, await withChapters.merging(withoutChapters) { current, _ in current })
         }
       }
 
-      for await (providerName, progress) in group where !progress.isEmpty {
+      for await (providerName, snapshots) in group where !snapshots.isEmpty {
         await libraryService.handleSyncFromExternalResource(
           providerName: providerName,
-          progressByProviderId: progress
+          snapshotsByProviderId: snapshots
         )
       }
     }

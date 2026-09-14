@@ -80,6 +80,18 @@ struct ExternalSyncIntroView: View {
     .listSectionSpacing(Spacing.S2)
     .navigationTitle("external_sync_info_title".localized)
     .navigationBarTitleDisplayMode(.inline)
+    // Presented as a sheet, so there is no back button to fall back on
+    .toolbar {
+      ToolbarItem(placement: .cancellationAction) {
+        Button {
+          dismiss()
+        } label: {
+          Image(systemName: "xmark")
+            .foregroundStyle(theme.linkColor)
+        }
+        .accessibilityLabel("close_title".localized)
+      }
+    }
     .sheet(isPresented: $showCompleteAccount) {
       NavigationStack {
         CompleteAccountView(subType: .lite) {

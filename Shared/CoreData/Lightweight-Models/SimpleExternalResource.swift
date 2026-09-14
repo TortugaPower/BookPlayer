@@ -19,6 +19,14 @@ public struct SimpleExternalResource: Identifiable, Equatable, Hashable {
   public var libraryItemUuid: String?
   public var libraryItemName: String?
   public var libraryItem: SimpleLibraryItem?
+  /// Chapters the server reported for a virtual import: set by `asVirtualImportResource`,
+  /// consumed by `createExternalBook`. Import-only — `init(from: ExternalResource)` leaves it
+  /// empty, because the entity has no chapter column; the rows live on the Book.
+  public var chapters: [ChapterMetadata] = []
+  /// Whether this item's book still has no chapters, so a refresh knows to ask its server
+  /// for them. Set only by `findMediaServerResources(at:)`; `false` everywhere else, which
+  /// is the safe default — it costs a book its chapters, never a wrong write.
+  public var needsChapters = false
 
   public init(
     id: Int = 0,
@@ -29,7 +37,9 @@ public struct SimpleExternalResource: Identifiable, Equatable, Hashable {
     hostId: String? = nil,
     libraryItemUuid: String? = nil,
     libraryItemName: String? = nil,
-    libraryItem: SimpleLibraryItem? = nil
+    libraryItem: SimpleLibraryItem? = nil,
+    chapters: [ChapterMetadata] = [],
+    needsChapters: Bool = false
   ) {
     self.id = id
     self.providerName = providerName
@@ -40,24 +50,18 @@ public struct SimpleExternalResource: Identifiable, Equatable, Hashable {
     self.libraryItemUuid = libraryItemUuid
     self.libraryItemName = libraryItemName
     self.libraryItem = libraryItem
+    self.chapters = chapters
+    self.needsChapters = needsChapters
   }
 }
 
 extension SimpleExternalResource {
-  /// Whether this link points at a server the user connects to, as opposed to a metadata
-  /// service like Hardcover that has no host and streams nothing.
-  ///
-  /// The switch has NO `default` on purpose: this is the one place the question is answered,
-  /// so adding a provider case becomes a compile error here and whoever adds it has to say
-  /// which side it falls on.
+  /// Whether this link points at a server the user connects to. The answer lives on
+  /// `ExternalResource.ProviderName.isMediaServer`, the one exhaustive switch. A providerName
+  /// this build doesn't know is not streamable: building a URL for it would need
+  /// provider-specific knowledge we don't have.
   public var isMediaServer: Bool {
-    switch ExternalResource.ProviderName(rawValue: providerName) {
-    case .jellyfin, .audiobookshelf: true
-    case .hardcover: false
-    // A providerName this build doesn't know: not streamable, since building a URL for it
-    // would require provider-specific knowledge we don't have.
-    case nil: false
-    }
+    ExternalResource.ProviderName(rawValue: providerName)?.isMediaServer ?? false
   }
 }
 

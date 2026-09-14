@@ -21,12 +21,22 @@ class AccountServiceMock: AccountServiceProtocol {
     return nil
   }
 
+  /// Settable so a test can model lite/pro (true) vs free/plus (false); defaults to free.
+  var hasSyncEnabledValue = false
+
   func hasSyncEnabled() -> Bool {
-    return false
+    return hasSyncEnabledValue
   }
 
   func hasPlusAccess() -> Bool {
     return false
+  }
+
+  /// Settable so a test can model a lapsed subscriber — paid once, no longer subscribed.
+  var hasEverSubscribedValue = false
+
+  func hasEverSubscribed() -> Bool {
+    return hasEverSubscribedValue
   }
 
   func getSecondOnboarding<T: Decodable>() async throws -> T {

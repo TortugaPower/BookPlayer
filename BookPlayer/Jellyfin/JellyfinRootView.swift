@@ -344,6 +344,13 @@ struct JellyfinTabRoot: View {
     .sheet(isPresented: $showConnectionDetails) {
       connectionDetailsSheet
     }
+    .sheet(isPresented: $navigation.showingSubscribe) {
+      NavigationStack {
+        ExternalSyncIntroView()
+      }
+      .tint(theme.linkColor)
+      .environmentObject(theme)
+    }
     .task {
       navigation.dismiss = onDismiss
     }
@@ -420,8 +427,6 @@ struct JellyfinTabRoot: View {
       ) {
         onDismiss()
       }
-    case .subscribe:
-      ExternalSyncIntroView()
     }
   }
   
@@ -564,6 +569,13 @@ where ViewModel.Item == JellyfinLibraryItem {
         dismissAll: dismissAll
       )
     }
+    .sheet(isPresented: $navigation.showingSubscribe) {
+      NavigationStack {
+        ExternalSyncIntroView()
+      }
+      .tint(theme.linkColor)
+      .environmentObject(theme)
+    }
     .task {
       navigation.dismiss = onDismiss
     }
@@ -650,8 +662,6 @@ extension JellyfinTabRoot {
       ) {
         onDismiss()
       }
-    case .subscribe:
-      ExternalSyncIntroView()
     }
   }
   

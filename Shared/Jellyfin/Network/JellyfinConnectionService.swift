@@ -466,7 +466,7 @@ public class JellyfinConnectionService: BPLogger {
       let chunk = Array(ids[start..<min(start + chunkSize, ids.count)])
       var parameters = Paths.GetItemsParameters()
       parameters.ids = chunk
-      parameters.fields = [.mediaSources, .path]
+      parameters.fields = [.mediaSources, .path, .chapters]
       parameters.enableUserData = true
       let response = try await send(Paths.getItems(parameters: parameters))
       try Task.checkCancellation()
@@ -682,13 +682,23 @@ public class JellyfinConnectionService: BPLogger {
     let artist: String? = itemInfo.albumArtist
     let filePath: String? = itemInfo.mediaSources?.first?.path ?? itemInfo.path
     let fileSize: Int? = itemInfo.mediaSources?.first?.size
-    let runtimeInSeconds: TimeInterval? =
-      (itemInfo.runTimeTicks != nil) ? TimeInterval(itemInfo.runTimeTicks!) / 10000000.0 : nil
+    /// Same resolution as the list mapper, so the details screen and the import gate can't
+    /// disagree about whether this item has a runtime
+    let runtimeInSeconds = JellyfinLibraryItem.resolveRuntimeSeconds(
+      itemTicks: itemInfo.runTimeTicks,
+      mediaSourceTicks: itemInfo.mediaSources?.first?.runTimeTicks
+    )
 
     return JellyfinAudiobookDetailsData(
       artist: artist,
       filePath: filePath,
       fileSize: fileSize,
+      /// Was never populated here, which left the details screen's import with a dead
+      /// `?? details?.fileExtension` fallback whenever the batch hydration came back empty
+      fileExtension: JellyfinLibraryItem.resolveFileExtension(
+        container: itemInfo.mediaSources?.first?.container,
+        filePath: filePath
+      ),
       overview: itemInfo.overview,
       runtimeInSeconds: runtimeInSeconds,
       genres: itemInfo.genres,
@@ -720,11 +730,23 @@ public class JellyfinConnectionService: BPLogger {
 
   /// Batch-fetches the Jellyfin items backing the given synced external resources, keyed by
   /// provider item id — one round-trip instead of N when refreshing a list.
-  public func updateItemsFromJellyfin(_ externalResources: [SimpleExternalResource]) async throws -> [String: JellyfinLibraryItem] {
+  public func updateItemsFromJellyfin(
+    _ externalResources: [SimpleExternalResource],
+    includingChapters: Bool
+  ) async throws -> [String: JellyfinLibraryItem] {
     guard !externalResources.isEmpty, let myId = connection?.userID else { return [:] }
 
-    let request = Paths.getItems(parameters: Paths.GetItemsParameters(userID: myId, ids: externalResources.map(\.providerId)))
-    let response = try await send(request)
+    var parameters = Paths.GetItemsParameters(userID: myId, ids: externalResources.map(\.providerId))
+    /// Both fields are opt-in and both are needed together, but ONLY for the items that still
+    /// have no chapters: `Chapters` is the list itself, and `MediaSources` carries the runtime
+    /// that bounds the last chapter for an item Jellyfin hasn't probed at the item level —
+    /// without a runtime the whole list is dropped. A progress-only refresh asks for neither,
+    /// which is the payload this call carried before chapters existed.
+    if includingChapters {
+      parameters.fields = [.chapters, .mediaSources]
+    }
+
+    let response = try await send(Paths.getItems(parameters: parameters))
 
     var itemsDictionary: [String: JellyfinLibraryItem] = [:]
     for item in response.value.items ?? [] {

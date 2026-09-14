@@ -15,12 +15,16 @@ import Sentry
 
 // swiftlint:disable:next file_length
 
-final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject, BPLogger {
+final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   private let libraryService: LibraryServiceProtocol
   private let playbackService: PlaybackServiceProtocol
   /// Narrow read of the streaming entitlement (pro or lite), not the whole account
   /// service — the media-servers shortcut is only actionable for a tier that can stream.
   private let hasStreamingEnabled: () -> Bool
+  /// Hands a failure to whichever surface the user is on. Injected because both failure sites
+  /// are async and surface-agnostic — see `playbackFailure(for:title:message:)`. Always called
+  /// through `presentOnMain(for:title:message:)`, never directly.
+  private let presentFailure: (PlaybackFailure) -> Void
   private let syncService: SyncServiceProtocol
   private let speedService: SpeedServiceProtocol
   private let userActivityManager: UserActivityManager
@@ -32,24 +36,21 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject, BP
   private var fadeTimer: Timer?
 
   private var timeControlPassthroughPublisher = CurrentValueSubject<AVPlayer.TimeControlStatus, Never>(.paused)
+  /// Named + cancelled-before-rebind: bound on every player recreation (init, .failed,
+  /// mediaServicesWereReset) — a disposeBag entry would accumulate one sink per recreation.
   private var timeControlSubscription: AnyCancellable?
+  /// Named + cancelled-before-rebind: bound on EVERY chapter/item load — a disposeBag entry
+  /// leaks one KVO publisher (which retains its AVPlayerItem) per loaded chapter.
   private var playableChapterSubscription: AnyCancellable?
   private var isPlayingSubscription: AnyCancellable?
   /// Tracks the brief muted play used to claim Now Playing on CarPlay connect, so we can pause once it starts
   private var nowPlayingClaimSubscription: AnyCancellable?
-  /// Named + cancelled-before-rebind: bound on every player recreation (init, .failed,
-  /// mediaServicesWereReset) — a disposeBag entry would accumulate one sink per recreation.
-  private var playerLoadingStateSubscription: AnyCancellable?
-  /// Named + cancelled-before-rebind: bound on EVERY chapter/item load — a disposeBag entry
-  /// leaks one KVO publisher (which retains its AVPlayerItem) per loaded chapter.
-  private var playerItemStatusSubscription: AnyCancellable?
   private var periodicTimeObserver: Any?
   private var disposeBag = Set<AnyCancellable>()
   /// Flag determining if it should resume playback after finishing up loading an item
   @Published private var playbackQueued: Bool?
   /// Flag determining if it's in the process of fetching the URL for playback
   @Published private var isFetchingRemoteURL: Bool?
-  @Published var playerIsLoadingURL: Bool = false
   /// Prevent loop from automatic URL refreshes
   private var canFetchRemoteURL = true
   /// Set when audio-session activation fails in the current process, so a later
@@ -80,7 +81,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject, BP
   private var loadChapterTask: Task<(), Never>?
   @Published var currentItem: PlayableItem?
   @Published var currentSpeed: Float = 1.0
-  
+
   var nowPlayingInfo = [String: Any]()
 
   private let queue = OperationQueue()
@@ -92,7 +93,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject, BP
     speedService: SpeedServiceProtocol,
     shakeMotionService: ShakeMotionServiceProtocol,
     widgetReloadService: WidgetReloadServiceProtocol,
-    hasStreamingEnabled: @escaping () -> Bool
+    hasStreamingEnabled: @escaping () -> Bool,
+    presentFailure: @escaping (PlaybackFailure) -> Void
   ) {
     self.libraryService = libraryService
     self.playbackService = playbackService
@@ -102,6 +104,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject, BP
     self.shakeMotionService = shakeMotionService
     self.widgetReloadService = widgetReloadService
     self.hasStreamingEnabled = hasStreamingEnabled
+    self.presentFailure = presentFailure
     super.init()
 
     setupPlayerInstance()
@@ -185,50 +188,6 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject, BP
     audioPlayer.allowsExternalPlayback = false
 
     bindTimeControlPassthroughPublisher()
-    setupPlayerObservers(player: audioPlayer)
-  }
-  
-  private func updatePlayerIsLoadingURL(_ isLoading: Bool) {
-    if Thread.isMainThread {
-      self.playerIsLoadingURL = isLoading
-    } else {
-      DispatchQueue.main.async {
-        self.playerIsLoadingURL = isLoading
-      }
-    }
-  }
-
-  private func setupPlayerObservers(player: AVPlayer?) {
-    guard let player = player else { return }
-    
-    // 2. Observe Buffering (AVPlayer TimeControlStatus)
-    playerLoadingStateSubscription?.cancel()
-    playerLoadingStateSubscription = player.publisher(for: \.timeControlStatus)
-      // AVFoundation delivers this KVO off-main; the sink reads currentItem, which is
-      // mutated on main — hop before reading, like the player's other sinks
-      .receive(on: DispatchQueue.main)
-      .sink { [weak self, weak player] status in
-        guard let self = self, let player = player else { return }
-        // Same remote-only gate as the item-status observer: a stalled/seeking LOCAL book
-        // must not flash the streaming buffering overlay.
-        guard self.isStreamingChapter(self.currentItem?.currentChapter) else { return }
-        
-        switch status {
-        case .waitingToPlayAtSpecifiedRate:
-          if player.reasonForWaitingToPlay == .toMinimizeStalls {
-            // We are actively buffering mid-playback (or right after hitting play)
-            self.updatePlayerIsLoadingURL(true)
-          }
-        case .playing, .paused:
-          // If the item status is still .unknown, we are still preparing
-          if self.playerItem?.status == .readyToPlay {
-            self.updatePlayerIsLoadingURL(false)
-          }
-        @unknown default:
-          break
-        }
-      }
-      
   }
 
   func currentItemPublisher() -> AnyPublisher<PlayableItem?, Never> {
@@ -262,16 +221,16 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject, BP
 
     // TODO: Check if there's a way to reduce the time this operation takes
     // it's currently a bottleneck when streaming playback
-    _ = try? await asset.load(
-      .duration,
-      .isPlayable,
-      .preferredRate,
-      .preferredVolume,
-      .hasProtectedContent,
-      .providesPreciseDurationAndTiming,
-      .commonMetadata,
-      .metadata
-    )
+    await asset.loadValues(forKeys: [
+      "duration",
+      "playable",
+      "preferredRate",
+      "preferredVolume",
+      "hasProtectedContent",
+      "providesPreciseDurationAndTiming",
+      "commonMetadata",
+      "metadata",
+    ])
 
     guard !Task.isCancelled else {
       throw BookPlayerError.cancelledTask
@@ -310,59 +269,30 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject, BP
 
   @MainActor
   func loadPlayerItem(for chapter: PlayableChapter, forceRefreshURL: Bool) async throws -> PlayableChapter {
-    // Reset unconditionally: the flag's setters are gated on remote loads, so a LOCAL load
-    // that interrupts a buffering stream would otherwise leave the overlay stuck on.
-    updatePlayerIsLoadingURL(false)
-
     let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(chapter.relativePath)
+    let isMissingLocally = !FileManager.default.fileExists(atPath: fileURL.path)
 
     let asset: AVURLAsset
 
-    if !FileManager.default.fileExists(atPath: fileURL.path)
-    {
-      if let externalUrl = chapter.externalUrl {
-        // Media-server chapters ALWAYS stream from their external URL — a forced refresh
-        // must not reroute them to the cloud/S3 presign path (their fresh URL comes from
-        // the chapter rebuild during reload, resolved against the local connection).
-        asset = AVURLAsset(url: externalUrl, options: [
-          AVURLAssetPreferPreciseDurationAndTimingKey: false,
-          "AVURLAssetHTTPHeaderFieldsKey": chapter.externalHeaders
-        ])
-
-        // Only load metadata if duration is unknown, to avoid network bottleneck
-        if chapter.duration == 0 {
-          do {
-            _ = try await asset.load(.duration, .isPlayable)
-          } catch {
-            // Deliberately non-fatal: a dead stream fails LOUDLY at the player-item
-            // level right after (the .failed -> session-expired alert path). The only
-            // silent case is a transient metadata-only failure — playback proceeds with
-            // duration 0 (degraded scrubber/progress), so log it for diagnosability.
-            Self.logger.warning("External stream metadata load failed; continuing with duration 0: \(error)")
-          }
-
-          await libraryService.loadChaptersIfNeeded(relativePath: chapter.relativePath, asset: asset)
-          // The awaits above can outlive this load (user tapped another book) — applying the
-          // refreshed item afterwards would clobber the newer load's state.
-          // The repo's own cancellation error: Swift's CancellationError would fall through
-          // to the GENERIC catch in loadChapterTask and pop a spurious alert on the very
-          // normal tap-another-book-mid-load path.
-          if Task.isCancelled { throw BookPlayerError.cancelledTask }
-          if let libraryItem = libraryService.getSimpleItem(with: chapter.relativePath),
-             let updatedItem = try? playbackService.getPlayableItem(from: libraryItem) {
-            currentItem = updatedItem
-            // Invariant: EVERY currentItem reassignment rebinds the chapter subscription —
-            // otherwise .chapterChange keeps firing off the orphaned item and the
-            // end-of-chapter sleep timer + Now Playing chapter title silently break.
-            bindPlayableChapterSubscription(to: updatedItem, dropInitialReplay: true)
-          }
-        }
-      } else if syncService.isActive {
-        asset = try await loadRemoteURLAsset(for: chapter, forceRefresh: forceRefreshURL)
-      } else {
-        asset = AVURLAsset(url: fileURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: false])
-      }
+    if isMissingLocally, hasStreamingEnabled(), let externalUrl = chapter.externalUrl {
+      // Media-server chapters ALWAYS stream from their external URL — a forced refresh
+      // must not reroute them to the cloud/S3 presign path. The entitlement is checked HERE
+      // rather than only at import: the rows outlive the subscription that created them, and
+      // the stream reaches the user's own server, so nothing server-side can gate it.
+      // No metadata is loaded here:
+      // the length comes from the server at import time (`VirtualImportPipeline` refuses
+      // an item without one), so there is nothing a round trip to the stream could add.
+      // `AVURLAssetHTTPHeaderFieldsKey` is undocumented, but it is the only way to attach
+      // the server's auth header short of an AVAssetResourceLoaderDelegate.
+      asset = AVURLAsset(url: externalUrl, options: [
+        AVURLAssetPreferPreciseDurationAndTimingKey: false,
+        "AVURLAssetHTTPHeaderFieldsKey": chapter.externalHeaders
+      ])
+    } else if isMissingLocally, syncService.isActive {
+      asset = try await loadRemoteURLAsset(for: chapter, forceRefresh: forceRefreshURL)
     } else {
+      /// The file is on disk — or it is missing with no remote source, and AVFoundation
+      /// surfaces that as a player-item failure.
       asset = AVURLAsset(url: fileURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
     }
 
@@ -371,62 +301,13 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject, BP
       self.playerItem?.removeObserver(self, forKeyPath: "status")
       self.hasObserverRegistered = false
     }
-    
+
     self.playerItem = AVPlayerItem(asset: asset)
     self.playerItem?.audioTimePitchAlgorithm = .timeDomain
-    
-    if chapter.externalUrl != nil {
-      // Buffer a reasonable amount for streaming (20 seconds)
-      self.playerItem?.preferredForwardBufferDuration = 20
-    }
-    
-    setupPlayerItemObservers(playerItem: playerItem)
 
     return self.currentItem?.currentChapter ?? chapter
   }
-  
-  /// True only when the chapter actually streams: it has a remote source AND no local
-  /// copy on disk — the same branch condition loadPlayerItem plays by. A downloaded
-  /// cloud book keeps its remoteURL forever, so checking URLs alone would flash the
-  /// buffering overlay over purely local playback.
-  private func isStreamingChapter(_ chapter: PlayableChapter?) -> Bool {
-    guard let chapter,
-          chapter.externalUrl != nil || chapter.remoteURL != nil else {
-      return false
-    }
-    let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(chapter.relativePath)
-    return !FileManager.default.fileExists(atPath: fileURL.path)
-  }
 
-  func setupPlayerItemObservers(playerItem: AVPlayerItem?) {
-    guard let playerItem else {
-      return
-    }
-
-    // Local files attach ready almost instantly but still emit the initial .unknown —
-    // only streamed/remote loads should drive the buffering overlay.
-    let isRemoteLoad = isStreamingChapter(currentItem?.currentChapter)
-    playerItemStatusSubscription?.cancel()
-    playerItemStatusSubscription = playerItem.publisher(for: \.status)
-      .receive(on: DispatchQueue.main)
-      .sink { [weak self] status in
-        guard let self = self, isRemoteLoad else { return }
-
-        switch status {
-        case .readyToPlay:
-          // The item is fully loaded and ready to be played
-          self.updatePlayerIsLoadingURL(false)
-        case .failed:
-          self.updatePlayerIsLoadingURL(false)
-        case .unknown:
-          // Still evaluating the asset
-          self.updatePlayerIsLoadingURL(true)
-        @unknown default:
-          break
-        }
-      }
-
-  }
   func load(_ item: PlayableItem, autoplay: Bool) {
     load(item, autoplay: autoplay, forceRefreshURL: false)
   }
@@ -522,17 +403,72 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject, BP
 
   /// Whether a failed load should offer the Media Servers shortcut: the tier can stream at
   /// all, and going to Media Servers could actually fix this chapter's failure. Not private
-  /// so the entitlement wiring itself is testable, and shared by both alert sites so the
-  /// rule can't drift between them.
+  /// so the entitlement wiring itself is testable.
   func offersMediaServers(for chapter: PlayableChapter) -> Bool {
     hasStreamingEnabled() && chapter.needsMediaServer()
+  }
+
+  /// A failure described for whichever surface ends up showing it. Shared by both failure
+  /// sites so the reason and the offer can't drift between the metadata path and the
+  /// player-item path.
+  ///
+  /// This only DESCRIBES the failure. Presenting it is the arbiter's job: both call sites are
+  /// asynchronous — a detached metadata task and a KVO status callback — so by the time either
+  /// fires, whichever surface asked for playback is long gone from the stack.
+  ///
+  /// Not private so the reason derivation is testable without provoking a real AVFoundation
+  /// failure, same as `offersMediaServers(for:)`.
+  func playbackFailure(
+    for chapter: PlayableChapter?,
+    title: String,
+    message: String?
+  ) -> PlaybackFailure {
+    /// `needsMediaServer()` gates BOTH media-server reasons, because it is the only one of the
+    /// two predicates that checks the filesystem: `hasUnresolvedExternalHost` is a stored flag
+    /// that stays true on a DOWNLOADED book whose connection was later removed. Reading it
+    /// first would have blamed a missing server for a local file that simply won't open, and
+    /// reported a reason that disagrees with `canOfferMediaServers` on the same value.
+    let reason: PlaybackFailure.Reason
+
+    if let chapter, chapter.needsMediaServer() {
+      reason = chapter.hasUnresolvedExternalHost ? .missingConnection : .streamUnavailable
+    } else {
+      reason = .other
+    }
+
+    return PlaybackFailure(
+      reason: reason,
+      phoneTitle: title,
+      phoneMessage: message,
+      canOfferMediaServers: chapter.map(offersMediaServers(for:)) ?? false
+    )
+  }
+
+  /// The one way a failure leaves this class. Hops to main unconditionally, as the UIKit
+  /// presentation this replaced did: `PlayerManager` is not `@MainActor`, and the player-item
+  /// site is a raw KVO callback on `AVPlayerItem.status`, which AVFoundation does not promise
+  /// to deliver on the main thread — while every presenter writes `@Observable` state or puts
+  /// a template on screen. Keeping the hop here rather than in the injected closure means an
+  /// injector cannot forget it.
+  ///
+  /// It BUILDS the failure inside the hop, not just presents it: `playbackFailure` reaches
+  /// `hasStreamingEnabled()`, which reads `donationMade` through `AccountService.getAccount()`
+  /// — a fetch on the VIEW context. Constructing at the call site would run that fetch on
+  /// whatever thread KVO happened to use. The caller still resolves `chapter` itself, so the
+  /// snapshot is taken when the failure occurs rather than a turn later.
+  private func presentOnMain(for chapter: PlayableChapter?, title: String, message: String?) {
+    Task { @MainActor in
+      self.presentFailure(
+        self.playbackFailure(for: chapter, title: title, message: message)
+      )
+    }
   }
 
   func loadChapterMetadata(_ chapter: PlayableChapter, autoplay: Bool? = nil, forceRefreshURL: Bool = false) {
     if let autoplay {
       playbackQueued = autoplay
     }
-    
+
     loadChapterTask = Task { @MainActor [unowned self] in
       do {
         let updatedChapter = try await self.loadPlayerItem(for: chapter, forceRefreshURL: forceRefreshURL)
@@ -540,23 +476,14 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject, BP
       } catch BookPlayerError.cancelledTask {
         /// Do nothing, as it was cancelled to load another item
       } catch {
-        var actions = [BPActionItem.okAction]
-        
-        if offersMediaServers(for: chapter) {
-          actions.append(
-            BPActionItem(title: "media_servers_title".localized) {
-              NotificationCenter.default.post(name: .showMediaServers, object: nil)
-            }
-          )
-        }
-        
         self.playbackQueued = nil
         self.isFetchingRemoteURL = nil
         self.observeStatus = false
-        // The load died before the item attached — nothing will ever flip the buffering
-        // overlay off, so clear it here or it covers the player indefinitely.
-        self.updatePlayerIsLoadingURL(false)
-        self.showErrorAlert(title: "\("error_title".localized) Metadata", error.localizedDescription, actions: actions)
+        self.presentOnMain(
+          for: chapter,
+          title: "\("error_title".localized) Metadata",
+          message: error.localizedDescription
+        )
         return
       }
     }
@@ -565,6 +492,11 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject, BP
   func loadChapterOperation(_ chapter: PlayableChapter) {
     self.queue.addOperation {
       // try loading the player
+      // `duration > 0` is load-bearing for PLAYBACK, not just hygiene: failing it posts
+      // `.bookReady loaded:false`, which only CarPlay and the watch observe, so the user
+      // sees the spinner clear and nothing happen. Media-server rows can't land here with
+      // a 0 duration — `HydratedItem` refuses to import one — and that is what lets the
+      // external branch of `loadPlayerItem` skip loading metadata off the stream.
       guard
         let playerItem = self.playerItem,
         chapter.duration > 0
@@ -572,8 +504,6 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject, BP
         DispatchQueue.main.async { [weak self] in
           self?.playbackQueued = nil
           self?.isFetchingRemoteURL = nil
-          // The item was never attached, so nothing else flips the buffering overlay off.
-          self?.updatePlayerIsLoadingURL(false)
           NotificationCenter.default.post(name: .bookReady, object: nil, userInfo: ["loaded": false])
         }
         return
@@ -585,7 +515,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject, BP
       // Update UI on main thread
       DispatchQueue.main.async {
         self.isFetchingRemoteURL = nil
-        
+
         self.audioPlayer.replaceCurrentItem(with: playerItem)
         self.clockState = .trusting(0)
 
@@ -1416,21 +1346,19 @@ extension PlayerManager {
       } else if let currentItem,
                 currentItem.currentChapter.externalUrl != nil,
                 canFetchExternalURL {
+        /// One retry for a transient stream failure. The reload replays the SAME item, so
+        /// the URL and auth headers are identical — this recovers a blip, never a rotated
+        /// token. Re-authenticating and tapping the SAME book does not recover either:
+        /// `currentItem` survives the failure, so `PlayerLoaderService.loadPlayer`
+        /// short-circuits on the matching uuid straight to `play()`, and the item is never
+        /// rebuilt from the saved connection. That needs another book, or a relaunch.
         loadAndRefreshURL(item: currentItem)
         canFetchExternalURL = false
       } else {
         /// Avoid showing any alert if playback is not queued, this could be from the initial app launch
         /// where we preload the player with the last played item
         if playbackQueued == true {
-          var actions = [BPActionItem.okAction]
-          
-          if let chapter = currentItem?.currentChapter, offersMediaServers(for: chapter) {
-            actions.append(
-              BPActionItem(title: "media_servers_title".localized) {
-                NotificationCenter.default.post(name: .showMediaServers, object: nil)
-              }
-            )
-          }
+          let chapter = currentItem?.currentChapter
 
           if let nsError = item.error as? NSError {
             let errorDescription = """
@@ -1442,9 +1370,17 @@ extension PlayerManager {
               Additional Info
               \(nsError.userInfo)
               """
-            showErrorAlert(title: "\("error_title".localized) \(nsError.code)", errorDescription, actions: actions)
+            presentOnMain(
+              for: chapter,
+              title: "\("error_title".localized) \(nsError.code)",
+              message: errorDescription
+            )
           } else {
-            showErrorAlert(title: "error_title".localized, item.error?.localizedDescription, actions: actions)
+            presentOnMain(
+              for: chapter,
+              title: "error_title".localized,
+              message: item.error?.localizedDescription
+            )
           }
         }
 
@@ -1524,11 +1460,6 @@ extension PlayerManager {
   private func stopPlayback() {
     observeStatus = false
     playbackQueued = nil
-    // Stopping mid-buffer never reaches .readyToPlay, so the status sinks won't
-    // clear the streaming buffering overlay — reset it on teardown, and release
-    // the item-status sink promptly (it retains its AVPlayerItem until rebind)
-    updatePlayerIsLoadingURL(false)
-    playerItemStatusSubscription?.cancel()
 
     audioPlayer.pause()
     playTask?.cancel()
@@ -1787,27 +1718,6 @@ extension PlayerManager {
     else { return }
 
     libraryService.addNote(type.getNote() ?? "", bookmark: bookmark)
-  }
-}
-
-extension PlayerManager {
-  private func showErrorAlert(title: String, _ message: String?, actions: [BPActionItem]? = nil) {
-    DispatchQueue.main.async {
-      let viewController = WindowHelper.activeWindow?.rootViewController?
-        .getTopVisibleViewController()
-      
-      if let actions = actions {
-        let content = BPAlertContent(
-          title: title,
-          message: message,
-          style: .alert,
-          actionItems: actions
-        )
-        viewController?.showAlert(content)
-      } else {
-        viewController?.showAlert(title, message: message)
-      }
-    }
   }
 }
 

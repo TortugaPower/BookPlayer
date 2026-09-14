@@ -33,7 +33,7 @@ struct JellyfinLibraryGridItemView: View {
             }
           )
           .overlay {
-            if editMode?.wrappedValue.isEditing == true, item.kind == .audiobook {
+            if editMode?.wrappedValue.isEditing == true, item.isDownloadable {
               Image(systemName: isSelected ? "checkmark.circle" : "circle")
                 .foregroundStyle(.white)
                 .background(isSelected ? .blue : .clear)

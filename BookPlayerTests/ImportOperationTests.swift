@@ -148,18 +148,75 @@ final class VirtualImportPipelineTests: XCTestCase {
     )
   }
 
+  private func hydrated(_ fileExtension: String, duration: TimeInterval = 4800) -> HydratedItem? {
+    HydratedItem(fileExtension: fileExtension, duration: duration)
+  }
+
   func testBuildsOnlyHydratedItemsInSelectionOrder() async throws {
     let items = [StubItem(id: "a"), StubItem(id: "b"), StubItem(id: "c")]
     let resources = try await VirtualImportPipeline.run(
       items: items,
       id: \.id,
-      hydrateExtensions: { ids in
+      hydrate: { ids in
         XCTAssertEqual(ids, ["a", "b", "c"])
-        return ["a": "m4b", "c": "mp3"]  // "b" reports no audio-file metadata
+        var hydratedByID: [String: HydratedItem] = [:]
+        hydratedByID["a"] = self.hydrated("m4b")
+        hydratedByID["c"] = self.hydrated("mp3")
+        return hydratedByID  // "b" reports no audio-file metadata
       },
       buildResource: { item, _ in self.makeResource(id: item.id) }
     )
     XCTAssertEqual(resources.map(\.providerId), ["a", "c"], "skips unhydrated items, keeps selection order")
+  }
+
+  /// Drives the drop through the REAL provider mapping rather than a stub, so it fails if a
+  /// closure ever starts reading a source that reports "unmeasured" as something other than nil.
+  func testSkipsItemsTheServerNeverMeasured() async throws {
+    let measured = AudiobookShelfLibraryItem(
+      id: "measured",
+      title: "Measured",
+      kind: .audiobook,
+      libraryId: "lib",
+      duration: 4800,
+      fileExtension: "m4b"
+    )
+    let unmeasured = AudiobookShelfLibraryItem(
+      id: "unmeasured",
+      title: "Unmeasured",
+      kind: .audiobook,
+      libraryId: "lib",
+      duration: nil,
+      fileExtension: "m4b"
+    )
+
+    let resources = try await VirtualImportPipeline.run(
+      items: [measured, unmeasured],
+      id: \.id,
+      hydrate: { _ in
+        [measured, unmeasured].reduce(into: [:]) {
+          $0[$1.id] = HydratedItem(fileExtension: $1.fileExtension, duration: $1.duration)
+        }
+      },
+      buildResource: { item, _ in self.makeResource(id: item.id) }
+    )
+
+    XCTAssertEqual(
+      resources.map(\.providerId),
+      ["measured"],
+      "an item with no server-measured length would import a row that can never play"
+    )
+  }
+
+  func testHydratedItemRequiresARealExtensionAndAMeasuredLength() {
+    XCTAssertNotNil(HydratedItem(fileExtension: "m4b", duration: 1))
+
+    XCTAssertNil(HydratedItem(fileExtension: nil, duration: 4800))
+    XCTAssertNil(HydratedItem(fileExtension: "", duration: 4800))
+    XCTAssertNil(HydratedItem(fileExtension: "m4b", duration: nil))
+    /// Jellyfin's mapper collapses an unprobed runtime to 0 rather than nil, so the
+    /// gate has to be `> 0`, not `!= nil`
+    XCTAssertNil(HydratedItem(fileExtension: "m4b", duration: 0))
+    XCTAssertNil(HydratedItem(fileExtension: "m4b", duration: -1))
   }
 
   func testEmptySelectionNeverHydrates() async throws {
@@ -167,7 +224,7 @@ final class VirtualImportPipelineTests: XCTestCase {
     let resources = try await VirtualImportPipeline.run(
       items: [StubItem](),
       id: \.id,
-      hydrateExtensions: { _ in
+      hydrate: { _ in
         hydrateCalled = true
         return [:]
       },
@@ -182,7 +239,7 @@ final class VirtualImportPipelineTests: XCTestCase {
       _ = try await VirtualImportPipeline.run(
         items: [StubItem(id: "a")],
         id: \.id,
-        hydrateExtensions: { _ in throw URLError(.notConnectedToInternet) },
+        hydrate: { _ in throw URLError(.notConnectedToInternet) },
         buildResource: { item, _ in self.makeResource(id: item.id) }
       )
       XCTFail("expected the hydration error to propagate to the caller's error state")
@@ -358,6 +415,11 @@ final class AudiobookShelfDecodingTests: XCTestCase {
           "mediaType": "book",
           "media": {
             "metadata": { "title": "Real Book" },
+            "duration": 4800,
+            "chapters": [
+              { "start": 0, "end": 600, "title": "Chapter One" },
+              { "start": 600, "end": 4800, "title": "Chapter Two" }
+            ],
             "audioFiles": [
               {
                 "index": 1,
@@ -380,6 +442,17 @@ final class AudiobookShelfDecodingTests: XCTestCase {
     let items = (decoded.libraryItems ?? []).compactMap { AudiobookShelfLibraryItem(apiItem: $0) }
 
     XCTAssertEqual(items.first?.fileExtension, "m4b", "nested metadata decodes; leading dot is stripped")
+    XCTAssertEqual(
+      items.first?.duration,
+      4800,
+      "the virtual import refuses an item without a length, so the batch payload has to carry one"
+    )
+    XCTAssertEqual(
+      items.first?.chapters.map(\.title),
+      ["Chapter One", "Chapter Two"],
+      "batch/get returns EXPANDED media, so chapters arrive on the same response as audioFiles"
+    )
+    XCTAssertEqual(items.first?.chapters.map(\.duration), [600, 4200])
   }
 }
 
@@ -714,7 +787,11 @@ final class ExternalProgressServiceTests: XCTestCase {
   private final class ProviderStub: ExternalProgressProviding, @unchecked Sendable {
     private let lock = NSLock()
     private var _requested: [String] = []
+    private var _chapterRequests: [[String]] = []
     private let answer: @Sendable (SimpleExternalResource) async throws -> ExternalPlaybackProgress?
+    /// Attached to every answered snapshot, so a test can script the chapter half without
+    /// restating the position half.
+    private let chapters: [ChapterMetadata]
 
     var requested: [String] {
       lock.lock()
@@ -722,7 +799,19 @@ final class ExternalProgressServiceTests: XCTestCase {
       return _requested
     }
 
-    init(answer: @escaping @Sendable (SimpleExternalResource) async throws -> ExternalPlaybackProgress?) {
+    /// The id sets asked WITH chapters, one entry per call — so a test can assert both that
+    /// chapters were requested for the right items and that they weren't requested at all.
+    var chapterRequests: [[String]] {
+      lock.lock()
+      defer { lock.unlock() }
+      return _chapterRequests
+    }
+
+    init(
+      chapters: [ChapterMetadata] = [],
+      answer: @escaping @Sendable (SimpleExternalResource) async throws -> ExternalPlaybackProgress?
+    ) {
+      self.chapters = chapters
       self.answer = answer
     }
 
@@ -734,12 +823,22 @@ final class ExternalProgressServiceTests: XCTestCase {
     }
 
     func progress(
-      forBatch resources: [SimpleExternalResource]
-    ) async throws -> [String: ExternalPlaybackProgress] {
-      var out: [String: ExternalPlaybackProgress] = [:]
+      forBatch resources: [SimpleExternalResource],
+      includingChapters: Bool
+    ) async throws -> [String: ExternalItemSnapshot] {
+      if includingChapters {
+        lock.lock()
+        _chapterRequests.append(resources.map(\.providerId))
+        lock.unlock()
+      }
+
+      var out: [String: ExternalItemSnapshot] = [:]
       for resource in resources {
         if let progress = try await progress(for: resource) {
-          out[resource.providerId] = progress
+          out[resource.providerId] = ExternalItemSnapshot(
+            progress: progress,
+            chapters: includingChapters ? chapters : []
+          )
         }
       }
       return out
@@ -747,12 +846,14 @@ final class ExternalProgressServiceTests: XCTestCase {
   }
 
   private var notificationCenter: NotificationCenter!
+  private var accountService: AccountServiceMock!
   private var received: [ExternalPlaybackProgress] = []
   private var cancellable: AnyCancellable?
 
   override func setUp() {
     super.setUp()
     notificationCenter = NotificationCenter()
+    accountService = AccountServiceMock(account: nil)
     received = []
   }
 
@@ -762,36 +863,19 @@ final class ExternalProgressServiceTests: XCTestCase {
     super.tearDown()
   }
 
-  private func makeResource(provider: String, id: String) -> SimpleExternalResource {
+  private func makeResource(
+    provider: String,
+    id: String,
+    needsChapters: Bool = false
+  ) -> SimpleExternalResource {
     SimpleExternalResource(
       providerName: provider,
       providerId: id,
       syncStatus: ExternalResource.SyncStatus.stream.rawValue,
       lastSyncedAt: nil,
       hostId: "guid-host",
-      libraryItem: nil
-    )
-  }
-
-  private func makeLibraryItem(resources: [SimpleExternalResource]?) -> SimpleLibraryItem {
-    SimpleLibraryItem(
-      title: "Book",
-      details: "Author",
-      speed: 1,
-      currentTime: 0,
-      duration: 1000,
-      percentCompleted: 0,
-      isFinished: false,
-      relativePath: "book-\(resources?.first?.providerId ?? "none").m4b",
-      remoteURL: nil,
-      artworkURL: nil,
-      orderRank: 0,
-      parentFolder: nil,
-      originalFileName: "book.m4b",
-      lastPlayDate: nil,
-      type: .book,
-      uuid: "UUID-\(resources?.first?.providerId ?? "none")",
-      externalResources: resources
+      libraryItem: nil,
+      needsChapters: needsChapters
     )
   }
 
@@ -823,15 +907,23 @@ final class ExternalProgressServiceTests: XCTestCase {
     )
   }
 
+  /// Entitled (lite/pro) unless a test says otherwise — the pull is gated, the push is not.
   private func makeSUT(
     resources: [SimpleExternalResource],
-    providers: [ExternalResource.ProviderName: ExternalProgressProviding]
+    providers: [ExternalResource.ProviderName: ExternalProgressProviding],
+    syncEnabled: Bool = true
   ) -> (ExternalProgressService, LibraryServiceProtocolMock) {
     let libraryService = LibraryServiceProtocolMock()
     libraryService.findResourcesForReturnValue = resources
+    accountService.hasSyncEnabledValue = syncEnabled
 
     let sut = ExternalProgressService()
-    sut.setup(libraryService: libraryService, providers: providers, notificationCenter: notificationCenter)
+    sut.setup(
+      libraryService: libraryService,
+      accountService: accountService,
+      providers: providers,
+      notificationCenter: notificationCenter
+    )
     return (sut, libraryService)
   }
 
@@ -1028,7 +1120,9 @@ final class ExternalProgressServiceTests: XCTestCase {
 
   /// The gap this closes: the list refresh collected Jellyfin resources only and handed them
   /// to an ingest typed to a Jellyfin item, so AudiobookShelf items were never refreshed.
-  func testRefreshItemsFoldsInBothProviders() async {
+  /// The level's links come from ONE resource-first library query, asked for exactly the path
+  /// the list is syncing.
+  func testRefreshItemsAtLevelFoldsInBothProviders() async {
     let jellyfin = ProviderStub { _ in
       ExternalPlaybackProgress(currentTime: 120, lastPlayedDate: Date(timeIntervalSince1970: 500))
     }
@@ -1036,36 +1130,173 @@ final class ExternalProgressServiceTests: XCTestCase {
       ExternalPlaybackProgress(currentTime: 340, lastPlayedDate: Date(timeIntervalSince1970: 900))
     }
     let (sut, libraryService) = makeSUT(resources: [], providers: [.jellyfin: jellyfin, .audiobookshelf: abs])
+    libraryService.findMediaServerResourcesAtReturnValue = [
+      makeResource(provider: "jellyfin", id: "jf-1"),
+      makeResource(provider: "audiobookshelf", id: "abs-1"),
+    ]
 
-    await sut.refreshItems([
-      makeLibraryItem(resources: [makeResource(provider: "jellyfin", id: "jf-1")]),
-      makeLibraryItem(resources: [makeResource(provider: "audiobookshelf", id: "abs-1")]),
-      makeLibraryItem(resources: [makeResource(provider: "hardcover", id: "12345")]),
-    ])
+    await sut.refreshItems(at: "Author/Series")
 
+    XCTAssertEqual(libraryService.findMediaServerResourcesAtReceivedInvocations, ["Author/Series"])
     XCTAssertEqual(jellyfin.requested, ["jf-1"])
     XCTAssertEqual(abs.requested, ["abs-1"], "AudiobookShelf items refresh too")
 
-    let ingested = libraryService.handleSyncFromExternalResourceProviderNameProgressByProviderIdReceivedInvocations
+    let ingested = libraryService.handleSyncFromExternalResourceProviderNameSnapshotsByProviderIdReceivedInvocations
     XCTAssertEqual(
       Set(ingested.map(\.providerName)),
       ["jellyfin", "audiobookshelf"],
       "each provider folds its own answers in, under its own provider name"
     )
-    XCTAssertFalse(
-      ingested.contains { $0.providerName == "hardcover" },
-      "hardcover hosts nothing, so it is never batched"
+  }
+
+  /// The second-device path: a row arrives through BookPlayer's own sync, which carries no
+  /// chapters, and the level refresh is the only thing that can supply them.
+  func testRefreshItemsForwardsTheProvidersChaptersToTheIngest() async {
+    let chapters = [
+      ChapterMetadata(title: "One", start: 0, duration: 600, index: 1),
+      ChapterMetadata(title: "Two", start: 600, duration: 900, index: 2),
+    ]
+    let jellyfin = ProviderStub(chapters: chapters) { _ in
+      ExternalPlaybackProgress(currentTime: 120, lastPlayedDate: Date(timeIntervalSince1970: 500))
+    }
+    let (sut, libraryService) = makeSUT(resources: [], providers: [.jellyfin: jellyfin])
+    // The LEVEL path reads this one; `resources:` above feeds the on-play path.
+    libraryService.findMediaServerResourcesAtReturnValue = [
+      makeResource(provider: "jellyfin", id: "jf-1", needsChapters: true)
+    ]
+
+    await sut.refreshItems(at: nil)
+
+    let ingested = libraryService.handleSyncFromExternalResourceProviderNameSnapshotsByProviderIdReceivedInvocations
+    XCTAssertEqual(
+      ingested.first?.snapshotsByProviderId["jf-1"]?.chapters,
+      chapters,
+      "chapters ride the same snapshot as the position, unchanged"
     )
   }
 
-  func testRefreshItemsDoesNothingWithoutMediaServerResources() async {
+  /// The repeated case, and the reason the flag exists: once every book has chapters the
+  /// refresh must cost exactly what a progress-only refresh always cost.
+  func testRefreshItemsAsksForNoChaptersWhenNothingNeedsThem() async {
+    let jellyfin = ProviderStub { _ in
+      ExternalPlaybackProgress(currentTime: 120, lastPlayedDate: Date(timeIntervalSince1970: 500))
+    }
+    let (sut, libraryService) = makeSUT(resources: [], providers: [.jellyfin: jellyfin])
+    libraryService.findMediaServerResourcesAtReturnValue = [
+      makeResource(provider: "jellyfin", id: "jf-1"),
+      makeResource(provider: "jellyfin", id: "jf-2"),
+    ]
+
+    await sut.refreshItems(at: nil)
+
+    XCTAssertTrue(jellyfin.chapterRequests.isEmpty, "a chapters request here would repeat forever")
+    XCTAssertEqual(Set(jellyfin.requested), ["jf-1", "jf-2"], "every item is still refreshed for position")
+  }
+
+  /// A book whose server has no chapters never gets filled, so it stays in the needing set —
+  /// it must not drag the whole level's chapters along on every refresh.
+  func testRefreshItemsAsksForChaptersOnlyForTheItemsMissingThem() async {
+    let jellyfin = ProviderStub { _ in
+      ExternalPlaybackProgress(currentTime: 120, lastPlayedDate: Date(timeIntervalSince1970: 500))
+    }
+    let (sut, libraryService) = makeSUT(resources: [], providers: [.jellyfin: jellyfin])
+    libraryService.findMediaServerResourcesAtReturnValue = [
+      makeResource(provider: "jellyfin", id: "has-chapters"),
+      makeResource(provider: "jellyfin", id: "needs-chapters", needsChapters: true),
+    ]
+
+    await sut.refreshItems(at: nil)
+
+    XCTAssertEqual(jellyfin.chapterRequests, [["needs-chapters"]])
+    XCTAssertEqual(
+      Set(jellyfin.requested),
+      ["has-chapters", "needs-chapters"],
+      "both partitions are still asked for position, and both reach the ingest"
+    )
+
+    let ingested = libraryService.handleSyncFromExternalResourceProviderNameSnapshotsByProviderIdReceivedInvocations
+    XCTAssertEqual(
+      Set(ingested.first?.snapshotsByProviderId.keys ?? [:].keys),
+      ["has-chapters", "needs-chapters"],
+      "the two partitions' answers are merged before the ingest"
+    )
+  }
+
+  func testRefreshItemsAtLevelDoesNothingWithoutMediaServerResources() async {
     let jellyfin = ProviderStub { _ in XCTFail("must not be asked"); return nil }
     let (sut, libraryService) = makeSUT(resources: [], providers: [.jellyfin: jellyfin])
+    libraryService.findMediaServerResourcesAtReturnValue = []
 
-    await sut.refreshItems([makeLibraryItem(resources: nil)])
+    await sut.refreshItems(at: nil)
+
+    XCTAssertEqual(libraryService.findMediaServerResourcesAtReceivedInvocations, [nil], "root is asked as nil")
+    XCTAssertTrue(jellyfin.requested.isEmpty)
+    XCTAssertEqual(libraryService.handleSyncFromExternalResourceProviderNameSnapshotsByProviderIdCallsCount, 0)
+  }
+
+  // MARK: the entitlement gate (pull only — the push runs on every tier)
+
+  func testOnPlayPullIsGatedToSyncTiers() async {
+    let jellyfin = ProviderStub { _ in XCTFail("a free account must not pull"); return nil }
+    let (sut, _) = makeSUT(
+      resources: [makeResource(provider: "jellyfin", id: "jf-1")],
+      providers: [.jellyfin: jellyfin],
+      syncEnabled: false
+    )
+    let nothing = expectPublish(from: sut, inverted: true)
+
+    sut.refreshProgress(for: makeItem(uuid: "UUID", currentTime: 0, lastPlayDate: nil))
+    await fulfillment(of: [nothing], timeout: 0.3)
 
     XCTAssertTrue(jellyfin.requested.isEmpty)
-    XCTAssertEqual(libraryService.handleSyncFromExternalResourceProviderNameProgressByProviderIdCallsCount, 0)
+  }
+
+  /// Gated before the library is even queried: a free account costs no fetch at all.
+  func testListPullIsGatedToSyncTiers() async {
+    let jellyfin = ProviderStub { _ in XCTFail("a free account must not pull"); return nil }
+    let (sut, libraryService) = makeSUT(resources: [], providers: [.jellyfin: jellyfin], syncEnabled: false)
+    libraryService.findMediaServerResourcesAtReturnValue = [makeResource(provider: "jellyfin", id: "jf-1")]
+
+    await sut.refreshItems(at: "Folder")
+
+    XCTAssertEqual(libraryService.findMediaServerResourcesAtCallsCount, 0)
+    XCTAssertTrue(jellyfin.requested.isEmpty)
+    XCTAssertEqual(libraryService.handleSyncFromExternalResourceProviderNameSnapshotsByProviderIdCallsCount, 0)
+  }
+
+  /// The entitlement is read live, so a downgrade takes effect on the NEXT pull; the one
+  /// already in flight is cancelled by the account-update observer.
+  func testDowngradeCancelsAnInFlightPull() async {
+    let slow = slowStub(ExternalPlaybackProgress(currentTime: 900, lastPlayedDate: Date(timeIntervalSince1970: 9000)))
+    let (sut, _) = makeSUT(
+      resources: [makeResource(provider: "jellyfin", id: "jf-1")],
+      providers: [.jellyfin: slow]
+    )
+    let nothing = expectPublish(from: sut, inverted: true)
+
+    sut.refreshProgress(for: makeItem(uuid: "UUID", currentTime: 0, lastPlayDate: nil))
+    accountService.hasSyncEnabledValue = false
+    notificationCenter.post(name: .accountUpdate, object: nil)
+    // Longer than the stub's sleep, so an un-cancelled refresh WOULD have published by now.
+    await fulfillment(of: [nothing], timeout: 0.6)
+
+    XCTAssertEqual(slow.requested, ["jf-1"], "the pull had started; the downgrade stopped it")
+  }
+
+  /// Account updates that keep the entitlement (renewal, pro↔lite) must not cancel anything.
+  func testAccountUpdateWhileEntitledKeepsThePull() async {
+    let slow = slowStub(ExternalPlaybackProgress(currentTime: 900, lastPlayedDate: Date(timeIntervalSince1970: 9000)))
+    let (sut, _) = makeSUT(
+      resources: [makeResource(provider: "jellyfin", id: "jf-1")],
+      providers: [.jellyfin: slow]
+    )
+    let published = expectPublish(from: sut)
+
+    sut.refreshProgress(for: makeItem(uuid: "UUID", currentTime: 0, lastPlayDate: nil))
+    notificationCenter.post(name: .accountUpdate, object: nil)
+    await fulfillment(of: [published], timeout: 2)
+
+    XCTAssertEqual(received.map(\.currentTime), [900])
   }
 }
 
@@ -1241,78 +1472,267 @@ final class PlayableChapterExternalHostTests: XCTestCase {
   }
 }
 
-// MARK: - Resume offer routing
+// MARK: - Provider runtime mapping
 
-/// One surface asks, never two: the arbiter is the single subscriber to the service.
+/// The runtime is the sole source of an external row's `duration` — nothing opens the file —
+/// so where the mapper reads it from decides whether an item is importable at all.
+final class JellyfinRuntimeMappingTests: XCTestCase {
+  private let twentyMinutesInTicks = 12_000_000_000
+
+  func testItemLevelRuntimeWins() {
+    XCTAssertEqual(
+      JellyfinLibraryItem.resolveRuntimeSeconds(itemTicks: twentyMinutesInTicks, mediaSourceTicks: 1),
+      1200
+    )
+  }
+
+  func testMediaSourceRuntimeCoversAnItemReportedWithoutOne() {
+    XCTAssertEqual(
+      JellyfinLibraryItem.resolveRuntimeSeconds(itemTicks: nil, mediaSourceTicks: twentyMinutesInTicks),
+      1200,
+      "an item Jellyfin hasn't probed still has a runtime on its media source"
+    )
+  }
+
+  func testNoRuntimeAnywhereStaysUnmeasured() {
+    XCTAssertNil(
+      JellyfinLibraryItem.resolveRuntimeSeconds(itemTicks: nil, mediaSourceTicks: nil),
+      "nil, not 0 — the mapper collapses it to 0 for `durationSeconds`, which the import gate rejects"
+    )
+  }
+}
+
+// MARK: - Virtual import payload
+
+/// The chain this phase exists to protect: the hydrated duration has to survive all the way
+/// onto the import payload, because `createExternalBook` copies it straight into
+/// `book.duration` and nothing ever measures the file afterwards.
 @MainActor
-final class ResumeOfferArbiterTests: XCTestCase {
-  private final class PresenterSpy: ResumeOfferPresenting {
-    var presentedTimes: [TimeInterval] = []
-    func presentResumeOffer(at remoteTime: TimeInterval) { presentedTimes.append(remoteTime) }
+final class VirtualImportPayloadTests: XCTestCase {
+  func testAudiobookShelfPayloadCarriesTheHydratedDuration() {
+    let item = AudiobookShelfLibraryItem(
+      id: "abs-1",
+      title: "Dune",
+      kind: .audiobook,
+      libraryId: "lib",
+      duration: 60,
+      progress: 0.25,
+      currentTime: 1200
+    )
+
+    let resource = item.asVirtualImportResource(
+      fileExtension: "m4b",
+      duration: 4800,
+      connectionService: AudiobookShelfConnectionService(),
+      artworkSize: CGSize(width: 300, height: 300)
+    )
+
+    XCTAssertEqual(
+      resource.libraryItem?.duration,
+      4800,
+      "the HYDRATED length wins over the minified list item's own value"
+    )
+    XCTAssertEqual(resource.libraryItem?.percentCompleted, 25, "ABS reports progress as a 0-1 fraction")
   }
 
-  private let position = ExternalPlaybackProgress(currentTime: 480, lastPlayedDate: Date())
+  func testJellyfinPayloadCarriesTheHydratedDuration() {
+    let item = JellyfinLibraryItem(
+      id: "jf-1",
+      name: "Dune",
+      kind: .audiobook,
+      durationSeconds: 60,
+      currentSeconds: 1200,
+      isFinished: false,
+      lastPlayedDate: nil,
+      blurHash: nil,
+      imageAspectRatio: nil,
+      details: nil,
+      chapters: []
+    )
 
-  func testWithoutCarPlayThePhoneGetsTheOffer() {
-    let playerState = PlayerState()
-    let sut = ResumeOfferArbiter(playerState: playerState, isAppActive: { false })
+    let resource = item.asVirtualImportResource(
+      fileExtension: "m4b",
+      duration: 4800,
+      detailsOverride: nil,
+      connectionService: JellyfinConnectionService(),
+      artworkSize: CGSize(width: 200, height: 200)
+    )
 
-    sut.route(position)
+    XCTAssertEqual(resource.libraryItem?.duration, 4800)
+    XCTAssertEqual(
+      resource.libraryItem?.percentCompleted,
+      25,
+      "progress divides by the hydrated duration, which the pipeline guarantees is non-zero"
+    )
+  }
+}
 
-    XCTAssertTrue(playerState.showResumePopup)
-    XCTAssertEqual(playerState.remotePlayTime, 480)
+/// The file extension decides importability alongside the runtime, and it has the same
+/// two-producer hazard: the list mapper and `fetchItemDetails` must agree.
+final class JellyfinFileExtensionMappingTests: XCTestCase {
+  func testFirstContainerCandidateWins() {
+    XCTAssertEqual(
+      JellyfinLibraryItem.resolveFileExtension(container: "m4b,mp4,mov", filePath: "/books/Dune.aax"),
+      "m4b",
+      "Jellyfin reports the container as a candidate list; the first is the real one"
+    )
   }
 
-  /// The driving case: phone in a pocket, car connected. The car asks and the phone's flag is
-  /// never raised, so unlocking the phone later cannot ask the same question again.
-  func testCarPlayGetsTheOfferWhenTheAppIsInactive() {
-    let playerState = PlayerState()
-    let car = PresenterSpy()
-    let sut = ResumeOfferArbiter(playerState: playerState, isAppActive: { false })
-    sut.carPlayPresenter = car
-
-    sut.route(position)
-
-    XCTAssertEqual(car.presentedTimes, [480])
-    XCTAssertFalse(playerState.showResumePopup, "an offer routed to the car leaves no phone flag behind")
-    XCTAssertNil(playerState.remotePlayTime)
+  func testPathExtensionCoversAMissingContainer() {
+    XCTAssertEqual(
+      JellyfinLibraryItem.resolveFileExtension(container: nil, filePath: "/books/Dune.m4b"),
+      "m4b"
+    )
   }
 
-  /// Phone in hand with the car connected: the SwiftUI alert is the better surface, and the
-  /// car must stay quiet rather than ask in parallel.
-  func testThePhoneWinsWhenTheAppIsActiveEvenWithCarPlayConnected() {
-    let playerState = PlayerState()
-    let car = PresenterSpy()
-    let sut = ResumeOfferArbiter(playerState: playerState, isAppActive: { true })
-    sut.carPlayPresenter = car
+  func testNothingToDeriveFromStaysNil() {
+    XCTAssertNil(JellyfinLibraryItem.resolveFileExtension(container: nil, filePath: nil))
+    XCTAssertEqual(
+      JellyfinLibraryItem.resolveFileExtension(container: nil, filePath: "/books/Dune"),
+      "",
+      "an extensionless path yields an empty string, which the import gate rejects"
+    )
+  }
+}
 
-    sut.route(position)
+// MARK: - Media-server chapter mapping
 
-    XCTAssertTrue(car.presentedTimes.isEmpty)
-    XCTAssertTrue(playerState.showResumePopup)
+/// A streamed item's chapters can only come from its server: nothing opens the file, and on
+/// AudiobookShelf the list may be a server-side edit that isn't in the file at all.
+final class MediaServerChapterMappingTests: XCTestCase {
+  // MARK: AudiobookShelf — start AND end, so durations are direct
+
+  func testAudiobookShelfChaptersMapWithDirectDurations() {
+    let chapters = AudiobookShelfLibraryItem.chapterMetadata(
+      from: [
+        .init(start: 0, end: 600, title: "One"),
+        .init(start: 600, end: 1500, title: "Two"),
+      ],
+      duration: 1500
+    )
+
+    XCTAssertEqual(chapters.map(\.title), ["One", "Two"])
+    XCTAssertEqual(chapters.map(\.start), [0, 600])
+    XCTAssertEqual(chapters.map(\.duration), [600, 900])
+    XCTAssertEqual(chapters.map(\.index), [1, 2], "index is 1-based, matching the playable list")
   }
 
-  func testAnOfferAlreadyShowingIsNotClobbered() {
-    let playerState = PlayerState()
-    playerState.showResumePopup = true
-    playerState.remotePlayTime = 120
-    let sut = ResumeOfferArbiter(playerState: playerState, isAppActive: { true })
+  func testAudiobookShelfOutOfOrderChaptersAreSortedAndZeroLengthOnesDropped() {
+    let chapters = AudiobookShelfLibraryItem.chapterMetadata(
+      from: [
+        .init(start: 600, end: 1500, title: "Two"),
+        .init(start: 700, end: 700, title: "Empty"),
+        .init(start: 0, end: 600, title: "One"),
+      ],
+      duration: 1500
+    )
 
-    sut.route(position)
-
-    XCTAssertEqual(playerState.remotePlayTime, 120, "the prompt the user is looking at keeps its position")
+    XCTAssertEqual(
+      chapters.map(\.title),
+      ["One", "Two"],
+      "a zero-length entry would be filtered by getPlayableChapters anyway — don't store it"
+    )
   }
 
-  /// Disconnecting the car must hand the next offer back to the phone.
-  func testAReleasedPresenterFallsBackToThePhone() {
-    let playerState = PlayerState()
-    let sut = ResumeOfferArbiter(playerState: playerState, isAppActive: { false })
-    var car: PresenterSpy? = PresenterSpy()
-    sut.carPlayPresenter = car
-    car = nil
+  func testAudiobookShelfNoChaptersIsEmptyNotASynthesizedOne() {
+    XCTAssertTrue(AudiobookShelfLibraryItem.chapterMetadata(from: nil, duration: 1500).isEmpty)
+    XCTAssertTrue(AudiobookShelfLibraryItem.chapterMetadata(from: [], duration: 1500).isEmpty)
+  }
 
-    sut.route(position)
+  /// The bug this exists for: an uncovered tail resolves to NO chapter, so `PlayableItem.init`
+  /// falls back to `chapters[0]` and the session is pinned to chapter 1 — it never advances
+  /// (the tick only reassigns when `getChapter` finds one) and never reaches `chapters.last`,
+  /// so the book never completes.
+  func testAudiobookShelfLastChapterStretchesToTheItemDuration() {
+    let chapters = AudiobookShelfLibraryItem.chapterMetadata(
+      from: [
+        .init(start: 0, end: 600, title: "One"),
+        .init(start: 600, end: 1400, title: "Two"),
+      ],
+      duration: 1500
+    )
 
-    XCTAssertTrue(playerState.showResumePopup, "a weak presenter that went away is the same as none")
+    XCTAssertEqual(
+      chapters.last?.start.advanced(by: chapters.last?.duration ?? 0),
+      1500,
+      "the chapter track stopping before the trailing silence must not leave a hole"
+    )
+  }
+
+  func testAudiobookShelfChapterEndBeyondTheDurationIsClamped() {
+    let chapters = AudiobookShelfLibraryItem.chapterMetadata(
+      from: [.init(start: 0, end: 9999, title: "Overlong")],
+      duration: 1500
+    )
+
+    XCTAssertEqual(chapters.map(\.duration), [1500])
+  }
+
+  func testAudiobookShelfChaptersStartingPastTheDurationAreDropped() {
+    let chapters = AudiobookShelfLibraryItem.chapterMetadata(
+      from: [
+        .init(start: 0, end: 600, title: "One"),
+        .init(start: 1600, end: 1700, title: "Bogus"),
+      ],
+      duration: 1500
+    )
+
+    XCTAssertEqual(chapters.map(\.title), ["One"])
+    XCTAssertEqual(chapters.map(\.duration), [1500], "the survivor still covers the item")
+  }
+
+  func testAudiobookShelfWithoutADurationKeepsTheServersEnds() {
+    let chapters = AudiobookShelfLibraryItem.chapterMetadata(
+      from: [.init(start: 0, end: 600, title: "One")],
+      duration: nil
+    )
+
+    XCTAssertEqual(chapters.map(\.duration), [600])
+  }
+
+  // MARK: Jellyfin — starts only, so each duration is the gap to the next
+
+  func testJellyfinChapterDurationsDeriveFromTheNextStart() {
+    let chapters = JellyfinLibraryItem.chapterMetadata(
+      from: [(name: "One", startTicks: 0), (name: "Two", startTicks: 6_000_000_000)],
+      runtimeSeconds: 1500
+    )
+
+    XCTAssertEqual(chapters.map(\.title), ["One", "Two"])
+    XCTAssertEqual(chapters.map(\.start), [0, 600])
+    XCTAssertEqual(
+      chapters.map(\.duration),
+      [600, 900],
+      "the last chapter runs to the item runtime, which is the only thing that bounds it"
+    )
+  }
+
+  func testJellyfinChaptersNeedARuntimeToBeBounded() {
+    XCTAssertTrue(
+      JellyfinLibraryItem.chapterMetadata(
+        from: [(name: "One", startTicks: 0)],
+        runtimeSeconds: nil
+      ).isEmpty,
+      "without a runtime the final chapter has no end; storing a guess is worse than none"
+    )
+  }
+
+  func testJellyfinChaptersStartingPastTheRuntimeAreDropped() {
+    let chapters = JellyfinLibraryItem.chapterMetadata(
+      from: [(name: "One", startTicks: 0), (name: "Bogus", startTicks: 99_000_000_000)],
+      runtimeSeconds: 1500
+    )
+
+    XCTAssertEqual(chapters.map(\.title), ["One"])
+    XCTAssertEqual(chapters.map(\.duration), [1500])
+  }
+
+  func testJellyfinChaptersWithoutAStartAreSkipped() {
+    let chapters = JellyfinLibraryItem.chapterMetadata(
+      from: [(name: "Unanchored", startTicks: nil), (name: "One", startTicks: 0)],
+      runtimeSeconds: 600
+    )
+
+    XCTAssertEqual(chapters.map(\.title), ["One"])
   }
 }

@@ -34,57 +34,15 @@ struct IntegrationLibraryView<
   }
 
   var body: some View {
-    ZStack {
-      Group {
-        if viewModel.isGridEnabled, viewModel.layout == .grid {
-          ScrollView {
-            IntegrationLibraryGridView(viewModel: viewModel, cellContent: gridCell)
-              .padding()
-          }
-        } else {
-          IntegrationLibraryListView(viewModel: viewModel, rowContent: listRow)
-            .scrollContentBackground(.hidden)
+    Group {
+      if viewModel.isGridEnabled, viewModel.layout == .grid {
+        ScrollView {
+          IntegrationLibraryGridView(viewModel: viewModel, cellContent: gridCell)
+            .padding()
         }
-      }
-
-      if viewModel.showingDownloadConfirmation {
-        // Dimmed background
-        Color.black.opacity(0.4)
-          .ignoresSafeArea()
-          .onTapGesture {
-            // Allow tapping outside to dismiss
-            withAnimation { viewModel.showingDownloadConfirmation = false }
-          }
-        // This prevents touches from passing through to the view behind it
-          .allowsHitTesting(true)
-        
-        // The charming card aligned to the bottom
-        VStack {
-          Spacer()
-          
-          SyncInvitationCard(
-            totalItems: viewModel.useSelectedItems ? viewModel.selectedItems.count : viewModel.totalItems,
-            subscription: viewModel.accountService.accessLevel,
-            onDownload: {
-              withAnimation { viewModel.showingDownloadConfirmation = false }
-              Task { await viewModel.handleImportItems(useSelectedItems: viewModel.useSelectedItems) }
-            },
-            onSync: {
-              withAnimation { viewModel.showingDownloadConfirmation = false }
-              viewModel.goToSubscribe()
-            },
-            onCancel: {
-              withAnimation { viewModel.showingDownloadConfirmation = false }
-            }
-          )
-          .padding(.horizontal, 16)
-          // Push it slightly off the bottom edge for a floating look
-          .padding(.bottom, 32)
-        }
-        // Animate the card sliding in from the bottom
-        .transition(.move(edge: .bottom).combined(with: .opacity))
-        // Ensure it sits above everything else in the ZStack
-        .zIndex(1)
+      } else {
+        IntegrationLibraryListView(viewModel: viewModel, rowContent: listRow)
+          .scrollContentBackground(.hidden)
       }
     }
     .sheet(item: $viewModel.pendingImportBatch) { batch in
@@ -99,6 +57,7 @@ struct IntegrationLibraryView<
       .environmentObject(theme)
     }
     .scrollDismissesKeyboard(.interactively)
+    .loadingOverlay(viewModel.isPreparingDownload)
     .background(theme.systemBackgroundColor)
     .modifier(IntegrationSearchableModifier(
       isSearchable: viewModel.isSearchable,
@@ -108,6 +67,24 @@ struct IntegrationLibraryView<
     .onAppear { viewModel.fetchInitialItems() }
     .onDisappear { viewModel.cancelFetchItems() }
     .errorAlert(error: $viewModel.error)
+    // Whole-level download only: an explicit selection needs no second confirmation,
+    // and Stream is already confirmed downstream by ExternalImportView.
+    .confirmationDialog(
+      "download_title".localized,
+      isPresented: $viewModel.showingDownloadConfirmation
+    ) {
+      Button("download_title".localized) {
+        viewModel.confirmDownloadFolder()
+      }
+      Button("cancel_button".localized, role: .cancel) {}
+    } message: {
+      Text(
+        String.localizedStringWithFormat(
+          "download_folder_confirmation_message".localized,
+          viewModel.downloadableItemCount
+        )
+      )
+    }
     .environment(\.editMode, $viewModel.editMode)
     .onChange(of: viewModel.editMode) { _, newValue in
       tabEditing.wrappedValue = newValue.isEditing
@@ -142,18 +119,22 @@ struct IntegrationLibraryView<
               Label("select_title".localized, systemImage: "checkmark.circle")
             }
             
+            // Both fire OUTSIDE edit mode, where the selection is empty — they
+            // always mean "everything at this level".
             Button {
-              if viewModel.accountService.hasLiteEnabled() {
-                Task { await viewModel.handleImportItems(useSelectedItems: false) }
-              } else {
-                // This toolbar action fires OUTSIDE edit mode where the selection is empty —
-                // it always means "everything", same as the lite branch above.
-                viewModel.useSelectedItems = false
-                withAnimation { viewModel.showingDownloadConfirmation = true }
-              }
+              viewModel.onStreamTapped(useSelectedItems: false)
             } label: {
+              Label("stream_button".localized, systemImage: "arrow.down.circle.dotted")
+            }
+            .disabled(viewModel.downloadableItemCount == 0)
+
+            Button(action: viewModel.onDownloadFolderTapped) {
               Label("download_title".localized, systemImage: "arrow.down.to.line")
             }
+            // Conservative: on a Jellyfin folder whose loaded page is all subfolders this
+            // reads 0 while the server has audiobooks, so Download is briefly unavailable
+            // until another page lands. A false negative — never the wrong action.
+            .disabled(viewModel.downloadableItemCount == 0 || viewModel.isPreparingDownload)
           }
         }
 
@@ -194,13 +175,14 @@ struct IntegrationLibraryView<
     Spacer()
 
     Button {
-      if viewModel.accountService.hasLiteEnabled() {
-        Task { await viewModel.handleImportItems(useSelectedItems: true) }
-      } else {
-        viewModel.useSelectedItems = true
-        withAnimation { viewModel.showingDownloadConfirmation = true }
-      }
+      viewModel.onStreamTapped(useSelectedItems: true)
     } label: {
+      Image(systemName: "arrow.down.circle.dotted")
+        .accessibilityLabel("stream_button".localized)
+    }
+    .disabled(viewModel.selectedItems.isEmpty)
+
+    Button(action: viewModel.onDownloadTapped) {
       Image(systemName: "arrow.down.to.line")
         .accessibilityLabel("download_title".localized)
     }

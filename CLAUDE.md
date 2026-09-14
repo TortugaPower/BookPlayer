@@ -137,8 +137,9 @@ first. Reordering boot risks a launch crash.
 - `@MainActor final class AppServices` with `static let shared` + `private init()`. Owns the async
   `setupCoreServicesTask`, the `DatabaseInitializer`, and a shared `PlayerState`.
 - `CoreServices` (`BookPlayer/Utils/CoreServices.swift`) is a struct of exactly **12 services**: `accountService`,
-  `syncQueueService`, `externalProgressService` (pulls media-server playback positions; self-subscribes to
-  `.bookPlayed` so the pull never depends on which UI is attached),
+  `syncQueueService`, `externalProgressService` (pulls media-server playback positions for lite/pro accounts;
+  self-subscribes to `.bookPlayed` for the on-play prompt, and `ListSyncRefreshService.syncList` drives the
+  per-level list pull through the one-method `ExternalProgressRefreshing` seam),
   `dataManager`, `hardcoverService`, `libraryService`, `playbackService`, `playerLoaderService`, `playerManager`,
   `preferencesService` (`PreferencesSyncService`), `syncService`, `watchService` (`PhoneWatchConnectivityService`).
 - **Two-step `init()` + `setup(...)` DI pattern:** services are created empty then configured, e.g.
@@ -151,6 +152,14 @@ first. Reordering boot risks a launch crash.
 - **Services → coordinators:** `CoreServices` is passed whole into `MainCoordinator.init(...)`, which also builds
   coordinator-scoped services (`ImportManager`, `ListSyncRefreshService`, `SingleFileDownloadService`,
   `JellyfinConnectionService`, `AudiobookShelfConnectionService`).
+  `ListSyncRefreshService.syncList(at:)` is the ONE list-refresh entry point (list appear, pull-to-refresh, sync
+  activation, CarPlay): cloud contents for the level → the level's media-server progress pull → preferences pull.
+  The pull runs strictly AFTER the cloud step and never alongside it (cloud writes on the background context, the
+  progress ingest on the view context; no merge policy), whatever the cloud outcome. It is resource-first:
+  `LibraryService.findMediaServerResources(at:)` fetches only the level's media-server `ExternalResource` rows
+  (direct children, providers filtered in SQL from `ProviderName.mediaServerRawValues`) on the background context,
+  so the main thread does nothing but the ingest. `ExternalResource.ProviderName.isMediaServer` is the single
+  exhaustive "is this a media server" switch; `SimpleExternalResource.isMediaServer` and the SQL filter derive from it.
 - **Services → SwiftUI:** `ObservableObject`s (`playerManager`, `importManager`, `singleFileDownloadService`,
   `listSyncRefreshService`) via `.environmentObject`, plus `externalImportEvents`, which `MainView` owns as a
   `@StateObject` and injects itself — the coordinator builds services, not SwiftUI-internal wires; the rest via `.environment(\.key, …)`.
@@ -336,7 +345,11 @@ lines). It is the highest-risk file in the app.
 - **Sync = the `pro` OR `lite` entitlement** (`hasSyncEnabled()`); `lite` gets DB-backed sync only —
   S3 file uploads are gated per-job via `SyncQueueService.accessPolicy` (`.uploadFile` is pro-only,
   `.externalUpdate` — progress pushes to the USER'S OWN media server — is available on every tier,
-  matching the Android app). Job types (`SyncJobType`): `upload, update, move,
+  matching the Android app). **The media-server progress PULL is the opposite:** `ExternalProgressService`
+  gates both the on-play resume prompt and the list refresh on `accountService.hasSyncEnabled()` (lite/pro),
+  read live on every pull, and cancels an in-flight pull on an `.accountUpdate` that drops the entitlement —
+  free/plus users push to their own server but never see other devices' positions. Android must mirror this.
+  Job types (`SyncJobType`): `upload, update, move,
   renameFolder, delete, shallowDelete, setBookmark, deleteBookmark, uploadArtwork, matchUuid`.
 - **Download verification:** `verifyDownloadedFile` rejects truncated files by comparing `AVURLAsset` duration to
   the stored duration (tolerance `max(2, expected*0.02)`); completion is broadcast only after verification.
