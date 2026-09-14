@@ -19,13 +19,10 @@ public protocol ConcurrentTasksRepositoryProtocol: ModelActor {
 
   func getAllQueueKeys() -> [String]
 
-  /// Pending-task count per active queue, with the sync queue always listed first
-  /// (even when idle), followed by the rest alphabetically
-  func getQueueSummaries() -> [QueueSummary]
-
   func storeTask(parameters: [String: Any]) async throws
 
-  /// All queued tasks outside the serial sync queue
+  /// Every queued task across all lanes in stored order — a display-level list, so
+  /// `parameters` is left empty (workers reload payloads through `getNextTask`)
   func getAllTasks() async -> [ConcurrentSyncTask]
 
   // Set<String> (not the @MainActor TaskProgressTracker map): only the ids cross the actor
@@ -33,8 +30,6 @@ public protocol ConcurrentTasksRepositoryProtocol: ModelActor {
   func getOrderedTasks(activeTaskIDs: Set<String>) async -> [ConcurrentSyncTask]
 
   func getTasksCount(in queueKey: String) -> Int
-
-  func getAllTasks(in queueKey: String, progress: [String: Double]) -> [SyncTaskReference]
 
   func getAllTasksWithParams(in queueKey: String) -> [SyncTask]
 
@@ -161,24 +156,6 @@ public actor ConcurrentTasksRepository: ConcurrentTasksRepositoryProtocol, BPLog
 
   public func getAllQueueKeys() -> [String] {
     return fetchGlobalQueueModel()?.allQueueKeys ?? []
-  }
-
-  public func getQueueSummaries() -> [QueueSummary] {
-    var countsByQueue = Dictionary(grouping: fetchGlobalQueueModel()?.tasks ?? [], by: { $0.queueKey })
-      .mapValues(\.count)
-
-    /// The sync queue is always listed, even when idle
-    if countsByQueue[TaskQueueKey.sync] == nil {
-      countsByQueue[TaskQueueKey.sync] = 0
-    }
-
-    return countsByQueue
-      .map { QueueSummary(queueKey: $0.key, count: $0.value) }
-      .sorted { lhs, rhs in
-        if lhs.queueKey == TaskQueueKey.sync { return true }
-        if rhs.queueKey == TaskQueueKey.sync { return false }
-        return lhs.queueKey < rhs.queueKey
-      }
   }
 
   public func storeTask(parameters: [String: Any]) async throws {
@@ -324,18 +301,16 @@ public actor ConcurrentTasksRepository: ConcurrentTasksRepositoryProtocol, BPLog
   public func getAllTasks() async -> [ConcurrentSyncTask] {
     guard let tasksContainer = fetchGlobalQueueModel() else { return [] }
 
-    return tasksContainer.orderedTasks
-      .filter { $0.queueKey != TaskQueueKey.sync }
-      .map { task in
-        ConcurrentSyncTask(
-          id: task.taskID,
-          queueKey: task.queueKey,
-          jobType: task.jobType,
-          parameters: [:],
-          uuid: task.uuid,
-          relativePath: task.relativePath
-        )
-      }
+    return tasksContainer.orderedTasks.map { task in
+      ConcurrentSyncTask(
+        id: task.taskID,
+        queueKey: task.queueKey,
+        jobType: task.jobType,
+        parameters: [:],
+        uuid: task.uuid,
+        relativePath: task.relativePath
+      )
+    }
   }
 
   public func getOrderedTasks(activeTaskIDs: Set<String>) async -> [ConcurrentSyncTask] {
@@ -358,21 +333,6 @@ public actor ConcurrentTasksRepository: ConcurrentTasksRepositoryProtocol, BPLog
     guard let tasksContainer = fetchGlobalQueueModel() else { return 0 }
 
     return tasksContainer.tasks.filter { $0.queueKey == queueKey }.count
-  }
-
-  public func getAllTasks(in queueKey: String, progress: [String: Double]) -> [SyncTaskReference] {
-    guard let tasksContainer = fetchGlobalQueueModel() else { return [] }
-
-    return tasksContainer.orderedTasks(for: queueKey).map { task in
-      let key = SyncProgressKey.resolve(uuid: task.uuid, relativePath: task.relativePath)
-      return SyncTaskReference(
-        id: task.taskID,
-        uuid: task.uuid,
-        relativePath: task.relativePath,
-        jobType: task.jobType,
-        progress: progress[key] ?? 0.0
-      )
-    }
   }
 
   public func getAllTasksWithParams(in queueKey: String) -> [SyncTask] {

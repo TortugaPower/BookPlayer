@@ -88,8 +88,6 @@ public protocol SyncServiceProtocol {
   /// Delete an external resource on the server
   func scheduleExternalResourceDeletion(providerName: String, providerId: String, relativePath: String, uuid: String)
 
-  /// Get all queued jobs
-  func getAllQueuedJobs() async -> [SyncTaskReference]
   /// Get all queued jobs with full parameters for debugging
   func getAllQueuedJobsWithParams() async -> [SyncTask]
   /// Get last sync error information for debugging
@@ -601,10 +599,6 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
         itemOrigin: LibraryItemRef(relativePath: relativePath, uuid: uuid)
       )
     }
-  }
-
-  public func getAllQueuedJobs() async -> [SyncTaskReference] {
-    return await jobManager.getAllQueuedJobs()
   }
 
   public func getAllQueuedJobsWithParams() async -> [SyncTask] {

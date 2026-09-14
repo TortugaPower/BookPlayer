@@ -48,32 +48,21 @@ final class SyncTasksRepositoryTests: XCTestCase {
     super.tearDown()
   }
 
-  /// Progress lookup must key on `uuid`, so a progress dictionary indexed by uuid
-  /// surfaces correctly on the returned SyncTaskReference.
-  func testGetAllTasks_progressKeyedByUuid_returnsProgressForTask() async throws {
-    let uuid = "item-uuid-1"
+  /// A stored task surfaces the uuid and path the row keys its progress on; with a real
+  /// uuid the key IS the uuid (a path-keyed progress update must not match it).
+  func testGetAllTasks_realUuid_progressKeyIsTheUuid() async throws {
+    let uuid = UUID().uuidString
     let relativePath = "Folder/Book.mp3"
     try await appendUploadTask(uuid: uuid, relativePath: relativePath)
 
-    let references = await repository.getAllTasks(in: TaskQueueKey.sync, progress: [uuid: 0.42])
+    let tasks = await repository.getAllTasks()
 
-    XCTAssertEqual(references.count, 1)
-    let reference = try XCTUnwrap(references.first)
-    XCTAssertEqual(reference.uuid, uuid)
-    XCTAssertEqual(reference.progress, 0.42, accuracy: 0.0001)
-  }
-
-  /// Regression guard: with a real uuid, a progress dict keyed by relativePath must NOT resolve.
-  func testGetAllTasks_progressKeyedByRelativePath_returnsZero() async throws {
-    let uuid = "item-uuid-2"
-    let relativePath = "Folder/Other.mp3"
-    try await appendUploadTask(uuid: uuid, relativePath: relativePath)
-
-    let references = await repository.getAllTasks(in: TaskQueueKey.sync, progress: [relativePath: 0.75])
-
-    XCTAssertEqual(references.count, 1)
-    let reference = try XCTUnwrap(references.first)
-    XCTAssertEqual(reference.progress, 0.0)
+    XCTAssertEqual(tasks.count, 1)
+    let task = try XCTUnwrap(tasks.first)
+    XCTAssertEqual(task.uuid, uuid)
+    XCTAssertEqual(task.relativePath, relativePath)
+    XCTAssertEqual(task.progressKey, uuid)
+    XCTAssertNotEqual(task.progressKey, relativePath)
   }
 
   /// Legacy-migrated task references share the same placeholder uuid; the progress key
@@ -82,11 +71,10 @@ final class SyncTasksRepositoryTests: XCTestCase {
     let relativePath = "Folder/Legacy.mp3"
     try await appendUploadTask(uuid: Constants.legacyUuidPlaceholder, relativePath: relativePath)
 
-    let references = await repository.getAllTasks(in: TaskQueueKey.sync, progress: [relativePath: 0.6])
+    let tasks = await repository.getAllTasks()
 
-    XCTAssertEqual(references.count, 1)
-    let reference = try XCTUnwrap(references.first)
-    XCTAssertEqual(reference.progress, 0.6, accuracy: 0.0001)
+    XCTAssertEqual(tasks.count, 1)
+    XCTAssertEqual(tasks.first?.progressKey, relativePath)
   }
 
   /// Same fallback applies to the local placeholder used as the schema default.
@@ -94,11 +82,10 @@ final class SyncTasksRepositoryTests: XCTestCase {
     let relativePath = "Folder/Local.mp3"
     try await appendUploadTask(uuid: Constants.uuidPlaceholder, relativePath: relativePath)
 
-    let references = await repository.getAllTasks(in: TaskQueueKey.sync, progress: [relativePath: 0.33])
+    let tasks = await repository.getAllTasks()
 
-    XCTAssertEqual(references.count, 1)
-    let reference = try XCTUnwrap(references.first)
-    XCTAssertEqual(reference.progress, 0.33, accuracy: 0.0001)
+    XCTAssertEqual(tasks.count, 1)
+    XCTAssertEqual(tasks.first?.progressKey, relativePath)
   }
 
   /// `matchUuid` conflicts must rewrite both the task reference and the underlying task
@@ -111,7 +98,7 @@ final class SyncTasksRepositoryTests: XCTestCase {
 
     try await repository.applyMatchUuidConflicts([ItemConflict(key: oldUuid, uuid: newUuid)])
 
-    let refs = await repository.getAllTasks(in: TaskQueueKey.sync, progress: [:])
+    let refs = await repository.getAllTasks()
     XCTAssertEqual(refs.count, 1)
     XCTAssertEqual(refs.first?.uuid, newUuid)
 
@@ -127,7 +114,7 @@ final class SyncTasksRepositoryTests: XCTestCase {
 
     try await repository.applyMatchUuidConflicts([ItemConflict(key: "ghost-uuid", uuid: "never")])
 
-    let refs = await repository.getAllTasks(in: TaskQueueKey.sync, progress: [:])
+    let refs = await repository.getAllTasks()
     XCTAssertEqual(refs.first?.uuid, uuid)
   }
 
@@ -141,7 +128,7 @@ final class SyncTasksRepositoryTests: XCTestCase {
     // and introduces a new key (should be added).
     try await appendMatchUuidTask(uuids: ["folder/A.mp3": "uuid-A-prime", "folder/C.mp3": "uuid-C"])
 
-    let refs = await repository.getAllTasks(in: TaskQueueKey.sync, progress: [:])
+    let refs = await repository.getAllTasks()
     XCTAssertEqual(refs.filter { $0.jobType == .matchUuid }.count, 1)
 
     let tasks = await repository.getAllTasksWithParams(in: TaskQueueKey.sync)
@@ -157,7 +144,7 @@ final class SyncTasksRepositoryTests: XCTestCase {
   func testAppendMatchUuidTask_noExisting_createsNewTask() async throws {
     try await appendMatchUuidTask(uuids: ["folder/A.mp3": "uuid-A"])
 
-    let refs = await repository.getAllTasks(in: TaskQueueKey.sync, progress: [:])
+    let refs = await repository.getAllTasks()
     XCTAssertEqual(refs.count, 1)
     XCTAssertEqual(refs.first?.jobType, .matchUuid)
   }
@@ -176,7 +163,7 @@ final class SyncTasksRepositoryTests: XCTestCase {
     // A second schedule must bypass the in-flight task and create a fresh one.
     try await appendMatchUuidTask(uuids: ["folder/B.mp3": "uuid-B"])
 
-    let refsAfterSecond = await repository.getAllTasks(in: TaskQueueKey.sync, progress: [:])
+    let refsAfterSecond = await repository.getAllTasks()
     let matchRefsAfterSecond = refsAfterSecond.filter { $0.jobType == .matchUuid }
     XCTAssertEqual(matchRefsAfterSecond.count, 2)
 
@@ -197,8 +184,8 @@ final class SyncTasksRepositoryTests: XCTestCase {
     XCTAssertEqual(queuedUuids, ["folder/B.mp3": "uuid-B", "folder/C.mp3": "uuid-C"])
   }
 
-  /// Sync tasks and concurrent (provider) tasks share the container but must remain
-  /// isolated per queue: counts, listings, and getNextTask never cross queue keys.
+  /// Sync tasks and concurrent (provider) tasks share the container: the display list spans
+  /// every lane in stored order, while counts and getNextTask stay per queue key.
   func testQueueIsolation_syncAndProviderQueues() async throws {
     try await appendUploadTask(uuid: "sync-uuid", relativePath: "Folder/Book.mp3")
     try await repository.storeTask(parameters: [
@@ -216,14 +203,14 @@ final class SyncTasksRepositoryTests: XCTestCase {
     let providerCount = await repository.getTasksCount(in: "jellyfin")
     XCTAssertEqual(providerCount, 1)
 
-    let syncTasks = await repository.getAllTasks(in: TaskQueueKey.sync, progress: [:])
-    XCTAssertEqual(syncTasks.map(\.jobType), [.upload])
-
-    let nonSyncTasks = await repository.getAllTasks()
-    XCTAssertEqual(nonSyncTasks.map(\.jobType), [.externalUpdate])
+    let allTasks = await repository.getAllTasks()
+    XCTAssertEqual(allTasks.map(\.jobType), [.upload, .externalUpdate])
+    XCTAssertEqual(allTasks.map(\.queueKey), [TaskQueueKey.sync, "jellyfin"])
 
     let nextProviderTask = await repository.getNextTask(for: "jellyfin")
     XCTAssertEqual(nextProviderTask?.jobType, .externalUpdate)
+    let nextSyncTask = await repository.getNextTask(for: TaskQueueKey.sync)
+    XCTAssertEqual(nextSyncTask?.jobType, .upload)
   }
 
   /// Popping a task must delete both the reference and its payload model.
@@ -238,28 +225,6 @@ final class SyncTasksRepositoryTests: XCTestCase {
     XCTAssertEqual(count, 0)
     let hasUpload = await repository.hasUploadTask(for: "Folder/Pop.mp3")
     XCTAssertFalse(hasUpload)
-  }
-
-  /// The sync queue is pinned in the summaries even when idle; other queues only
-  /// appear while they have pending tasks, and the sync queue always sorts first.
-  func testGetQueueSummaries_pinsSyncQueue() async throws {
-    let idleSummaries = await repository.getQueueSummaries()
-    XCTAssertEqual(idleSummaries.map(\.queueKey), [TaskQueueKey.sync])
-    XCTAssertEqual(idleSummaries.first?.count, 0)
-
-    try await repository.storeTask(parameters: [
-      "id": UUID().uuidString,
-      "jobType": SyncJobType.externalUpdate.rawValue,
-      "queueKey": "jellyfin",
-      "providerName": "jellyfin",
-      "providerId": "provider-item-1",
-      "currentTime": 10.0,
-      "percentCompleted": 5.0
-    ])
-
-    let summaries = await repository.getQueueSummaries()
-    XCTAssertEqual(summaries.map(\.queueKey), [TaskQueueKey.sync, "jellyfin"])
-    XCTAssertEqual(summaries.map(\.count), [0, 1])
   }
 
   /// Clearing one queue must not touch the others.

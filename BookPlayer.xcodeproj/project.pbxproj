@@ -133,6 +133,7 @@
 		4160A0A123F304530039166B /* LocalizableLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4160A0A023F304530039166B /* LocalizableLabel.swift */; };
 		4163E313214AC43000072AA2 /* ImportOperationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4163E312214AC43000072AA2 /* ImportOperationTests.swift */; };
 		28EEB2588DE468A6B8C15272 /* RefreshTaskOperationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65962B5F03D221629A83C22C /* RefreshTaskOperationTests.swift */; };
+		FDA22898B1CD320A1D8F6C52 /* QueuedTaskDisplayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDC06443EFD052E697036798 /* QueuedTaskDisplayTests.swift */; };
 		41640A3724416EE8004FB97B /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = 41640A3624416EE8004FB97B /* Intents.intentdefinition */; settings = {ATTRIBUTES = (no_codegen, ); }; };
 		41640A452441ACE2004FB97B /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = 41640A3624416EE8004FB97B /* Intents.intentdefinition */; };
 		4165EE0520A743D500616EDF /* BookPlayer.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 4165EDF920A743D500616EDF /* BookPlayer.xcdatamodeld */; };
@@ -696,7 +697,6 @@
 		9911FBB62F72486D00DC9A2B /* ExternalUpdateProgressOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBB42F72486400DC9A2B /* ExternalUpdateProgressOperation.swift */; };
 		9911FBB82F72F46900DC9A2B /* ConcurrentSyncTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBB72F72F46200DC9A2B /* ConcurrentSyncTask.swift */; };
 		9911FBB92F72F46900DC9A2B /* ConcurrentSyncTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBB72F72F46200DC9A2B /* ConcurrentSyncTask.swift */; };
-		9911FBBB2F736C0500DC9A2B /* ConcurrentSyncTasksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBBA2F736BFC00DC9A2B /* ConcurrentSyncTasksView.swift */; };
 		9911FBBE2F74527800DC9A2B /* ConcurrentTaskProgressMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBBD2F74526F00DC9A2B /* ConcurrentTaskProgressMonitor.swift */; };
 		F99B9D63217ABDAFED95696A /* QueueCounts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25C877CDD6114F67F0CD2AFC /* QueueCounts.swift */; };
 		9911FBBF2F74527800DC9A2B /* ConcurrentTaskProgressMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBBD2F74526F00DC9A2B /* ConcurrentTaskProgressMonitor.swift */; };
@@ -706,6 +706,7 @@
 		9911FBC72F7738CC00DC9A2B /* SyncableExternalResource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBC62F7738C100DC9A2B /* SyncableExternalResource.swift */; };
 		9911FBC82F7738CC00DC9A2B /* SyncableExternalResource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBC62F7738C100DC9A2B /* SyncableExternalResource.swift */; };
 		9911FBD72F7CACEC00DC9A2B /* QueuedTasksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBD62F7CACE200DC9A2B /* QueuedTasksView.swift */; };
+		32F59104BFC8DDAA7DBEC934 /* QueuedTaskDisplay.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F26B24460975E0B0B15ABDA /* QueuedTaskDisplay.swift */; };
 		992D6E102FA2BD290091849F /* DynamicWaveLoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 992D6E0F2FA2BD230091849F /* DynamicWaveLoadingView.swift */; };
 		992D6E132FA98B4D0091849F /* AudiobookShelfConnectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6384879D2EC7722400DF442B /* AudiobookShelfConnectionService.swift */; };
 		992D6E142FA98B4D0091849F /* AudiobookShelfConnectionData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6384879C2EC7722400DF442B /* AudiobookShelfConnectionData.swift */; };
@@ -926,7 +927,6 @@
 		9FF383D32A40F97000BBAC11 /* MappingModel_v8_to_v9.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 9FF383D02A40F97000BBAC11 /* MappingModel_v8_to_v9.xcmappingmodel */; };
 		9FF383D42A40F97000BBAC11 /* MappingModel_v8_to_v9.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 9FF383D02A40F97000BBAC11 /* MappingModel_v8_to_v9.xcmappingmodel */; };
 		9FF383D52A40F97000BBAC11 /* MappingModel_v8_to_v9.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 9FF383D02A40F97000BBAC11 /* MappingModel_v8_to_v9.xcmappingmodel */; };
-		9FF710B72A212A19006490E0 /* QueuedSyncTasksView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FF710B62A212A19006490E0 /* QueuedSyncTasksView.swift */; };
 		9FF710B92A213084006490E0 /* QueuedSyncTaskRowView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FF710B82A213084006490E0 /* QueuedSyncTaskRowView.swift */; };
 		9FF710BD2A215686006490E0 /* QueuedSyncTaskType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FF710BC2A215686006490E0 /* QueuedSyncTaskType.swift */; };
 		9FFCC08F289418CA00F4952E /* SimpleChapter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FFCC08E289418CA00F4952E /* SimpleChapter.swift */; };
@@ -1260,6 +1260,7 @@
 		4163E3102148606600072AA2 /* ImportFileItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportFileItem.swift; sourceTree = "<group>"; };
 		4163E312214AC43000072AA2 /* ImportOperationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportOperationTests.swift; sourceTree = "<group>"; };
 		65962B5F03D221629A83C22C /* RefreshTaskOperationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshTaskOperationTests.swift; sourceTree = "<group>"; };
+		EDC06443EFD052E697036798 /* QueuedTaskDisplayTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueuedTaskDisplayTests.swift; sourceTree = "<group>"; };
 		4163E314214ACB4300072AA2 /* DataTestUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataTestUtils.swift; sourceTree = "<group>"; };
 		41640A1F24416774004FB97B /* IntentsUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IntentsUI.framework; path = System/Library/Frameworks/IntentsUI.framework; sourceTree = SDKROOT; };
 		41640A3624416EE8004FB97B /* Intents.intentdefinition */ = {isa = PBXFileReference; lastKnownFileType = file.intentdefinition; path = Intents.intentdefinition; sourceTree = "<group>"; };
@@ -1776,12 +1777,12 @@
 		9911FBB12F71E54600DC9A2B /* ConcurrentTasksRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcurrentTasksRepository.swift; sourceTree = "<group>"; };
 		9911FBB42F72486400DC9A2B /* ExternalUpdateProgressOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExternalUpdateProgressOperation.swift; sourceTree = "<group>"; };
 		9911FBB72F72F46200DC9A2B /* ConcurrentSyncTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcurrentSyncTask.swift; sourceTree = "<group>"; };
-		9911FBBA2F736BFC00DC9A2B /* ConcurrentSyncTasksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcurrentSyncTasksView.swift; sourceTree = "<group>"; };
 		9911FBBD2F74526F00DC9A2B /* ConcurrentTaskProgressMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConcurrentTaskProgressMonitor.swift; sourceTree = "<group>"; };
 		25C877CDD6114F67F0CD2AFC /* QueueCounts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueueCounts.swift; sourceTree = "<group>"; };
 		9911FBC32F76121C00DC9A2B /* FileUploadOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileUploadOperation.swift; sourceTree = "<group>"; };
 		9911FBC62F7738C100DC9A2B /* SyncableExternalResource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncableExternalResource.swift; sourceTree = "<group>"; };
 		9911FBD62F7CACE200DC9A2B /* QueuedTasksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueuedTasksView.swift; sourceTree = "<group>"; };
+		4F26B24460975E0B0B15ABDA /* QueuedTaskDisplay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueuedTaskDisplay.swift; sourceTree = "<group>"; };
 		992D6E0F2FA2BD230091849F /* DynamicWaveLoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DynamicWaveLoadingView.swift; sourceTree = "<group>"; };
 		99329DB62F3AA8F6003F8E73 /* PlayControlsRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayControlsRowView.swift; sourceTree = "<group>"; };
 		99329DBA2F3AAA61003F8E73 /* ListeningProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListeningProgressView.swift; sourceTree = "<group>"; };
@@ -1931,7 +1932,6 @@
 		9FE786AD292D0FA8002B4A8D /* BookPlayerShareExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = BookPlayerShareExtension.entitlements; sourceTree = "<group>"; };
 		9FE86B8D2A544CB200B5450E /* Binding+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Binding+BookPlayer.swift"; sourceTree = "<group>"; };
 		9FF383D02A40F97000BBAC11 /* MappingModel_v8_to_v9.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = MappingModel_v8_to_v9.xcmappingmodel; sourceTree = "<group>"; };
-		9FF710B62A212A19006490E0 /* QueuedSyncTasksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueuedSyncTasksView.swift; sourceTree = "<group>"; };
 		9FF710B82A213084006490E0 /* QueuedSyncTaskRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueuedSyncTaskRowView.swift; sourceTree = "<group>"; };
 		9FF710BC2A215686006490E0 /* QueuedSyncTaskType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueuedSyncTaskType.swift; sourceTree = "<group>"; };
 		9FFCC08E289418CA00F4952E /* SimpleChapter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleChapter.swift; sourceTree = "<group>"; };
@@ -2467,6 +2467,7 @@
 				63833DF82AAC134600496246 /* PerformanceTests */,
 				4163E312214AC43000072AA2 /* ImportOperationTests.swift */,
 				65962B5F03D221629A83C22C /* RefreshTaskOperationTests.swift */,
+				EDC06443EFD052E697036798 /* QueuedTaskDisplayTests.swift */,
 				41C3CF7D20AEA5E5007C3EF4 /* DataManagerTests.swift */,
 				9F8A9A5D27AC3F8C0093AA1C /* PlayableItemTests.swift */,
 				689E2BCD29DC1D9253949A53 /* PlayableChapterTests.swift */,
@@ -3645,10 +3646,8 @@
 				63AD93D82E3C754B0077E73A /* ProfileListenedSectionView.swift */,
 				63AD93DC2E3C7F5A0077E73A /* ProfileProCalloutSectionView.swift */,
 				63AD93DE2E3C80B50077E73A /* ProfileSyncTasksSectionView.swift */,
-				9FF710B62A212A19006490E0 /* QueuedSyncTasksView.swift */,
 				9FF710BC2A215686006490E0 /* QueuedSyncTaskType.swift */,
 				9FF710B82A213084006490E0 /* QueuedSyncTaskRowView.swift */,
-				9911FBBA2F736BFC00DC9A2B /* ConcurrentSyncTasksView.swift */,
 				63AD93D42E3C72830077E73A /* ProfileScreen.swift */,
 			);
 			path = Profile;
@@ -3711,6 +3710,7 @@
 			children = (
 				990442132F894DD5007E2A44 /* SubscriptionPillView.swift */,
 				9911FBD62F7CACE200DC9A2B /* QueuedTasksView.swift */,
+				4F26B24460975E0B0B15ABDA /* QueuedTaskDisplay.swift */,
 				9F5F13452977A06300F061A0 /* ProfileCardView.swift */,
 			);
 			path = Views;
@@ -4941,7 +4941,6 @@
 				63C48D522E50AAA1005FBB96 /* AccountPasskeySectionView.swift in Sources */,
 				4165EE0520A743D500616EDF /* BookPlayer.xcdatamodeld in Sources */,
 				63C48D3C2E3E7D29005FBB96 /* SettingsCompleteAccountView.swift in Sources */,
-				9FF710B72A212A19006490E0 /* QueuedSyncTasksView.swift in Sources */,
 				63C1A8B02B0915EE00C4B418 /* WidgetUtils.swift in Sources */,
 				41B2A5ED21CCC6D100917584 /* AppNavigationController.swift in Sources */,
 				9F22DE40288D8BC800056FCD /* BaseLabel.swift in Sources */,
@@ -4990,7 +4989,6 @@
 				99329DC72F3AF3B6003F8E73 /* BubbleButton.swift in Sources */,
 				4151A6DD26E4A13A00E49DBE /* MainCoordinator.swift in Sources */,
 				634BA54C2C0C21AF0015314D /* SecondOnboardingCoordinator.swift in Sources */,
-				9911FBBB2F736C0500DC9A2B /* ConcurrentSyncTasksView.swift in Sources */,
 				631908AE2E369EDC009249C1 /* BoostVolumeSectionView.swift in Sources */,
 				631908F02E369EDC009249C1 /* StartupPlayerSectionView.swift in Sources */,
 				63C6C2E62B5029BC00FFE0D8 /* SettingsAutolockView.swift in Sources */,
@@ -5013,6 +5011,7 @@
 				63682CBE2E2F422900C15FC1 /* DebugFileTransferable.swift in Sources */,
 				4160A0A123F304530039166B /* LocalizableLabel.swift in Sources */,
 				9911FBD72F7CACEC00DC9A2B /* QueuedTasksView.swift in Sources */,
+				32F59104BFC8DDAA7DBEC934 /* QueuedTaskDisplay.swift in Sources */,
 				4137BBCC272DAF2E009ED9FE /* MVVMControllerProtocol.swift in Sources */,
 				631B360C2ABE8ACC001F4C1C /* BPModalOnlyPresentationFlow.swift in Sources */,
 				99B367FC2F5108BF00C38F7F /* MediaActionRow.swift in Sources */,
@@ -5268,6 +5267,7 @@
 				232F1DA50BB33EB5A629B8B7 /* PlayableChapterTests.swift in Sources */,
 				4163E313214AC43000072AA2 /* ImportOperationTests.swift in Sources */,
 				28EEB2588DE468A6B8C15272 /* RefreshTaskOperationTests.swift in Sources */,
+				FDA22898B1CD320A1D8F6C52 /* QueuedTaskDisplayTests.swift in Sources */,
 				0CEC6B48350FC9C0A0B7D1C0 /* SyncTasksStorageTests.swift in Sources */,
 				1A26F7D72FFD6D625A313FC5 /* AudioMetadataServiceTests.swift in Sources */,
 				466E4B7066F10717C8CE7B3E /* LibraryServiceReloadChaptersTests.swift in Sources */,

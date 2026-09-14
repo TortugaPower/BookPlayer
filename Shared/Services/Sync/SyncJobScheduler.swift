@@ -6,7 +6,6 @@
 //  Copyright © 2022 BookPlayer LLC. All rights reserved.
 //
 
-import Combine
 import Foundation
 
 public protocol JobSchedulerProtocol {
@@ -34,8 +33,6 @@ public protocol JobSchedulerProtocol {
   func scheduleRenameFolderJob(with relativePath: String, name: String, for uuid: String) async
   /// Upload current cached artwork
   func scheduleArtworkUpload(with relativePath: String, for uuid: String) async
-  /// Get all queued jobs
-  func getAllQueuedJobs() async -> [SyncTaskReference]
   /// Get all queued jobs with full parameters
   func getAllQueuedJobsWithParams() async -> [SyncTask]
   /// Cancel all stored jobs across every queue
@@ -57,28 +54,8 @@ public protocol JobSchedulerProtocol {
 public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
   let tasksRepository: ConcurrentTasksRepositoryProtocol
 
-  /// Reference for observer
-  private var disposeBag = Set<AnyCancellable>()
-  private var tasksProgress: [String: Double] = [:]
-
   public init(tasksRepository: ConcurrentTasksRepositoryProtocol) {
     self.tasksRepository = tasksRepository
-    bindObservers()
-  }
-
-  func bindObservers() {
-    NotificationCenter.default.publisher(for: .uploadProgressUpdated)
-      .receive(on: DispatchQueue.main)
-      .sink { [weak self] notification in
-        guard
-          let uuid = notification.userInfo?["uuid"] as? String,
-          let relativePath = notification.userInfo?["relativePath"] as? String,
-          let progress = notification.userInfo?["progress"] as? Double
-        else { return }
-        let key = SyncProgressKey.resolve(uuid: uuid, relativePath: relativePath)
-        self?.updateProgress(for: key, value: progress)
-      }
-      .store(in: &disposeBag)
   }
 
   private func createHardLink(for item: SyncableItem) {
@@ -294,11 +271,6 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
     await persistTask(parameters: params)
   }
 
-  public func getAllQueuedJobs() async -> [SyncTaskReference] {
-    let currentProgress = await MainActor.run { tasksProgress }
-    return await tasksRepository.getAllTasks(in: TaskQueueKey.sync, progress: currentProgress)
-  }
-
   public func getAllQueuedJobsWithParams() async -> [SyncTask] {
     return await tasksRepository.getAllTasksWithParams(in: TaskQueueKey.sync)
   }
@@ -312,9 +284,6 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       // goes through resetAllJobs(), which clears everything.
       try? await tasksRepository.clearAll(in: TaskQueueKey.sync)
       try? await tasksRepository.clearAll(in: TaskQueueKey.uploadFile)
-      await MainActor.run {
-        tasksProgress.removeAll()
-      }
     }
   }
 
@@ -323,9 +292,6 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
     // surviving uploadFile/externalUpdate tasks would run under the NEXT signed-in
     // account, pushing the previous user's items with the new account's token.
     try? await tasksRepository.clearAll()
-    await MainActor.run {
-      tasksProgress.removeAll()
-    }
   }
 
   public func queuedJobsCount() async -> Int {
@@ -345,12 +311,5 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
   /// Check if there's an upload task queued for the item
   public func hasUploadTask(for relativePath: String) async -> Bool {
     return await tasksRepository.hasUploadTask(for: relativePath)
-  }
-
-  private func updateProgress(
-    for key: String,
-    value: Double
-  ) {
-    tasksProgress[key] = value
   }
 }

@@ -2164,22 +2164,6 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
         scheduleExternalResourceDeletionProviderNameProviderIdRelativePathUuidReceivedInvocations.append((providerName: providerName, providerId: providerId, relativePath: relativePath, uuid: uuid))
         scheduleExternalResourceDeletionProviderNameProviderIdRelativePathUuidClosure?(providerName, providerId, relativePath, uuid)
     }
-    //MARK: - getAllQueuedJobs
-
-    var getAllQueuedJobsCallsCount = 0
-    var getAllQueuedJobsCalled: Bool {
-        return getAllQueuedJobsCallsCount > 0
-    }
-    var getAllQueuedJobsReturnValue: [SyncTaskReference]!
-    var getAllQueuedJobsClosure: (() async -> [SyncTaskReference])?
-    func getAllQueuedJobs() async -> [SyncTaskReference] {
-        getAllQueuedJobsCallsCount += 1
-        if let getAllQueuedJobsClosure = getAllQueuedJobsClosure {
-            return await getAllQueuedJobsClosure()
-        } else {
-            return getAllQueuedJobsReturnValue
-        }
-    }
     //MARK: - getAllQueuedJobsWithParams
 
     var getAllQueuedJobsWithParamsCallsCount = 0

@@ -246,7 +246,8 @@ CarPlay event bus. Declared in `Shared/Extensions/Notification+BookPlayerKit.swi
   across actors or threads. Execution lives in `ConcurrenceService` (OperationQueue): the `sync` queue key runs
   BookPlayer-server jobs serially; provider-named keys (externalUpdate pushes) and `uploadFile` run concurrently.
   **The engine is the single owner of queue counts:** `observeQueueCounts()` publishes one per-lane `QueueCounts`
-  snapshot (the Profile row shows its `total`; the Queued Tasks screen reads one lane at a time).
+  snapshot (the Profile row shows its `total`; the single Queued Tasks screen — one `DisclosureGroup` per lane,
+  sync first — reads `count(in:)` for its headers and lists every lane through `getOrderedQueuedJobs`).
   `SyncService.canSyncListContents` gates list refresh on the `sync` lane only (repository `getTasksCount(in:)`),
   and `AppDelegate.handleAppRefresh` waits on `laneDrained(TaskQueueKey.sync)` — S3 uploads and provider pushes
   never block a refresh or hold a background window open (pushes retry forever against an unreachable server).

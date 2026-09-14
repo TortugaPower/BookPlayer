@@ -34,13 +34,8 @@ public protocol ConcurrenceServiceProtocol {
   /// shown in the UI — per lane via `count(in:)`, or `total`.
   func observeQueueCounts() -> AnyPublisher<QueueCounts, Never>
 
-  func getAllQueuedJobs() async -> [ConcurrentSyncTask]
-
+  /// Every queued task across all lanes, the in-flight ones first (display-level list)
   func getOrderedQueuedJobs(activeTaskIDs: Set<String>) async -> [ConcurrentSyncTask]
-
-  /// Pending-task count per active queue; the sync queue is always listed first,
-  /// even when idle
-  func getQueueSummaries() async -> [QueueSummary]
 
   func scheduleMetadataUpdate(params: [String: Any])
 
@@ -305,16 +300,8 @@ public class ConcurrenceService: ConcurrenceServiceProtocol, BPLogger {
     operationQueue.addOperation(operation)
   }
 
-  public func getAllQueuedJobs() async -> [ConcurrentSyncTask] {
-    return await taskContainer.getAllTasks()
-  }
-
   public func getOrderedQueuedJobs(activeTaskIDs: Set<String>) async -> [ConcurrentSyncTask] {
     return await taskContainer.getOrderedTasks(activeTaskIDs: activeTaskIDs)
-  }
-
-  public func getQueueSummaries() async -> [QueueSummary] {
-    return await taskContainer.getQueueSummaries()
   }
 
   private func createOperation(for task: ConcurrentSyncTask) -> AsyncOperation? {
