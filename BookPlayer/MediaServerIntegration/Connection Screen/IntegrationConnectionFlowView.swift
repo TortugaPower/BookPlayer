@@ -160,10 +160,12 @@ struct IntegrationAddressScreen<VM: IntegrationConnectionViewModelProtocol>: Vie
   /// The port as typed. Kept as text so emptying the field is representable; parsed on change.
   @State private var portText: String
 
-  /// The host field's display text, mirrored from `address.hostField` rather than bound to it
-  /// directly. A focused `TextField` shows its live edit buffer and won't re-read a computed
-  /// binding whose setter changed the value — so a decomposed paste kept displaying the full URL
-  /// until focus left. A plain `@State` is something the field does refresh from immediately.
+  /// The host field's display text: what the user typed, as its own state rather than a binding to
+  /// the model's computed `hostField`. Two reasons. A focused `TextField` shows its live edit buffer
+  /// and won't re-read a computed binding whose setter changed the value — so a decomposed paste kept
+  /// displaying the full URL until focus left; a plain `@State` is something the field does refresh
+  /// from immediately. And the model normalizes for assembly (subpath slashes, encoding, IPv6
+  /// brackets), which must not be echoed into the field while typing — it deleted a just-typed `/`.
   @State private var hostText: String
 
   @EnvironmentObject var theme: ThemeViewModel
@@ -231,12 +233,14 @@ struct IntegrationAddressScreen<VM: IntegrationConnectionViewModelProtocol>: Vie
             .textInputAutocapitalization(.never)
             .autocorrectionDisabled()
             .onChange(of: hostText) { _, newValue in
-              address.hostField = newValue
-              // The setter normalizes — a pasted URL decomposes, IPv6 gains brackets. Reflect that
-              // in the visible text at once instead of on focus loss. Settles in one extra pass:
-              // re-setting an already-normalized value changes nothing.
-              if address.hostField != newValue {
-                hostText = address.hostField
+              // The field keeps the typed text; the model normalizes for assembly and the footer
+              // shows the result. The text is rewritten only when the edit moved something into
+              // another field — a pasted URL's scheme and port, a peeled `host:port` — which
+              // `applyHostField` reports by returning the remaining host + subpath. Settles in one
+              // extra pass: re-applying that value changes nothing.
+              let display = address.applyHostField(newValue)
+              if display != newValue {
+                hostText = display
               }
             }
           }
