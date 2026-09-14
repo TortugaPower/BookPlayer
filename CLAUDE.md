@@ -122,8 +122,8 @@ first. Reordering boot risks a launch crash.
 - `@MainActor final class AppServices` with `static let shared` + `private init()`. Owns the async
   `setupCoreServicesTask`, the `DatabaseInitializer`, and a shared `PlayerState`.
 - `CoreServices` (`BookPlayer/Utils/CoreServices.swift`) is a struct of exactly **12 services**: `accountService`,
-  `syncQueueService`, `externalProgressService` (pulls media-server playback positions; self-subscribes to
-  `.bookPlayed` so the pull never depends on which UI is attached),
+  `syncQueueService`, `externalProgressService` (pulls media-server playback positions for lite/pro accounts;
+  self-subscribes to `.bookPlayed` so the pull never depends on which UI is attached),
   `dataManager`, `hardcoverService`, `libraryService`, `playbackService`, `playerLoaderService`, `playerManager`,
   `preferencesService` (`PreferencesSyncService`), `syncService`, `watchService` (`PhoneWatchConnectivityService`).
 - **Two-step `init()` + `setup(...)` DI pattern:** services are created empty then configured, e.g.
@@ -321,7 +321,11 @@ lines). It is the highest-risk file in the app.
 - **Sync = the `pro` OR `lite` entitlement** (`hasSyncEnabled()`); `lite` gets DB-backed sync only —
   S3 file uploads are gated per-job via `SyncQueueService.accessPolicy` (`.uploadFile` is pro-only,
   `.externalUpdate` — progress pushes to the USER'S OWN media server — is available on every tier,
-  matching the Android app). Job types (`SyncJobType`): `upload, update, move,
+  matching the Android app). **The media-server progress PULL is the opposite:** `ExternalProgressService`
+  gates both the on-play resume prompt and the list refresh on `accountService.hasSyncEnabled()` (lite/pro),
+  read live on every pull, and cancels an in-flight pull on an `.accountUpdate` that drops the entitlement —
+  free/plus users push to their own server but never see other devices' positions. Android must mirror this.
+  Job types (`SyncJobType`): `upload, update, move,
   renameFolder, delete, shallowDelete, setBookmark, deleteBookmark, uploadArtwork, matchUuid`.
 - **Download verification:** `verifyDownloadedFile` rejects truncated files by comparing `AVURLAsset` duration to
   the stored duration (tolerance `max(2, expected*0.02)`); completion is broadcast only after verification.

@@ -747,12 +747,14 @@ final class ExternalProgressServiceTests: XCTestCase {
   }
 
   private var notificationCenter: NotificationCenter!
+  private var accountService: AccountServiceMock!
   private var received: [ExternalPlaybackProgress] = []
   private var cancellable: AnyCancellable?
 
   override func setUp() {
     super.setUp()
     notificationCenter = NotificationCenter()
+    accountService = AccountServiceMock(account: nil)
     received = []
   }
 
@@ -823,15 +825,23 @@ final class ExternalProgressServiceTests: XCTestCase {
     )
   }
 
+  /// Entitled (lite/pro) unless a test says otherwise — the pull is gated, the push is not.
   private func makeSUT(
     resources: [SimpleExternalResource],
-    providers: [ExternalResource.ProviderName: ExternalProgressProviding]
+    providers: [ExternalResource.ProviderName: ExternalProgressProviding],
+    syncEnabled: Bool = true
   ) -> (ExternalProgressService, LibraryServiceProtocolMock) {
     let libraryService = LibraryServiceProtocolMock()
     libraryService.findResourcesForReturnValue = resources
+    accountService.hasSyncEnabledValue = syncEnabled
 
     let sut = ExternalProgressService()
-    sut.setup(libraryService: libraryService, providers: providers, notificationCenter: notificationCenter)
+    sut.setup(
+      libraryService: libraryService,
+      accountService: accountService,
+      providers: providers,
+      notificationCenter: notificationCenter
+    )
     return (sut, libraryService)
   }
 
@@ -1066,6 +1076,68 @@ final class ExternalProgressServiceTests: XCTestCase {
 
     XCTAssertTrue(jellyfin.requested.isEmpty)
     XCTAssertEqual(libraryService.handleSyncFromExternalResourceProviderNameProgressByProviderIdCallsCount, 0)
+  }
+
+  // MARK: the entitlement gate (pull only — the push runs on every tier)
+
+  func testOnPlayPullIsGatedToSyncTiers() async {
+    let jellyfin = ProviderStub { _ in XCTFail("a free account must not pull"); return nil }
+    let (sut, _) = makeSUT(
+      resources: [makeResource(provider: "jellyfin", id: "jf-1")],
+      providers: [.jellyfin: jellyfin],
+      syncEnabled: false
+    )
+    let nothing = expectPublish(from: sut, inverted: true)
+
+    sut.refreshProgress(for: makeItem(uuid: "UUID", currentTime: 0, lastPlayDate: nil))
+    await fulfillment(of: [nothing], timeout: 0.3)
+
+    XCTAssertTrue(jellyfin.requested.isEmpty)
+  }
+
+  func testListPullIsGatedToSyncTiers() async {
+    let jellyfin = ProviderStub { _ in XCTFail("a free account must not pull"); return nil }
+    let (sut, libraryService) = makeSUT(resources: [], providers: [.jellyfin: jellyfin], syncEnabled: false)
+
+    await sut.refreshItems([makeLibraryItem(resources: [makeResource(provider: "jellyfin", id: "jf-1")])])
+
+    XCTAssertTrue(jellyfin.requested.isEmpty)
+    XCTAssertEqual(libraryService.handleSyncFromExternalResourceProviderNameProgressByProviderIdCallsCount, 0)
+  }
+
+  /// The entitlement is read live, so a downgrade takes effect on the NEXT pull; the one
+  /// already in flight is cancelled by the account-update observer.
+  func testDowngradeCancelsAnInFlightPull() async {
+    let slow = slowStub(ExternalPlaybackProgress(currentTime: 900, lastPlayedDate: Date(timeIntervalSince1970: 9000)))
+    let (sut, _) = makeSUT(
+      resources: [makeResource(provider: "jellyfin", id: "jf-1")],
+      providers: [.jellyfin: slow]
+    )
+    let nothing = expectPublish(from: sut, inverted: true)
+
+    sut.refreshProgress(for: makeItem(uuid: "UUID", currentTime: 0, lastPlayDate: nil))
+    accountService.hasSyncEnabledValue = false
+    notificationCenter.post(name: .accountUpdate, object: nil)
+    // Longer than the stub's sleep, so an un-cancelled refresh WOULD have published by now.
+    await fulfillment(of: [nothing], timeout: 0.6)
+
+    XCTAssertEqual(slow.requested, ["jf-1"], "the pull had started; the downgrade stopped it")
+  }
+
+  /// Account updates that keep the entitlement (renewal, pro↔lite) must not cancel anything.
+  func testAccountUpdateWhileEntitledKeepsThePull() async {
+    let slow = slowStub(ExternalPlaybackProgress(currentTime: 900, lastPlayedDate: Date(timeIntervalSince1970: 9000)))
+    let (sut, _) = makeSUT(
+      resources: [makeResource(provider: "jellyfin", id: "jf-1")],
+      providers: [.jellyfin: slow]
+    )
+    let published = expectPublish(from: sut)
+
+    sut.refreshProgress(for: makeItem(uuid: "UUID", currentTime: 0, lastPlayDate: nil))
+    notificationCenter.post(name: .accountUpdate, object: nil)
+    await fulfillment(of: [published], timeout: 2)
+
+    XCTAssertEqual(received.map(\.currentTime), [900])
   }
 }
 

@@ -128,7 +128,7 @@ final class AppServices: BPLogger {
       Task { await preferencesService.bootstrap() }
 
       let externalProgressService = ExternalProgressService()
-      externalProgressService.setup(libraryService: libraryService)
+      externalProgressService.setup(libraryService: libraryService, accountService: accountService)
       resumeOfferArbiter.bind(to: externalProgressService)
 
       let coreServices = CoreServices(

@@ -21,8 +21,11 @@ class AccountServiceMock: AccountServiceProtocol {
     return nil
   }
 
+  /// Settable so a test can model lite/pro (true) vs free/plus (false); defaults to free.
+  var hasSyncEnabledValue = false
+
   func hasSyncEnabled() -> Bool {
-    return false
+    return hasSyncEnabledValue
   }
 
   func hasPlusAccess() -> Bool {

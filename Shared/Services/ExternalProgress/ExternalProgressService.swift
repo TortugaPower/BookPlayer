@@ -18,15 +18,17 @@ import Foundation
 /// decide whether the feature ran at all: CarPlay claims the same delegate slot and answered
 /// with an empty implementation, so a car-only session silently never pulled.
 ///
-/// Nothing here is entitlement-gated, matching the push: `.externalUpdate` runs on every tier
-/// because it talks to the user's OWN server, and gating only the pull would make the two
-/// directions disagree.
+/// The two directions are gated differently on purpose. The push (`.externalUpdate`) runs on
+/// every tier: it writes the user's position to the user's OWN server. The pull — both the
+/// on-play prompt and the list refresh — is the cross-device sync feature, so it needs the
+/// sync entitlement (`lite` or `pro`, `hasSyncEnabled()`), read live on every call.
 public final class ExternalProgressService {
   /// A remote position worth offering the user, published rather than written into UI state so
   /// both presentations — the SwiftUI alert and CarPlay's own — can consume the one decision.
   public let promptablePositionPublisher = PassthroughSubject<ExternalPlaybackProgress, Never>()
 
   private var libraryService: LibraryServiceProtocol!
+  private var accountService: AccountServiceProtocol!
   private var providers: [ExternalResource.ProviderName: ExternalProgressProviding] = [:]
 
   /// Guards the single in-flight refresh and the uuid it was started for. Non-isolated so the
@@ -41,6 +43,7 @@ public final class ExternalProgressService {
 
   public func setup(
     libraryService: LibraryServiceProtocol,
+    accountService: AccountServiceProtocol,
     providers: [ExternalResource.ProviderName: ExternalProgressProviding] = [
       .jellyfin: JellyfinProgressProvider(),
       .audiobookshelf: AudiobookShelfProgressProvider(),
@@ -48,6 +51,7 @@ public final class ExternalProgressService {
     notificationCenter: NotificationCenter = .default
   ) {
     self.libraryService = libraryService
+    self.accountService = accountService
     self.providers = providers
     self.notificationCenter = notificationCenter
 
@@ -70,6 +74,15 @@ public final class ExternalProgressService {
         self?.teardown()
       }
       .store(in: &disposeBag)
+
+    // A downgrade mid-refresh must not still publish a prompt: the entitlement is checked
+    // at the start of every pull, and here for the one already in flight.
+    notificationCenter.publisher(for: .accountUpdate)
+      .sink { [weak self] _ in
+        guard let self, !self.accountService.hasSyncEnabled() else { return }
+        self.teardown()
+      }
+      .store(in: &disposeBag)
   }
 
   /// Ask every media server this item is linked to where the user is, and publish the answer
@@ -80,6 +93,8 @@ public final class ExternalProgressService {
   /// already moved on from could still raise a prompt carrying that book's position — and the
   /// alert's "resume" then seeks whatever is playing to a timestamp from another book.
   public func refreshProgress(for item: PlayableItem) {
+    guard accountService.hasSyncEnabled() else { return }
+
     let uuid = item.uuid
     let localTime = item.currentTime
     let localDate = item.lastPlayDate
@@ -120,6 +135,8 @@ public final class ExternalProgressService {
   /// items refresh alongside Jellyfin ones — they never did before, because the ingest was
   /// typed to a Jellyfin item and the caller collected only Jellyfin resources.
   public func refreshItems(_ items: [SimpleLibraryItem]) async {
+    guard accountService.hasSyncEnabled() else { return }
+
     let resources = items.flatMap { $0.externalResources?.mediaServerResources ?? [] }
     guard !resources.isEmpty else { return }
 
