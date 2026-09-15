@@ -1343,11 +1343,6 @@ class PlayerManagerProtocolMock: PlayerManagerProtocol {
         set(value) { underlyingIsPlaying = value }
     }
     var underlyingIsPlaying: Bool!
-    var playerIsLoadingURL: Bool {
-        get { return underlyingPlayerIsLoadingURL }
-        set(value) { underlyingPlayerIsLoadingURL = value }
-    }
-    var underlyingPlayerIsLoadingURL: Bool!
     var syncProgressDelegate: PlaybackSyncProgressDelegate?
     //MARK: - load
 
