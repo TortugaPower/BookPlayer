@@ -17,7 +17,6 @@ public struct AudiobookShelfSeriesReference: Codable, Hashable {
 public struct AudiobookShelfLibraryItem: IntegrationLibraryItemProtocol, Codable {
   public enum Kind: String, Codable {
     case audiobook = "book"
-    case podcast = "podcast"
     case library = "library"
     case browseCategory = "browseCategory"
     case series = "series"
@@ -109,7 +108,7 @@ extension AudiobookShelfLibraryItem {
   public var displayName: String { title }
 
   public var isDownloadable: Bool {
-    kind == .audiobook || kind == .podcast
+    kind == .audiobook
   }
 
   public var isNavigable: Bool {
@@ -118,7 +117,7 @@ extension AudiobookShelfLibraryItem {
 
   public var placeholderImageName: String {
     switch kind {
-    case .podcast, .audiobook: "waveform"
+    case .audiobook: "waveform"
     case .library: "folder"
     case .browseCategory:
       switch browseCategory {

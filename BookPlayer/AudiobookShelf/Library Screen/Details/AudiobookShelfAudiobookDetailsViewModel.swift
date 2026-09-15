@@ -22,7 +22,6 @@ class AudiobookShelfAudiobookDetailsViewModel: IntegrationDetailsViewModelProtoc
   @Published var pendingImportBatch: ExternalImportBatch?
   private var disposeBag = Set<AnyCancellable>()
 
-  var showSubscribeButton: Bool { !accountService.hasSyncEnabled() }
   var allowStream: Bool { accountService.hasStreamingEnabled() }
 
   @MainActor
@@ -34,7 +33,7 @@ class AudiobookShelfAudiobookDetailsViewModel: IntegrationDetailsViewModelProtoc
 
   @MainActor
   func goToSubscribe() {
-    navigation.path.append(AudiobookShelfLibraryLevelData.subscribe)
+    navigation.showingSubscribe = true
   }
   private var singleFileDownloadService: SingleFileDownloadService
 

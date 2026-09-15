@@ -400,7 +400,6 @@ Usilovne pracujeme na poskytovaní bezproblémového zážitku, ak je to možné
 "settings_seekprogressbar_description" = "Povolenie vyhľadávania pri zamknutej obrazovke";
 "donate_title" = "Darovať";
 "bookmark_automatic_sleep_title" = "Posledná pozícia, keď bol časovač spánku zapnutý";
-"download_folder_confirmation_title" = "Stiahnuť priečinok";
 "download_folder_confirmation_message" = "Stiahnuť všetkých %d súbory z tohto priečinku?";
 "hardcover_searching_books" = "Hľadanie kníh...";
 "hardcover_unlink_button" = "Odpojiť";
@@ -504,10 +503,6 @@ Usilovne pracujeme na poskytovaní bezproblémového zážitku, ak je to možné
 "jellyfin_quick_connect_error_no_code" = "Your Jellyfin server didn't return a Quick Connect code. Make sure Quick Connect is enabled in the server's dashboard.";
 "jellyfin_quick_connect_error_generic" = "Quick Connect couldn't complete. Check that Quick Connect is enabled on your server and try again.";
 "jellyfin_quick_connect_error_timeout" = "Timed out waiting for the code to be entered. Please try again.";
-"sync_invitation_save_storage_title" = "Šetrite svoje úložisko!";
-"sync_invitation_learn_more_button" = "Dozvedieť sa viac";
-"sync_invitation_description" = "Chystáte sa %1$@ %2$d položiek. %3$@";
-"sync_invitation_stream_description" = "Namiesto zaberania miesta ich streamujte priamo zo svojho servera a udržujte svoj pokrok synchronizovaný.";
 "sync_tasks_concurrent_count_title" = "Súbežné úlohy (%d)";
 "sync_tasks_running_empty_title" = "Žiadne bežiace úlohy";
 "sync_tasks_empty_title" = "Žiadne úlohy v poradí";
@@ -516,8 +511,6 @@ Usilovne pracujeme na poskytovaní bezproblémového zážitku, ak je to možné
 "sync_task_upload_file_label" = "Nahrávanie súboru";
 "audiobook_details_narrator_label" = "Rozpráva %@";
 "stream_button" = "Streamovať";
-"import_verb" = "importovať";
-"download_verb" = "stiahnuť";
 "passkey_title" = "Prístupový kľúč";
 "create_profile_title" = "Vytvorte si profil";
 "create_profile_description" = "Ak chcete povoliť synchronizáciu v cloude, prihláste sa do svojho profilu. Môžete to urobiť kedykoľvek neskôr na karte Profil.";

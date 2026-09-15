@@ -400,7 +400,6 @@
 "donate_title" = "Adományozás";
 "bookmark_automatic_sleep_title" = "Az utolsó pozíció, amikor az elalváskapcsolót bekapcsolták";
 "integration_selection_count" = "%d / %d Elem";
-"download_folder_confirmation_title" = "Mappa letöltése";
 "download_folder_confirmation_message" = "Letölti az összes %d fájlt ebből a mappából?";
 "hardcover_searching_books" = "Könyvek keresése...";
 "hardcover_unlink_button" = "Szétkapcsolás";
@@ -504,10 +503,6 @@
 "jellyfin_quick_connect_error_no_code" = "Your Jellyfin server didn't return a Quick Connect code. Make sure Quick Connect is enabled in the server's dashboard.";
 "jellyfin_quick_connect_error_generic" = "Quick Connect couldn't complete. Check that Quick Connect is enabled on your server and try again.";
 "jellyfin_quick_connect_error_timeout" = "Timed out waiting for the code to be entered. Please try again.";
-"sync_invitation_save_storage_title" = "Spóroljon a tárhellyel!";
-"sync_invitation_learn_more_button" = "Tudjon meg többet";
-"sync_invitation_description" = "Éppen %1$@ %2$d elemet. %3$@";
-"sync_invitation_stream_description" = "Ahelyett, hogy helyet foglalna, streamelje őket közvetlenül a szerveréről, és tartsa szinkronban a haladását.";
 "sync_tasks_concurrent_count_title" = "Párhuzamos feladatok (%d)";
 "sync_tasks_running_empty_title" = "Nincsenek futó feladatok";
 "sync_tasks_empty_title" = "Nincsenek várakozó feladatok";
@@ -516,8 +511,6 @@
 "sync_task_upload_file_label" = "Fájl feltöltése";
 "audiobook_details_narrator_label" = "Felolvassa: %@";
 "stream_button" = "Streamelés";
-"import_verb" = "importálni";
-"download_verb" = "letölteni";
 "passkey_title" = "Jelkulcs";
 "create_profile_title" = "Hozza létre profilját";
 "create_profile_description" = "A felhőalapú szinkronizálás engedélyezéséhez jelentkezzen be profiljába. Ezt később bármikor megteheti a Profil lapon.";

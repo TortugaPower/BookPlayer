@@ -62,5 +62,4 @@ public enum AudiobookShelfLibraryViewSource: Equatable, Hashable {
 public enum AudiobookShelfLibraryLevelData: Equatable, Hashable {
   case library(source: AudiobookShelfLibraryViewSource, title: String)
   case details(data: AudiobookShelfLibraryItem)
-  case subscribe
 }

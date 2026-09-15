@@ -27,7 +27,6 @@ class JellyfinAudiobookDetailsViewModel: IntegrationDetailsViewModelProtocol {
   @Published var pendingImportBatch: ExternalImportBatch?
   private var disposeBag = Set<AnyCancellable>()
 
-  var showSubscribeButton: Bool { !accountService.hasSyncEnabled() }
   var allowStream: Bool { accountService.hasStreamingEnabled() }
 
   @MainActor
@@ -39,7 +38,7 @@ class JellyfinAudiobookDetailsViewModel: IntegrationDetailsViewModelProtocol {
 
   @MainActor
   func goToSubscribe() {
-    navigation.path.append(JellyfinLibraryLevelData.subscribe)
+    navigation.showingSubscribe = true
   }
   private var singleFileDownloadService: SingleFileDownloadService
 

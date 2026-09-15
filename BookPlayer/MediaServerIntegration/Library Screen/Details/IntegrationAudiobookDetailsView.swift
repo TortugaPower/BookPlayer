@@ -75,13 +75,16 @@ struct IntegrationAudiobookDetailsView<
           .bpFont(.caption)
         }
 
+        // Both buttons always render: Stream sells the entitlement when it's missing,
+        // Download always downloads. The old `if allowStream || showSubscribeButton`
+        // was a tautology — allowStream is hasStreamingEnabled(), which is literally
+        // `return hasSyncEnabled()`, and showSubscribeButton was its exact negation —
+        // so the else branch was unreachable and both it and showSubscribeButton are
+        // gone. If hasStreamingEnabled() ever stops aliasing hasSyncEnabled(), the
+        // gating here needs revisiting.
         HStack(spacing: 12) {
-          if viewModel.allowStream || viewModel.showSubscribeButton {
-            SmallDownloadButton
-            SynchronizeButton
-          } else {
-            DownloadButton
-          }
+          SmallDownloadButton
+          SynchronizeButton
         }
         .padding(.horizontal)
         .padding(.vertical, 12)
@@ -151,41 +154,13 @@ struct IntegrationAudiobookDetailsView<
   }
   
   @ViewBuilder
-  private var DownloadButton: some View {
-    Button {
-      Task {
-        do {
-          try await viewModel.handleImportAudiobook(viewModel.item)
-          onDownloadTap()
-        } catch {
-          viewModel.error = error
-        }
-      }
-    } label: {
-      HStack {
-        Image(systemName: "square.and.arrow.down")
-        Text("download_title".localized)
-          .fontWeight(.semibold)
-      }
-      .frame(height: 24)
-      .frame(maxWidth: .infinity)
-      .padding()
-      .foregroundStyle(theme.primaryColor)
-      .background(theme.tertiarySystemBackgroundColor)
-      .cornerRadius(10)
-    }
-  }
-  
-  @ViewBuilder
   private var SmallDownloadButton: some View {
     Button {
-      Task {
-        do {
-          try await viewModel.handleImportAudiobook(viewModel.item)
-          onDownloadTap()
-        } catch {
-          viewModel.error = error
-        }
+      do {
+        try viewModel.beginDownloadAudiobook(viewModel.item)
+        onDownloadTap()
+      } catch {
+        viewModel.error = error
       }
     } label: {
       HStack {
@@ -206,8 +181,11 @@ struct IntegrationAudiobookDetailsView<
       if viewModel.allowStream {
         Task {
           do {
+            // No onDownloadTap() here: this stages pendingImportBatch for the
+            // confirmation sheet below, and dismissing the browser would tear that
+            // sheet down before it could present. confirmExternalImport deliberately
+            // keeps you in the browser afterwards.
             try await self.viewModel.handleImportAudiobook(viewModel.item)
-            onDownloadTap()
           } catch {
             viewModel.error = error
           }

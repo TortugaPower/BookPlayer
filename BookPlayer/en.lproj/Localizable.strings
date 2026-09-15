@@ -318,10 +318,6 @@
 
 Keep in mind that upload tasks can take some time, and the progress will be periodically posted on the previous screen.";
 
-"sync_invitation_save_storage_title" = "Save Your Storage!";
-"sync_invitation_learn_more_button" = "Learn more";
-"sync_invitation_description" = "You're about to %1$@ %2$d items. %3$@";
-"sync_invitation_stream_description" = "Instead of taking up space, stream them directly from your server and keep your progress synced.";
 "sync_tasks_concurrent_count_title" = "Concurrent Tasks (%d)";
 "sync_tasks_running_empty_title" = "No running tasks";
 "sync_tasks_empty_title" = "No queued tasks";
@@ -331,8 +327,6 @@ Keep in mind that upload tasks can take some time, and the progress will be peri
 "audiobook_details_narrator_label" = "Narrated by %@";
 "stream_button" = "Stream";
 "integrations_title" = "Integrations";
-"import_verb" = "import";
-"download_verb" = "download";
 "passkey_title" = "Passkey";
 "create_profile_title" = "Create your profile";
 "create_profile_description" = "To enable cloud sync, sign into your profile. You can always do this later from within the Profile tab";
@@ -430,8 +424,7 @@ Keep in mind that upload tasks can take some time, and the progress will be peri
 "settings_seekprogressbar_description" = "Enable seeking on the lock screen";
 "donate_title" = "Donate";
 "bookmark_automatic_sleep_title" = "Last position when the sleep timer was turned on";
-"download_folder_confirmation_title" = "Download Folder";
-"download_folder_confirmation_message" = "Download all %d files from this folder?";
+"download_folder_confirmation_message" = "Download all %d files?";
 "hardcover_searching_books" = "Searching books...";
 "hardcover_unlink_button" = "Unlink";
 "hardcover_auto_match_books" = "Auto-match books";
@@ -545,7 +538,6 @@ Keep in mind that upload tasks can take some time, and the progress will be peri
 "import_no_audio_files_alert" = "The selected items have no audio files to import.";
 "import_title" = "Import";
 "files_title" = "%d Files";
-"sync_invitation_learn_more_hint" = "Learn more about streaming and syncing items from your server.";
 "task_uploading_file_label" = "Uploading file";
 "task_updating_progress_label" = "Updating progress for %@";
 "yes_button" = "Yes";
@@ -554,10 +546,6 @@ Keep in mind that upload tasks can take some time, and the progress will be peri
 "resume_playback_alert_message" = "There is another source with current play time %@. Play from this time?";
 "queue_library_sync_title" = "Library Sync";
 "queue_file_uploads_title" = "File Uploads";
-"sync_invitation_download_label" = "Download Locally";
-"sync_invitation_import_hint" = "Import %d items to your library.";
-"sync_invitation_download_hint" = "Download %d items to your device storage.";
-"sync_invitation_close_hint" = "Dismisses the invitation card.";
 "close_title" = "Close";
 "external_sync_benefit_server_title" = "Bring Your Own Server";
 "external_sync_benefit_server_subtitle" = "Connect your existing Jellyfin or Audiobookshelf directly to the app.";

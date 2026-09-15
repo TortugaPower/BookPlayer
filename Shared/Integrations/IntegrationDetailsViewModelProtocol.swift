@@ -52,7 +52,6 @@ public protocol IntegrationDetailsViewModelProtocol: ObservableObject {
   /// re-rendered via .accountUpdate): the Stream CTA pushes the subscribe flow,
   /// so a purchase completed on the pushed screen must flip these on pop —
   /// snapshot Bools captured at construction go stale exactly there.
-  var showSubscribeButton: Bool { get }
   var allowStream: Bool { get }
 
   /// Staged virtual-import selection awaiting user confirmation; drives the

@@ -397,8 +397,6 @@ private struct AudiobookShelfTabRoot: View {
             ) {
               onDismiss()
             }
-          case .subscribe:
-            ExternalSyncIntroView()
           }
         }
         .toolbar {
@@ -462,6 +460,13 @@ private struct AudiobookShelfTabRoot: View {
             }
           }
         }
+      }
+      .tint(theme.linkColor)
+      .environmentObject(theme)
+    }
+    .sheet(isPresented: $navigation.showingSubscribe) {
+      NavigationStack {
+        ExternalSyncIntroView()
       }
       .tint(theme.linkColor)
       .environmentObject(theme)

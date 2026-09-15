@@ -30,13 +30,25 @@ protocol IntegrationLibraryViewModelProtocol: ObservableObject {
 
   var editMode: EditMode { get set }
   var selectedItems: Set<Item.ID> { get set }
+  /// Drives the whole-level download confirmation. List-only screens inherit the
+  /// no-op default below so the dialog can never present over them.
   var showingDownloadConfirmation: Bool { get set }
-  var useSelectedItems: Bool { get set }
   
   var accountService: AccountService { get set }
   
   var searchQuery: String { get set }
   var isSearchable: Bool { get }
+
+  /// True while the whole-level download is resolving its request list. Drives both the
+  /// progress overlay and the disabled state: the loading overlay is a small centred box,
+  /// so it only absorbs taps that land on it and cannot guard the toolbar button. The
+  /// gating has to be explicit.
+  var isPreparingDownload: Bool { get }
+
+  /// Count shown in the whole-level download confirmation. Declared here, not only in the
+  /// extension, so a conformer whose download reaches past the loaded page can override it
+  /// — an extension-only member would dispatch statically through `Model` and ignore them.
+  var downloadableItemCount: Int { get }
 
   // Feature flags (defaults provided)
   var isGridEnabled: Bool { get }
@@ -53,7 +65,9 @@ protocol IntegrationLibraryViewModelProtocol: ObservableObject {
   @MainActor func onEditToggleSelectTapped()
   @MainActor func onSelectTapped(for item: Item)
   @MainActor func onSelectAllTapped()
-  @MainActor func handleImportItems(useSelectedItems: Bool) async
+  /// Stream: virtual-import the level or the selection when the account carries the
+  /// entitlement, otherwise open the subscribe flow. Never downloads.
+  @MainActor func onStreamTapped(useSelectedItems: Bool)
   /// Staged virtual-import selection awaiting confirmation (`.sheet(item:)`);
   /// nil on the list-only screens that never import.
   var pendingImportBatch: ExternalImportBatch? { get set }
@@ -66,6 +80,16 @@ protocol IntegrationLibraryViewModelProtocol: ObservableObject {
 }
 
 extension IntegrationLibraryViewModelProtocol {
+  /// Count for the whole-level download confirmation — what will actually download,
+  /// after filtering. Never `totalItems`, which stays `Int.max` until a fetch resolves
+  /// and would render as 9223372036854775807 in the dialog.
+  var downloadableItemCount: Int {
+    items.filter { $0.isDownloadable }.count
+  }
+
+  /// Only the Jellyfin folder screen resolves anything before confirming.
+  var isPreparingDownload: Bool { false }
+
   var isGridEnabled: Bool { true }
   var showsLayoutPreferences: Bool { true }
   var showsSortPreferences: Bool { true }
