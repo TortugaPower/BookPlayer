@@ -144,7 +144,7 @@ public final class ExternalProgressService: ExternalProgressRefreshing {
 
     let byProvider = Dictionary(grouping: resources) { $0.providerName }
 
-    await withTaskGroup(of: (String, [String: ExternalPlaybackProgress]).self) { group in
+    await withTaskGroup(of: (String, [String: ExternalItemSnapshot]).self) { group in
       for (providerName, providerResources) in byProvider {
         guard
           let name = ExternalResource.ProviderName(rawValue: providerName),
@@ -156,10 +156,10 @@ public final class ExternalProgressService: ExternalProgressRefreshing {
         }
       }
 
-      for await (providerName, progress) in group where !progress.isEmpty {
+      for await (providerName, snapshots) in group where !snapshots.isEmpty {
         await libraryService.handleSyncFromExternalResource(
           providerName: providerName,
-          progressByProviderId: progress
+          snapshotsByProviderId: snapshots
         )
       }
     }

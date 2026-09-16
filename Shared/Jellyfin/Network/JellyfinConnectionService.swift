@@ -466,7 +466,7 @@ public class JellyfinConnectionService: BPLogger {
       let chunk = Array(ids[start..<min(start + chunkSize, ids.count)])
       var parameters = Paths.GetItemsParameters()
       parameters.ids = chunk
-      parameters.fields = [.mediaSources, .path]
+      parameters.fields = [.mediaSources, .path, .chapters]
       parameters.enableUserData = true
       let response = try await send(Paths.getItems(parameters: parameters))
       try Task.checkCancellation()
@@ -716,8 +716,13 @@ public class JellyfinConnectionService: BPLogger {
   public func updateItemsFromJellyfin(_ externalResources: [SimpleExternalResource]) async throws -> [String: JellyfinLibraryItem] {
     guard !externalResources.isEmpty, let myId = connection?.userID else { return [:] }
 
-    let request = Paths.getItems(parameters: Paths.GetItemsParameters(userID: myId, ids: externalResources.map(\.providerId)))
-    let response = try await send(request)
+    var parameters = Paths.GetItemsParameters(userID: myId, ids: externalResources.map(\.providerId))
+    /// `Chapters` is opt-in — without it Jellyfin returns the item with no chapter list and
+    /// the refresh would ingest an empty one for every book. The runtime that bounds the last
+    /// chapter is a base property and needs no field of its own.
+    parameters.fields = [.chapters]
+
+    let response = try await send(Paths.getItems(parameters: parameters))
 
     var itemsDictionary: [String: JellyfinLibraryItem] = [:]
     for item in response.value.items ?? [] {

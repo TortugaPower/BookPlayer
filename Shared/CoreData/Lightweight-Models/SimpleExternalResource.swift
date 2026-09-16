@@ -19,6 +19,10 @@ public struct SimpleExternalResource: Identifiable, Equatable, Hashable {
   public var libraryItemUuid: String?
   public var libraryItemName: String?
   public var libraryItem: SimpleLibraryItem?
+  /// Chapters the server reported for a virtual import: set by `asVirtualImportResource`,
+  /// consumed by `createExternalBook`. Import-only — `init(from: ExternalResource)` leaves it
+  /// empty, because the entity has no chapter column; the rows live on the Book.
+  public var chapters: [ChapterMetadata] = []
 
   public init(
     id: Int = 0,
@@ -29,7 +33,8 @@ public struct SimpleExternalResource: Identifiable, Equatable, Hashable {
     hostId: String? = nil,
     libraryItemUuid: String? = nil,
     libraryItemName: String? = nil,
-    libraryItem: SimpleLibraryItem? = nil
+    libraryItem: SimpleLibraryItem? = nil,
+    chapters: [ChapterMetadata] = []
   ) {
     self.id = id
     self.providerName = providerName
@@ -40,6 +45,7 @@ public struct SimpleExternalResource: Identifiable, Equatable, Hashable {
     self.libraryItemUuid = libraryItemUuid
     self.libraryItemName = libraryItemName
     self.libraryItem = libraryItem
+    self.chapters = chapters
   }
 }
 

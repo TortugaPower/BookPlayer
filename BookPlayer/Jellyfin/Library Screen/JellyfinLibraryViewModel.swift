@@ -94,7 +94,8 @@ extension JellyfinFolderImporting {
               fileExtension: $1.details?.fileExtension,
               // `details.runtimeInSeconds` keeps "unmeasured" as nil and avoids the whole-second
               // truncation `durationSeconds` applies
-              duration: $1.details?.runtimeInSeconds
+              duration: $1.details?.runtimeInSeconds,
+              chapters: $1.chapters
             )
           }
         },
@@ -102,6 +103,7 @@ extension JellyfinFolderImporting {
           item.asVirtualImportResource(
             fileExtension: hydrated.fileExtension,
             duration: hydrated.duration,
+            chapters: hydrated.chapters,
             detailsOverride: nil,
             connectionService: self.connectionService,
             artworkSize: CGSize(width: 200, height: 200)

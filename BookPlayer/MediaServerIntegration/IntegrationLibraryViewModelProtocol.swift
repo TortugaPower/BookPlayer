@@ -112,10 +112,13 @@ extension IntegrationLibraryViewModelProtocol {
 struct HydratedItem {
   let fileExtension: String
   let duration: TimeInterval
+  /// Whatever chapter list the same payload carried. Optional to an import — an item with
+  /// none is still perfectly playable as a single chapter.
+  let chapters: [ChapterMetadata]
 
   /// Both pieces or nothing: a nil result leaves the id out of the hydration map, which
   /// is the pipeline's existing skip contract.
-  init?(fileExtension: String?, duration: TimeInterval?) {
+  init?(fileExtension: String?, duration: TimeInterval?, chapters: [ChapterMetadata] = []) {
     guard
       let fileExtension,
       !fileExtension.isEmpty,
@@ -125,6 +128,7 @@ struct HydratedItem {
 
     self.fileExtension = fileExtension
     self.duration = duration
+    self.chapters = chapters
   }
 }
 

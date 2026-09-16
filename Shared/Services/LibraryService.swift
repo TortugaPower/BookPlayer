@@ -96,6 +96,10 @@ public protocol LibraryServiceProtocol: AnyObject {
   func createBook(from url: URL) async -> Book
   /// Load metadata chapters if needed
   func loadChaptersIfNeeded(relativePath: String, asset: AVAsset) async
+  /// Store chapters a media server reported for an item whose file is never opened here.
+  /// Same empty-guard as `loadChaptersIfNeeded(relativePath:asset:)`: an existing list is
+  /// never replaced, so this can run on every refresh without fighting the parsed one.
+  func storeChaptersIfNeeded(relativePath: String, chapters: [ChapterMetadata]) async
   /// Re-parse chapters from the file with our manual parsers, replacing the stored list only
   /// when more chapters are found. Returns the new chapter count, or nil if nothing changed.
   func reloadChapters(relativePath: String) async -> Int?
@@ -195,7 +199,7 @@ public protocol LibraryServiceProtocol: AnyObject {
   /// Fold positions reported by a provider's servers into the local rows.
   @MainActor func handleSyncFromExternalResource(
     providerName: String,
-    progressByProviderId: [String: ExternalPlaybackProgress]
+    snapshotsByProviderId: [String: ExternalItemSnapshot]
   )
 }
 
@@ -1041,6 +1045,22 @@ extension LibraryService {
     }
   }
 
+  /// The media-server rule, in one place: chapters are only ever ADDED. A list the parser
+  /// produced for a downloaded copy is never replaced by a later server refresh, and an empty
+  /// answer never clears one.
+  /// - Returns: whether anything was written, so a caller can skip a pointless save.
+  @discardableResult
+  private func storeChaptersIfEmpty(
+    _ chapters: [ChapterMetadata],
+    for book: Book,
+    context: NSManagedObjectContext
+  ) -> Bool {
+    guard !chapters.isEmpty, book.chapters?.count == 0 else { return false }
+
+    storeChapters(chapters, for: book, context: context)
+    return true
+  }
+
   /// Overload for backwards compatibility when we need to query by relativePath
   private func storeChapters(_ chapters: [ChapterMetadata], for relativePath: String, context: NSManagedObjectContext) {
     guard let book = getItem(with: relativePath, context: context) as? Book else {
@@ -1884,7 +1904,12 @@ extension LibraryService {
     
     external.libraryItem = book
     book.addToExternalResources(external)
-    
+
+    // The server's chapters, if the hydration carried any. Written here rather than left
+    // to the progress pull so the FIRST play already has chapter navigation — nothing
+    // opens the file later to recover them.
+    storeChaptersIfEmpty(externalResource.chapters, for: book, context: context)
+
     self.dataManager.saveSyncContext(context)
     return book
   }
@@ -1908,13 +1933,21 @@ extension LibraryService {
       return
     }
 
-    // Store chapters in the context, re-checking if still needed to avoid race conditions
+    await storeChaptersIfNeeded(relativePath: relativePath, chapters: chapters)
+  }
+
+  public func storeChaptersIfNeeded(relativePath: String, chapters: [ChapterMetadata]) async {
+    guard !chapters.isEmpty else { return }
+
+    let context = dataManager.getBackgroundContext()
+
+    // The guard lives inside `perform` so it re-reads the book under the context that will
+    // write it — a caller's earlier check may have raced another writer.
     await context.perform { [unowned self] in
       guard let book = self.getItem(with: relativePath, context: context) as? Book,
-            book.chapters?.count == 0 else {
-        return
-      }
-      self.storeChapters(chapters, for: book, context: context)
+            self.storeChaptersIfEmpty(chapters, for: book, context: context)
+      else { return }
+
       self.dataManager.saveSyncContext(context)
     }
   }
@@ -2985,9 +3018,9 @@ extension LibraryService {
   /// refreshed at all — the caller could not even express an ABS batch.
   @MainActor public func handleSyncFromExternalResource(
     providerName: String,
-    progressByProviderId: [String: ExternalPlaybackProgress]
+    snapshotsByProviderId: [String: ExternalItemSnapshot]
   ) {
-    let remoteKeys = Array(progressByProviderId.keys)
+    let remoteKeys = Array(snapshotsByProviderId.keys)
 
     let fetch: NSFetchRequest<ExternalResource> = ExternalResource.fetchRequest()
     fetch.predicate = NSPredicate(
@@ -3003,10 +3036,16 @@ extension LibraryService {
       for localResource in localResources {
         // We already know this exists because of our predicate!
         guard let localItem = localResource.libraryItem,
-              let remoteItem = progressByProviderId[localResource.providerId] else {
+              let snapshot = snapshotsByProviderId[localResource.providerId] else {
           continue
         }
-        
+
+        // Chapters ride the same response and land in the same save as the progress.
+        if let book = localItem as? Book {
+          self.storeChaptersIfEmpty(snapshot.chapters, for: book, context: context)
+        }
+
+        let remoteItem = snapshot.progress
         let localDate = localItem.lastPlayDate ?? .distantPast
         let remoteDate = remoteItem.lastPlayedDate ?? .distantPast
         

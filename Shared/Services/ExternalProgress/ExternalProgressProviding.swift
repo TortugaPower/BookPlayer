@@ -24,6 +24,23 @@ public struct ExternalPlaybackProgress: Equatable, Sendable {
   }
 }
 
+/// Everything one refresh learns about an item from its own server. The progress is why the
+/// pull exists; the chapters ride along because the SAME response already carries them and a
+/// streamed item has no other source — nothing ever opens its file.
+public struct ExternalItemSnapshot: Sendable {
+  public let progress: ExternalPlaybackProgress
+  /// Carried by the BATCH paths, which both ask for chapters explicitly: AudiobookShelf's
+  /// `batch/get` returns expanded media, and the Jellyfin item query passes
+  /// `ItemFields.chapters`. An empty list therefore means the server has none — not that
+  /// we forgot to ask.
+  public let chapters: [ChapterMetadata]
+
+  public init(progress: ExternalPlaybackProgress, chapters: [ChapterMetadata] = []) {
+    self.progress = progress
+    self.chapters = chapters
+  }
+}
+
 extension [ExternalPlaybackProgress] {
   /// The candidate worth prompting the user about, or nil when no server has anything newer.
   ///
@@ -78,7 +95,7 @@ public protocol ExternalProgressProviding: Sendable {
   /// The resources may span SEVERAL servers of the same provider, so each is resolved to its
   /// own connection and queried there — a batch is not one request. A resource whose host
   /// resolves to nothing is simply absent from the result.
-  func progress(forBatch resources: [SimpleExternalResource]) async throws -> [String: ExternalPlaybackProgress]
+  func progress(forBatch resources: [SimpleExternalResource]) async throws -> [String: ExternalItemSnapshot]
 }
 
 extension ExternalProgressProviding {
@@ -139,21 +156,24 @@ public struct JellyfinProgressProvider: ExternalProgressProviding {
 
   public func progress(
     forBatch resources: [SimpleExternalResource]
-  ) async throws -> [String: ExternalPlaybackProgress] {
+  ) async throws -> [String: ExternalItemSnapshot] {
     let service = await JellyfinConnectionService()
     await service.setup()
 
-    var progress: [String: ExternalPlaybackProgress] = [:]
+    var progress: [String: ExternalItemSnapshot] = [:]
 
     for group in grouped(resources, by: await service.connections) {
       await service.useConnection(group.connection)
 
       let items = try await service.updateItemsFromJellyfin(group.resources)
       for (providerId, item) in items {
-        progress[providerId] = ExternalPlaybackProgress(
-          currentTime: TimeInterval(item.currentSeconds ?? 0),
-          lastPlayedDate: item.lastPlayedDate,
-          isFinished: item.isFinished
+        progress[providerId] = ExternalItemSnapshot(
+          progress: ExternalPlaybackProgress(
+            currentTime: TimeInterval(item.currentSeconds ?? 0),
+            lastPlayedDate: item.lastPlayedDate,
+            isFinished: item.isFinished
+          ),
+          chapters: item.chapters
         )
       }
     }
@@ -190,20 +210,23 @@ public struct AudiobookShelfProgressProvider: ExternalProgressProviding {
 
   public func progress(
     forBatch resources: [SimpleExternalResource]
-  ) async throws -> [String: ExternalPlaybackProgress] {
+  ) async throws -> [String: ExternalItemSnapshot] {
     let service = await AudiobookShelfConnectionService()
     await service.setup()
 
-    var progress: [String: ExternalPlaybackProgress] = [:]
+    var progress: [String: ExternalItemSnapshot] = [:]
 
     for group in grouped(resources, by: await service.connections) {
       await service.useConnection(group.connection)
 
       for item in try await service.fetchItems(ids: group.resources.map(\.providerId)) {
-        progress[item.id] = ExternalPlaybackProgress(
-          currentTime: item.currentTime ?? 0,
-          lastPlayedDate: item.lastPlayedDate,
-          isFinished: item.isFinished
+        progress[item.id] = ExternalItemSnapshot(
+          progress: ExternalPlaybackProgress(
+            currentTime: item.currentTime ?? 0,
+            lastPlayedDate: item.lastPlayedDate,
+            isFinished: item.isFinished
+          ),
+          chapters: item.chapters
         )
       }
     }

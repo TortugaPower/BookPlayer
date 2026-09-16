@@ -49,6 +49,10 @@ public struct AudiobookShelfLibraryItem: IntegrationLibraryItemProtocol, Codable
   public let progress: Double?
   public let currentTime: TimeInterval?
   public let isFinished: Bool?
+  /// The server's chapter list, empty unless this item came from an EXPANDED payload.
+  /// A streamed item has no other source: nothing opens the file to read embedded ones,
+  /// and ABS chapters can be server-side edits that aren't in the file at all.
+  public let chapters: [ChapterMetadata]
   /// From the progress payload's lastUpdate (ms epoch) — drives the resume-playback
   /// prompt's date comparison, same as Jellyfin's lastPlayedDate
   public let lastPlayedDate: Date?
@@ -77,6 +81,7 @@ public struct AudiobookShelfLibraryItem: IntegrationLibraryItemProtocol, Codable
     currentTime: TimeInterval? = nil,
     isFinished: Bool? = nil,
     lastPlayedDate: Date? = nil,
+    chapters: [ChapterMetadata] = [],
     browseCategory: AudiobookShelfBrowseCategory? = nil,
     filter: AudiobookShelfItemFilter? = nil
   ) {
@@ -99,6 +104,7 @@ public struct AudiobookShelfLibraryItem: IntegrationLibraryItemProtocol, Codable
     self.currentTime = currentTime
     self.isFinished = isFinished
     self.lastPlayedDate = lastPlayedDate
+    self.chapters = chapters
     self.browseCategory = browseCategory
     self.filter = filter
   }
@@ -225,8 +231,32 @@ extension AudiobookShelfLibraryItem {
       coverPath: apiItem.media.coverPath,
       progress: apiItem.userMediaProgress?.progress,
       currentTime: apiItem.userMediaProgress?.currentTime,
-      isFinished: apiItem.userMediaProgress?.isFinished
+      isFinished: apiItem.userMediaProgress?.isFinished,
+      chapters: Self.chapterMetadata(from: apiItem.media.chapters)
     )
+  }
+
+  /// ABS gives every chapter a start AND an end, so durations are direct. Entries that
+  /// don't describe a positive span are dropped — `PlaybackService.getPlayableChapters`
+  /// filters those out anyway, and storing them would make the stored list disagree with
+  /// the playable one.
+  static func chapterMetadata(from chapters: [AudiobookShelfAPIItem.Media.Chapter]?) -> [ChapterMetadata] {
+    guard let chapters else { return [] }
+
+    return chapters
+      .sorted { $0.start < $1.start }
+      .enumerated()
+      .compactMap { index, chapter in
+        let duration = chapter.end - chapter.start
+        guard duration > 0 else { return nil }
+
+        return ChapterMetadata(
+          title: chapter.title,
+          start: chapter.start,
+          duration: duration,
+          index: index + 1
+        )
+      }
   }
   
   public init(progressItem: AudiobookShelfAPIItem.UserMediaProgress) {
@@ -261,6 +291,19 @@ public struct AudiobookShelfAPIItem: Codable {
     public let coverPath: String?
     public let duration: TimeInterval?
     public let audioFiles: [AudioFile]?
+    /// Present on EXPANDED media only, alongside `audioFiles` — which is exactly what
+    /// `POST /api/items/batch/get` returns. These are the server's chapters, which the
+    /// user may have edited in ABS and which a multi-file book has instead of embedded
+    /// ones, so they are the authoritative list for an item we only ever stream.
+    public let chapters: [Chapter]?
+
+    /// Only the fields we read, like `AudioFile` below: a malformed element we never look at
+    /// would otherwise throw and take the whole batch response — and the import with it.
+    public struct Chapter: Codable {
+      public let start: TimeInterval
+      public let end: TimeInterval
+      public let title: String
+    }
     
     public struct Metadata: Codable {
       public let title: String
@@ -403,6 +446,7 @@ extension AudiobookShelfLibraryItem {
   public func asVirtualImportResource(
     fileExtension: String,
     duration: TimeInterval,
+    chapters: [ChapterMetadata] = [],
     connectionService: AudiobookShelfConnectionService,
     artworkSize: CGSize
   ) -> SimpleExternalResource {
@@ -434,7 +478,8 @@ extension AudiobookShelfLibraryItem {
       syncStatus: ExternalResource.SyncStatus.stream.rawValue,
       lastSyncedAt: nil,
       hostId: connectionService.connection?.stableHostId,
-      libraryItem: libraryItem
+      libraryItem: libraryItem,
+      chapters: chapters
     )
   }
 }

@@ -138,7 +138,8 @@ class JellyfinAudiobookDetailsViewModel: IntegrationDetailsViewModelProtocol {
             // `details.runtimeInSeconds`, never `durationSeconds`: the mapper collapses an
             // unmeasured runtime to 0 rather than nil, so reading it here would satisfy the
             // `??` with a zero and skip the fallback in exactly the case it exists for
-            duration: hydrated.first?.details?.runtimeInSeconds ?? self.details?.runtimeInSeconds
+            duration: hydrated.first?.details?.runtimeInSeconds ?? self.details?.runtimeInSeconds,
+            chapters: hydrated.first?.chapters ?? []
           )
           return hydratedByID
         },
@@ -146,6 +147,7 @@ class JellyfinAudiobookDetailsViewModel: IntegrationDetailsViewModelProtocol {
           item.asVirtualImportResource(
             fileExtension: hydrated.fileExtension,
             duration: hydrated.duration,
+            chapters: hydrated.chapters,
             detailsOverride: self.details,
             connectionService: self.connectionService,
             artworkSize: CGSize(width: 200, height: 200)

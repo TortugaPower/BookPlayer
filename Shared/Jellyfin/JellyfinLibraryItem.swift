@@ -33,6 +33,9 @@ public struct JellyfinLibraryItem: IntegrationLibraryItemProtocol {
   public let blurHash: String?
   public let imageAspectRatio: Double?
   public let details: JellyfinAudiobookDetailsData?
+  /// The server's chapter list, empty unless this item came from a payload that requested
+  /// `ItemFields.chapters`. A streamed item has no other source — nothing opens the file.
+  public let chapters: [ChapterMetadata]
 
   public var isDownloadable: Bool {
     kind == .audiobook
@@ -66,7 +69,8 @@ extension JellyfinLibraryItem {
       lastPlayedDate: nil,
       blurHash: nil,
       imageAspectRatio: nil,
-      details: nil
+      details: nil,
+      chapters: []
     )
   }
 }
@@ -81,6 +85,35 @@ extension JellyfinLibraryItem {
   /// that names one of its types compiles but fails to LINK.
   static func resolveRuntimeSeconds(itemTicks: Int?, mediaSourceTicks: Int?) -> TimeInterval? {
     (itemTicks ?? mediaSourceTicks).map { TimeInterval($0) / 10000000.0 }
+  }
+
+  /// Jellyfin reports only a START per chapter, so each duration is the gap to the next one
+  /// and the last runs to the item's runtime. Without a runtime the final chapter has no
+  /// end, so the whole list is dropped rather than storing one with a bogus length.
+  ///
+  /// Tick-typed pairs rather than `[ChapterInfo]` so this is testable without JellyfinAPI,
+  /// which `BookPlayerTests` does not link.
+  static func chapterMetadata(
+    from chapters: [(name: String?, startTicks: Int?)],
+    runtimeSeconds: TimeInterval?
+  ) -> [ChapterMetadata] {
+    guard let runtimeSeconds, runtimeSeconds > 0 else { return [] }
+
+    let starts = chapters
+      .compactMap { chapter -> (String, TimeInterval)? in
+        guard let startTicks = chapter.startTicks else { return nil }
+        return (chapter.name ?? "", TimeInterval(startTicks) / 10000000.0)
+      }
+      .filter { $0.1 < runtimeSeconds }
+      .sorted { $0.1 < $1.1 }
+
+    return starts.enumerated().compactMap { index, entry in
+      let end = index + 1 < starts.count ? starts[index + 1].1 : runtimeSeconds
+      let duration = end - entry.1
+      guard duration > 0 else { return nil }
+
+      return ChapterMetadata(title: entry.0, start: entry.1, duration: duration, index: index + 1)
+    }
   }
 
   /// The playable file's extension: Jellyfin reports a media source's container, which can be
@@ -144,7 +177,11 @@ extension JellyfinLibraryItem {
       lastPlayedDate: apiItem.userData?.lastPlayedDate,
       blurHash: blurHash,
       imageAspectRatio: apiItem.primaryImageAspectRatio,
-      details: myDetails
+      details: myDetails,
+      chapters: Self.chapterMetadata(
+        from: (apiItem.chapters ?? []).map { (name: $0.name, startTicks: $0.startPositionTicks) },
+        runtimeSeconds: runtimeInSeconds
+      )
     )
   }
 
@@ -154,7 +191,7 @@ extension JellyfinLibraryItem {
     let name = authorApiItem.name ?? id
     let blurHash = authorApiItem.imageBlurHashes?.primary?.first?.value
     self.init(id: id, name: name, kind: .author, durationSeconds: Int64((authorApiItem.runTimeTicks ?? 0) / 10000000), currentSeconds: Int64((authorApiItem.userData?.playbackPositionTicks ?? 0) / 10000000), isFinished: authorApiItem.userData?.isPlayed,
-              lastPlayedDate: authorApiItem.userData?.lastPlayedDate, blurHash: blurHash, imageAspectRatio: authorApiItem.primaryImageAspectRatio, details: nil)
+              lastPlayedDate: authorApiItem.userData?.lastPlayedDate, blurHash: blurHash, imageAspectRatio: authorApiItem.primaryImageAspectRatio, details: nil, chapters: [])
   }
 
   /// Create a narrator item from a Persons API response
@@ -163,7 +200,7 @@ extension JellyfinLibraryItem {
     let name = narratorApiItem.name ?? id
     let blurHash = narratorApiItem.imageBlurHashes?.primary?.first?.value
     self.init(id: id, name: name, kind: .narrator, durationSeconds: Int64((narratorApiItem.runTimeTicks ?? 0) / 10000000), currentSeconds: Int64((narratorApiItem.userData?.playbackPositionTicks ?? 0) / 10000000), isFinished: narratorApiItem.userData?.isPlayed,
-              lastPlayedDate: narratorApiItem.userData?.lastPlayedDate, blurHash: blurHash, imageAspectRatio: narratorApiItem.primaryImageAspectRatio, details: nil)
+              lastPlayedDate: narratorApiItem.userData?.lastPlayedDate, blurHash: blurHash, imageAspectRatio: narratorApiItem.primaryImageAspectRatio, details: nil, chapters: [])
   }
 }
 
@@ -180,6 +217,7 @@ extension JellyfinLibraryItem {
   public func asVirtualImportResource(
     fileExtension: String,
     duration: TimeInterval,
+    chapters: [ChapterMetadata] = [],
     detailsOverride: JellyfinAudiobookDetailsData?,
     connectionService: JellyfinConnectionService,
     artworkSize: CGSize
@@ -215,7 +253,8 @@ extension JellyfinLibraryItem {
       syncStatus: ExternalResource.SyncStatus.stream.rawValue,
       lastSyncedAt: nil,
       hostId: connectionService.connection?.stableHostId,
-      libraryItem: libraryItem
+      libraryItem: libraryItem,
+      chapters: chapters
     )
   }
 }

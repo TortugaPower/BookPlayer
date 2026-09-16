@@ -513,6 +513,21 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
         loadChaptersIfNeededRelativePathAssetReceivedInvocations.append((relativePath: relativePath, asset: asset))
         await loadChaptersIfNeededRelativePathAssetClosure?(relativePath, asset)
     }
+    //MARK: - storeChaptersIfNeeded
+
+    var storeChaptersIfNeededRelativePathChaptersCallsCount = 0
+    var storeChaptersIfNeededRelativePathChaptersCalled: Bool {
+        return storeChaptersIfNeededRelativePathChaptersCallsCount > 0
+    }
+    var storeChaptersIfNeededRelativePathChaptersReceivedArguments: (relativePath: String, chapters: [ChapterMetadata])?
+    var storeChaptersIfNeededRelativePathChaptersReceivedInvocations: [(relativePath: String, chapters: [ChapterMetadata])] = []
+    var storeChaptersIfNeededRelativePathChaptersClosure: ((String, [ChapterMetadata]) async -> Void)?
+    func storeChaptersIfNeeded(relativePath: String, chapters: [ChapterMetadata]) async {
+        storeChaptersIfNeededRelativePathChaptersCallsCount += 1
+        storeChaptersIfNeededRelativePathChaptersReceivedArguments = (relativePath: relativePath, chapters: chapters)
+        storeChaptersIfNeededRelativePathChaptersReceivedInvocations.append((relativePath: relativePath, chapters: chapters))
+        await storeChaptersIfNeededRelativePathChaptersClosure?(relativePath, chapters)
+    }
     //MARK: - reloadChapters
 
     var reloadChaptersRelativePathCallsCount = 0
@@ -1160,19 +1175,19 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     }
     //MARK: - handleSyncFromExternalResource
 
-    var handleSyncFromExternalResourceProviderNameProgressByProviderIdCallsCount = 0
-    var handleSyncFromExternalResourceProviderNameProgressByProviderIdCalled: Bool {
-        return handleSyncFromExternalResourceProviderNameProgressByProviderIdCallsCount > 0
+    var handleSyncFromExternalResourceProviderNameSnapshotsByProviderIdCallsCount = 0
+    var handleSyncFromExternalResourceProviderNameSnapshotsByProviderIdCalled: Bool {
+        return handleSyncFromExternalResourceProviderNameSnapshotsByProviderIdCallsCount > 0
     }
-    var handleSyncFromExternalResourceProviderNameProgressByProviderIdReceivedArguments: (providerName: String, progressByProviderId: [String: ExternalPlaybackProgress])?
-    var handleSyncFromExternalResourceProviderNameProgressByProviderIdReceivedInvocations: [(providerName: String, progressByProviderId: [String: ExternalPlaybackProgress])] = []
-    var handleSyncFromExternalResourceProviderNameProgressByProviderIdClosure: ((String, [String: ExternalPlaybackProgress]) -> Void)?
+    var handleSyncFromExternalResourceProviderNameSnapshotsByProviderIdReceivedArguments: (providerName: String, snapshotsByProviderId: [String: ExternalItemSnapshot])?
+    var handleSyncFromExternalResourceProviderNameSnapshotsByProviderIdReceivedInvocations: [(providerName: String, snapshotsByProviderId: [String: ExternalItemSnapshot])] = []
+    var handleSyncFromExternalResourceProviderNameSnapshotsByProviderIdClosure: ((String, [String: ExternalItemSnapshot]) -> Void)?
     @MainActor
-    func handleSyncFromExternalResource(providerName: String, progressByProviderId: [String: ExternalPlaybackProgress]) {
-        handleSyncFromExternalResourceProviderNameProgressByProviderIdCallsCount += 1
-        handleSyncFromExternalResourceProviderNameProgressByProviderIdReceivedArguments = (providerName: providerName, progressByProviderId: progressByProviderId)
-        handleSyncFromExternalResourceProviderNameProgressByProviderIdReceivedInvocations.append((providerName: providerName, progressByProviderId: progressByProviderId))
-        handleSyncFromExternalResourceProviderNameProgressByProviderIdClosure?(providerName, progressByProviderId)
+    func handleSyncFromExternalResource(providerName: String, snapshotsByProviderId: [String: ExternalItemSnapshot]) {
+        handleSyncFromExternalResourceProviderNameSnapshotsByProviderIdCallsCount += 1
+        handleSyncFromExternalResourceProviderNameSnapshotsByProviderIdReceivedArguments = (providerName: providerName, snapshotsByProviderId: snapshotsByProviderId)
+        handleSyncFromExternalResourceProviderNameSnapshotsByProviderIdReceivedInvocations.append((providerName: providerName, snapshotsByProviderId: snapshotsByProviderId))
+        handleSyncFromExternalResourceProviderNameSnapshotsByProviderIdClosure?(providerName, snapshotsByProviderId)
     }
 }
 class PlaybackServiceProtocolMock: PlaybackServiceProtocol {

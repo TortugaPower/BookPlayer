@@ -268,13 +268,18 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
           // audioFiles); one round-trip for the whole selection
           let hydrated = try await self.connectionService.fetchItems(ids: ids)
           return hydrated.reduce(into: [:]) {
-            $0[$1.id] = HydratedItem(fileExtension: $1.fileExtension, duration: $1.duration)
+            $0[$1.id] = HydratedItem(
+              fileExtension: $1.fileExtension,
+              duration: $1.duration,
+              chapters: $1.chapters
+            )
           }
         },
         buildResource: { item, hydrated in
           item.asVirtualImportResource(
             fileExtension: hydrated.fileExtension,
             duration: hydrated.duration,
+            chapters: hydrated.chapters,
             connectionService: self.connectionService,
             artworkSize: CGSize(width: 300, height: 300)
           )

@@ -2207,6 +2207,72 @@ class LibraryServiceExternalResourceTests: XCTestCase {
     XCTAssertEqual(abs?.libraryItemUuid, book2.uuid)
   }
 
+  // MARK: - Media-server chapters
+
+  private func chapters(_ spans: [(TimeInterval, TimeInterval)]) -> [ChapterMetadata] {
+    spans.enumerated().map { index, span in
+      ChapterMetadata(title: "Chapter \(index + 1)", start: span.0, duration: span.1, index: index + 1)
+    }
+  }
+
+  func testStoreChaptersIfNeededFillsABookWithNone() async {
+    let book = makeBook("external-chapters-1", duration: 1500)
+
+    await sut.storeChaptersIfNeeded(relativePath: book.relativePath, chapters: chapters([(0, 600), (600, 900)]))
+
+    sut.dataManager.getContext().refresh(book, mergeChanges: true)
+    XCTAssertEqual(sut.getChapters(from: book.relativePath)?.map(\.title), ["Chapter 1", "Chapter 2"])
+  }
+
+  func testStoreChaptersIfNeededNeverReplacesAList() async {
+    let book = makeBook("external-chapters-2", duration: 1500)
+    await sut.storeChaptersIfNeeded(relativePath: book.relativePath, chapters: chapters([(0, 1500)]))
+
+    await sut.storeChaptersIfNeeded(relativePath: book.relativePath, chapters: chapters([(0, 600), (600, 900)]))
+
+    sut.dataManager.getContext().refresh(book, mergeChanges: true)
+    XCTAssertEqual(
+      sut.getChapters(from: book.relativePath)?.count,
+      1,
+      "a parsed list on a downloaded copy must not be overwritten by a later server refresh"
+    )
+  }
+
+  func testStoreChaptersIfNeededNeverClearsAListWithAnEmptyAnswer() async {
+    let book = makeBook("external-chapters-3", duration: 1500)
+    await sut.storeChaptersIfNeeded(relativePath: book.relativePath, chapters: chapters([(0, 600), (600, 900)]))
+
+    // A server that reports no chapters must not wipe what the item already has.
+    await sut.storeChaptersIfNeeded(relativePath: book.relativePath, chapters: [])
+
+    sut.dataManager.getContext().refresh(book, mergeChanges: true)
+    XCTAssertEqual(sut.getChapters(from: book.relativePath)?.count, 2)
+  }
+
+  @MainActor
+  func testHandleSyncFromExternalResourceStoresTheSnapshotsChapters() async {
+    let book = makeBook("external-chapters-4", duration: 1500)
+    _ = await sut.setExternalResource(providerName: "jellyfin", providerId: "jelly-ch", for: book.uuid)
+    sut.dataManager.getContext().refreshAllObjects()
+
+    sut.handleSyncFromExternalResource(
+      providerName: "jellyfin",
+      snapshotsByProviderId: [
+        "jelly-ch": ExternalItemSnapshot(
+          progress: ExternalPlaybackProgress(currentTime: 0, lastPlayedDate: nil),
+          chapters: chapters([(0, 600), (600, 900)])
+        )
+      ]
+    )
+
+    sut.dataManager.getContext().refresh(book, mergeChanges: true)
+    XCTAssertEqual(
+      sut.getChapters(from: book.relativePath)?.map(\.title),
+      ["Chapter 1", "Chapter 2"],
+      "chapters ride the same response and land in the same save as the progress"
+    )
+  }
+
   @MainActor
   func testHandleSyncFromExternalResourceUpdatesNewerProgress() async {
     let book = makeBook("external-5", duration: 200)
@@ -2224,7 +2290,7 @@ class LibraryServiceExternalResourceTests: XCTestCase {
     let remote = ExternalPlaybackProgress(currentTime: 100, lastPlayedDate: remoteDate, isFinished: false)
     sut.handleSyncFromExternalResource(
       providerName: "jellyfin",
-      progressByProviderId: ["jelly-5": remote]
+      snapshotsByProviderId: ["jelly-5": ExternalItemSnapshot(progress: remote)]
     )
 
     sut.dataManager.getContext().refresh(book, mergeChanges: true)
@@ -2253,7 +2319,7 @@ class LibraryServiceExternalResourceTests: XCTestCase {
     )
     sut.handleSyncFromExternalResource(
       providerName: "jellyfin",
-      progressByProviderId: ["jelly-6": remote]
+      snapshotsByProviderId: ["jelly-6": ExternalItemSnapshot(progress: remote)]
     )
 
     sut.dataManager.getContext().refresh(book, mergeChanges: true)
@@ -2278,10 +2344,12 @@ class LibraryServiceExternalResourceTests: XCTestCase {
     // Same providerId, different provider: an ABS batch must not move the Jellyfin-linked row.
     sut.handleSyncFromExternalResource(
       providerName: "audiobookshelf",
-      progressByProviderId: [
-        "shared-id": ExternalPlaybackProgress(
-          currentTime: 180,
-          lastPlayedDate: Date(timeIntervalSince1970: 9_000)
+      snapshotsByProviderId: [
+        "shared-id": ExternalItemSnapshot(
+          progress: ExternalPlaybackProgress(
+            currentTime: 180,
+            lastPlayedDate: Date(timeIntervalSince1970: 9_000)
+          )
         )
       ]
     )

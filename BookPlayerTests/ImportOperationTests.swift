@@ -416,6 +416,10 @@ final class AudiobookShelfDecodingTests: XCTestCase {
           "media": {
             "metadata": { "title": "Real Book" },
             "duration": 4800,
+            "chapters": [
+              { "start": 0, "end": 600, "title": "Chapter One" },
+              { "start": 600, "end": 4800, "title": "Chapter Two" }
+            ],
             "audioFiles": [
               {
                 "index": 1,
@@ -443,6 +447,12 @@ final class AudiobookShelfDecodingTests: XCTestCase {
       4800,
       "the virtual import refuses an item without a length, so the batch payload has to carry one"
     )
+    XCTAssertEqual(
+      items.first?.chapters.map(\.title),
+      ["Chapter One", "Chapter Two"],
+      "batch/get returns EXPANDED media, so chapters arrive on the same response as audioFiles"
+    )
+    XCTAssertEqual(items.first?.chapters.map(\.duration), [600, 4200])
   }
 }
 
@@ -778,6 +788,9 @@ final class ExternalProgressServiceTests: XCTestCase {
     private let lock = NSLock()
     private var _requested: [String] = []
     private let answer: @Sendable (SimpleExternalResource) async throws -> ExternalPlaybackProgress?
+    /// Attached to every answered snapshot, so a test can script the chapter half without
+    /// restating the position half.
+    private let chapters: [ChapterMetadata]
 
     var requested: [String] {
       lock.lock()
@@ -785,7 +798,11 @@ final class ExternalProgressServiceTests: XCTestCase {
       return _requested
     }
 
-    init(answer: @escaping @Sendable (SimpleExternalResource) async throws -> ExternalPlaybackProgress?) {
+    init(
+      chapters: [ChapterMetadata] = [],
+      answer: @escaping @Sendable (SimpleExternalResource) async throws -> ExternalPlaybackProgress?
+    ) {
+      self.chapters = chapters
       self.answer = answer
     }
 
@@ -798,11 +815,11 @@ final class ExternalProgressServiceTests: XCTestCase {
 
     func progress(
       forBatch resources: [SimpleExternalResource]
-    ) async throws -> [String: ExternalPlaybackProgress] {
-      var out: [String: ExternalPlaybackProgress] = [:]
+    ) async throws -> [String: ExternalItemSnapshot] {
+      var out: [String: ExternalItemSnapshot] = [:]
       for resource in resources {
         if let progress = try await progress(for: resource) {
-          out[resource.providerId] = progress
+          out[resource.providerId] = ExternalItemSnapshot(progress: progress, chapters: chapters)
         }
       }
       return out
@@ -1100,11 +1117,35 @@ final class ExternalProgressServiceTests: XCTestCase {
     XCTAssertEqual(jellyfin.requested, ["jf-1"])
     XCTAssertEqual(abs.requested, ["abs-1"], "AudiobookShelf items refresh too")
 
-    let ingested = libraryService.handleSyncFromExternalResourceProviderNameProgressByProviderIdReceivedInvocations
+    let ingested = libraryService.handleSyncFromExternalResourceProviderNameSnapshotsByProviderIdReceivedInvocations
     XCTAssertEqual(
       Set(ingested.map(\.providerName)),
       ["jellyfin", "audiobookshelf"],
       "each provider folds its own answers in, under its own provider name"
+    )
+  }
+
+  /// The second-device path: a row arrives through BookPlayer's own sync, which carries no
+  /// chapters, and the level refresh is the only thing that can supply them.
+  func testRefreshItemsForwardsTheProvidersChaptersToTheIngest() async {
+    let chapters = [
+      ChapterMetadata(title: "One", start: 0, duration: 600, index: 1),
+      ChapterMetadata(title: "Two", start: 600, duration: 900, index: 2),
+    ]
+    let jellyfin = ProviderStub(chapters: chapters) { _ in
+      ExternalPlaybackProgress(currentTime: 120, lastPlayedDate: Date(timeIntervalSince1970: 500))
+    }
+    let (sut, libraryService) = makeSUT(resources: [], providers: [.jellyfin: jellyfin])
+    // The LEVEL path reads this one; `resources:` above feeds the on-play path.
+    libraryService.findMediaServerResourcesAtReturnValue = [makeResource(provider: "jellyfin", id: "jf-1")]
+
+    await sut.refreshItems(at: nil)
+
+    let ingested = libraryService.handleSyncFromExternalResourceProviderNameSnapshotsByProviderIdReceivedInvocations
+    XCTAssertEqual(
+      ingested.first?.snapshotsByProviderId["jf-1"]?.chapters,
+      chapters,
+      "chapters ride the same snapshot as the position, unchanged"
     )
   }
 
@@ -1117,7 +1158,7 @@ final class ExternalProgressServiceTests: XCTestCase {
 
     XCTAssertEqual(libraryService.findMediaServerResourcesAtReceivedInvocations, [nil], "root is asked as nil")
     XCTAssertTrue(jellyfin.requested.isEmpty)
-    XCTAssertEqual(libraryService.handleSyncFromExternalResourceProviderNameProgressByProviderIdCallsCount, 0)
+    XCTAssertEqual(libraryService.handleSyncFromExternalResourceProviderNameSnapshotsByProviderIdCallsCount, 0)
   }
 
   // MARK: the entitlement gate (pull only — the push runs on every tier)
@@ -1147,7 +1188,7 @@ final class ExternalProgressServiceTests: XCTestCase {
 
     XCTAssertEqual(libraryService.findMediaServerResourcesAtCallsCount, 0)
     XCTAssertTrue(jellyfin.requested.isEmpty)
-    XCTAssertEqual(libraryService.handleSyncFromExternalResourceProviderNameProgressByProviderIdCallsCount, 0)
+    XCTAssertEqual(libraryService.handleSyncFromExternalResourceProviderNameSnapshotsByProviderIdCallsCount, 0)
   }
 
   /// The entitlement is read live, so a downgrade takes effect on the NEXT pull; the one
@@ -1508,7 +1549,8 @@ final class VirtualImportPayloadTests: XCTestCase {
       lastPlayedDate: nil,
       blurHash: nil,
       imageAspectRatio: nil,
-      details: nil
+      details: nil,
+      chapters: []
     )
 
     let resource = item.asVirtualImportResource(
@@ -1553,5 +1595,90 @@ final class JellyfinFileExtensionMappingTests: XCTestCase {
       "",
       "an extensionless path yields an empty string, which the import gate rejects"
     )
+  }
+}
+
+// MARK: - Media-server chapter mapping
+
+/// A streamed item's chapters can only come from its server: nothing opens the file, and on
+/// AudiobookShelf the list may be a server-side edit that isn't in the file at all.
+final class MediaServerChapterMappingTests: XCTestCase {
+  // MARK: AudiobookShelf — start AND end, so durations are direct
+
+  func testAudiobookShelfChaptersMapWithDirectDurations() {
+    let chapters = AudiobookShelfLibraryItem.chapterMetadata(from: [
+      .init(start: 0, end: 600, title: "One"),
+      .init(start: 600, end: 1500, title: "Two"),
+    ])
+
+    XCTAssertEqual(chapters.map(\.title), ["One", "Two"])
+    XCTAssertEqual(chapters.map(\.start), [0, 600])
+    XCTAssertEqual(chapters.map(\.duration), [600, 900])
+    XCTAssertEqual(chapters.map(\.index), [1, 2], "index is 1-based, matching the playable list")
+  }
+
+  func testAudiobookShelfOutOfOrderChaptersAreSortedAndZeroLengthOnesDropped() {
+    let chapters = AudiobookShelfLibraryItem.chapterMetadata(from: [
+      .init(start: 600, end: 1500, title: "Two"),
+      .init(start: 1500, end: 1500, title: "Empty"),
+      .init(start: 0, end: 600, title: "One"),
+    ])
+
+    XCTAssertEqual(
+      chapters.map(\.title),
+      ["One", "Two"],
+      "a zero-length entry would be filtered by getPlayableChapters anyway — don't store it"
+    )
+  }
+
+  func testAudiobookShelfNoChaptersIsEmptyNotASynthesizedOne() {
+    XCTAssertTrue(AudiobookShelfLibraryItem.chapterMetadata(from: nil).isEmpty)
+    XCTAssertTrue(AudiobookShelfLibraryItem.chapterMetadata(from: []).isEmpty)
+  }
+
+  // MARK: Jellyfin — starts only, so each duration is the gap to the next
+
+  func testJellyfinChapterDurationsDeriveFromTheNextStart() {
+    let chapters = JellyfinLibraryItem.chapterMetadata(
+      from: [(name: "One", startTicks: 0), (name: "Two", startTicks: 6_000_000_000)],
+      runtimeSeconds: 1500
+    )
+
+    XCTAssertEqual(chapters.map(\.title), ["One", "Two"])
+    XCTAssertEqual(chapters.map(\.start), [0, 600])
+    XCTAssertEqual(
+      chapters.map(\.duration),
+      [600, 900],
+      "the last chapter runs to the item runtime, which is the only thing that bounds it"
+    )
+  }
+
+  func testJellyfinChaptersNeedARuntimeToBeBounded() {
+    XCTAssertTrue(
+      JellyfinLibraryItem.chapterMetadata(
+        from: [(name: "One", startTicks: 0)],
+        runtimeSeconds: nil
+      ).isEmpty,
+      "without a runtime the final chapter has no end; storing a guess is worse than none"
+    )
+  }
+
+  func testJellyfinChaptersStartingPastTheRuntimeAreDropped() {
+    let chapters = JellyfinLibraryItem.chapterMetadata(
+      from: [(name: "One", startTicks: 0), (name: "Bogus", startTicks: 99_000_000_000)],
+      runtimeSeconds: 1500
+    )
+
+    XCTAssertEqual(chapters.map(\.title), ["One"])
+    XCTAssertEqual(chapters.map(\.duration), [1500])
+  }
+
+  func testJellyfinChaptersWithoutAStartAreSkipped() {
+    let chapters = JellyfinLibraryItem.chapterMetadata(
+      from: [(name: "Unanchored", startTicks: nil), (name: "One", startTicks: 0)],
+      runtimeSeconds: 600
+    )
+
+    XCTAssertEqual(chapters.map(\.title), ["One"])
   }
 }
