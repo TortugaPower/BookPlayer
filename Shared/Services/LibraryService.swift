@@ -2989,7 +2989,7 @@ extension LibraryService {
     // reconciled are visible here directly, and the main thread does nothing for this query.
     let context = dataManager.getBackgroundContext()
 
-    return await context.perform {
+    return await context.perform { [unowned self] in
       let fetch: NSFetchRequest<ExternalResource> = ExternalResource.fetchRequest()
       let level: NSPredicate
       if let relativePath {
@@ -3007,10 +3007,49 @@ extension LibraryService {
         ExternalResource.ProviderName.mediaServerRawValues
       )
       fetch.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [level, mediaServers])
+      // The snapshot already reads `libraryItem` for the uuid and title, and the chapter
+      // lookup below needs its relativePath — one prefetch instead of a fault per row.
+      fetch.relationshipKeyPathsForPrefetching = [#keyPath(ExternalResource.libraryItem)]
 
       let resources = (try? context.fetch(fetch)) ?? []
-      return resources.map { SimpleExternalResource(from: $0, ignoreLibraryItem: true) }
+      let chapterless = self.relativePathsWithoutChapters(
+        among: resources.compactMap { $0.libraryItem?.relativePath },
+        context: context
+      )
+
+      return resources.map { resource in
+        var simple = SimpleExternalResource(from: resource, ignoreLibraryItem: true)
+        if let relativePath = resource.libraryItem?.relativePath {
+          simple.needsChapters = chapterless.contains(relativePath)
+        }
+        return simple
+      }
     }
+  }
+
+  /// Which of these books still have no chapters, answered SQL-side in one fetch.
+  ///
+  /// Asks `Book` directly rather than reaching through `ExternalResource.libraryItem`:
+  /// `chapters` is declared on `Book`, and that relationship's destination is the abstract
+  /// `LibraryItem`, so the keypath would not resolve.
+  private func relativePathsWithoutChapters(
+    among relativePaths: [String],
+    context: NSManagedObjectContext
+  ) -> Set<String> {
+    guard !relativePaths.isEmpty else { return [] }
+
+    let fetch = NSFetchRequest<NSDictionary>(entityName: "Book")
+    fetch.resultType = .dictionaryResultType
+    fetch.propertiesToFetch = [#keyPath(Book.relativePath)]
+    fetch.predicate = NSPredicate(
+      format: "%K IN %@ AND %K.@count == 0",
+      #keyPath(Book.relativePath),
+      relativePaths,
+      #keyPath(Book.chapters)
+    )
+
+    let results = (try? context.fetch(fetch)) ?? []
+    return Set(results.compactMap { $0[#keyPath(Book.relativePath)] as? String })
   }
 
   /// Provider-neutral on purpose: this only ever used the position, the date and the finished

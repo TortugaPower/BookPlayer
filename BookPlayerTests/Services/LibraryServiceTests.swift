@@ -2249,6 +2249,24 @@ class LibraryServiceExternalResourceTests: XCTestCase {
     XCTAssertEqual(sut.getChapters(from: book.relativePath)?.count, 2)
   }
 
+  func testFindMediaServerResourcesMarksOnlyTheBooksWithoutChapters() async {
+    let chaptered = makeBook("needs-nothing", duration: 1500)
+    let bare = makeBook("needs-chapters", duration: 1500)
+    _ = await sut.setExternalResource(providerName: "jellyfin", providerId: "jf-chaptered", for: chaptered.uuid)
+    _ = await sut.setExternalResource(providerName: "jellyfin", providerId: "jf-bare", for: bare.uuid)
+    await sut.storeChaptersIfNeeded(relativePath: chaptered.relativePath, chapters: chapters([(0, 1500)]))
+
+    let resources = await sut.findMediaServerResources(at: nil)
+
+    let byProviderId = Dictionary(uniqueKeysWithValues: resources.map { ($0.providerId, $0.needsChapters) })
+    XCTAssertEqual(byProviderId["jf-bare"], true)
+    XCTAssertEqual(
+      byProviderId["jf-chaptered"],
+      false,
+      "a book that already has chapters must not make the refresh ask for them again"
+    )
+  }
+
   @MainActor
   func testHandleSyncFromExternalResourceStoresTheSnapshotsChapters() async {
     let book = makeBook("external-chapters-4", duration: 1500)

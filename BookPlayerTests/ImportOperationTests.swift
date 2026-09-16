@@ -787,6 +787,7 @@ final class ExternalProgressServiceTests: XCTestCase {
   private final class ProviderStub: ExternalProgressProviding, @unchecked Sendable {
     private let lock = NSLock()
     private var _requested: [String] = []
+    private var _chapterRequests: [[String]] = []
     private let answer: @Sendable (SimpleExternalResource) async throws -> ExternalPlaybackProgress?
     /// Attached to every answered snapshot, so a test can script the chapter half without
     /// restating the position half.
@@ -796,6 +797,14 @@ final class ExternalProgressServiceTests: XCTestCase {
       lock.lock()
       defer { lock.unlock() }
       return _requested
+    }
+
+    /// The id sets asked WITH chapters, one entry per call — so a test can assert both that
+    /// chapters were requested for the right items and that they weren't requested at all.
+    var chapterRequests: [[String]] {
+      lock.lock()
+      defer { lock.unlock() }
+      return _chapterRequests
     }
 
     init(
@@ -814,12 +823,22 @@ final class ExternalProgressServiceTests: XCTestCase {
     }
 
     func progress(
-      forBatch resources: [SimpleExternalResource]
+      forBatch resources: [SimpleExternalResource],
+      includingChapters: Bool
     ) async throws -> [String: ExternalItemSnapshot] {
+      if includingChapters {
+        lock.lock()
+        _chapterRequests.append(resources.map(\.providerId))
+        lock.unlock()
+      }
+
       var out: [String: ExternalItemSnapshot] = [:]
       for resource in resources {
         if let progress = try await progress(for: resource) {
-          out[resource.providerId] = ExternalItemSnapshot(progress: progress, chapters: chapters)
+          out[resource.providerId] = ExternalItemSnapshot(
+            progress: progress,
+            chapters: includingChapters ? chapters : []
+          )
         }
       }
       return out
@@ -844,14 +863,19 @@ final class ExternalProgressServiceTests: XCTestCase {
     super.tearDown()
   }
 
-  private func makeResource(provider: String, id: String) -> SimpleExternalResource {
+  private func makeResource(
+    provider: String,
+    id: String,
+    needsChapters: Bool = false
+  ) -> SimpleExternalResource {
     SimpleExternalResource(
       providerName: provider,
       providerId: id,
       syncStatus: ExternalResource.SyncStatus.stream.rawValue,
       lastSyncedAt: nil,
       hostId: "guid-host",
-      libraryItem: nil
+      libraryItem: nil,
+      needsChapters: needsChapters
     )
   }
 
@@ -1137,7 +1161,9 @@ final class ExternalProgressServiceTests: XCTestCase {
     }
     let (sut, libraryService) = makeSUT(resources: [], providers: [.jellyfin: jellyfin])
     // The LEVEL path reads this one; `resources:` above feeds the on-play path.
-    libraryService.findMediaServerResourcesAtReturnValue = [makeResource(provider: "jellyfin", id: "jf-1")]
+    libraryService.findMediaServerResourcesAtReturnValue = [
+      makeResource(provider: "jellyfin", id: "jf-1", needsChapters: true)
+    ]
 
     await sut.refreshItems(at: nil)
 
@@ -1146,6 +1172,53 @@ final class ExternalProgressServiceTests: XCTestCase {
       ingested.first?.snapshotsByProviderId["jf-1"]?.chapters,
       chapters,
       "chapters ride the same snapshot as the position, unchanged"
+    )
+  }
+
+  /// The repeated case, and the reason the flag exists: once every book has chapters the
+  /// refresh must cost exactly what a progress-only refresh always cost.
+  func testRefreshItemsAsksForNoChaptersWhenNothingNeedsThem() async {
+    let jellyfin = ProviderStub { _ in
+      ExternalPlaybackProgress(currentTime: 120, lastPlayedDate: Date(timeIntervalSince1970: 500))
+    }
+    let (sut, libraryService) = makeSUT(resources: [], providers: [.jellyfin: jellyfin])
+    libraryService.findMediaServerResourcesAtReturnValue = [
+      makeResource(provider: "jellyfin", id: "jf-1"),
+      makeResource(provider: "jellyfin", id: "jf-2"),
+    ]
+
+    await sut.refreshItems(at: nil)
+
+    XCTAssertTrue(jellyfin.chapterRequests.isEmpty, "a chapters request here would repeat forever")
+    XCTAssertEqual(Set(jellyfin.requested), ["jf-1", "jf-2"], "every item is still refreshed for position")
+  }
+
+  /// A book whose server has no chapters never gets filled, so it stays in the needing set —
+  /// it must not drag the whole level's chapters along on every refresh.
+  func testRefreshItemsAsksForChaptersOnlyForTheItemsMissingThem() async {
+    let jellyfin = ProviderStub { _ in
+      ExternalPlaybackProgress(currentTime: 120, lastPlayedDate: Date(timeIntervalSince1970: 500))
+    }
+    let (sut, libraryService) = makeSUT(resources: [], providers: [.jellyfin: jellyfin])
+    libraryService.findMediaServerResourcesAtReturnValue = [
+      makeResource(provider: "jellyfin", id: "has-chapters"),
+      makeResource(provider: "jellyfin", id: "needs-chapters", needsChapters: true),
+    ]
+
+    await sut.refreshItems(at: nil)
+
+    XCTAssertEqual(jellyfin.chapterRequests, [["needs-chapters"]])
+    XCTAssertEqual(
+      Set(jellyfin.requested),
+      ["has-chapters", "needs-chapters"],
+      "both partitions are still asked for position, and both reach the ingest"
+    )
+
+    let ingested = libraryService.handleSyncFromExternalResourceProviderNameSnapshotsByProviderIdReceivedInvocations
+    XCTAssertEqual(
+      Set(ingested.first?.snapshotsByProviderId.keys ?? [:].keys),
+      ["has-chapters", "needs-chapters"],
+      "the two partitions' answers are merged before the ingest"
     )
   }
 

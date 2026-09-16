@@ -152,7 +152,20 @@ public final class ExternalProgressService: ExternalProgressRefreshing {
         else { continue }
 
         group.addTask {
-          (providerName, (try? await provider.progress(forBatch: providerResources)) ?? [:])
+          // Only the items that still lack chapters pay for them. In the steady state that
+          // set is empty and this is exactly the progress-only refresh it has always been;
+          // a book whose server has none stays in the small set instead of making every
+          // refresh carry the whole level's chapters forever.
+          let needing = providerResources.filter(\.needsChapters)
+          let rest = providerResources.filter { !$0.needsChapters }
+
+          async let withChapters = provider.snapshots(forBatch: needing, includingChapters: true)
+          async let withoutChapters = provider.snapshots(forBatch: rest, includingChapters: false)
+
+          // Disjoint by construction, so the tie-break only fires when one providerId is
+          // linked twice at this level — and then the answer carrying chapters is the one
+          // worth keeping.
+          return (providerName, await withChapters.merging(withoutChapters) { current, _ in current })
         }
       }
 

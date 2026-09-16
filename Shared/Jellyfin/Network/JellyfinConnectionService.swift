@@ -713,16 +713,21 @@ public class JellyfinConnectionService: BPLogger {
 
   /// Batch-fetches the Jellyfin items backing the given synced external resources, keyed by
   /// provider item id — one round-trip instead of N when refreshing a list.
-  public func updateItemsFromJellyfin(_ externalResources: [SimpleExternalResource]) async throws -> [String: JellyfinLibraryItem] {
+  public func updateItemsFromJellyfin(
+    _ externalResources: [SimpleExternalResource],
+    includingChapters: Bool
+  ) async throws -> [String: JellyfinLibraryItem] {
     guard !externalResources.isEmpty, let myId = connection?.userID else { return [:] }
 
     var parameters = Paths.GetItemsParameters(userID: myId, ids: externalResources.map(\.providerId))
-    /// `Chapters` is opt-in — without it Jellyfin returns the item with no chapter list and
-    /// the refresh would ingest an empty one for every book. `MediaSources` comes along for
-    /// the runtime fallback: an item Jellyfin hasn't probed at the item level has no
-    /// `runTimeTicks`, and without a runtime the last chapter has no end, so the whole list
-    /// is dropped. The import path requests both for the same reason.
-    parameters.fields = [.chapters, .mediaSources]
+    /// Both fields are opt-in and both are needed together, but ONLY for the items that still
+    /// have no chapters: `Chapters` is the list itself, and `MediaSources` carries the runtime
+    /// that bounds the last chapter for an item Jellyfin hasn't probed at the item level —
+    /// without a runtime the whole list is dropped. A progress-only refresh asks for neither,
+    /// which is the payload this call carried before chapters existed.
+    if includingChapters {
+      parameters.fields = [.chapters, .mediaSources]
+    }
 
     let response = try await send(Paths.getItems(parameters: parameters))
 

@@ -29,10 +29,10 @@ public struct ExternalPlaybackProgress: Equatable, Sendable {
 /// streamed item has no other source — nothing ever opens its file.
 public struct ExternalItemSnapshot: Sendable {
   public let progress: ExternalPlaybackProgress
-  /// Carried by the BATCH paths, which both ask for chapters explicitly: AudiobookShelf's
-  /// `batch/get` returns expanded media, and the Jellyfin item query passes
-  /// `ItemFields.chapters`. An empty list therefore means the server has none — not that
-  /// we forgot to ask.
+  /// Filled only when the batch was asked `includingChapters` — i.e. for the items that
+  /// still have none. An empty list is therefore NOT a statement that the server has no
+  /// chapters, which is why the ingest only ever ADDS (`storeChaptersIfEmpty`) and never
+  /// clears a list.
   public let chapters: [ChapterMetadata]
 
   public init(progress: ExternalPlaybackProgress, chapters: [ChapterMetadata] = []) {
@@ -95,10 +95,29 @@ public protocol ExternalProgressProviding: Sendable {
   /// The resources may span SEVERAL servers of the same provider, so each is resolved to its
   /// own connection and queried there — a batch is not one request. A resource whose host
   /// resolves to nothing is simply absent from the result.
-  func progress(forBatch resources: [SimpleExternalResource]) async throws -> [String: ExternalItemSnapshot]
+  ///
+  /// `includingChapters` is asked for only the items that still need them. Chapters are
+  /// written once and never replaced, so carrying them on every refresh would pay for a
+  /// large payload forever — and a book whose server genuinely has none would keep asking.
+  func progress(
+    forBatch resources: [SimpleExternalResource],
+    includingChapters: Bool
+  ) async throws -> [String: ExternalItemSnapshot]
 }
 
 extension ExternalProgressProviding {
+  /// A batch that never throws and never asks for nothing: a provider builds a connection
+  /// service and reads the keychain even for an empty list, so the caller's partitions can
+  /// be empty without paying for it, and one server being down can't fail the refresh.
+  func snapshots(
+    forBatch resources: [SimpleExternalResource],
+    includingChapters: Bool
+  ) async -> [String: ExternalItemSnapshot] {
+    guard !resources.isEmpty else { return [:] }
+
+    return (try? await progress(forBatch: resources, includingChapters: includingChapters)) ?? [:]
+  }
+
   /// Groups resources by the connection that owns them, so a caller can query each server
   /// with only its own ids. Shared by both adapters: the grouping rule is the resolution
   /// contract, not provider-specific.
@@ -155,7 +174,8 @@ public struct JellyfinProgressProvider: ExternalProgressProviding {
   }
 
   public func progress(
-    forBatch resources: [SimpleExternalResource]
+    forBatch resources: [SimpleExternalResource],
+    includingChapters: Bool
   ) async throws -> [String: ExternalItemSnapshot] {
     let service = await JellyfinConnectionService()
     await service.setup()
@@ -165,7 +185,10 @@ public struct JellyfinProgressProvider: ExternalProgressProviding {
     for group in grouped(resources, by: await service.connections) {
       await service.useConnection(group.connection)
 
-      let items = try await service.updateItemsFromJellyfin(group.resources)
+      let items = try await service.updateItemsFromJellyfin(
+        group.resources,
+        includingChapters: includingChapters
+      )
       for (providerId, item) in items {
         progress[providerId] = ExternalItemSnapshot(
           progress: ExternalPlaybackProgress(
@@ -173,7 +196,7 @@ public struct JellyfinProgressProvider: ExternalProgressProviding {
             lastPlayedDate: item.lastPlayedDate,
             isFinished: item.isFinished
           ),
-          chapters: item.chapters
+          chapters: includingChapters ? item.chapters : []
         )
       }
     }
@@ -208,8 +231,12 @@ public struct AudiobookShelfProgressProvider: ExternalProgressProviding {
     )
   }
 
+  /// `includingChapters` changes nothing about the REQUEST here: `batch/get` returns expanded
+  /// media either way, so the chapters are already on the wire. It only decides whether they
+  /// are carried forward, keeping the flag's meaning the same across providers.
   public func progress(
-    forBatch resources: [SimpleExternalResource]
+    forBatch resources: [SimpleExternalResource],
+    includingChapters: Bool
   ) async throws -> [String: ExternalItemSnapshot] {
     let service = await AudiobookShelfConnectionService()
     await service.setup()
@@ -226,7 +253,7 @@ public struct AudiobookShelfProgressProvider: ExternalProgressProviding {
             lastPlayedDate: item.lastPlayedDate,
             isFinished: item.isFinished
           ),
-          chapters: item.chapters
+          chapters: includingChapters ? item.chapters : []
         )
       }
     }
