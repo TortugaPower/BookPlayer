@@ -680,6 +680,12 @@ public class JellyfinConnectionService: BPLogger {
       artist: artist,
       filePath: filePath,
       fileSize: fileSize,
+      /// Was never populated here, which left the details screen's import with a dead
+      /// `?? details?.fileExtension` fallback whenever the batch hydration came back empty
+      fileExtension: JellyfinLibraryItem.resolveFileExtension(
+        container: itemInfo.mediaSources?.first?.container,
+        filePath: filePath
+      ),
       overview: itemInfo.overview,
       runtimeInSeconds: runtimeInSeconds,
       genres: itemInfo.genres,

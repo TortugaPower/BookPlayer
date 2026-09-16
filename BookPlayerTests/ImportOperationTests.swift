@@ -1527,3 +1527,31 @@ final class VirtualImportPayloadTests: XCTestCase {
     )
   }
 }
+
+/// The file extension decides importability alongside the runtime, and it has the same
+/// two-producer hazard: the list mapper and `fetchItemDetails` must agree.
+final class JellyfinFileExtensionMappingTests: XCTestCase {
+  func testFirstContainerCandidateWins() {
+    XCTAssertEqual(
+      JellyfinLibraryItem.resolveFileExtension(container: "m4b,mp4,mov", filePath: "/books/Dune.aax"),
+      "m4b",
+      "Jellyfin reports the container as a candidate list; the first is the real one"
+    )
+  }
+
+  func testPathExtensionCoversAMissingContainer() {
+    XCTAssertEqual(
+      JellyfinLibraryItem.resolveFileExtension(container: nil, filePath: "/books/Dune.m4b"),
+      "m4b"
+    )
+  }
+
+  func testNothingToDeriveFromStaysNil() {
+    XCTAssertNil(JellyfinLibraryItem.resolveFileExtension(container: nil, filePath: nil))
+    XCTAssertEqual(
+      JellyfinLibraryItem.resolveFileExtension(container: nil, filePath: "/books/Dune"),
+      "",
+      "an extensionless path yields an empty string, which the import gate rejects"
+    )
+  }
+}

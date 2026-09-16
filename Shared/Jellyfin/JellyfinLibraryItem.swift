@@ -83,6 +83,18 @@ extension JellyfinLibraryItem {
     (itemTicks ?? mediaSourceTicks).map { TimeInterval($0) / 10000000.0 }
   }
 
+  /// The playable file's extension: Jellyfin reports a media source's container, which can be
+  /// a comma-separated list of candidates, and falls back to the path's own extension.
+  ///
+  /// Shared with `JellyfinConnectionService.fetchItemDetails` for the same reason as the
+  /// runtime — the two producers of `JellyfinAudiobookDetailsData` must not disagree about
+  /// whether an item is importable.
+  static func resolveFileExtension(container: String?, filePath: String?) -> String? {
+    container?.components(separatedBy: ",").first
+      ?? container
+      ?? (filePath as NSString?)?.pathExtension
+  }
+
   public init?(apiItem: BaseItemDto) {
     let kind: JellyfinLibraryItem.Kind? = switch apiItem.type {
     case .userView, .collectionFolder: .userView
@@ -103,9 +115,10 @@ extension JellyfinLibraryItem {
       itemTicks: apiItem.runTimeTicks,
       mediaSourceTicks: apiItem.mediaSources?.first?.runTimeTicks
     )
-    let fileExtension = apiItem.mediaSources?.first?.container?.components(separatedBy: ",").first
-      ?? apiItem.mediaSources?.first?.container
-      ?? (filePath as NSString?)?.pathExtension
+    let fileExtension = Self.resolveFileExtension(
+      container: apiItem.mediaSources?.first?.container,
+      filePath: filePath
+    )
 
     var myDetails: JellyfinAudiobookDetailsData? = nil
     if artist != nil || filePath != nil || runtimeInSeconds != nil || fileExtension != nil {
