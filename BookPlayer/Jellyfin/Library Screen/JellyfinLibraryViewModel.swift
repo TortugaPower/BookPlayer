@@ -472,7 +472,7 @@ final class JellyfinLibraryViewModel: IntegrationLibraryViewModelProtocol, Jelly
         // empty array means nothing could be built — say so instead of opening a
         // dialog that would download nothing.
         guard !requests.isEmpty else {
-          self.error = BookPlayerError.runtimeError("import_no_audio_files_alert".localized)
+          self.error = BookPlayerError.runtimeError("download_prepare_error".localized)
           return
         }
         self.pendingDownloadRequests = requests
@@ -718,7 +718,7 @@ final class JellyfinPersonBooksViewModel: IntegrationLibraryViewModelProtocol, J
       .compactMap { try? connectionService.createItemDownloadRequest($0) }
 
     guard !requests.isEmpty else {
-      self.error = BookPlayerError.runtimeError("import_no_audio_files_alert".localized)
+      self.error = BookPlayerError.runtimeError("download_prepare_error".localized)
       return
     }
 

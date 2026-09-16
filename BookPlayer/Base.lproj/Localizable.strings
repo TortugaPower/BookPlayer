@@ -252,6 +252,7 @@
 "details_title" = "Details";
 "download_title" = "Download";
 "download_incomplete_error" = "The download was incomplete. Please try again.";
+"download_prepare_error" = "These items couldn't be prepared for download.";
 "cancel_download_title" = "Cancel download";
 "remove_downloaded_file_title" = "Remove from device";
 "download_from_url_title" = "Download from URL";
