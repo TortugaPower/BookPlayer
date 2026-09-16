@@ -615,6 +615,7 @@ private final class SyncToggleAccountStub: AccountServiceProtocol {
 
   func hasSyncEnabled() -> Bool { syncEnabled }
   func hasPlusAccess() -> Bool { syncEnabled }
+  func hasEverSubscribed() -> Bool { false }
   func hasAccount() -> Bool { false }
   func getAccountId() -> String? { nil }
   func getAccount() -> Account? { nil }

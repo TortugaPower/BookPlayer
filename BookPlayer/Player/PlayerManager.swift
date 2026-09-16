@@ -266,9 +266,12 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
 
     let asset: AVURLAsset
 
-    if isMissingLocally, let externalUrl = chapter.externalUrl {
+    if isMissingLocally, hasStreamingEnabled(), let externalUrl = chapter.externalUrl {
       // Media-server chapters ALWAYS stream from their external URL — a forced refresh
-      // must not reroute them to the cloud/S3 presign path. No metadata is loaded here:
+      // must not reroute them to the cloud/S3 presign path. The entitlement is checked HERE
+      // rather than only at import: the rows outlive the subscription that created them, and
+      // the stream reaches the user's own server, so nothing server-side can gate it.
+      // No metadata is loaded here:
       // the length comes from the server at import time (`VirtualImportPipeline` refuses
       // an item without one), so there is nothing a round trip to the stream could add.
       // `AVURLAssetHTTPHeaderFieldsKey` is undocumented, but it is the only way to attach

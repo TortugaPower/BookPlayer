@@ -69,6 +69,8 @@ public protocol AccountServiceProtocol {
   func hasAccount() -> Bool
   func hasSyncEnabled() -> Bool
   func hasPlusAccess() -> Bool
+  /// Whether the user holds, or ever held, a subscription they did not get refunded.
+  func hasEverSubscribed() -> Bool
 
   @discardableResult
   func createAccount(donationMade: Bool) -> Account
@@ -223,6 +225,44 @@ public final class AccountService: AccountServiceProtocol {
     }
 
     return getAccount()?.donationMade == true
+  }
+
+  /// Whether the user holds, or ever held, a subscription they did not get refunded — the
+  /// "has paid at some point" half of streaming access, which outlives the subscription.
+  ///
+  /// Family-shared and sandbox rows would also qualify, since neither carries a refund date.
+  /// Neither is filtered: every product in `IAP-Configuration.storekit` is
+  /// `familyShareable: false`, and sandbox subscriptions only reach developers and QA
+  /// (purchases are disabled on TestFlight via `AppEnvironment.isPurchaseEnabled`).
+  ///
+  /// Reads `subscriptionsByProductIdentifier` directly rather than going through
+  /// `getSubscriptionInfo(from:)`: that helper breaks on the first `PricingOption` match, so it
+  /// answers about ONE subscription chosen by enum order, and would deny someone who had a
+  /// refunded pro alongside a legitimately lapsed lite. Reading the dictionary also covers a
+  /// legacy product id that predates the enum.
+  public func hasEverSubscribed() -> Bool {
+    guard let cachedInfo = Purchases.shared.cachedCustomerInfo else { return false }
+
+    return Self.hasUnrefundedSubscription(
+      refundDates: cachedInfo.subscriptionsByProductIdentifier.values.map(\.refundedAt)
+    )
+  }
+
+  /// The streaming rule, taking plain values so the composition is testable: the three inputs
+  /// come from RevenueCat and CoreData, neither of which a unit test can stand up.
+  static func resolveStreamingAccess(
+    hasPlusAccess: Bool,
+    hasEverSubscribed: Bool,
+    donationMade: Bool
+  ) -> Bool {
+    hasPlusAccess || hasEverSubscribed || donationMade
+  }
+
+  /// The rule behind `hasEverSubscribed()`, taking the refund dates rather than the
+  /// subscriptions: `SubscriptionInfo`'s initializer is internal to RevenueCat, so a test
+  /// cannot build one.
+  static func hasUnrefundedSubscription(refundDates: [Date?]) -> Bool {
+    refundDates.contains { $0 == nil }
   }
 
   public func getAccessLevel() -> AccessLevel {
@@ -581,10 +621,22 @@ public final class AccountService: AccountServiceProtocol {
 
 
 extension AccountServiceProtocol {
-  /// Whether media-server STREAMING (virtual imports) is available: the lite tier's headline
-  /// feature, and pro is a superset of lite — a pro-only subscriber must never lose it.
-  /// Protocol extension (not a requirement) so the Sourcery mocks need no regeneration.
+  /// Whether media-server streaming is available: anyone who has EVER paid, which is broader
+  /// than `hasSyncEnabled()` on purpose. Streaming reaches the user's own Jellyfin/AudiobookShelf
+  /// and never our servers, so it survives a subscription ending — while sync, S3 and the
+  /// progress pull stay behind an active lite/pro subscription.
+  ///
+  /// The three clauses are each load-bearing:
+  /// - `hasPlusAccess()` — an active tier, or a one-time tip while its `plus` entitlement holds.
+  /// - `hasEverSubscribed()` — a subscription that expired without being refunded.
+  /// - `donationMade` — a tip, read directly rather than through `hasPlusAccess()`, which
+  ///   returns EARLY on a refunded pro/lite and would otherwise deny someone who tipped and
+  ///   later had a separate subscription refunded.
   public func hasStreamingEnabled() -> Bool {
-    return hasSyncEnabled()
+    return AccountService.resolveStreamingAccess(
+      hasPlusAccess: hasPlusAccess(),
+      hasEverSubscribed: hasEverSubscribed(),
+      donationMade: getAccount()?.donationMade == true
+    )
   }
 }

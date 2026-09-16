@@ -77,11 +77,11 @@ struct IntegrationAudiobookDetailsView<
 
         // Both buttons always render: Stream sells the entitlement when it's missing,
         // Download always downloads. The old `if allowStream || showSubscribeButton`
-        // was a tautology — allowStream is hasStreamingEnabled(), which is literally
-        // `return hasSyncEnabled()`, and showSubscribeButton was its exact negation —
+        // was a tautology — showSubscribeButton was the exact negation of allowStream,
         // so the else branch was unreachable and both it and showSubscribeButton are
-        // gone. If hasStreamingEnabled() ever stops aliasing hasSyncEnabled(), the
-        // gating here needs revisiting.
+        // gone. The entitlement question lives inside the button instead: allowStream
+        // is hasStreamingEnabled() (anyone who has ever paid), and SynchronizeButton
+        // routes to goToSubscribe() when it is false.
         HStack(spacing: 12) {
           SmallDownloadButton
           SynchronizeButton

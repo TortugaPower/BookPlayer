@@ -17,6 +17,10 @@ import XCTest
 class PlayerManagerTests: XCTestCase {
   var playbackServiceMock: PlaybackServiceProtocolMock!
   var syncServiceMock: SyncServiceProtocolMock!
+  /// Read live by `sut`'s entitlement closure. A test flips this rather than building a second
+  /// `PlayerManager`: two of them means two AVPlayers, and the one going out of scope takes its
+  /// still-registered periodic time observer with it, which aborts the process.
+  var streamingEnabled = true
   var sut: PlayerManager!
 
   override func setUp() {
@@ -38,9 +42,9 @@ class PlayerManagerTests: XCTestCase {
       speedService: SpeedServiceProtocolMock(),
       shakeMotionService: ShakeMotionServiceProtocolMock(),
       widgetReloadService: WidgetReloadService(),
-      // Entitled, so nothing here is suppressed by tier; the item half of the rule is
-      // covered by MediaServersShortcutTests against PlayableChapter.
-      hasStreamingEnabled: { true }
+      // Entitled by default, so nothing here is suppressed by tier; the item half of the rule
+      // is covered by MediaServersShortcutTests against PlayableChapter.
+      hasStreamingEnabled: { [weak self] in self?.streamingEnabled ?? true }
     )
   }
 
@@ -155,6 +159,42 @@ class PlayerManagerTests: XCTestCase {
     XCTAssertFalse(
       unentitled.offersMediaServers(for: makeUnplayableExternalChapter()),
       "a tier that can't stream has nothing to gain from the shortcut"
+    )
+  }
+
+  /// The gate that makes the entitlement enforceable at all: before it, the external branch
+  /// had no check, so a row that outlived its subscription kept streaming.
+  ///
+  /// `syncService.isActive` is forced true only to make the diversion observable — in
+  /// production it implies an active pro/lite, which implies streaming access, so the two can
+  /// never disagree this way. What is being pinned is that the external branch is skipped.
+  @MainActor
+  func testAnUnentitledUserDoesNotStreamAnExternalChapter() async throws {
+    streamingEnabled = false
+    syncServiceMock.isActive = true
+    // Fail the presign through the CLOSURE, not `ThrowableError`: the generated mock throws
+    // before it increments its call count, which would make the assertion below unfalsifiable.
+    // `RemoteFileURL` is decode-only, so returning a stub response isn't an option.
+    syncServiceMock.getRemoteFileURLsOfForTypeClosure = { _, _, _ in
+      throw BookPlayerError.cancelledTask
+    }
+    let chapter = PlayableChapter(
+      title: "test chapter",
+      author: "test author",
+      start: 0,
+      duration: 100,
+      relativePath: "no-such-file.m4b",
+      remoteURL: nil,
+      externalURL: URL(string: "https://jelly.example.com/stream"),
+      index: 1
+    )
+
+    _ = try? await sut.loadPlayerItem(for: chapter, forceRefreshURL: false)
+
+    XCTAssertEqual(
+      syncServiceMock.getRemoteFileURLsOfForTypeCallsCount,
+      1,
+      "without streaming access the external branch is skipped, so the load falls through it"
     )
   }
 

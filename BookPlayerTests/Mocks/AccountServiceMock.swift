@@ -32,6 +32,13 @@ class AccountServiceMock: AccountServiceProtocol {
     return false
   }
 
+  /// Settable so a test can model a lapsed subscriber — paid once, no longer subscribed.
+  var hasEverSubscribedValue = false
+
+  func hasEverSubscribed() -> Bool {
+    return hasEverSubscribedValue
+  }
+
   func getSecondOnboarding<T: Decodable>() async throws -> T {
     throw BookPlayerError.cancelledTask
   }
