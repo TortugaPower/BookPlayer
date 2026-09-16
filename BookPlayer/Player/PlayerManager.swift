@@ -15,7 +15,7 @@ import Sentry
 
 // swiftlint:disable:next file_length
 
-final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject, BPLogger {
+final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   private let libraryService: LibraryServiceProtocol
   private let playbackService: PlaybackServiceProtocol
   /// Narrow read of the streaming entitlement (pro or lite), not the whole account
@@ -32,15 +32,15 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject, BP
   private var fadeTimer: Timer?
 
   private var timeControlPassthroughPublisher = CurrentValueSubject<AVPlayer.TimeControlStatus, Never>(.paused)
+  /// Named + cancelled-before-rebind: bound on every player recreation (init, .failed,
+  /// mediaServicesWereReset) — a disposeBag entry would accumulate one sink per recreation.
   private var timeControlSubscription: AnyCancellable?
+  /// Named + cancelled-before-rebind: bound on EVERY chapter/item load — a disposeBag entry
+  /// leaks one KVO publisher (which retains its AVPlayerItem) per loaded chapter.
   private var playableChapterSubscription: AnyCancellable?
   private var isPlayingSubscription: AnyCancellable?
   /// Tracks the brief muted play used to claim Now Playing on CarPlay connect, so we can pause once it starts
   private var nowPlayingClaimSubscription: AnyCancellable?
-  /// Named + cancelled-before-rebind: bound on every player recreation (init, .failed,
-  /// mediaServicesWereReset) — a disposeBag entry would accumulate one sink per recreation.
-  /// Named + cancelled-before-rebind: bound on EVERY chapter/item load — a disposeBag entry
-  /// leaks one KVO publisher (which retains its AVPlayerItem) per loaded chapter.
   private var periodicTimeObserver: Any?
   private var disposeBag = Set<AnyCancellable>()
   /// Flag determining if it should resume playback after finishing up loading an item
@@ -75,7 +75,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject, BP
   private var loadChapterTask: Task<(), Never>?
   @Published var currentItem: PlayableItem?
   @Published var currentSpeed: Float = 1.0
-  
+
   var nowPlayingInfo = [String: Any]()
 
   private let queue = OperationQueue()
@@ -181,7 +181,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject, BP
 
     bindTimeControlPassthroughPublisher()
   }
-  
+
   func currentItemPublisher() -> AnyPublisher<PlayableItem?, Never> {
     return self.$currentItem.eraseToAnyPublisher()
   }
@@ -261,56 +261,27 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject, BP
 
   @MainActor
   func loadPlayerItem(for chapter: PlayableChapter, forceRefreshURL: Bool) async throws -> PlayableChapter {
-
     let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(chapter.relativePath)
+    let isMissingLocally = !FileManager.default.fileExists(atPath: fileURL.path)
 
     let asset: AVURLAsset
 
-    if !FileManager.default.fileExists(atPath: fileURL.path)
-    {
-      if let externalUrl = chapter.externalUrl {
-        // Media-server chapters ALWAYS stream from their external URL — a forced refresh
-        // must not reroute them to the cloud/S3 presign path (their fresh URL comes from
-        // the chapter rebuild during reload, resolved against the local connection).
-        asset = AVURLAsset(url: externalUrl, options: [
-          AVURLAssetPreferPreciseDurationAndTimingKey: false,
-          "AVURLAssetHTTPHeaderFieldsKey": chapter.externalHeaders
-        ])
-
-        // Only load metadata if duration is unknown, to avoid network bottleneck
-        if chapter.duration == 0 {
-          do {
-            _ = try await asset.load(.duration, .isPlayable)
-          } catch {
-            // Deliberately non-fatal: a dead stream fails LOUDLY at the player-item
-            // level right after (the .failed -> session-expired alert path). The only
-            // silent case is a transient metadata-only failure — playback proceeds with
-            // duration 0 (degraded scrubber/progress), so log it for diagnosability.
-            Self.logger.warning("External stream metadata load failed; continuing with duration 0: \(error)")
-          }
-
-          await libraryService.loadChaptersIfNeeded(relativePath: chapter.relativePath, asset: asset)
-          // The awaits above can outlive this load (user tapped another book) — applying the
-          // refreshed item afterwards would clobber the newer load's state.
-          // The repo's own cancellation error: Swift's CancellationError would fall through
-          // to the GENERIC catch in loadChapterTask and pop a spurious alert on the very
-          // normal tap-another-book-mid-load path.
-          if Task.isCancelled { throw BookPlayerError.cancelledTask }
-          if let libraryItem = libraryService.getSimpleItem(with: chapter.relativePath),
-             let updatedItem = try? playbackService.getPlayableItem(from: libraryItem) {
-            currentItem = updatedItem
-            // Invariant: EVERY currentItem reassignment rebinds the chapter subscription —
-            // otherwise .chapterChange keeps firing off the orphaned item and the
-            // end-of-chapter sleep timer + Now Playing chapter title silently break.
-            bindPlayableChapterSubscription(to: updatedItem, dropInitialReplay: true)
-          }
-        }
-      } else if syncService.isActive {
-        asset = try await loadRemoteURLAsset(for: chapter, forceRefresh: forceRefreshURL)
-      } else {
-        asset = AVURLAsset(url: fileURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: false])
-      }
+    if isMissingLocally, let externalUrl = chapter.externalUrl {
+      // Media-server chapters ALWAYS stream from their external URL — a forced refresh
+      // must not reroute them to the cloud/S3 presign path. No metadata is loaded here:
+      // the length comes from the server at import time (`VirtualImportPipeline` refuses
+      // an item without one), so there is nothing a round trip to the stream could add.
+      // `AVURLAssetHTTPHeaderFieldsKey` is undocumented, but it is the only way to attach
+      // the server's auth header short of an AVAssetResourceLoaderDelegate.
+      asset = AVURLAsset(url: externalUrl, options: [
+        AVURLAssetPreferPreciseDurationAndTimingKey: false,
+        "AVURLAssetHTTPHeaderFieldsKey": chapter.externalHeaders
+      ])
+    } else if isMissingLocally, syncService.isActive {
+      asset = try await loadRemoteURLAsset(for: chapter, forceRefresh: forceRefreshURL)
     } else {
+      /// The file is on disk — or it is missing with no remote source, and AVFoundation
+      /// surfaces that as a player-item failure.
       asset = AVURLAsset(url: fileURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
     }
 
@@ -319,18 +290,18 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject, BP
       self.playerItem?.removeObserver(self, forKeyPath: "status")
       self.hasObserverRegistered = false
     }
-    
+
     self.playerItem = AVPlayerItem(asset: asset)
     self.playerItem?.audioTimePitchAlgorithm = .timeDomain
-    
+
     if chapter.externalUrl != nil {
       // Buffer a reasonable amount for streaming (20 seconds)
       self.playerItem?.preferredForwardBufferDuration = 20
     }
-    
+
     return self.currentItem?.currentChapter ?? chapter
   }
-  
+
   func load(_ item: PlayableItem, autoplay: Bool) {
     load(item, autoplay: autoplay, forceRefreshURL: false)
   }
@@ -425,17 +396,33 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject, BP
 
   /// Whether a failed load should offer the Media Servers shortcut: the tier can stream at
   /// all, and going to Media Servers could actually fix this chapter's failure. Not private
-  /// so the entitlement wiring itself is testable, and shared by both alert sites so the
-  /// rule can't drift between them.
+  /// so the entitlement wiring itself is testable.
   func offersMediaServers(for chapter: PlayableChapter) -> Bool {
     hasStreamingEnabled() && chapter.needsMediaServer()
+  }
+
+  /// The actions for a playback-failure alert: OK, plus the Media Servers shortcut when it
+  /// could actually fix this chapter. Shared by both failure sites so the offer can't drift
+  /// between the metadata path and the player-item path.
+  private func failureAlertActions(for chapter: PlayableChapter?) -> [BPActionItem] {
+    var actions = [BPActionItem.okAction]
+
+    if let chapter, offersMediaServers(for: chapter) {
+      actions.append(
+        BPActionItem(title: "media_servers_title".localized) {
+          NotificationCenter.default.post(name: .showMediaServers, object: nil)
+        }
+      )
+    }
+
+    return actions
   }
 
   func loadChapterMetadata(_ chapter: PlayableChapter, autoplay: Bool? = nil, forceRefreshURL: Bool = false) {
     if let autoplay {
       playbackQueued = autoplay
     }
-    
+
     loadChapterTask = Task { @MainActor [unowned self] in
       do {
         let updatedChapter = try await self.loadPlayerItem(for: chapter, forceRefreshURL: forceRefreshURL)
@@ -443,20 +430,14 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject, BP
       } catch BookPlayerError.cancelledTask {
         /// Do nothing, as it was cancelled to load another item
       } catch {
-        var actions = [BPActionItem.okAction]
-        
-        if offersMediaServers(for: chapter) {
-          actions.append(
-            BPActionItem(title: "media_servers_title".localized) {
-              NotificationCenter.default.post(name: .showMediaServers, object: nil)
-            }
-          )
-        }
-        
         self.playbackQueued = nil
         self.isFetchingRemoteURL = nil
         self.observeStatus = false
-        self.showErrorAlert(title: "\("error_title".localized) Metadata", error.localizedDescription, actions: actions)
+        self.showErrorAlert(
+          title: "\("error_title".localized) Metadata",
+          error.localizedDescription,
+          actions: failureAlertActions(for: chapter)
+        )
         return
       }
     }
@@ -465,6 +446,11 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject, BP
   func loadChapterOperation(_ chapter: PlayableChapter) {
     self.queue.addOperation {
       // try loading the player
+      // `duration > 0` is load-bearing for PLAYBACK, not just hygiene: failing it posts
+      // `.bookReady loaded:false`, which only CarPlay and the watch observe, so the user
+      // sees the spinner clear and nothing happen. Media-server rows can't land here with
+      // a 0 duration — `HydratedItem` refuses to import one — and that is what lets the
+      // external branch of `loadPlayerItem` skip loading metadata off the stream.
       guard
         let playerItem = self.playerItem,
         chapter.duration > 0
@@ -483,7 +469,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject, BP
       // Update UI on main thread
       DispatchQueue.main.async {
         self.isFetchingRemoteURL = nil
-        
+
         self.audioPlayer.replaceCurrentItem(with: playerItem)
 
         self.currentSpeed = self.speedService.getSpeed(relativePath: chapter.relativePath)
@@ -1235,21 +1221,19 @@ extension PlayerManager {
       } else if let currentItem,
                 currentItem.currentChapter.externalUrl != nil,
                 canFetchExternalURL {
+        /// One retry for a transient stream failure. The reload replays the SAME item, so
+        /// the URL and auth headers are identical — this recovers a blip, never a rotated
+        /// token. Re-authenticating and tapping the SAME book does not recover either:
+        /// `currentItem` survives the failure, so `PlayerLoaderService.loadPlayer`
+        /// short-circuits on the matching uuid straight to `play()`, and the item is never
+        /// rebuilt from the saved connection. That needs another book, or a relaunch.
         loadAndRefreshURL(item: currentItem)
         canFetchExternalURL = false
       } else {
         /// Avoid showing any alert if playback is not queued, this could be from the initial app launch
         /// where we preload the player with the last played item
         if playbackQueued == true {
-          var actions = [BPActionItem.okAction]
-          
-          if let chapter = currentItem?.currentChapter, offersMediaServers(for: chapter) {
-            actions.append(
-              BPActionItem(title: "media_servers_title".localized) {
-                NotificationCenter.default.post(name: .showMediaServers, object: nil)
-              }
-            )
-          }
+          let actions = failureAlertActions(for: currentItem?.currentChapter)
 
           if let nsError = item.error as? NSError {
             let errorDescription = """
@@ -1604,22 +1588,18 @@ extension PlayerManager {
 }
 
 extension PlayerManager {
-  private func showErrorAlert(title: String, _ message: String?, actions: [BPActionItem]? = nil) {
+  private func showErrorAlert(title: String, _ message: String?, actions: [BPActionItem]) {
     DispatchQueue.main.async {
-      let viewController = WindowHelper.activeWindow?.rootViewController?
-        .getTopVisibleViewController()
-      
-      if let actions = actions {
-        let content = BPAlertContent(
-          title: title,
-          message: message,
-          style: .alert,
-          actionItems: actions
-        )
-        viewController?.showAlert(content)
-      } else {
-        viewController?.showAlert(title, message: message)
-      }
+      let content = BPAlertContent(
+        title: title,
+        message: message,
+        style: .alert,
+        actionItems: actions
+      )
+
+      WindowHelper.activeWindow?.rootViewController?
+        .getTopVisibleViewController()?
+        .showAlert(content)
     }
   }
 }

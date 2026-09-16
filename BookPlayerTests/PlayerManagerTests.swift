@@ -16,6 +16,7 @@ import XCTest
 
 class PlayerManagerTests: XCTestCase {
   var playbackServiceMock: PlaybackServiceProtocolMock!
+  var syncServiceMock: SyncServiceProtocolMock!
   var sut: PlayerManager!
 
   override func setUp() {
@@ -29,10 +30,11 @@ class PlayerManagerTests: XCTestCase {
     self.playbackServiceMock.updatePlaybackTimeItemTimeClosure = { item, time in
       item.currentTime = time
     }
+    self.syncServiceMock = SyncServiceProtocolMock()
     self.sut = PlayerManager(
       libraryService: LibraryServiceProtocolMock(),
       playbackService: playbackServiceMock,
-      syncService: SyncServiceProtocolMock(),
+      syncService: syncServiceMock,
       speedService: SpeedServiceProtocolMock(),
       shakeMotionService: ShakeMotionServiceProtocolMock(),
       widgetReloadService: WidgetReloadService(),
@@ -153,6 +155,32 @@ class PlayerManagerTests: XCTestCase {
     XCTAssertFalse(
       unentitled.offersMediaServers(for: makeUnplayableExternalChapter()),
       "a tier that can't stream has nothing to gain from the shortcut"
+    )
+  }
+
+  /// Branch order in `loadPlayerItem`: a media-server chapter streams from its own URL even
+  /// when the caller forces a refresh. Inverting the external and cloud branches would send
+  /// a Jellyfin/ABS book to the S3 presign endpoint, which has nothing to hand back for it.
+  @MainActor
+  func testForcedRefreshKeepsAnExternalChapterOnItsStreamURL() async throws {
+    syncServiceMock.isActive = true
+    let chapter = PlayableChapter(
+      title: "test chapter",
+      author: "test author",
+      start: 0,
+      duration: 100,
+      relativePath: "no-such-file.m4b",
+      remoteURL: URL(string: "https://s3.example.com/presigned"),
+      externalURL: URL(string: "https://jelly.example.com/stream"),
+      index: 1
+    )
+
+    _ = try await sut.loadPlayerItem(for: chapter, forceRefreshURL: true)
+
+    XCTAssertEqual(
+      syncServiceMock.getRemoteFileURLsOfForTypeCallsCount,
+      0,
+      "the cloud presign path must never be consulted for a chapter that has a stream URL"
     )
   }
 

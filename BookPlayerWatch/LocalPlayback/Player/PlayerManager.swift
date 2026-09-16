@@ -62,7 +62,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   @Published var currentSpeed: Float = 1.0
   @Published private(set) var currentPlaybackTime: TimeInterval = 0
   @Published var error: Error?
-  
+
   var nowPlayingInfo = [String: Any]()
 
   private let queue = OperationQueue()
@@ -193,6 +193,9 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
 
     // TODO: Check if there's a way to reduce the time this operation takes
     // it's currently a bottleneck when streaming playback
+    // Deliberately one key short of the phone's list: `.hasProtectedContent` is
+    // unavailable in watchOS. The old string-based `loadValues(forKeys:)` accepted it
+    // only because those keys were untyped.
     _ = try? await asset.load(
       .duration,
       .isPlayable,
