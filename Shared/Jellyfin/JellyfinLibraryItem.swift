@@ -72,6 +72,17 @@ extension JellyfinLibraryItem {
 }
 
 extension JellyfinLibraryItem {
+  /// Jellyfin only reports a runtime at the item level once it has probed the file, but the
+  /// media source can carry one on its own — and a virtual import is REFUSED without a
+  /// runtime, so take it wherever it exists.
+  ///
+  /// Static and tick-typed rather than inline in the mapper so the resolution can be tested
+  /// without a `BaseItemDto`: `BookPlayerTests` declares no JellyfinAPI dependency, so a test
+  /// that names one of its types compiles but fails to LINK.
+  static func resolveRuntimeSeconds(itemTicks: Int?, mediaSourceTicks: Int?) -> TimeInterval? {
+    (itemTicks ?? mediaSourceTicks).map { TimeInterval($0) / 10000000.0 }
+  }
+
   public init?(apiItem: BaseItemDto) {
     let kind: JellyfinLibraryItem.Kind? = switch apiItem.type {
     case .userView, .collectionFolder: .userView
@@ -88,7 +99,10 @@ extension JellyfinLibraryItem {
     
     let artist = apiItem.albumArtist ?? apiItem.artists?.first
     let filePath = apiItem.mediaSources?.first?.path ?? apiItem.path
-    let runtimeInSeconds = (apiItem.runTimeTicks != nil) ? TimeInterval(apiItem.runTimeTicks!) / 10000000.0 : nil
+    let runtimeInSeconds = Self.resolveRuntimeSeconds(
+      itemTicks: apiItem.runTimeTicks,
+      mediaSourceTicks: apiItem.mediaSources?.first?.runTimeTicks
+    )
     let fileExtension = apiItem.mediaSources?.first?.container?.components(separatedBy: ",").first
       ?? apiItem.mediaSources?.first?.container
       ?? (filePath as NSString?)?.pathExtension
@@ -111,7 +125,7 @@ extension JellyfinLibraryItem {
       id: id,
       name: name,
       kind: kind,
-      durationSeconds: Int64((apiItem.runTimeTicks ?? 0) / 10000000),
+      durationSeconds: Int64(runtimeInSeconds ?? 0),
       currentSeconds: Int64((apiItem.userData?.playbackPositionTicks ?? 0) / 10000000),
       isFinished: apiItem.userData?.isPlayed,
       lastPlayedDate: apiItem.userData?.lastPlayedDate,
@@ -143,13 +157,16 @@ extension JellyfinLibraryItem {
 // MARK: - Virtual import
 
 extension JellyfinLibraryItem {
-  /// Builds the virtual-import payload for this item. The file extension is REQUIRED:
-  /// callers hydrate it from the server (`fetchItems(ids:)` requests media sources) and
-  /// SKIP items that have none — an item without audio-file metadata has nothing to
-  /// stream, so the extension is never guessed.
+  /// Builds the virtual-import payload for this item. The file extension and the duration
+  /// are REQUIRED and both come from hydration (`VirtualImportPipeline`): callers hydrate
+  /// from the server (`fetchItems(ids:)` requests media sources) and SKIP items that have
+  /// neither. An item without audio-file metadata has nothing to stream, so the extension
+  /// is never guessed; one Jellyfin has not probed has no runtime, and importing it with a
+  /// 0 duration yields a row that can never play.
   @MainActor
   public func asVirtualImportResource(
     fileExtension: String,
+    duration: TimeInterval,
     detailsOverride: JellyfinAudiobookDetailsData?,
     connectionService: JellyfinConnectionService,
     artworkSize: CGSize
@@ -160,9 +177,11 @@ extension JellyfinLibraryItem {
       details: resolvedDetails?.artist ?? "voiceover_unknown_author".localized,
       speed: 1,
       currentTime: Double(currentSeconds ?? 0),
-      duration: Double(durationSeconds ?? 0),
-      percentCompleted: (durationSeconds ?? 0) > 0 && (currentSeconds ?? 0) > 0
-        ? Double(currentSeconds!) / Double(durationSeconds!) * 100
+      duration: duration,
+      /// The duration half of the old guard is now the pipeline's precondition, so the
+      /// division is safe on any item that reaches here.
+      percentCompleted: (currentSeconds ?? 0) > 0
+        ? Double(currentSeconds!) / duration * 100
         : 0,
       isFinished: isFinished ?? false,
       relativePath: "",

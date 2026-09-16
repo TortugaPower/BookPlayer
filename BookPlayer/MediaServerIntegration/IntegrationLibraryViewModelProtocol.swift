@@ -102,31 +102,58 @@ extension IntegrationLibraryViewModelProtocol {
 
 // MARK: - Virtual import pipeline
 
+/// What hydration has to prove about a selected item before it can be imported: a REAL
+/// file extension (never guessed) and a length the server actually measured.
+///
+/// The duration is not cosmetic. It is the only source for an external row's
+/// `book.duration` — nothing opens the file, so nothing can measure it later — and
+/// `loadChapterOperation` refuses to start playback on a chapter whose duration is 0,
+/// silently. An item imported without one is a row that can never play.
+struct HydratedItem {
+  let fileExtension: String
+  let duration: TimeInterval
+
+  /// Both pieces or nothing: a nil result leaves the id out of the hydration map, which
+  /// is the pipeline's existing skip contract.
+  init?(fileExtension: String?, duration: TimeInterval?) {
+    guard
+      let fileExtension,
+      !fileExtension.isEmpty,
+      let duration,
+      duration > 0
+    else { return nil }
+
+    self.fileExtension = fileExtension
+    self.duration = duration
+  }
+}
+
 /// Shared orchestration for virtual imports, used by every provider's bulk and
-/// details path: hydrate the selection for REAL file extensions (never guessed),
-/// build the import payloads, and skip items without audio-file metadata. Callers
-/// own the `isImporting` reentrancy guard, error surfacing, and staging the result
-/// as their `pendingImportBatch`; the two closures carry the only
-/// provider-specific parts.
+/// details path: hydrate the selection for the values an import can't be built without,
+/// build the import payloads, and skip the items that have none. Callers own the
+/// `isImporting` reentrancy guard, error surfacing, and staging the result as their
+/// `pendingImportBatch`; the two closures carry the only provider-specific parts.
 @MainActor
 enum VirtualImportPipeline {
-  /// - Returns: the import payloads for every item whose REAL file extension could
-  ///   be hydrated, in selection order — the caller stages them as its
-  ///   `pendingImportBatch`. Empty means nothing in the selection had audio-file
-  ///   metadata (callers surface the `import_no_audio_files_alert`); fewer than
-  ///   `items.count` means the remainder was skipped.
+  /// - Returns: the import payloads for every item that hydrated, in selection order —
+  ///   the caller stages them as its `pendingImportBatch`. Empty means nothing in the
+  ///   selection was importable (callers surface the `import_no_audio_files_alert`);
+  ///   fewer than `items.count` means the remainder was skipped. The two skip causes —
+  ///   no audio-file metadata, no server-measured length — are deliberately not
+  ///   distinguished: both mean "this can't be streamed", and neither is actionable
+  ///   per-item beyond that one message.
   /// - Throws: hydration/network errors, for the caller's error state.
   static func run<Item>(
     items: [Item],
     id: (Item) -> String,
-    hydrateExtensions: ([String]) async throws -> [String: String],
-    buildResource: (Item, String) -> SimpleExternalResource
+    hydrate: ([String]) async throws -> [String: HydratedItem],
+    buildResource: (Item, HydratedItem) -> SimpleExternalResource
   ) async throws -> [SimpleExternalResource] {
     guard !items.isEmpty else { return [] }
 
-    let extensionsByID = try await hydrateExtensions(items.map(id))
+    let hydratedByID = try await hydrate(items.map(id))
     return items.compactMap { item in
-      extensionsByID[id(item)].map { buildResource(item, $0) }
+      hydratedByID[id(item)].map { buildResource(item, $0) }
     }
   }
 }

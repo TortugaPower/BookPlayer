@@ -127,17 +127,25 @@ class JellyfinAudiobookDetailsViewModel: IntegrationDetailsViewModelProtocol {
       let resources = try await VirtualImportPipeline.run(
         items: [item],
         id: \.id,
-        hydrateExtensions: { ids in
-          // Same contract as the bulk paths: the extension comes from the server's
-          // media sources or the item is not importable — never guessed
+        hydrate: { ids in
+          // Same contract as the bulk paths: the extension and the runtime come from the
+          // server's media sources or the item is not importable — never guessed, never
+          // defaulted to a 0 length
           let hydrated = try await self.connectionService.fetchItems(ids: ids)
-          var extensions: [String: String] = [:]
-          extensions[item.id] = hydrated.first?.details?.fileExtension ?? self.details?.fileExtension
-          return extensions
+          var hydratedByID: [String: HydratedItem] = [:]
+          hydratedByID[item.id] = HydratedItem(
+            fileExtension: hydrated.first?.details?.fileExtension ?? self.details?.fileExtension,
+            // `details.runtimeInSeconds`, never `durationSeconds`: the mapper collapses an
+            // unmeasured runtime to 0 rather than nil, so reading it here would satisfy the
+            // `??` with a zero and skip the fallback in exactly the case it exists for
+            duration: hydrated.first?.details?.runtimeInSeconds ?? self.details?.runtimeInSeconds
+          )
+          return hydratedByID
         },
-        buildResource: { item, fileExtension in
+        buildResource: { item, hydrated in
           item.asVirtualImportResource(
-            fileExtension: fileExtension,
+            fileExtension: hydrated.fileExtension,
+            duration: hydrated.duration,
             detailsOverride: self.details,
             connectionService: self.connectionService,
             artworkSize: CGSize(width: 200, height: 200)

@@ -148,18 +148,75 @@ final class VirtualImportPipelineTests: XCTestCase {
     )
   }
 
+  private func hydrated(_ fileExtension: String, duration: TimeInterval = 4800) -> HydratedItem? {
+    HydratedItem(fileExtension: fileExtension, duration: duration)
+  }
+
   func testBuildsOnlyHydratedItemsInSelectionOrder() async throws {
     let items = [StubItem(id: "a"), StubItem(id: "b"), StubItem(id: "c")]
     let resources = try await VirtualImportPipeline.run(
       items: items,
       id: \.id,
-      hydrateExtensions: { ids in
+      hydrate: { ids in
         XCTAssertEqual(ids, ["a", "b", "c"])
-        return ["a": "m4b", "c": "mp3"]  // "b" reports no audio-file metadata
+        var hydratedByID: [String: HydratedItem] = [:]
+        hydratedByID["a"] = self.hydrated("m4b")
+        hydratedByID["c"] = self.hydrated("mp3")
+        return hydratedByID  // "b" reports no audio-file metadata
       },
       buildResource: { item, _ in self.makeResource(id: item.id) }
     )
     XCTAssertEqual(resources.map(\.providerId), ["a", "c"], "skips unhydrated items, keeps selection order")
+  }
+
+  /// Drives the drop through the REAL provider mapping rather than a stub, so it fails if a
+  /// closure ever starts reading a source that reports "unmeasured" as something other than nil.
+  func testSkipsItemsTheServerNeverMeasured() async throws {
+    let measured = AudiobookShelfLibraryItem(
+      id: "measured",
+      title: "Measured",
+      kind: .audiobook,
+      libraryId: "lib",
+      duration: 4800,
+      fileExtension: "m4b"
+    )
+    let unmeasured = AudiobookShelfLibraryItem(
+      id: "unmeasured",
+      title: "Unmeasured",
+      kind: .audiobook,
+      libraryId: "lib",
+      duration: nil,
+      fileExtension: "m4b"
+    )
+
+    let resources = try await VirtualImportPipeline.run(
+      items: [measured, unmeasured],
+      id: \.id,
+      hydrate: { _ in
+        [measured, unmeasured].reduce(into: [:]) {
+          $0[$1.id] = HydratedItem(fileExtension: $1.fileExtension, duration: $1.duration)
+        }
+      },
+      buildResource: { item, _ in self.makeResource(id: item.id) }
+    )
+
+    XCTAssertEqual(
+      resources.map(\.providerId),
+      ["measured"],
+      "an item with no server-measured length would import a row that can never play"
+    )
+  }
+
+  func testHydratedItemRequiresARealExtensionAndAMeasuredLength() {
+    XCTAssertNotNil(HydratedItem(fileExtension: "m4b", duration: 1))
+
+    XCTAssertNil(HydratedItem(fileExtension: nil, duration: 4800))
+    XCTAssertNil(HydratedItem(fileExtension: "", duration: 4800))
+    XCTAssertNil(HydratedItem(fileExtension: "m4b", duration: nil))
+    /// Jellyfin's mapper collapses an unprobed runtime to 0 rather than nil, so the
+    /// gate has to be `> 0`, not `!= nil`
+    XCTAssertNil(HydratedItem(fileExtension: "m4b", duration: 0))
+    XCTAssertNil(HydratedItem(fileExtension: "m4b", duration: -1))
   }
 
   func testEmptySelectionNeverHydrates() async throws {
@@ -167,7 +224,7 @@ final class VirtualImportPipelineTests: XCTestCase {
     let resources = try await VirtualImportPipeline.run(
       items: [StubItem](),
       id: \.id,
-      hydrateExtensions: { _ in
+      hydrate: { _ in
         hydrateCalled = true
         return [:]
       },
@@ -182,7 +239,7 @@ final class VirtualImportPipelineTests: XCTestCase {
       _ = try await VirtualImportPipeline.run(
         items: [StubItem(id: "a")],
         id: \.id,
-        hydrateExtensions: { _ in throw URLError(.notConnectedToInternet) },
+        hydrate: { _ in throw URLError(.notConnectedToInternet) },
         buildResource: { item, _ in self.makeResource(id: item.id) }
       )
       XCTFail("expected the hydration error to propagate to the caller's error state")
@@ -358,6 +415,7 @@ final class AudiobookShelfDecodingTests: XCTestCase {
           "mediaType": "book",
           "media": {
             "metadata": { "title": "Real Book" },
+            "duration": 4800,
             "audioFiles": [
               {
                 "index": 1,
@@ -380,6 +438,11 @@ final class AudiobookShelfDecodingTests: XCTestCase {
     let items = (decoded.libraryItems ?? []).compactMap { AudiobookShelfLibraryItem(apiItem: $0) }
 
     XCTAssertEqual(items.first?.fileExtension, "m4b", "nested metadata decodes; leading dot is stripped")
+    XCTAssertEqual(
+      items.first?.duration,
+      4800,
+      "the virtual import refuses an item without a length, so the batch payload has to carry one"
+    )
   }
 }
 
@@ -1368,5 +1431,99 @@ final class ResumeOfferArbiterTests: XCTestCase {
     sut.route(position)
 
     XCTAssertTrue(playerState.showResumePopup, "a weak presenter that went away is the same as none")
+  }
+}
+
+// MARK: - Provider runtime mapping
+
+/// The runtime is the sole source of an external row's `duration` — nothing opens the file —
+/// so where the mapper reads it from decides whether an item is importable at all.
+final class JellyfinRuntimeMappingTests: XCTestCase {
+  private let twentyMinutesInTicks = 12_000_000_000
+
+  func testItemLevelRuntimeWins() {
+    XCTAssertEqual(
+      JellyfinLibraryItem.resolveRuntimeSeconds(itemTicks: twentyMinutesInTicks, mediaSourceTicks: 1),
+      1200
+    )
+  }
+
+  func testMediaSourceRuntimeCoversAnItemReportedWithoutOne() {
+    XCTAssertEqual(
+      JellyfinLibraryItem.resolveRuntimeSeconds(itemTicks: nil, mediaSourceTicks: twentyMinutesInTicks),
+      1200,
+      "an item Jellyfin hasn't probed still has a runtime on its media source"
+    )
+  }
+
+  func testNoRuntimeAnywhereStaysUnmeasured() {
+    XCTAssertNil(
+      JellyfinLibraryItem.resolveRuntimeSeconds(itemTicks: nil, mediaSourceTicks: nil),
+      "nil, not 0 — the mapper collapses it to 0 for `durationSeconds`, which the import gate rejects"
+    )
+  }
+}
+
+// MARK: - Virtual import payload
+
+/// The chain this phase exists to protect: the hydrated duration has to survive all the way
+/// onto the import payload, because `createExternalBook` copies it straight into
+/// `book.duration` and nothing ever measures the file afterwards.
+@MainActor
+final class VirtualImportPayloadTests: XCTestCase {
+  func testAudiobookShelfPayloadCarriesTheHydratedDuration() {
+    let item = AudiobookShelfLibraryItem(
+      id: "abs-1",
+      title: "Dune",
+      kind: .audiobook,
+      libraryId: "lib",
+      duration: 60,
+      progress: 0.25,
+      currentTime: 1200
+    )
+
+    let resource = item.asVirtualImportResource(
+      fileExtension: "m4b",
+      duration: 4800,
+      connectionService: AudiobookShelfConnectionService(),
+      artworkSize: CGSize(width: 300, height: 300)
+    )
+
+    XCTAssertEqual(
+      resource.libraryItem?.duration,
+      4800,
+      "the HYDRATED length wins over the minified list item's own value"
+    )
+    XCTAssertEqual(resource.libraryItem?.percentCompleted, 25, "ABS reports progress as a 0-1 fraction")
+  }
+
+  func testJellyfinPayloadCarriesTheHydratedDuration() {
+    let item = JellyfinLibraryItem(
+      id: "jf-1",
+      name: "Dune",
+      kind: .audiobook,
+      durationSeconds: 60,
+      currentSeconds: 1200,
+      isFinished: false,
+      lastPlayedDate: nil,
+      blurHash: nil,
+      imageAspectRatio: nil,
+      details: nil
+    )
+
+    let resource = item.asVirtualImportResource(
+      fileExtension: "m4b",
+      duration: 4800,
+      detailsOverride: nil,
+      connectionService: JellyfinConnectionService(),
+      artworkSize: CGSize(width: 200, height: 200)
+    )
+
+    XCTAssertEqual(resource.libraryItem?.duration, 4800)
+    XCTAssertEqual(
+      resource.libraryItem?.percentCompleted,
+      25,
+      "progress divides by the hydrated duration, which the pipeline guarantees is non-zero"
+    )
   }
 }

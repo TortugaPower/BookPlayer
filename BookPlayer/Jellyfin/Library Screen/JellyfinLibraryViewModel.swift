@@ -87,13 +87,21 @@ extension JellyfinFolderImporting {
       let resources = try await VirtualImportPipeline.run(
         items: audiobooks,
         id: \.id,
-        hydrateExtensions: { ids in
+        hydrate: { ids in
           let hydrated = try await self.connectionService.fetchItems(ids: ids)
-          return hydrated.reduce(into: [:]) { $0[$1.id] = $1.details?.fileExtension }
+          return hydrated.reduce(into: [:]) {
+            $0[$1.id] = HydratedItem(
+              fileExtension: $1.details?.fileExtension,
+              // `details.runtimeInSeconds` keeps "unmeasured" as nil and avoids the whole-second
+              // truncation `durationSeconds` applies
+              duration: $1.details?.runtimeInSeconds
+            )
+          }
         },
-        buildResource: { item, fileExtension in
+        buildResource: { item, hydrated in
           item.asVirtualImportResource(
-            fileExtension: fileExtension,
+            fileExtension: hydrated.fileExtension,
+            duration: hydrated.duration,
             detailsOverride: nil,
             connectionService: self.connectionService,
             artworkSize: CGSize(width: 200, height: 200)
@@ -105,7 +113,7 @@ extension JellyfinFolderImporting {
         return
       }
       if resources.count < audiobooks.count {
-        Self.logger.warning("Virtual import skipped \(audiobooks.count - resources.count) item(s) with no audio-file metadata")
+        Self.logger.warning("Virtual import skipped \(audiobooks.count - resources.count) item(s) with no audio-file metadata or no server-measured length")
       }
       // Stage as a VALUE for this screen's own confirmation sheet — the browser
       // stays open beneath it; dismissal happens on confirm

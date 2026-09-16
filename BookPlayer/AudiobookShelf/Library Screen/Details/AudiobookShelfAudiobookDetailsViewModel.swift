@@ -119,17 +119,22 @@ class AudiobookShelfAudiobookDetailsViewModel: IntegrationDetailsViewModelProtoc
       let resources = try await VirtualImportPipeline.run(
         items: [item],
         id: \.id,
-        hydrateExtensions: { ids in
+        hydrate: { ids in
           // Same contract as the bulk paths: list navigation hands us a MINIFIED
-          // item, so hydrate it for the real file extension — never guessed
+          // item, so hydrate it for the real file extension — never guessed — and
+          // for the length, which an import is refused without
           let hydrated = try await self.connectionService.fetchItems(ids: ids)
-          var extensions: [String: String] = [:]
-          extensions[item.id] = hydrated.first?.fileExtension ?? item.fileExtension
-          return extensions
+          var hydratedByID: [String: HydratedItem] = [:]
+          hydratedByID[item.id] = HydratedItem(
+            fileExtension: hydrated.first?.fileExtension ?? item.fileExtension,
+            duration: hydrated.first?.duration ?? item.duration
+          )
+          return hydratedByID
         },
-        buildResource: { item, fileExtension in
+        buildResource: { item, hydrated in
           item.asVirtualImportResource(
-            fileExtension: fileExtension,
+            fileExtension: hydrated.fileExtension,
+            duration: hydrated.duration,
             connectionService: self.connectionService,
             artworkSize: CGSize(width: 300, height: 300)
           )

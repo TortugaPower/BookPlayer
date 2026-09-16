@@ -669,8 +669,12 @@ public class JellyfinConnectionService: BPLogger {
     let artist: String? = itemInfo.albumArtist
     let filePath: String? = itemInfo.mediaSources?.first?.path ?? itemInfo.path
     let fileSize: Int? = itemInfo.mediaSources?.first?.size
-    let runtimeInSeconds: TimeInterval? =
-      (itemInfo.runTimeTicks != nil) ? TimeInterval(itemInfo.runTimeTicks!) / 10000000.0 : nil
+    /// Same resolution as the list mapper, so the details screen and the import gate can't
+    /// disagree about whether this item has a runtime
+    let runtimeInSeconds = JellyfinLibraryItem.resolveRuntimeSeconds(
+      itemTicks: itemInfo.runTimeTicks,
+      mediaSourceTicks: itemInfo.mediaSources?.first?.runTimeTicks
+    )
 
     return JellyfinAudiobookDetailsData(
       artist: artist,

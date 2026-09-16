@@ -263,15 +263,18 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
       let resources = try await VirtualImportPipeline.run(
         items: audiobooks,
         id: \.id,
-        hydrateExtensions: { ids in
+        hydrate: { ids in
           // batch/get returns EXPANDED items (list endpoints are minified without
           // audioFiles); one round-trip for the whole selection
           let hydrated = try await self.connectionService.fetchItems(ids: ids)
-          return hydrated.reduce(into: [:]) { $0[$1.id] = $1.fileExtension }
+          return hydrated.reduce(into: [:]) {
+            $0[$1.id] = HydratedItem(fileExtension: $1.fileExtension, duration: $1.duration)
+          }
         },
-        buildResource: { item, fileExtension in
+        buildResource: { item, hydrated in
           item.asVirtualImportResource(
-            fileExtension: fileExtension,
+            fileExtension: hydrated.fileExtension,
+            duration: hydrated.duration,
             connectionService: self.connectionService,
             artworkSize: CGSize(width: 300, height: 300)
           )
@@ -282,7 +285,7 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
         return
       }
       if resources.count < audiobooks.count {
-        Self.logger.warning("Virtual import skipped \(audiobooks.count - resources.count) item(s) with no audio-file metadata")
+        Self.logger.warning("Virtual import skipped \(audiobooks.count - resources.count) item(s) with no audio-file metadata or no server-measured length")
       }
       // Stage as a VALUE for this screen's own confirmation sheet — the browser
       // stays open beneath it; dismissal happens on confirm

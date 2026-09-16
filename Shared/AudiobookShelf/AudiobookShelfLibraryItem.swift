@@ -393,13 +393,16 @@ public struct AudiobookShelfCollectionsResponse: Codable {
 // MARK: - Virtual import
 
 extension AudiobookShelfLibraryItem {
-  /// Builds the virtual-import payload for this item. The file extension is REQUIRED:
-  /// list endpoints return minified items without audio-file metadata, so callers
-  /// hydrate the selection via `fetchItems(ids:)` (POST /api/items/batch/get) and SKIP
-  /// items that have none — the extension is never guessed.
+  /// Builds the virtual-import payload for this item. The file extension and the duration
+  /// are REQUIRED and both come from hydration (`VirtualImportPipeline`): list endpoints
+  /// return minified items without audio-file metadata, so callers hydrate the selection
+  /// via `fetchItems(ids:)` (POST /api/items/batch/get) and SKIP items that have neither
+  /// a real extension nor a measured length — the extension is never guessed, and the
+  /// duration is never defaulted to 0, which would import an unplayable row.
   @MainActor
   public func asVirtualImportResource(
     fileExtension: String,
+    duration: TimeInterval,
     connectionService: AudiobookShelfConnectionService,
     artworkSize: CGSize
   ) -> SimpleExternalResource {
@@ -408,10 +411,10 @@ extension AudiobookShelfLibraryItem {
       details: authorName ?? "voiceover_unknown_author".localized,
       speed: 1,
       currentTime: Double(currentTime ?? 0),
-      duration: Double(duration ?? 0),
-      percentCompleted: (progress ?? 0) > 0 && (duration ?? 0) > 0
-        ? Double(progress!) * 100
-        : 0,
+      duration: duration,
+      /// ABS reports progress as a 0-1 fraction; the duration gate the old expression
+      /// carried is now the pipeline's precondition.
+      percentCompleted: max(progress ?? 0, 0) * 100,
       isFinished: isFinished ?? false,
       relativePath: "",
       remoteURL: nil,

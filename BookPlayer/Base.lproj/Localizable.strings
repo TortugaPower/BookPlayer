@@ -531,7 +531,7 @@ We're working hard on providing a seamless experience, if possible, please conta
 "layout_grid_option" = "Grid";
 "layout_list_option" = "List";
 "authors_title" = "Authors";
-"import_no_audio_files_alert" = "The selected items have no audio files to import.";
+"import_no_audio_files_alert" = "Your server hasn't reported the audio details for these items yet. Try again once it has finished scanning them.";
 "import_title" = "Import";
 "files_title" = "%d Files";
 "file_path_title" = "File Path";
