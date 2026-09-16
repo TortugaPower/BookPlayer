@@ -718,9 +718,11 @@ public class JellyfinConnectionService: BPLogger {
 
     var parameters = Paths.GetItemsParameters(userID: myId, ids: externalResources.map(\.providerId))
     /// `Chapters` is opt-in — without it Jellyfin returns the item with no chapter list and
-    /// the refresh would ingest an empty one for every book. The runtime that bounds the last
-    /// chapter is a base property and needs no field of its own.
-    parameters.fields = [.chapters]
+    /// the refresh would ingest an empty one for every book. `MediaSources` comes along for
+    /// the runtime fallback: an item Jellyfin hasn't probed at the item level has no
+    /// `runTimeTicks`, and without a runtime the last chapter has no end, so the whole list
+    /// is dropped. The import path requests both for the same reason.
+    parameters.fields = [.chapters, .mediaSources]
 
     let response = try await send(Paths.getItems(parameters: parameters))
 

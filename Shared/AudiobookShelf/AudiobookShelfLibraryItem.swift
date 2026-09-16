@@ -232,31 +232,56 @@ extension AudiobookShelfLibraryItem {
       progress: apiItem.userMediaProgress?.progress,
       currentTime: apiItem.userMediaProgress?.currentTime,
       isFinished: apiItem.userMediaProgress?.isFinished,
-      chapters: Self.chapterMetadata(from: apiItem.media.chapters)
+      chapters: Self.chapterMetadata(from: apiItem.media.chapters, duration: apiItem.media.duration)
     )
   }
 
-  /// ABS gives every chapter a start AND an end, so durations are direct. Entries that
-  /// don't describe a positive span are dropped — `PlaybackService.getPlayableChapters`
-  /// filters those out anyway, and storing them would make the stored list disagree with
-  /// the playable one.
-  static func chapterMetadata(from chapters: [AudiobookShelfAPIItem.Media.Chapter]?) -> [ChapterMetadata] {
+  /// ABS gives every chapter a start AND an end, so durations are direct — but the list is
+  /// taken verbatim from the media and need not reach the item's end: an m4b whose embedded
+  /// chapter track stops before the trailing silence or credits leaves a gap, since
+  /// `media.duration` sums the audio files while `media.chapters` does not.
+  ///
+  /// The LAST chapter is therefore stretched to the item duration, giving the same total
+  /// coverage the Jellyfin mapping has by construction. Without it a position in that gap
+  /// resolves to no chapter, and `PlayableItem.init` falls back to `chapters[0]` — pinning
+  /// the whole session to chapter 1, which then never advances (the tick only reassigns when
+  /// `getChapter` finds one) and never reaches `chapters.last`, so the book never completes.
+  ///
+  /// Entries that don't describe a positive span are dropped: `getPlayableChapters` filters
+  /// those anyway, and storing them would make the stored list disagree with the playable one.
+  static func chapterMetadata(
+    from chapters: [AudiobookShelfAPIItem.Media.Chapter]?,
+    duration: TimeInterval?
+  ) -> [ChapterMetadata] {
     guard let chapters else { return [] }
 
-    return chapters
-      .sorted { $0.start < $1.start }
-      .enumerated()
-      .compactMap { index, chapter in
-        let duration = chapter.end - chapter.start
-        guard duration > 0 else { return nil }
-
-        return ChapterMetadata(
-          title: chapter.title,
-          start: chapter.start,
-          duration: duration,
-          index: index + 1
-        )
+    // Degenerate entries go FIRST, so the stretch below lands on a real chapter — stretching
+    // whatever happened to sort last would resurrect a zero-length one and overlap its
+    // predecessor.
+    let usable = chapters
+      .filter { chapter in
+        guard chapter.end > chapter.start else { return false }
+        guard let duration else { return true }
+        return chapter.start < duration
       }
+      .sorted { $0.start < $1.start }
+
+    return usable.enumerated().map { index, chapter in
+      let isLast = index == usable.count - 1
+      let end: TimeInterval
+      if let duration, isLast || chapter.end > duration {
+        end = duration
+      } else {
+        end = chapter.end
+      }
+
+      return ChapterMetadata(
+        title: chapter.title,
+        start: chapter.start,
+        duration: end - chapter.start,
+        index: index + 1
+      )
+    }
   }
   
   public init(progressItem: AudiobookShelfAPIItem.UserMediaProgress) {

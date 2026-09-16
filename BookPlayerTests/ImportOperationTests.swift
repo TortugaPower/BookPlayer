@@ -1606,10 +1606,13 @@ final class MediaServerChapterMappingTests: XCTestCase {
   // MARK: AudiobookShelf — start AND end, so durations are direct
 
   func testAudiobookShelfChaptersMapWithDirectDurations() {
-    let chapters = AudiobookShelfLibraryItem.chapterMetadata(from: [
-      .init(start: 0, end: 600, title: "One"),
-      .init(start: 600, end: 1500, title: "Two"),
-    ])
+    let chapters = AudiobookShelfLibraryItem.chapterMetadata(
+      from: [
+        .init(start: 0, end: 600, title: "One"),
+        .init(start: 600, end: 1500, title: "Two"),
+      ],
+      duration: 1500
+    )
 
     XCTAssertEqual(chapters.map(\.title), ["One", "Two"])
     XCTAssertEqual(chapters.map(\.start), [0, 600])
@@ -1618,11 +1621,14 @@ final class MediaServerChapterMappingTests: XCTestCase {
   }
 
   func testAudiobookShelfOutOfOrderChaptersAreSortedAndZeroLengthOnesDropped() {
-    let chapters = AudiobookShelfLibraryItem.chapterMetadata(from: [
-      .init(start: 600, end: 1500, title: "Two"),
-      .init(start: 1500, end: 1500, title: "Empty"),
-      .init(start: 0, end: 600, title: "One"),
-    ])
+    let chapters = AudiobookShelfLibraryItem.chapterMetadata(
+      from: [
+        .init(start: 600, end: 1500, title: "Two"),
+        .init(start: 700, end: 700, title: "Empty"),
+        .init(start: 0, end: 600, title: "One"),
+      ],
+      duration: 1500
+    )
 
     XCTAssertEqual(
       chapters.map(\.title),
@@ -1632,8 +1638,59 @@ final class MediaServerChapterMappingTests: XCTestCase {
   }
 
   func testAudiobookShelfNoChaptersIsEmptyNotASynthesizedOne() {
-    XCTAssertTrue(AudiobookShelfLibraryItem.chapterMetadata(from: nil).isEmpty)
-    XCTAssertTrue(AudiobookShelfLibraryItem.chapterMetadata(from: []).isEmpty)
+    XCTAssertTrue(AudiobookShelfLibraryItem.chapterMetadata(from: nil, duration: 1500).isEmpty)
+    XCTAssertTrue(AudiobookShelfLibraryItem.chapterMetadata(from: [], duration: 1500).isEmpty)
+  }
+
+  /// The bug this exists for: an uncovered tail resolves to NO chapter, so `PlayableItem.init`
+  /// falls back to `chapters[0]` and the session is pinned to chapter 1 — it never advances
+  /// (the tick only reassigns when `getChapter` finds one) and never reaches `chapters.last`,
+  /// so the book never completes.
+  func testAudiobookShelfLastChapterStretchesToTheItemDuration() {
+    let chapters = AudiobookShelfLibraryItem.chapterMetadata(
+      from: [
+        .init(start: 0, end: 600, title: "One"),
+        .init(start: 600, end: 1400, title: "Two"),
+      ],
+      duration: 1500
+    )
+
+    XCTAssertEqual(
+      chapters.last?.start.advanced(by: chapters.last?.duration ?? 0),
+      1500,
+      "the chapter track stopping before the trailing silence must not leave a hole"
+    )
+  }
+
+  func testAudiobookShelfChapterEndBeyondTheDurationIsClamped() {
+    let chapters = AudiobookShelfLibraryItem.chapterMetadata(
+      from: [.init(start: 0, end: 9999, title: "Overlong")],
+      duration: 1500
+    )
+
+    XCTAssertEqual(chapters.map(\.duration), [1500])
+  }
+
+  func testAudiobookShelfChaptersStartingPastTheDurationAreDropped() {
+    let chapters = AudiobookShelfLibraryItem.chapterMetadata(
+      from: [
+        .init(start: 0, end: 600, title: "One"),
+        .init(start: 1600, end: 1700, title: "Bogus"),
+      ],
+      duration: 1500
+    )
+
+    XCTAssertEqual(chapters.map(\.title), ["One"])
+    XCTAssertEqual(chapters.map(\.duration), [1500], "the survivor still covers the item")
+  }
+
+  func testAudiobookShelfWithoutADurationKeepsTheServersEnds() {
+    let chapters = AudiobookShelfLibraryItem.chapterMetadata(
+      from: [.init(start: 0, end: 600, title: "One")],
+      duration: nil
+    )
+
+    XCTAssertEqual(chapters.map(\.duration), [600])
   }
 
   // MARK: Jellyfin — starts only, so each duration is the gap to the next
