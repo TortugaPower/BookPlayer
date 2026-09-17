@@ -40,7 +40,10 @@ struct MediaServersLoginView: View {
         subtitle: "external_sync_benefit_sync_subtitle"
       )
 
-      LoginDisclaimerSectionView()
+      /// Not the shared bullets: those explain hosting costs for files we keep, and we keep
+      /// none of this user's. Theirs answers the question a self-hoster actually asks —
+      /// why pay when the server is already mine.
+      LoginDisclaimerSectionView(descriptions: ["external_sync_disclaimer_description"])
     }
     .applyListStyle(with: theme, background: theme.systemGroupedBackgroundColor)
     /// The buttons ARE the inset, so the list reserves exactly their height — `LoginView` does

@@ -552,6 +552,7 @@ We're working hard on providing a seamless experience, if possible, please conta
 "external_sync_benefit_stream_subtitle" = "Listen instantly by streaming directly from your source. No need to download files or use up local storage.";
 "external_sync_benefit_sync_title" = "Two-Way Progress Sync";
 "external_sync_benefit_sync_subtitle" = "Your position syncs both ways with Jellyfin or Audiobookshelf, and through your BookPlayer account so every device you use stays in step.";
+"external_sync_disclaimer_description" = "- Your audiobook files stay on your own server, never on ours. Your subscription unlocks streaming and covers the cost of syncing your progress between devices through our servers.";
 "external_sync_info_title" = "Stream & Sync";
 "queued_tasks_title" = "Queued Tasks";
 "info_title" = "Info";
