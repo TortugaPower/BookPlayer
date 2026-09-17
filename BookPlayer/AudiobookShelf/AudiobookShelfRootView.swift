@@ -466,7 +466,7 @@ private struct AudiobookShelfTabRoot: View {
     }
     .sheet(isPresented: $navigation.showingSubscribe) {
       NavigationStack {
-        ExternalSyncIntroView()
+        MediaServersLoginView()
       }
       .tint(theme.linkColor)
       .environmentObject(theme)
