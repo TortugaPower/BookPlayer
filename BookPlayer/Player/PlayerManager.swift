@@ -297,11 +297,6 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     self.playerItem = AVPlayerItem(asset: asset)
     self.playerItem?.audioTimePitchAlgorithm = .timeDomain
 
-    if chapter.externalUrl != nil {
-      // Buffer a reasonable amount for streaming (20 seconds)
-      self.playerItem?.preferredForwardBufferDuration = 20
-    }
-
     return self.currentItem?.currentChapter ?? chapter
   }
 
