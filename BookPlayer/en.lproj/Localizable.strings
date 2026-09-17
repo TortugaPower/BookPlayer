@@ -338,7 +338,6 @@ Keep in mind that upload tasks can take some time, and the progress will be peri
 "overview_title" = "Overview";
 "tags_title" = "Tags";
 "series_title" = "Series";
-"apple_watch_beta_title" = "Apple Watch (Beta)";
 "sort_by_size_title" = "Size";
 "settings_storage_sync_deleted_description" = "Files removed (sync operations)";
 "storage_sync_deleted_recover_description" = "You can import back your local books and folders if they were deleted by a sync operation. This will move all of them back to the documents folder, triggering the import process. If folders are involved, this could mean that the originals are still in the library, and some renaming will have to take place, sorry about this inconvenience";
@@ -548,12 +547,11 @@ Keep in mind that upload tasks can take some time, and the progress will be peri
 "queue_library_sync_title" = "Library Sync";
 "queue_file_uploads_title" = "File Uploads";
 "close_title" = "Close";
-"external_sync_benefit_server_title" = "Bring Your Own Server";
-"external_sync_benefit_server_subtitle" = "Connect your existing Jellyfin or Audiobookshelf directly to the app.";
 "external_sync_benefit_stream_title" = "Stream & Save Space";
 "external_sync_benefit_stream_subtitle" = "Listen instantly by streaming directly from your source. No need to download files or use up local storage.";
 "external_sync_benefit_sync_title" = "Two-Way Progress Sync";
-"external_sync_benefit_sync_subtitle" = "Your listening progress stays perfectly synced with your server and across all your devices.";
+"external_sync_benefit_sync_subtitle" = "Your position syncs both ways with Jellyfin or Audiobookshelf, and through your BookPlayer account so every device you use stays in step.";
+"external_sync_disclaimer_description" = "- Your audiobook files stay on your own server, never on ours. Your subscription unlocks streaming and covers the cost of syncing your progress between devices through our servers.";
 "external_sync_info_title" = "Stream & Sync";
 "queued_tasks_title" = "Queued Tasks";
 "info_title" = "Info";

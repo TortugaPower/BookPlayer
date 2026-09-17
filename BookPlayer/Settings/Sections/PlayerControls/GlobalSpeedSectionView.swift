@@ -61,7 +61,7 @@ struct GlobalSpeedSectionView: View {
       }
       .pickerStyle(.menu)
       Toggle(isOn: $globalSpeedEnabled) {
-        Text("settings_globalspeed_title".localized)
+        Text("settings_globalspeed_title")
           .bpFont(.body)
       }
     } header: {
@@ -69,7 +69,7 @@ struct GlobalSpeedSectionView: View {
         .bpFont(.subheadline)
         .foregroundStyle(theme.secondaryColor)
     } footer: {
-      Text("settings_globalspeed_description".localized)
+      Text("settings_globalspeed_description")
         .bpFont(.caption)
         .foregroundStyle(theme.secondaryColor)
     }

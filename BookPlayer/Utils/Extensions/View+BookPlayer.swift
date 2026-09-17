@@ -333,6 +333,17 @@ extension View {
 }
 
 extension View {
+  /// Glass in an explicit rounded rect rather than the default capsule, for panels that span
+  /// a width instead of floating as a pill.
+  @ViewBuilder
+  func glassCard(cornerRadius: CGFloat = 16) -> some View {
+    if #available(iOS 26.0, *) {
+      glassEffect(in: .rect(cornerRadius: cornerRadius))
+    } else {
+      background(.ultraThinMaterial, in: .rect(cornerRadius: cornerRadius))
+    }
+  }
+
   @ViewBuilder
   func liquidGlassBackground() -> some View {
     if #available(iOS 26.0, *) {

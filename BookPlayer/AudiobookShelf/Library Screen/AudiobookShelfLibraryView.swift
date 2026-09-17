@@ -40,9 +40,9 @@ where Model.Item == AudiobookShelfLibraryItem {
       Picker(selection: Binding(
         get: { vm.sortBy },
         set: { vm.sortBy = $0 }
-      ), label: Text("sort_by_title".localized)) {
+      ), label: Text("sort_by_title")) {
         Label("sort_most_recent_button", systemImage: "clock").tag(AudiobookShelfLayout.SortBy.recent)
-        Label("title_button".localized, systemImage: "textformat.abc").tag(AudiobookShelfLayout.SortBy.title)
+        Label("title_button", systemImage: "textformat.abc").tag(AudiobookShelfLayout.SortBy.title)
       }
     }
   }

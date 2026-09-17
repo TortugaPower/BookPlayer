@@ -43,11 +43,11 @@ struct SupportProfileView<Model: LoginViewModelProtocol>: View {
           .accessibilityHidden(true)
         
         Group {
-          Text("create_profile_title".localized)
+          Text("create_profile_title")
             .bpFont(.titleStory)
             .foregroundStyle(themeViewModel.primaryColor)
             .padding()
-          Text("create_profile_description".localized)
+          Text("create_profile_description")
             .bpFont(.bodyStory)
             .foregroundStyle(themeViewModel.primaryColor)
             .multilineTextAlignment(.center)
@@ -70,7 +70,7 @@ struct SupportProfileView<Model: LoginViewModelProtocol>: View {
         Button(action: {
           viewModel.dismiss()
         }, label: {
-          Text("not_now_button".localized)
+          Text("not_now_button")
             .underline()
             .bpFont(.body)
             .foregroundStyle(themeViewModel.secondaryColor)

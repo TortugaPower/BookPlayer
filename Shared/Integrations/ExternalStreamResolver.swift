@@ -41,7 +41,7 @@ public struct ExternalStreamResolver: ExternalStreamResolving, BPLogger {
   }
 
   public func streamSource(for resource: SimpleExternalResource) -> ExternalStreamSource? {
-    switch ExternalResource.ProviderName(rawValue: resource.providerName) {
+    switch resource.mediaServer {
     case .jellyfin:
       guard
         let connection: JellyfinConnectionData = connection(for: resource, key: .jellyfinConnection)
@@ -75,7 +75,8 @@ public struct ExternalStreamResolver: ExternalStreamResolving, BPLogger {
         headers: authorizing(connection.customHeaders, with: "Bearer \(connection.apiToken)")
       )
 
-    default:
+    case nil:
+      // Hardcover, or a provider this build doesn't know: nothing to stream from.
       return nil
     }
   }

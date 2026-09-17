@@ -49,8 +49,13 @@ class AccountServiceMock: AccountServiceProtocol {
     self.account = account
   }
 
+  /// Mirrors the real `getAccountId()`, which maps an empty id to nil. Without that, a mock
+  /// account in the logged-out state — blank id, row still present — reports `Optional("")`
+  /// and reads as signed IN, which is exactly the state the streaming gate has to catch.
   func getAccountId() -> String? {
-    return self.account?.id
+    guard let id = self.account?.id, !id.isEmpty else { return nil }
+
+    return id
   }
 
   func getAccount() -> Account? {

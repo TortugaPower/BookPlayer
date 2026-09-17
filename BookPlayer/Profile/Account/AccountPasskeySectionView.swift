@@ -32,7 +32,7 @@ struct AccountPasskeySectionView: View {
         addButton
       }
     } header: {
-      Text("passkey_title".localized)
+      Text("passkey_title")
         .foregroundStyle(theme.secondaryColor)
     }
     .onAppear {

@@ -114,25 +114,40 @@ final class StreamingAccessTests: XCTestCase {
     XCTAssertFalse(AccountService.hasUnrefundedSubscription(refundDates: []))
   }
 
-  // MARK: composing the three clauses
+  // MARK: composing the rule
 
-  func testAnyOneClauseGrantsAccess() {
-    XCTAssertTrue(AccountService.resolveStreamingAccess(hasPlusAccess: true, hasEverSubscribed: false, donationMade: false))
-    XCTAssertTrue(AccountService.resolveStreamingAccess(hasPlusAccess: false, hasEverSubscribed: true, donationMade: false))
-    XCTAssertTrue(AccountService.resolveStreamingAccess(hasPlusAccess: false, hasEverSubscribed: false, donationMade: true))
-  }
-
-  /// The donation clause is read separately from `hasPlusAccess()` for this case: that method
-  /// returns EARLY on a refunded pro/lite, so a user who tipped and later had a separate
-  /// subscription refunded would be denied by the first two clauses alone.
-  func testATipSurvivesARefundedSubscription() {
+  func testEitherPaidClauseGrantsAccessWhenSignedIn() {
     XCTAssertTrue(
-      AccountService.resolveStreamingAccess(hasPlusAccess: false, hasEverSubscribed: false, donationMade: true),
-      "an unrefunded one-time payment is still having paid"
+      AccountService.resolveStreamingAccess(isSignedIn: true, hasPlusAccess: true, hasEverSubscribed: false)
+    )
+    XCTAssertTrue(
+      AccountService.resolveStreamingAccess(isSignedIn: true, hasPlusAccess: false, hasEverSubscribed: true)
     )
   }
 
-  func testNothingPaidDeniesAccess() {
-    XCTAssertFalse(AccountService.resolveStreamingAccess(hasPlusAccess: false, hasEverSubscribed: false, donationMade: false))
+  /// The case that prompted the sign-in clause: `donationMade` deliberately outlives logout,
+  /// so a past tipper who signs out still satisfies `hasPlusAccess()` — and used to keep
+  /// streaming with no account at all.
+  func testPayingIsNotEnoughWhileSignedOut() {
+    XCTAssertFalse(
+      AccountService.resolveStreamingAccess(isSignedIn: false, hasPlusAccess: true, hasEverSubscribed: false),
+      "a tip that survived logout must not reopen streaming"
+    )
+    XCTAssertFalse(
+      AccountService.resolveStreamingAccess(isSignedIn: false, hasPlusAccess: false, hasEverSubscribed: true)
+    )
+  }
+
+  /// Signing in is necessary, not sufficient — streaming is still something you have to buy.
+  func testSigningInAloneDeniesAccess() {
+    XCTAssertFalse(
+      AccountService.resolveStreamingAccess(isSignedIn: true, hasPlusAccess: false, hasEverSubscribed: false)
+    )
+  }
+
+  func testNothingPaidAndSignedOutDeniesAccess() {
+    XCTAssertFalse(
+      AccountService.resolveStreamingAccess(isSignedIn: false, hasPlusAccess: false, hasEverSubscribed: false)
+    )
   }
 }

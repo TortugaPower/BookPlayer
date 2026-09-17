@@ -67,12 +67,12 @@ struct QueuedTasksView: View {
     .scrollContentBackground(.hidden)
     .background(theme.systemBackgroundColor)
     .toolbarColorScheme(theme.useDarkVariant ? .dark : .light, for: .navigationBar)
-    .navigationTitle("queued_tasks_title".localized)
+    .navigationTitle("queued_tasks_title")
     .navigationBarTitleDisplayMode(.inline)
     .alert("", isPresented: $showInfoAlert) {
-      Button("ok_button".localized, role: .cancel) {}
+      Button("ok_button", role: .cancel) {}
     } message: {
-      Text("sync_tasks_alert_description".localized)
+      Text("sync_tasks_alert_description")
     }
     .toolbar {
       ToolbarItem(placement: .confirmationAction) {
@@ -81,7 +81,7 @@ struct QueuedTasksView: View {
         } label: {
           Image(systemName: "info.circle")
         }
-        .accessibilityLabel("info_title".localized)
+        .accessibilityLabel("info_title")
         .foregroundStyle(theme.linkColor)
       }
     }
@@ -118,7 +118,7 @@ struct QueuedTasksView: View {
         .frame(width: 20, height: 20)
         .foregroundStyle(theme.linkColor)
         .padding([.trailing], 5)
-      Text("upload_wifi_required_title".localized)
+      Text("upload_wifi_required_title")
         .bpFont(.body)
         .foregroundStyle(theme.secondaryColor)
       Spacer()
@@ -132,10 +132,10 @@ struct QueuedTasksView: View {
         .imageScale(.large)
         .foregroundStyle(.secondary)
 
-      Text("sync_tasks_empty_title".localized)
+      Text("sync_tasks_empty_title")
         .bpFont(.headline)
 
-      Text("sync_tasks_empty_description".localized)
+      Text("sync_tasks_empty_description")
         .bpFont(.subheadline)
         .foregroundStyle(.secondary)
         .multilineTextAlignment(.center)

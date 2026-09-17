@@ -19,10 +19,12 @@ struct PrimaryButton: View {
     Button(action: action, label: {
       Text(text)
     })
-    .buttonStyle(PrimaryButtonStyle(
-      background: theme.useDarkVariant ? .white : .black,
-      foregroundStyle: theme.useDarkVariant ? .black : .white
-    ))
+    /// The app's accent treatment, matching the Pro callout's Learn More button. It used to
+    /// invert black/white by theme, which was an imitation of Sign in with Apple — and an
+    /// unnecessary one: that button is Apple's own `SignInWithAppleButton` and gets its look
+    /// from `.signInWithAppleButtonStyle`, never from here. The lookalike mostly turned up on
+    /// sign-in screens standing next to the real thing.
+    .buttonStyle(PrimaryButtonStyle(background: theme.linkColor, foregroundStyle: .white))
   }
 }
 
@@ -33,7 +35,10 @@ struct PrimaryButtonStyle: ButtonStyle {
 
   func makeBody(configuration: Self.Configuration) -> some View {
     configuration.label
-      .bpFont(.title)
+      /// `.headline` (17pt semibold), not `.title` (16pt callout): the smaller size left the
+      /// label looking undersized in a 48pt button next to Sign in with Apple, whose text
+      /// scales with its height. It is also the conventional size for a full-width iOS button.
+      .bpFont(.headline)
       .frame(height: 48)
       .frame(maxWidth: .infinity)
       .background(
@@ -46,7 +51,9 @@ struct PrimaryButtonStyle: ButtonStyle {
         ? foregroundStyle
         : foregroundStyle.opacity(0.5)
       )
-      .clipShape(RoundedRectangle(cornerRadius: 24))
+      /// `Capsule`, not a hardcoded radius: it tracks the height instead of silently going
+      /// wrong when someone changes it, and it matches the Pro callout's Learn More button.
+      .clipShape(Capsule())
       .opacity(configuration.isPressed ? 0.4 : 1.0)
   }
 }

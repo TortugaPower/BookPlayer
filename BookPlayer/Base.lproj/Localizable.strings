@@ -524,7 +524,6 @@ We're working hard on providing a seamless experience, if possible, please conta
 "create_profile_description" = "To enable cloud sync, sign into your profile. You can always do this later from within the Profile tab";
 "not_now_button" = "Not now";
 "quick_action_label" = "Quick Action %d";
-"apple_watch_beta_title" = "Apple Watch (Beta)";
 "sort_by_title" = "Sort by";
 "sort_default_option" = "Default";
 "sort_name_option" = "Name";
@@ -549,12 +548,11 @@ We're working hard on providing a seamless experience, if possible, please conta
 "queue_library_sync_title" = "Library Sync";
 "queue_file_uploads_title" = "File Uploads";
 "close_title" = "Close";
-"external_sync_benefit_server_title" = "Bring Your Own Server";
-"external_sync_benefit_server_subtitle" = "Connect your existing Jellyfin or Audiobookshelf directly to the app.";
 "external_sync_benefit_stream_title" = "Stream & Save Space";
 "external_sync_benefit_stream_subtitle" = "Listen instantly by streaming directly from your source. No need to download files or use up local storage.";
 "external_sync_benefit_sync_title" = "Two-Way Progress Sync";
-"external_sync_benefit_sync_subtitle" = "Your listening progress stays perfectly synced with your server and across all your devices.";
+"external_sync_benefit_sync_subtitle" = "Your position syncs both ways with Jellyfin or Audiobookshelf, and through your BookPlayer account so every device you use stays in step.";
+"external_sync_disclaimer_description" = "- Your audiobook files stay on your own server, never on ours. Your subscription unlocks streaming and covers the cost of syncing your progress between devices through our servers.";
 "external_sync_info_title" = "Stream & Sync";
 "queued_tasks_title" = "Queued Tasks";
 "info_title" = "Info";

@@ -124,7 +124,7 @@ struct IntegrationLibraryView<
             Button {
               viewModel.onStreamTapped(useSelectedItems: false)
             } label: {
-              Label("stream_button".localized, systemImage: "arrow.down.circle.dotted")
+              Label("stream_button", systemImage: "waveform")
             }
             .disabled(viewModel.downloadableItemCount == 0)
 
@@ -153,9 +153,9 @@ struct IntegrationLibraryView<
   var layoutPreferences: some View {
     if viewModel.showsLayoutPreferences {
       ThemedSection {
-        Picker(selection: $viewModel.layout, label: Text("layout_options_title".localized)) {
-          Label("layout_grid_option".localized, systemImage: "square.grid.2x2").tag(IntegrationLayout.Options.grid)
-          Label("layout_list_option".localized, systemImage: "list.bullet").tag(IntegrationLayout.Options.list)
+        Picker(selection: $viewModel.layout, label: Text("layout_options_title")) {
+          Label("layout_grid_option", systemImage: "square.grid.2x2").tag(IntegrationLayout.Options.grid)
+          Label("layout_list_option", systemImage: "list.bullet").tag(IntegrationLayout.Options.list)
         }
       }
     }
@@ -177,14 +177,14 @@ struct IntegrationLibraryView<
     Button {
       viewModel.onStreamTapped(useSelectedItems: true)
     } label: {
-      Image(systemName: "arrow.down.circle.dotted")
-        .accessibilityLabel("stream_button".localized)
+      Image(systemName: "waveform")
+        .accessibilityLabel("stream_button")
     }
     .disabled(viewModel.selectedItems.isEmpty)
 
     Button(action: viewModel.onDownloadTapped) {
       Image(systemName: "arrow.down.to.line")
-        .accessibilityLabel("download_title".localized)
+        .accessibilityLabel("download_title")
     }
     .disabled(viewModel.selectedItems.isEmpty)
   }
