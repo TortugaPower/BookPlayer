@@ -25,7 +25,7 @@ struct ItemDetailsExternalResourceSectionView: View {
       ForEach(externalResources, id: \.providerId) { resource in
         VStack(alignment: .leading, spacing: Spacing.S1) {
           HStack {
-            Text("provider_title".localized)
+            Text("provider_title")
               .bold()
             Spacer()
             Text(resource.providerName.capitalized)
@@ -33,7 +33,7 @@ struct ItemDetailsExternalResourceSectionView: View {
           }
 
           HStack {
-            Text("provider_id_title".localized)
+            Text("provider_id_title")
               .bold()
             Spacer()
             Text(resource.providerId)
@@ -42,7 +42,7 @@ struct ItemDetailsExternalResourceSectionView: View {
 
           if let hostId = resource.hostId, !hostId.isEmpty {
             HStack {
-              Text("host_title".localized)
+              Text("host_title")
                 .bold()
               Spacer()
               // The raw hostId is what resolution itself falls back to for a host
@@ -58,7 +58,7 @@ struct ItemDetailsExternalResourceSectionView: View {
         .padding(.vertical, Spacing.S1)
       }
     } header: {
-      Text("external_resources_title".localized)
+      Text("external_resources_title")
     }
   }
 

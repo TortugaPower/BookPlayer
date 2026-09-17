@@ -63,7 +63,7 @@ struct ExternalSyncIntroView: View {
             Button {
               showCompleteAccount = true
             } label: {
-              Text("continue_title".localized)
+              Text("continue_title")
                 .font(.headline)
                 .foregroundColor(.white)
                 .frame(maxWidth: .infinity)
@@ -78,7 +78,7 @@ struct ExternalSyncIntroView: View {
       }
     }
     .listSectionSpacing(Spacing.S2)
-    .navigationTitle("external_sync_info_title".localized)
+    .navigationTitle("external_sync_info_title")
     .navigationBarTitleDisplayMode(.inline)
     // Presented as a sheet, so there is no back button to fall back on
     .toolbar {
@@ -89,7 +89,7 @@ struct ExternalSyncIntroView: View {
           Image(systemName: "xmark")
             .foregroundStyle(theme.linkColor)
         }
-        .accessibilityLabel("close_title".localized)
+        .accessibilityLabel("close_title")
       }
     }
     .sheet(isPresented: $showCompleteAccount) {

@@ -33,11 +33,11 @@ struct PlaybackAlerts: ViewModifier {
 
     return content
       .alert(
-        "resume_playback_alert_title".localized,
+        "resume_playback_alert_title",
         isPresented: playerState.showResumePopupBinding(whenPlayerVisible: whenPlayerVisible)
       ) {
-        Button("yes_button".localized) { playerManager.jumpTo(playerState.remotePlayTime ?? 0) }
-        Button("ignore_button".localized, role: .cancel) {}
+        Button("yes_button") { playerManager.jumpTo(playerState.remotePlayTime ?? 0) }
+        Button("ignore_button", role: .cancel) {}
       } message: {
         Text(
           String(
@@ -54,9 +54,9 @@ struct PlaybackAlerts: ViewModifier {
         /// No `.cancel` role, matching `BPActionItem.okAction` and the CarPlay copy: the role
         /// would emphasize Media Servers over OK and add outside-tap dismissal, neither of
         /// which the UIKit alert this replaced did.
-        Button("ok_button".localized) {}
+        Button("ok_button") {}
         if failure.canOfferMediaServers {
-          Button("media_servers_title".localized) {
+          Button("media_servers_title") {
             NotificationCenter.default.post(name: .showMediaServers, object: nil)
           }
         }

@@ -45,7 +45,7 @@ struct ImportConfirmationView: View {
             onCancel()
           } label: {
             Image(systemName: "xmark")
-              .accessibilityLabel("cancel_button".localized)
+              .accessibilityLabel("cancel_button")
               .bpFont(.title)
               .foregroundColor(theme.primaryColor)
               .frame(width: 44, height: 44)
@@ -60,7 +60,7 @@ struct ImportConfirmationView: View {
             onConfirm()
           } label: {
             Image(systemName: "checkmark")
-              .accessibilityLabel("import_button".localized)
+              .accessibilityLabel("import_button")
               .bpFont(.title)
               .foregroundColor(theme.primaryColor)
               .frame(width: 44, height: 44)
@@ -75,12 +75,12 @@ struct ImportConfirmationView: View {
         .safeAreaPadding(.top)
 
         // Headers
-        Text("import_title".localized)
+        Text("import_title")
           .bpFont(.titleStory)
           .fontWeight(.bold)
           .foregroundColor(theme.primaryColor)
 
-        Text("import_warning_description".localized)
+        Text("import_warning_description")
           .bpFont(.subheadline)
           .foregroundColor(theme.primaryColor.opacity(0.6))
           .lineSpacing(4)
@@ -100,7 +100,7 @@ struct ImportConfirmationView: View {
                   }
                 } label: {
                   Image(systemName: "minus.circle.fill")
-                    .accessibilityLabel("delete_button".localized)
+                    .accessibilityLabel("delete_button")
                     .foregroundColor(.red)
                     .bpFont(.titleLarge)
                 }
