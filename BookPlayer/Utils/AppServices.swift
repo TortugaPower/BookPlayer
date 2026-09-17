@@ -29,14 +29,14 @@ final class AppServices: BPLogger {
   let playerState: PlayerState
   /// Eager, like playerState: CarPlay registers here from connect(), which on a cold launch
   /// into the car runs before CoreServices exist. Its subscription is bound in setup below.
-  let resumeOfferArbiter: ResumeOfferArbiter
+  let promptSurfaceArbiter: PromptSurfaceArbiter
 
   let reviewPromptService = ReviewPromptService()
 
   private init() {
     let playerState = PlayerState()
     self.playerState = playerState
-    self.resumeOfferArbiter = ResumeOfferArbiter(playerState: playerState)
+    self.promptSurfaceArbiter = PromptSurfaceArbiter(playerState: playerState)
   }
 
   // MARK: - Core Services Setup
@@ -104,7 +104,11 @@ final class AppServices: BPLogger {
         speedService: SpeedService(libraryService: libraryService),
         shakeMotionService: ShakeMotionService(),
         widgetReloadService: WidgetReloadService(),
-        hasStreamingEnabled: { accountService.hasStreamingEnabled() }
+        hasStreamingEnabled: { accountService.hasStreamingEnabled() },
+        /// Already on main: `PlayerManager` routes every failure through `presentOnMain`.
+        presentFailure: { [promptSurfaceArbiter] failure in
+          promptSurfaceArbiter.routeFailure(failure)
+        }
       )
       let watchService = PhoneWatchConnectivityService(
         libraryService: libraryService,
@@ -129,7 +133,7 @@ final class AppServices: BPLogger {
 
       let externalProgressService = ExternalProgressService()
       externalProgressService.setup(libraryService: libraryService, accountService: accountService)
-      resumeOfferArbiter.bind(to: externalProgressService)
+      promptSurfaceArbiter.bind(to: externalProgressService)
 
       let coreServices = CoreServices(
         accountService: accountService,

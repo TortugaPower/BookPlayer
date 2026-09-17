@@ -559,3 +559,5 @@ We're working hard on providing a seamless experience, if possible, please conta
 "queued_tasks_title" = "Queued Tasks";
 "info_title" = "Info";
 "integration_error_missing_connection" = "This book streams from your media server. Connect it in Settings to download or play it.";
+"carplay_playback_failed_message" = "Can't play this book. Open BookPlayer on your phone for details.";
+"carplay_missing_connection_message" = "This book streams from a media server that isn't set up on this device. Open BookPlayer on your phone to connect it.";

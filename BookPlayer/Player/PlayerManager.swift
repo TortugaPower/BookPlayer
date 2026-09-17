@@ -21,6 +21,10 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   /// Narrow read of the streaming entitlement (pro or lite), not the whole account
   /// service — the media-servers shortcut is only actionable for a tier that can stream.
   private let hasStreamingEnabled: () -> Bool
+  /// Hands a failure to whichever surface the user is on. Injected because both failure sites
+  /// are async and surface-agnostic — see `playbackFailure(for:title:message:)`. Always called
+  /// through `presentOnMain(for:title:message:)`, never directly.
+  private let presentFailure: (PlaybackFailure) -> Void
   private let syncService: SyncServiceProtocol
   private let speedService: SpeedServiceProtocol
   private let userActivityManager: UserActivityManager
@@ -87,7 +91,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     speedService: SpeedServiceProtocol,
     shakeMotionService: ShakeMotionServiceProtocol,
     widgetReloadService: WidgetReloadServiceProtocol,
-    hasStreamingEnabled: @escaping () -> Bool
+    hasStreamingEnabled: @escaping () -> Bool,
+    presentFailure: @escaping (PlaybackFailure) -> Void
   ) {
     self.libraryService = libraryService
     self.playbackService = playbackService
@@ -97,6 +102,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     self.shakeMotionService = shakeMotionService
     self.widgetReloadService = widgetReloadService
     self.hasStreamingEnabled = hasStreamingEnabled
+    self.presentFailure = presentFailure
     super.init()
 
     setupPlayerInstance()
@@ -399,21 +405,60 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     hasStreamingEnabled() && chapter.needsMediaServer()
   }
 
-  /// The actions for a playback-failure alert: OK, plus the Media Servers shortcut when it
-  /// could actually fix this chapter. Shared by both failure sites so the offer can't drift
-  /// between the metadata path and the player-item path.
-  private func failureAlertActions(for chapter: PlayableChapter?) -> [BPActionItem] {
-    var actions = [BPActionItem.okAction]
+  /// A failure described for whichever surface ends up showing it. Shared by both failure
+  /// sites so the reason and the offer can't drift between the metadata path and the
+  /// player-item path.
+  ///
+  /// This only DESCRIBES the failure. Presenting it is the arbiter's job: both call sites are
+  /// asynchronous — a detached metadata task and a KVO status callback — so by the time either
+  /// fires, whichever surface asked for playback is long gone from the stack.
+  ///
+  /// Not private so the reason derivation is testable without provoking a real AVFoundation
+  /// failure, same as `offersMediaServers(for:)`.
+  func playbackFailure(
+    for chapter: PlayableChapter?,
+    title: String,
+    message: String?
+  ) -> PlaybackFailure {
+    /// `needsMediaServer()` gates BOTH media-server reasons, because it is the only one of the
+    /// two predicates that checks the filesystem: `hasUnresolvedExternalHost` is a stored flag
+    /// that stays true on a DOWNLOADED book whose connection was later removed. Reading it
+    /// first would have blamed a missing server for a local file that simply won't open, and
+    /// reported a reason that disagrees with `canOfferMediaServers` on the same value.
+    let reason: PlaybackFailure.Reason
 
-    if let chapter, offersMediaServers(for: chapter) {
-      actions.append(
-        BPActionItem(title: "media_servers_title".localized) {
-          NotificationCenter.default.post(name: .showMediaServers, object: nil)
-        }
-      )
+    if let chapter, chapter.needsMediaServer() {
+      reason = chapter.hasUnresolvedExternalHost ? .missingConnection : .streamUnavailable
+    } else {
+      reason = .other
     }
 
-    return actions
+    return PlaybackFailure(
+      reason: reason,
+      phoneTitle: title,
+      phoneMessage: message,
+      canOfferMediaServers: chapter.map(offersMediaServers(for:)) ?? false
+    )
+  }
+
+  /// The one way a failure leaves this class. Hops to main unconditionally, as the UIKit
+  /// presentation this replaced did: `PlayerManager` is not `@MainActor`, and the player-item
+  /// site is a raw KVO callback on `AVPlayerItem.status`, which AVFoundation does not promise
+  /// to deliver on the main thread — while every presenter writes `@Observable` state or puts
+  /// a template on screen. Keeping the hop here rather than in the injected closure means an
+  /// injector cannot forget it.
+  ///
+  /// It BUILDS the failure inside the hop, not just presents it: `playbackFailure` reaches
+  /// `hasStreamingEnabled()`, which reads `donationMade` through `AccountService.getAccount()`
+  /// — a fetch on the VIEW context. Constructing at the call site would run that fetch on
+  /// whatever thread KVO happened to use. The caller still resolves `chapter` itself, so the
+  /// snapshot is taken when the failure occurs rather than a turn later.
+  private func presentOnMain(for chapter: PlayableChapter?, title: String, message: String?) {
+    Task { @MainActor in
+      self.presentFailure(
+        self.playbackFailure(for: chapter, title: title, message: message)
+      )
+    }
   }
 
   func loadChapterMetadata(_ chapter: PlayableChapter, autoplay: Bool? = nil, forceRefreshURL: Bool = false) {
@@ -431,10 +476,10 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
         self.playbackQueued = nil
         self.isFetchingRemoteURL = nil
         self.observeStatus = false
-        self.showErrorAlert(
+        self.presentOnMain(
+          for: chapter,
           title: "\("error_title".localized) Metadata",
-          error.localizedDescription,
-          actions: failureAlertActions(for: chapter)
+          message: error.localizedDescription
         )
         return
       }
@@ -1231,7 +1276,7 @@ extension PlayerManager {
         /// Avoid showing any alert if playback is not queued, this could be from the initial app launch
         /// where we preload the player with the last played item
         if playbackQueued == true {
-          let actions = failureAlertActions(for: currentItem?.currentChapter)
+          let chapter = currentItem?.currentChapter
 
           if let nsError = item.error as? NSError {
             let errorDescription = """
@@ -1243,9 +1288,17 @@ extension PlayerManager {
               Additional Info
               \(nsError.userInfo)
               """
-            showErrorAlert(title: "\("error_title".localized) \(nsError.code)", errorDescription, actions: actions)
+            presentOnMain(
+              for: chapter,
+              title: "\("error_title".localized) \(nsError.code)",
+              message: errorDescription
+            )
           } else {
-            showErrorAlert(title: "error_title".localized, item.error?.localizedDescription, actions: actions)
+            presentOnMain(
+              for: chapter,
+              title: "error_title".localized,
+              message: item.error?.localizedDescription
+            )
           }
         }
 
@@ -1582,23 +1635,6 @@ extension PlayerManager {
     else { return }
 
     libraryService.addNote(type.getNote() ?? "", bookmark: bookmark)
-  }
-}
-
-extension PlayerManager {
-  private func showErrorAlert(title: String, _ message: String?, actions: [BPActionItem]) {
-    DispatchQueue.main.async {
-      let content = BPAlertContent(
-        title: title,
-        message: message,
-        style: .alert,
-        actionItems: actions
-      )
-
-      WindowHelper.activeWindow?.rootViewController?
-        .getTopVisibleViewController()?
-        .showAlert(content)
-    }
   }
 }
 

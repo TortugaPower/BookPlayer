@@ -44,7 +44,8 @@ class PlayerManagerTests: XCTestCase {
       widgetReloadService: WidgetReloadService(),
       // Entitled by default, so nothing here is suppressed by tier; the item half of the rule
       // is covered by MediaServersShortcutTests against PlayableChapter.
-      hasStreamingEnabled: { [weak self] in self?.streamingEnabled ?? true }
+      hasStreamingEnabled: { [weak self] in self?.streamingEnabled ?? true },
+      presentFailure: { _ in }
     )
   }
 
@@ -141,6 +142,88 @@ class PlayerManagerTests: XCTestCase {
     )
   }
 
+  /// An item whose host has no saved connection is a DIFFERENT problem from a server that
+  /// won't answer, and only the surfaces can word that difference — so the reason has to be
+  /// derived correctly here. Order matters: `needsMediaServer()` is true for both shapes.
+  func testAnUnresolvedHostIsAMissingConnectionNotAnUnreachableStream() {
+    let failure = sut.playbackFailure(
+      for: makeUnplayableExternalChapter(),
+      title: "t",
+      message: "m"
+    )
+
+    XCTAssertEqual(failure.reason, .missingConnection)
+    XCTAssertTrue(failure.canOfferMediaServers)
+  }
+
+  /// The case the derivation order exists for. `hasUnresolvedExternalHost` is a stored flag
+  /// that stays true on a book you already DOWNLOADED from a server you later removed, so
+  /// reading it first blamed a missing server for a local file that simply won't open — and
+  /// produced a reason that disagreed with `canOfferMediaServers` on the same value.
+  func testADownloadedBookIsNeverBlamedOnAMissingServer() throws {
+    let relativePath = "downloaded-from-a-removed-server.m4b"
+    let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(relativePath)
+    try Data("not really audio".utf8).write(to: fileURL)
+    defer { try? FileManager.default.removeItem(at: fileURL) }
+
+    let chapter = PlayableChapter(
+      title: "test chapter",
+      author: "test author",
+      start: 0,
+      duration: 50,
+      relativePath: relativePath,
+      remoteURL: nil,
+      externalURL: nil,
+      index: 0,
+      hasUnresolvedExternalHost: true
+    )
+
+    let failure = sut.playbackFailure(for: chapter, title: "t", message: "m")
+
+    XCTAssertEqual(failure.reason, .other, "the file is on disk — no server is involved")
+    XCTAssertFalse(
+      failure.canOfferMediaServers,
+      "reason and the shortcut must not disagree on the same failure"
+    )
+  }
+
+  func testAResolvedStreamThatFailedIsUnavailableNotMissing() {
+    let chapter = PlayableChapter(
+      title: "test chapter",
+      author: "test author",
+      start: 0,
+      duration: 50,
+      relativePath: "no-such-file.m4b",
+      remoteURL: nil,
+      externalURL: URL(string: "https://jellyfin.example.com/stream"),
+      index: 0,
+      hasUnresolvedExternalHost: false
+    )
+
+    XCTAssertEqual(
+      sut.playbackFailure(for: chapter, title: "t", message: "m").reason,
+      .streamUnavailable
+    )
+  }
+
+  /// No chapter at all (the player item failed before one was resolved) must not claim a
+  /// media-server problem, or the surfaces offer a fix for something else entirely.
+  func testAFailureWithNoChapterOffersNothing() {
+    let failure = sut.playbackFailure(for: nil, title: "t", message: nil)
+
+    XCTAssertEqual(failure.reason, .other)
+    XCTAssertFalse(failure.canOfferMediaServers)
+  }
+
+  /// The phone's copy is deliberately passed through untouched — the error code and NSError
+  /// dump are worth keeping for support threads.
+  func testThePhoneCopyIsCarriedVerbatim() {
+    let failure = sut.playbackFailure(for: nil, title: "Error 1234", message: "userInfo={...}")
+
+    XCTAssertEqual(failure.phoneTitle, "Error 1234")
+    XCTAssertEqual(failure.phoneMessage, "userInfo={...}")
+  }
+
   func testMediaServersShortcutOfferedWhenStreamingIsEnabled() {
     XCTAssertTrue(self.sut.offersMediaServers(for: makeUnplayableExternalChapter()))
   }
@@ -153,7 +236,8 @@ class PlayerManagerTests: XCTestCase {
       speedService: SpeedServiceProtocolMock(),
       shakeMotionService: ShakeMotionServiceProtocolMock(),
       widgetReloadService: WidgetReloadService(),
-      hasStreamingEnabled: { false }
+      hasStreamingEnabled: { false },
+      presentFailure: { _ in }
     )
 
     XCTAssertFalse(
