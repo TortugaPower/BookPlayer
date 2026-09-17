@@ -16,8 +16,6 @@ struct ProfileCardView: View {
   var cornerRadius: CGFloat = 10
 
   var email: String = ""
-  var sub: String?
-  var subColor: Color?
   @EnvironmentObject var theme: ThemeViewModel
 
   var titleAccessibilityLabel: String {
@@ -63,8 +61,6 @@ struct ProfileCardView: View {
           Text(status)
             .bpFont(.subheadline)
             .foregroundStyle(theme.secondaryColor)
-        } else if let sub, let subColor {
-          SubscriptionPillView(title: sub, backgroundColor: subColor, foregroundColor: theme.secondaryColor)
         }
       }
 
