@@ -25,12 +25,9 @@ struct MediaServersLoginView: View {
 
   var body: some View {
     Form {
-      LoginBenefitSectionView(
-        imageName: "server.rack",
-        title: "external_sync_benefit_server_title",
-        subtitle: "external_sync_benefit_server_subtitle"
-      )
-
+      /// No "bring your own server" row: this screen is only reachable from inside a connected
+      /// browser, and connecting a server is free anyway — pitching it on a paywall reads as
+      /// charging for something the user already has.
       LoginBenefitSectionView(
         imageName: "waveform",
         title: "external_sync_benefit_stream_title",
@@ -38,7 +35,7 @@ struct MediaServersLoginView: View {
       )
 
       LoginBenefitSectionView(
-        imageName: "arrow.triangle.2.circlepath",
+        imageName: "arrow.clockwise.icloud",
         title: "external_sync_benefit_sync_title",
         subtitle: "external_sync_benefit_sync_subtitle"
       )

@@ -547,12 +547,10 @@ Keep in mind that upload tasks can take some time, and the progress will be peri
 "queue_library_sync_title" = "Library Sync";
 "queue_file_uploads_title" = "File Uploads";
 "close_title" = "Close";
-"external_sync_benefit_server_title" = "Bring Your Own Server";
-"external_sync_benefit_server_subtitle" = "Connect your existing Jellyfin or Audiobookshelf directly to the app.";
 "external_sync_benefit_stream_title" = "Stream & Save Space";
 "external_sync_benefit_stream_subtitle" = "Listen instantly by streaming directly from your source. No need to download files or use up local storage.";
 "external_sync_benefit_sync_title" = "Two-Way Progress Sync";
-"external_sync_benefit_sync_subtitle" = "Your listening progress stays perfectly synced with your server and across all your devices.";
+"external_sync_benefit_sync_subtitle" = "Your position syncs both ways with Jellyfin or Audiobookshelf, and through your BookPlayer account so every device you use stays in step.";
 "external_sync_info_title" = "Stream & Sync";
 "queued_tasks_title" = "Queued Tasks";
 "info_title" = "Info";
