@@ -24,13 +24,17 @@ struct ExternalImportView: View {
   var body: some View {
     ImportConfirmationView(
       rows: viewModel.confirmationRows,
+      /// No description: `import_warning_description` warns that files are still
+      /// transferring and the count may change, and neither is true here — the batch is
+      /// frozen when the sheet opens and nothing is being copied.
       onRemove: { viewModel.removeResource(withId: $0) },
       onConfirm: {
         viewModel.confirm()
         dismiss()
       },
       onCancel: {
-        // Dismissal alone is cancellation: .sheet(item:) nils the staged batch
+        // Cancelling is just dismissing: `.sheet(item:)` nils the staged batch on its way
+        // out. The shell disables interactive dismissal, so this runs only from the X.
         dismiss()
       }
     )
