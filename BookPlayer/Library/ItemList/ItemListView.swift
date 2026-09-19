@@ -381,7 +381,7 @@ struct ItemListView: View {
 
   @ViewBuilder
   func addFilesOptions() -> some View {
-    Button("import_button", systemImage: "waveform") {
+    Button("import_button", systemImage: "square.and.arrow.down") {
       showDocumentPicker = true
     }
     Button("download_from_url_title", systemImage: "link") {

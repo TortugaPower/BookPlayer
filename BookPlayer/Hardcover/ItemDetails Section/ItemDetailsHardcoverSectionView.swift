@@ -18,7 +18,7 @@ struct ItemDetailsHardcoverSectionView: View {
   var body: some View {
     Section(
       header: HStack(spacing: Spacing.S) {
-        Text("section_item_hardcover".localized)
+        Text("section_item_hardcover")
           .foregroundStyle(theme.secondaryColor)
         if viewModel.isFetchingBook {
           ProgressView()
@@ -49,7 +49,7 @@ private struct HardcoverSelectionLabel: View {
     if let row = pickerViewModel.selected {
       HardcoverBookRow(viewModel: row)
     } else {
-      Text("select_title".localized)
+      Text("select_title")
     }
   }
 }

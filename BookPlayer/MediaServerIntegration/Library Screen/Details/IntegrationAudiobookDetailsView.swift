@@ -83,8 +83,8 @@ struct IntegrationAudiobookDetailsView<
         // is hasStreamingEnabled() (anyone who has ever paid), and SynchronizeButton
         // routes to goToSubscribe() when it is false.
         HStack(spacing: 12) {
-          SmallDownloadButton
           SynchronizeButton
+          SmallDownloadButton
         }
         .padding(.horizontal)
         .padding(.vertical, 12)
@@ -92,32 +92,32 @@ struct IntegrationAudiobookDetailsView<
         if let details = viewModel.details {
           VStack {
             if let filePath = details.filePath {
-              DisclosureGroup("file_path_title".localized, isExpanded: $isFilePathExpanded) {
+              DisclosureGroup("file_path_title", isExpanded: $isFilePathExpanded) {
                 Text(filePath)
               }
               .accessibilityHidden(true)
             }
 
             if let genres = details.genres, !genres.isEmpty {
-              DisclosureGroup("genres_title".localized, isExpanded: $isGenresExpanded) {
+              DisclosureGroup("genres_title", isExpanded: $isGenresExpanded) {
                 IntegrationTagsView(tags: genres)
               }
             }
 
             if let overview = details.overview {
-              DisclosureGroup("overview_title".localized, isExpanded: $isOverviewExpanded) {
+              DisclosureGroup("overview_title", isExpanded: $isOverviewExpanded) {
                 Text(overview)
               }
             }
 
             if let tags = details.tags, !tags.isEmpty {
-              DisclosureGroup("tags_title".localized, isExpanded: $isTagsExpanded) {
+              DisclosureGroup("tags_title", isExpanded: $isTagsExpanded) {
                 IntegrationTagsView(tags: tags)
               }
             }
 
             if !details.seriesEntries.isEmpty {
-              DisclosureGroup("series_title".localized, isExpanded: .constant(true)) {
+              DisclosureGroup("series_title", isExpanded: .constant(true)) {
                 VStack(alignment: .leading, spacing: 8) {
                   ForEach(details.seriesEntries) { item in
                     Text(item.name)
@@ -163,16 +163,13 @@ struct IntegrationAudiobookDetailsView<
         viewModel.error = error
       }
     } label: {
-      HStack {
-        Image(systemName: "square.and.arrow.down")
-      }
-      .accessibilityLabel("download_title".localized)
-      .frame(width: 36, height: 24)
-      .padding()
-      .foregroundStyle(theme.primaryColor)
-      .background(theme.tertiarySystemBackgroundColor)
-      .cornerRadius(10)
+      Image(systemName: "square.and.arrow.down")
+        .frame(width: 68, height: 48)
+        .foregroundStyle(theme.primaryColor)
+        .background(theme.tertiarySystemBackgroundColor)
+        .clipShape(RoundedRectangle(cornerRadius: 24))
     }
+    .accessibilityLabel("download_title")
   }
   
   @ViewBuilder
@@ -195,19 +192,15 @@ struct IntegrationAudiobookDetailsView<
       }
     } label: {
       HStack {
-        Image(systemName: "arrow.down.circle.dotted")
-        Text("stream_button".localized)
-          .bpFont(.title)
+        /// `waveform`, not a second downward arrow: this sat next to the download button
+        /// wearing `arrow.down.circle.dotted`, so the screen offered two download glyphs and
+        /// left you to guess. It also matches the streaming row on the paywall.
+        Image(systemName: "waveform")
+        Text("stream_button")
       }
-      .frame(height: 24)
-      .frame(maxWidth: .infinity)
-      .padding()
-      // Set once for the label AND the symbol: systemBackgroundColor on linkColor is the
-      // app's accent-filled button treatment (what the Download button this replaced used).
-      // primaryColor is the main foreground colour and reads low-contrast on the accent.
-      .foregroundStyle(theme.systemBackgroundColor)
-      .background(theme.linkColor)
-      .cornerRadius(10)
     }
+    /// The app's shared primary treatment rather than a fourth hand-rolled one — height,
+    /// radius, font, pressed and disabled states all come from the style.
+    .buttonStyle(PrimaryButtonStyle(background: theme.linkColor, foregroundStyle: .white))
   }
 }
