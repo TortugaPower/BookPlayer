@@ -26,11 +26,18 @@ final class AppServices: BPLogger {
 
   var pendingURLActions = [Action]()
 
-  let playerState = PlayerState()
+  let playerState: PlayerState
+  /// Eager, like playerState: CarPlay registers here from connect(), which on a cold launch
+  /// into the car runs before CoreServices exist. Its subscription is bound in setup below.
+  let promptSurfaceArbiter: PromptSurfaceArbiter
 
   let reviewPromptService = ReviewPromptService()
 
-  private init() {}
+  private init() {
+    let playerState = PlayerState()
+    self.playerState = playerState
+    self.promptSurfaceArbiter = PromptSurfaceArbiter(playerState: playerState)
+  }
 
   // MARK: - Core Services Setup
 
@@ -77,10 +84,17 @@ final class AppServices: BPLogger {
       let accountService = makeAccountService(dataManager: dataManager)
       let audioMetadataService = makeAudioMetadataService()
       let libraryService = makeLibraryService(dataManager: dataManager, audioMetadataService: audioMetadataService)
+      let tasksDataManager = TasksDataManager()
+      let syncQueueService = makeSyncQueueService(
+        libraryService: libraryService,
+        getAccessLevel: { accountService.getAccessLevel() },
+        tasksDataManager: tasksDataManager,
+        dataManager: dataManager
+      )
       let syncService = makeSyncService(
         accountService: accountService,
         libraryService: libraryService,
-        dataManager: dataManager
+        syncQueueService: syncQueueService
       )
       let playbackService = makePlaybackService(libraryService: libraryService)
       let playerManager = PlayerManager(
@@ -89,7 +103,12 @@ final class AppServices: BPLogger {
         syncService: syncService,
         speedService: SpeedService(libraryService: libraryService),
         shakeMotionService: ShakeMotionService(),
-        widgetReloadService: WidgetReloadService()
+        widgetReloadService: WidgetReloadService(),
+        hasStreamingEnabled: { accountService.hasStreamingEnabled() },
+        /// Already on main: `PlayerManager` routes every failure through `presentOnMain`.
+        presentFailure: { [promptSurfaceArbiter] failure in
+          promptSurfaceArbiter.routeFailure(failure)
+        }
       )
       let watchService = PhoneWatchConnectivityService(
         libraryService: libraryService,
@@ -102,7 +121,7 @@ final class AppServices: BPLogger {
         playbackService: playbackService,
         playerManager: playerManager
       )
-      let hardcoverService = makeHardcoverService(libraryService: libraryService)
+      let hardcoverService = makeHardcoverService(libraryService: libraryService, syncService: syncService)
 
       let preferencesService = PreferencesSyncService()
       preferencesService.setup(
@@ -111,6 +130,10 @@ final class AppServices: BPLogger {
       )
       libraryService.preferencesService = preferencesService
       Task { await preferencesService.bootstrap() }
+
+      let externalProgressService = ExternalProgressService()
+      externalProgressService.setup(libraryService: libraryService, accountService: accountService)
+      promptSurfaceArbiter.bind(to: externalProgressService)
 
       let coreServices = CoreServices(
         accountService: accountService,
@@ -122,6 +145,8 @@ final class AppServices: BPLogger {
         playerManager: playerManager,
         preferencesService: preferencesService,
         syncService: syncService,
+        syncQueueService: syncQueueService,
+        externalProgressService: externalProgressService,
         watchService: watchService
       )
 
@@ -223,13 +248,30 @@ final class AppServices: BPLogger {
   private func makeSyncService(
     accountService: AccountService,
     libraryService: LibraryService,
-    dataManager: DataManager
+    syncQueueService: SyncQueueService
   ) -> SyncService {
     let service = SyncService()
     service.setup(
       isActive: accountService.hasSyncEnabled(),
       libraryService: libraryService,
       accountService: accountService,
+      syncQueueService: syncQueueService
+    )
+    return service
+  }
+
+  private func makeSyncQueueService(
+    libraryService: LibraryService,
+    getAccessLevel: @escaping () -> AccessLevel,
+    tasksDataManager: TasksDataManager,
+    dataManager: DataManager
+  ) -> SyncQueueService {
+    let service = SyncQueueService()
+    service.setup(
+      libraryService: libraryService,
+      getAccessLevel: getAccessLevel,
+      tasksDataManager: tasksDataManager,
+      networkClient: NetworkClient(),
       dataManager: dataManager
     )
     return service
@@ -257,9 +299,9 @@ final class AppServices: BPLogger {
     return service
   }
 
-  private func makeHardcoverService(libraryService: LibraryService) -> HardcoverService {
+  private func makeHardcoverService(libraryService: LibraryService, syncService: SyncService) -> HardcoverService {
     let service = HardcoverService()
-    service.setup(libraryService: libraryService)
+    service.setup(libraryService: libraryService, syncService: syncService)
     return service
   }
 }

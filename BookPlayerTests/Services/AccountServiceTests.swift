@@ -88,3 +88,51 @@ class AccountServiceTests: XCTestCase {
     XCTAssert(try keychainMock.get(.token) == nil)
   }
 }
+
+// MARK: - Streaming access
+
+/// Media-server streaming is granted to anyone who has EVER paid, so the rule has to answer
+/// correctly for a history rather than for the current subscription.
+final class StreamingAccessTests: XCTestCase {
+  func testAnUnrefundedSubscriptionCounts() {
+    XCTAssertTrue(AccountService.hasUnrefundedSubscription(refundDates: [nil]))
+  }
+
+  func testARefundOnlyHistoryDoesNot() {
+    XCTAssertFalse(AccountService.hasUnrefundedSubscription(refundDates: [Date()]))
+  }
+
+  /// The reason this reads the whole dictionary instead of `getSubscriptionInfo(from:)`, which
+  /// breaks on the first `PricingOption` match: a refunded pro alongside a legitimately lapsed
+  /// lite must still grant access, whichever one the enum happens to list first.
+  func testARefundAlongsideAGenuineSubscriptionStillCounts() {
+    XCTAssertTrue(AccountService.hasUnrefundedSubscription(refundDates: [Date(), nil]))
+    XCTAssertTrue(AccountService.hasUnrefundedSubscription(refundDates: [nil, Date()]))
+  }
+
+  func testNoPurchaseHistoryDoesNot() {
+    XCTAssertFalse(AccountService.hasUnrefundedSubscription(refundDates: []))
+  }
+
+  // MARK: composing the three clauses
+
+  func testAnyOneClauseGrantsAccess() {
+    XCTAssertTrue(AccountService.resolveStreamingAccess(hasPlusAccess: true, hasEverSubscribed: false, donationMade: false))
+    XCTAssertTrue(AccountService.resolveStreamingAccess(hasPlusAccess: false, hasEverSubscribed: true, donationMade: false))
+    XCTAssertTrue(AccountService.resolveStreamingAccess(hasPlusAccess: false, hasEverSubscribed: false, donationMade: true))
+  }
+
+  /// The donation clause is read separately from `hasPlusAccess()` for this case: that method
+  /// returns EARLY on a refunded pro/lite, so a user who tipped and later had a separate
+  /// subscription refunded would be denied by the first two clauses alone.
+  func testATipSurvivesARefundedSubscription() {
+    XCTAssertTrue(
+      AccountService.resolveStreamingAccess(hasPlusAccess: false, hasEverSubscribed: false, donationMade: true),
+      "an unrefunded one-time payment is still having paid"
+    )
+  }
+
+  func testNothingPaidDeniesAccess() {
+    XCTAssertFalse(AccountService.resolveStreamingAccess(hasPlusAccess: false, hasEverSubscribed: false, donationMade: false))
+  }
+}

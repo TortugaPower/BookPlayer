@@ -178,6 +178,8 @@ struct SettingsView: View {
       return "p"
     case .pro:
       return "c"
+    case .lite:
+      return "l"
     }
   }
 

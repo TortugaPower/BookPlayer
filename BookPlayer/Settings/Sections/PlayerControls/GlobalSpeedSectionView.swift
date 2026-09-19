@@ -32,7 +32,7 @@ struct GlobalSpeedSectionView: View {
             .foregroundStyle(theme.linkColor)
         }
       } label: {
-        Text("Quick Action 1")
+        Text(String(format: "quick_action_label".localized, 1))
           .bpFont(.body)
       }
       .pickerStyle(.menu)
@@ -44,7 +44,7 @@ struct GlobalSpeedSectionView: View {
             .foregroundStyle(theme.linkColor)
         }
       } label: {
-        Text("Quick Action 2")
+        Text(String(format: "quick_action_label".localized, 2))
           .bpFont(.body)
       }
       .pickerStyle(.menu)
@@ -56,7 +56,7 @@ struct GlobalSpeedSectionView: View {
             .foregroundStyle(theme.linkColor)
         }
       } label: {
-        Text("Quick Action 3")
+        Text(String(format: "quick_action_label".localized, 3))
           .bpFont(.body)
       }
       .pickerStyle(.menu)

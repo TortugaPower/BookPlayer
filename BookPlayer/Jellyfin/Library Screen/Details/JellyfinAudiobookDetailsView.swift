@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import BookPlayerKit
 
 /// Thin wrapper providing Jellyfin-specific image view to the shared details view.
 struct JellyfinAudiobookDetailsView<
@@ -14,9 +15,23 @@ struct JellyfinAudiobookDetailsView<
 >: View
 where Model.Item == JellyfinLibraryItem, Model.Details == JellyfinAudiobookDetailsData {
 
-  @ObservedObject var viewModel: Model
+  /// OWNS the VM (repo pattern, see ItemListView.init(initModel:)): this wrapper is
+  /// re-created whenever the root's navigationDestination builder re-evaluates (e.g.
+  /// tapping Stream mutates importManager, an @EnvironmentObject of the root), and an
+  /// @ObservedObject over an inline-constructed VM was recreated each time — losing
+  /// error/isImporting state and refetching. @StateObject storage survives; the
+  /// initModel closure runs only on first install.
+  @StateObject var viewModel: Model
   var onDownloadTap: () -> Void
 
+  init(
+    initModel: @escaping () -> Model,
+    onDownloadTap: @escaping () -> Void
+  ) {
+    self._viewModel = .init(wrappedValue: initModel())
+    self.onDownloadTap = onDownloadTap
+  }
+  
   var body: some View {
     IntegrationAudiobookDetailsView(
       viewModel: viewModel,

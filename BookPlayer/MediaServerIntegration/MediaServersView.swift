@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import BookPlayerKit
 
 /// Unified screen for media-server integrations. Has two presentation styles:
 ///

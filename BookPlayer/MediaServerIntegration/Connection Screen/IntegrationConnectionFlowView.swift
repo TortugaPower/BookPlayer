@@ -275,14 +275,12 @@ struct IntegrationAddressScreen<VM: IntegrationConnectionViewModelProtocol>: Vie
         IntegrationCustomHeadersSectionView(customHeaders: $viewModel.form.customHeaders)
 
         IntegrationFlowButtonsSection {
-          IntegrationFlowPrimaryButton(
-            title: "integration_connect_button".localized,
-            isDisabled: address.url == nil || isLoading
-          ) {
+          PrimaryButton(text: "integration_connect_button".localized) {
             hideKeyboard()
             viewModel.form.serverUrl = address.urlString ?? ""
             onConnect()
           }
+          .disabled(address.url == nil || isLoading)
         }
     }
     .scrollDismissesKeyboard(.immediately)
@@ -355,9 +353,10 @@ struct IntegrationMethodScreen<VM: IntegrationConnectionViewModelProtocol>: View
         }
       }
       IntegrationFlowButtonsSection {
-        IntegrationFlowPrimaryButton(title: primaryTitle, isDisabled: isLoading) {
+        PrimaryButton(text: primaryTitle) {
           onStartAlternative()
         }
+        .disabled(isLoading)
         if viewModel.supportsPasswordSignIn {
           Button {
             viewModel.flowPath.append(.password)
@@ -418,11 +417,8 @@ struct IntegrationPasswordScreen<VM: IntegrationConnectionViewModelProtocol>: Vi
         onCommit: onSignIn
       )
       IntegrationFlowButtonsSection {
-        IntegrationFlowPrimaryButton(
-          title: "integration_sign_in_button".localized,
-          isDisabled: viewModel.form.username.isEmpty || viewModel.form.password.isEmpty || isLoading,
-          action: onSignIn
-        )
+        PrimaryButton(text: "integration_sign_in_button".localized, action: onSignIn)
+          .disabled(viewModel.form.username.isEmpty || viewModel.form.password.isEmpty || isLoading)
       }
     }
     .scrollDismissesKeyboard(.immediately)
@@ -523,27 +519,5 @@ struct IntegrationFlowButtonsSection<Content: View>: View {
       .frame(maxWidth: .infinity)
       .listRowInsets(EdgeInsets())
     }
-  }
-}
-
-/// The flow's primary action — filled, full width, directly after the screen's content.
-struct IntegrationFlowPrimaryButton: View {
-  let title: String
-  var isDisabled: Bool = false
-  var action: () -> Void
-
-  @EnvironmentObject var theme: ThemeViewModel
-
-  var body: some View {
-    Button(action: action) {
-      Text(title)
-        .bpFont(.headline)
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 14)
-        .background(theme.linkColor)
-        .foregroundColor(.white)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
-    }
-    .disabledWithOpacity(isDisabled)
   }
 }

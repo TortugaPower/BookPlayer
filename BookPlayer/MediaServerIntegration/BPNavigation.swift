@@ -13,6 +13,10 @@ final class BPNavigation: ObservableObject {
   var dismiss: (() -> Void)?
 
   @Published var path = NavigationPath()
+  /// Drives the subscribe flow. A sheet rather than a pushed destination, matching how
+  /// every other paywall in the app is presented (SettingsView, AccountView) and keeping
+  /// it clear of the edit-mode bottom toolbar.
+  @Published var showingSubscribe = false
 
   nonisolated init() {}
 }

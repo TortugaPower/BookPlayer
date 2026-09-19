@@ -21,12 +21,22 @@ class AccountServiceMock: AccountServiceProtocol {
     return nil
   }
 
+  /// Settable so a test can model lite/pro (true) vs free/plus (false); defaults to free.
+  var hasSyncEnabledValue = false
+
   func hasSyncEnabled() -> Bool {
-    return false
+    return hasSyncEnabledValue
   }
 
   func hasPlusAccess() -> Bool {
     return false
+  }
+
+  /// Settable so a test can model a lapsed subscriber — paid once, no longer subscribed.
+  var hasEverSubscribedValue = false
+
+  func hasEverSubscribed() -> Bool {
+    return hasEverSubscribedValue
   }
 
   func getSecondOnboarding<T: Decodable>() async throws -> T {
@@ -122,4 +132,10 @@ class AccountServiceMock: AccountServiceProtocol {
   func logout() throws {}
 
   func deleteAccount() async throws -> String { return "Success" }
+  
+  func getAccessLevel() -> BookPlayerKit.AccessLevel {
+    // .free keeps this consistent with the mock's hasSyncEnabled()/hasPlusAccess()
+    // both returning false — a .plus level would contradict them.
+    return .free
+  }
 }

@@ -318,6 +318,26 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
             return getSimpleItemWithReturnValue
         }
     }
+    //MARK: - getSimpleItem
+
+    var getSimpleItemForCallsCount = 0
+    var getSimpleItemForCalled: Bool {
+        return getSimpleItemForCallsCount > 0
+    }
+    var getSimpleItemForReceivedUuid: String?
+    var getSimpleItemForReceivedInvocations: [String] = []
+    var getSimpleItemForReturnValue: SimpleLibraryItem?
+    var getSimpleItemForClosure: ((String) -> SimpleLibraryItem?)?
+    func getSimpleItem(for uuid: String) -> SimpleLibraryItem? {
+        getSimpleItemForCallsCount += 1
+        getSimpleItemForReceivedUuid = uuid
+        getSimpleItemForReceivedInvocations.append(uuid)
+        if let getSimpleItemForClosure = getSimpleItemForClosure {
+            return getSimpleItemForClosure(uuid)
+        } else {
+            return getSimpleItemForReturnValue
+        }
+    }
     //MARK: - getItems
 
     var getItemsNotInParentFolderCallsCount = 0
@@ -492,6 +512,21 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
         loadChaptersIfNeededRelativePathAssetReceivedArguments = (relativePath: relativePath, asset: asset)
         loadChaptersIfNeededRelativePathAssetReceivedInvocations.append((relativePath: relativePath, asset: asset))
         await loadChaptersIfNeededRelativePathAssetClosure?(relativePath, asset)
+    }
+    //MARK: - storeChaptersIfNeeded
+
+    var storeChaptersIfNeededRelativePathChaptersCallsCount = 0
+    var storeChaptersIfNeededRelativePathChaptersCalled: Bool {
+        return storeChaptersIfNeededRelativePathChaptersCallsCount > 0
+    }
+    var storeChaptersIfNeededRelativePathChaptersReceivedArguments: (relativePath: String, chapters: [ChapterMetadata])?
+    var storeChaptersIfNeededRelativePathChaptersReceivedInvocations: [(relativePath: String, chapters: [ChapterMetadata])] = []
+    var storeChaptersIfNeededRelativePathChaptersClosure: ((String, [ChapterMetadata]) async -> Void)?
+    func storeChaptersIfNeeded(relativePath: String, chapters: [ChapterMetadata]) async {
+        storeChaptersIfNeededRelativePathChaptersCallsCount += 1
+        storeChaptersIfNeededRelativePathChaptersReceivedArguments = (relativePath: relativePath, chapters: chapters)
+        storeChaptersIfNeededRelativePathChaptersReceivedInvocations.append((relativePath: relativePath, chapters: chapters))
+        await storeChaptersIfNeededRelativePathChaptersClosure?(relativePath, chapters)
     }
     //MARK: - reloadChapters
 
@@ -996,6 +1031,163 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
         } else {
             return getHardcoverBookForReturnValue
         }
+    }
+    //MARK: - setExternalResource
+
+    var setExternalResourceProviderNameProviderIdForCallsCount = 0
+    var setExternalResourceProviderNameProviderIdForCalled: Bool {
+        return setExternalResourceProviderNameProviderIdForCallsCount > 0
+    }
+    var setExternalResourceProviderNameProviderIdForReceivedArguments: (providerName: String, providerId: String, uuid: String)?
+    var setExternalResourceProviderNameProviderIdForReceivedInvocations: [(providerName: String, providerId: String, uuid: String)] = []
+    var setExternalResourceProviderNameProviderIdForReturnValue: SyncableExternalResource?
+    var setExternalResourceProviderNameProviderIdForClosure: ((String, String, String) async -> SyncableExternalResource?)?
+    func setExternalResource(providerName: String, providerId: String, for uuid: String) async -> SyncableExternalResource? {
+        setExternalResourceProviderNameProviderIdForCallsCount += 1
+        setExternalResourceProviderNameProviderIdForReceivedArguments = (providerName: providerName, providerId: providerId, uuid: uuid)
+        setExternalResourceProviderNameProviderIdForReceivedInvocations.append((providerName: providerName, providerId: providerId, uuid: uuid))
+        if let setExternalResourceProviderNameProviderIdForClosure = setExternalResourceProviderNameProviderIdForClosure {
+            return await setExternalResourceProviderNameProviderIdForClosure(providerName, providerId, uuid)
+        } else {
+            return setExternalResourceProviderNameProviderIdForReturnValue
+        }
+    }
+    //MARK: - removeExternalResource
+
+    var removeExternalResourceProviderNameForCallsCount = 0
+    var removeExternalResourceProviderNameForCalled: Bool {
+        return removeExternalResourceProviderNameForCallsCount > 0
+    }
+    var removeExternalResourceProviderNameForReceivedArguments: (providerName: String, uuid: String)?
+    var removeExternalResourceProviderNameForReceivedInvocations: [(providerName: String, uuid: String)] = []
+    var removeExternalResourceProviderNameForReturnValue: String?
+    var removeExternalResourceProviderNameForClosure: ((String, String) async -> String?)?
+    func removeExternalResource(providerName: String, for uuid: String) async -> String? {
+        removeExternalResourceProviderNameForCallsCount += 1
+        removeExternalResourceProviderNameForReceivedArguments = (providerName: providerName, uuid: uuid)
+        removeExternalResourceProviderNameForReceivedInvocations.append((providerName: providerName, uuid: uuid))
+        if let removeExternalResourceProviderNameForClosure = removeExternalResourceProviderNameForClosure {
+            return await removeExternalResourceProviderNameForClosure(providerName, uuid)
+        } else {
+            return removeExternalResourceProviderNameForReturnValue
+        }
+    }
+    //MARK: - getExternalResources
+
+    var getExternalResourcesForCallsCount = 0
+    var getExternalResourcesForCalled: Bool {
+        return getExternalResourcesForCallsCount > 0
+    }
+    var getExternalResourcesForReceivedRelativePath: String?
+    var getExternalResourcesForReceivedInvocations: [String] = []
+    var getExternalResourcesForReturnValue: [SimpleExternalResource]!
+    var getExternalResourcesForClosure: ((String) async -> [SimpleExternalResource])?
+    func getExternalResources(for relativePath: String) async -> [SimpleExternalResource] {
+        getExternalResourcesForCallsCount += 1
+        getExternalResourcesForReceivedRelativePath = relativePath
+        getExternalResourcesForReceivedInvocations.append(relativePath)
+        if let getExternalResourcesForClosure = getExternalResourcesForClosure {
+            return await getExternalResourcesForClosure(relativePath)
+        } else {
+            return getExternalResourcesForReturnValue
+        }
+    }
+    //MARK: - findResource
+
+    var findResourceForProviderNameCallsCount = 0
+    var findResourceForProviderNameCalled: Bool {
+        return findResourceForProviderNameCallsCount > 0
+    }
+    var findResourceForProviderNameReceivedArguments: (providerId: String, providerName: String?)?
+    var findResourceForProviderNameReceivedInvocations: [(providerId: String, providerName: String?)] = []
+    var findResourceForProviderNameReturnValue: SimpleExternalResource?
+    var findResourceForProviderNameClosure: ((String, String?) -> SimpleExternalResource?)?
+    func findResource(for providerId: String, providerName: String?) -> SimpleExternalResource? {
+        findResourceForProviderNameCallsCount += 1
+        findResourceForProviderNameReceivedArguments = (providerId: providerId, providerName: providerName)
+        findResourceForProviderNameReceivedInvocations.append((providerId: providerId, providerName: providerName))
+        if let findResourceForProviderNameClosure = findResourceForProviderNameClosure {
+            return findResourceForProviderNameClosure(providerId, providerName)
+        } else {
+            return findResourceForProviderNameReturnValue
+        }
+    }
+    //MARK: - findResources
+
+    var findResourcesForCallsCount = 0
+    var findResourcesForCalled: Bool {
+        return findResourcesForCallsCount > 0
+    }
+    var findResourcesForReceivedUuid: String?
+    var findResourcesForReceivedInvocations: [String] = []
+    var findResourcesForReturnValue: [SimpleExternalResource]?
+    var findResourcesForClosure: ((String) -> [SimpleExternalResource]?)?
+    func findResources(for uuid: String) -> [SimpleExternalResource]? {
+        findResourcesForCallsCount += 1
+        findResourcesForReceivedUuid = uuid
+        findResourcesForReceivedInvocations.append(uuid)
+        if let findResourcesForClosure = findResourcesForClosure {
+            return findResourcesForClosure(uuid)
+        } else {
+            return findResourcesForReturnValue
+        }
+    }
+    //MARK: - findMediaServerResources
+
+    var findMediaServerResourcesAtCallsCount = 0
+    var findMediaServerResourcesAtCalled: Bool {
+        return findMediaServerResourcesAtCallsCount > 0
+    }
+    var findMediaServerResourcesAtReceivedRelativePath: String?
+    var findMediaServerResourcesAtReceivedInvocations: [String?] = []
+    var findMediaServerResourcesAtReturnValue: [SimpleExternalResource]!
+    var findMediaServerResourcesAtClosure: ((String?) async -> [SimpleExternalResource])?
+    func findMediaServerResources(at relativePath: String?) async -> [SimpleExternalResource] {
+        findMediaServerResourcesAtCallsCount += 1
+        findMediaServerResourcesAtReceivedRelativePath = relativePath
+        findMediaServerResourcesAtReceivedInvocations.append(relativePath)
+        if let findMediaServerResourcesAtClosure = findMediaServerResourcesAtClosure {
+            return await findMediaServerResourcesAtClosure(relativePath)
+        } else {
+            return findMediaServerResourcesAtReturnValue
+        }
+    }
+    //MARK: - insertItems
+
+    var insertItemsFromResourcesCallsCount = 0
+    var insertItemsFromResourcesCalled: Bool {
+        return insertItemsFromResourcesCallsCount > 0
+    }
+    var insertItemsFromResourcesReceivedResources: [SimpleExternalResource]?
+    var insertItemsFromResourcesReceivedInvocations: [[SimpleExternalResource]] = []
+    var insertItemsFromResourcesReturnValue: [SimpleLibraryItem]!
+    var insertItemsFromResourcesClosure: (([SimpleExternalResource]) async -> [SimpleLibraryItem])?
+    @MainActor
+    func insertItems(fromResources resources: [SimpleExternalResource]) async -> [SimpleLibraryItem] {
+        insertItemsFromResourcesCallsCount += 1
+        insertItemsFromResourcesReceivedResources = resources
+        insertItemsFromResourcesReceivedInvocations.append(resources)
+        if let insertItemsFromResourcesClosure = insertItemsFromResourcesClosure {
+            return await insertItemsFromResourcesClosure(resources)
+        } else {
+            return insertItemsFromResourcesReturnValue
+        }
+    }
+    //MARK: - handleSyncFromExternalResource
+
+    var handleSyncFromExternalResourceProviderNameSnapshotsByProviderIdCallsCount = 0
+    var handleSyncFromExternalResourceProviderNameSnapshotsByProviderIdCalled: Bool {
+        return handleSyncFromExternalResourceProviderNameSnapshotsByProviderIdCallsCount > 0
+    }
+    var handleSyncFromExternalResourceProviderNameSnapshotsByProviderIdReceivedArguments: (providerName: String, snapshotsByProviderId: [String: ExternalItemSnapshot])?
+    var handleSyncFromExternalResourceProviderNameSnapshotsByProviderIdReceivedInvocations: [(providerName: String, snapshotsByProviderId: [String: ExternalItemSnapshot])] = []
+    var handleSyncFromExternalResourceProviderNameSnapshotsByProviderIdClosure: ((String, [String: ExternalItemSnapshot]) -> Void)?
+    @MainActor
+    func handleSyncFromExternalResource(providerName: String, snapshotsByProviderId: [String: ExternalItemSnapshot]) {
+        handleSyncFromExternalResourceProviderNameSnapshotsByProviderIdCallsCount += 1
+        handleSyncFromExternalResourceProviderNameSnapshotsByProviderIdReceivedArguments = (providerName: providerName, snapshotsByProviderId: snapshotsByProviderId)
+        handleSyncFromExternalResourceProviderNameSnapshotsByProviderIdReceivedInvocations.append((providerName: providerName, snapshotsByProviderId: snapshotsByProviderId))
+        handleSyncFromExternalResourceProviderNameSnapshotsByProviderIdClosure?(providerName, snapshotsByProviderId)
     }
 }
 class PlaybackServiceProtocolMock: PlaybackServiceProtocol {
@@ -1726,22 +1918,6 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
             return queuedJobsCountReturnValue
         }
     }
-    //MARK: - observeTasksCount
-
-    var observeTasksCountCallsCount = 0
-    var observeTasksCountCalled: Bool {
-        return observeTasksCountCallsCount > 0
-    }
-    var observeTasksCountReturnValue: AnyPublisher<Int, Never>!
-    var observeTasksCountClosure: (() -> AnyPublisher<Int, Never>)?
-    func observeTasksCount() -> AnyPublisher<Int, Never> {
-        observeTasksCountCallsCount += 1
-        if let observeTasksCountClosure = observeTasksCountClosure {
-            return observeTasksCountClosure()
-        } else {
-            return observeTasksCountReturnValue
-        }
-    }
     //MARK: - canSyncListContents
 
     var canSyncListContentsAtIgnoreLastTimestampCallsCount = 0
@@ -1988,21 +2164,35 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
         scheduleUploadArtworkRelativePathUuidReceivedInvocations.append((relativePath: relativePath, uuid: uuid))
         scheduleUploadArtworkRelativePathUuidClosure?(relativePath, uuid)
     }
-    //MARK: - getAllQueuedJobs
+    //MARK: - scheduleExternalResourceUpload
 
-    var getAllQueuedJobsCallsCount = 0
-    var getAllQueuedJobsCalled: Bool {
-        return getAllQueuedJobsCallsCount > 0
+    var scheduleExternalResourceUploadRelativePathUuidCallsCount = 0
+    var scheduleExternalResourceUploadRelativePathUuidCalled: Bool {
+        return scheduleExternalResourceUploadRelativePathUuidCallsCount > 0
     }
-    var getAllQueuedJobsReturnValue: [SyncTaskReference]!
-    var getAllQueuedJobsClosure: (() async -> [SyncTaskReference])?
-    func getAllQueuedJobs() async -> [SyncTaskReference] {
-        getAllQueuedJobsCallsCount += 1
-        if let getAllQueuedJobsClosure = getAllQueuedJobsClosure {
-            return await getAllQueuedJobsClosure()
-        } else {
-            return getAllQueuedJobsReturnValue
-        }
+    var scheduleExternalResourceUploadRelativePathUuidReceivedArguments: (resource: SyncableExternalResource, relativePath: String, uuid: String)?
+    var scheduleExternalResourceUploadRelativePathUuidReceivedInvocations: [(resource: SyncableExternalResource, relativePath: String, uuid: String)] = []
+    var scheduleExternalResourceUploadRelativePathUuidClosure: ((SyncableExternalResource, String, String) -> Void)?
+    func scheduleExternalResourceUpload(_ resource: SyncableExternalResource, relativePath: String, uuid: String) {
+        scheduleExternalResourceUploadRelativePathUuidCallsCount += 1
+        scheduleExternalResourceUploadRelativePathUuidReceivedArguments = (resource: resource, relativePath: relativePath, uuid: uuid)
+        scheduleExternalResourceUploadRelativePathUuidReceivedInvocations.append((resource: resource, relativePath: relativePath, uuid: uuid))
+        scheduleExternalResourceUploadRelativePathUuidClosure?(resource, relativePath, uuid)
+    }
+    //MARK: - scheduleExternalResourceDeletion
+
+    var scheduleExternalResourceDeletionProviderNameProviderIdRelativePathUuidCallsCount = 0
+    var scheduleExternalResourceDeletionProviderNameProviderIdRelativePathUuidCalled: Bool {
+        return scheduleExternalResourceDeletionProviderNameProviderIdRelativePathUuidCallsCount > 0
+    }
+    var scheduleExternalResourceDeletionProviderNameProviderIdRelativePathUuidReceivedArguments: (providerName: String, providerId: String, relativePath: String, uuid: String)?
+    var scheduleExternalResourceDeletionProviderNameProviderIdRelativePathUuidReceivedInvocations: [(providerName: String, providerId: String, relativePath: String, uuid: String)] = []
+    var scheduleExternalResourceDeletionProviderNameProviderIdRelativePathUuidClosure: ((String, String, String, String) -> Void)?
+    func scheduleExternalResourceDeletion(providerName: String, providerId: String, relativePath: String, uuid: String) {
+        scheduleExternalResourceDeletionProviderNameProviderIdRelativePathUuidCallsCount += 1
+        scheduleExternalResourceDeletionProviderNameProviderIdRelativePathUuidReceivedArguments = (providerName: providerName, providerId: providerId, relativePath: relativePath, uuid: uuid)
+        scheduleExternalResourceDeletionProviderNameProviderIdRelativePathUuidReceivedInvocations.append((providerName: providerName, providerId: providerId, relativePath: relativePath, uuid: uuid))
+        scheduleExternalResourceDeletionProviderNameProviderIdRelativePathUuidClosure?(providerName, providerId, relativePath, uuid)
     }
     //MARK: - getAllQueuedJobsWithParams
 

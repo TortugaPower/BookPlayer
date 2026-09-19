@@ -22,7 +22,7 @@ import WatchConnectivity
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
-  static weak var shared: AppDelegate?
+  static weak var shared: AppDelegate?    
 
   var window: UIWindow?
 
@@ -63,6 +63,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
       Constants.UserDefaults.videoPictureInPictureEnabled: false,
     ])
 
+    // Hardcover settings live in the shared (app group) suite. Register their defaults
+    // there so the service (`bool/object(forKey:)`) and the settings UI (`@AppStorage`)
+    // resolve to the same value before the user explicitly saves anything.
+    UserDefaults.sharedDefaults.register(defaults: [
+      Constants.UserDefaults.hardcoverAutoAddWantToRead: true,
+      Constants.UserDefaults.hardcoverReadingThreshold: 1.0,
+    ])
+
     NotificationCenter.default.addObserver(
       self,
       selector: #selector(self.messageReceived),
@@ -80,6 +88,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
     self.setupSentry()
     // Setup core services
     AppServices.shared.setupCoreServices()
+
+    // The extension-safe framework can't reach UIApplication.shared itself; the SSO flow's
+    // presentation anchor comes from here, the one process that owns windows.
+    WebAuthenticationSession.foregroundWindowProvider = {
+      let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+      guard let scene = scenes.first(where: { $0.activationState == .foregroundActive }) else {
+        return nil
+      }
+      return scene.keyWindow ?? scene.windows.first
+    }
 
     return true
   }
@@ -433,9 +451,14 @@ extension AppDelegate {
   }
 
   func handleAppRefresh(task: BGAppRefreshTask) {
-    guard let syncService = AppServices.shared.coreServices?.syncService else { return }
+    guard let syncQueueService = AppServices.shared.coreServices?.syncQueueService else { return }
 
-    let refreshOperation = RefreshTaskOperation(syncService: syncService)
+    // Sync lane only: metadata pushes are what the refresh window is for. Provider pushes
+    // retry forever against an unreachable home server, and S3 uploads already run on a
+    // background URLSession — neither should keep the process awake until expiration.
+    let refreshOperation = RefreshTaskOperation(
+      queueDrained: syncQueueService.observeQueueCounts().laneDrained(TaskQueueKey.sync)
+    )
 
     refreshOperation.completionBlock = { [weak self] in
       let success = !refreshOperation.isCancelled
