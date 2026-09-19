@@ -83,8 +83,8 @@ struct IntegrationAudiobookDetailsView<
         // is hasStreamingEnabled() (anyone who has ever paid), and SynchronizeButton
         // routes to goToSubscribe() when it is false.
         HStack(spacing: 12) {
+          DownloadButton
           SynchronizeButton
-          SmallDownloadButton
         }
         .padding(.horizontal)
         .padding(.vertical, 12)
@@ -154,7 +154,7 @@ struct IntegrationAudiobookDetailsView<
   }
   
   @ViewBuilder
-  private var SmallDownloadButton: some View {
+  private var DownloadButton: some View {
     Button {
       do {
         try viewModel.beginDownloadAudiobook(viewModel.item)
@@ -163,13 +163,16 @@ struct IntegrationAudiobookDetailsView<
         viewModel.error = error
       }
     } label: {
-      Image(systemName: "square.and.arrow.down")
-        .frame(width: 68, height: 48)
-        .foregroundStyle(theme.primaryColor)
-        .background(theme.tertiarySystemBackgroundColor)
-        .clipShape(RoundedRectangle(cornerRadius: 24))
+      Label("download_title", systemImage: "square.and.arrow.down")
     }
-    .accessibilityLabel("download_title")
+    /// The same style as Stream, in the secondary colours: sharing it means the two cannot
+    /// drift apart in height, radius or font the way hand-matched geometry does.
+    .buttonStyle(
+      PrimaryButtonStyle(
+        background: theme.tertiarySystemBackgroundColor,
+        foregroundStyle: theme.primaryColor
+      )
+    )
   }
   
   @ViewBuilder

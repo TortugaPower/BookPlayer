@@ -61,16 +61,8 @@ struct MediaServersLoginView: View {
           }
           .padding(.bottom, Spacing.S)
         } else {
-          Button {
+          PrimaryButton(text: "continue_title".localized) {
             showCompleteAccount = true
-          } label: {
-            Text("continue_title")
-              .font(.headline)
-              .foregroundColor(.white)
-              .frame(maxWidth: .infinity)
-              .padding()
-              .background(theme.linkColor)
-              .cornerRadius(12)
           }
           .padding(.horizontal)
           .padding(.bottom, Spacing.S)
