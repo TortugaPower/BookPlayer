@@ -12,9 +12,14 @@ class VoiceOverService {
   ///   the imported filename (matching what `BookView` renders under the
   ///   library display preference). Defaults to false so non-library
   ///   callers (Watch, etc.) keep their current behavior.
+  /// - Parameter includeSource: When true, the announcement names the media servers the item
+  ///   is linked to. `BookView` draws those as bare glyphs and the row is a single
+  ///   accessibility element, so this is the only way that provenance reaches VoiceOver.
+  ///   Defaults to false for callers whose rows don't draw the glyphs.
   public static func getAccessibilityLabel(
     for item: SimpleLibraryItem,
-    useOriginalFileName: Bool = false
+    useOriginalFileName: Bool = false,
+    includeSource: Bool = false
   ) -> String {
     let displayPercent = item.isFinished ? 100.0 : item.percentCompleted
     let remainingTime = item.duration - item.currentTime
@@ -24,9 +29,10 @@ class VoiceOverService {
       remainingTimeLabel += !parsedDuration.isEmpty ? " \(parsedDuration)" : " 0"
     }
     let displayTitle = item.displayTitle(useOriginalFileName: useOriginalFileName)
+    let sourcePrefix = includeSource ? self.sourcePrefix(for: item) : ""
     switch item.type {
     case .book:
-      return String.localizedStringWithFormat(
+      return sourcePrefix + String.localizedStringWithFormat(
         "voiceover_book_progress".localized,
         displayTitle,
         item.details,
@@ -34,19 +40,35 @@ class VoiceOverService {
         item.durationFormatted
       ) + ", \(remainingTimeLabel)"
     case .folder:
-      return String.localizedStringWithFormat(
+      return sourcePrefix + String.localizedStringWithFormat(
         "voiceover_playlist_progress".localized,
         displayTitle,
         displayPercent
       )
     case .bound:
-      return String.localizedStringWithFormat(
+      return sourcePrefix + String.localizedStringWithFormat(
         "voiceover_bound_books_progress".localized,
         displayTitle,
         displayPercent,
         item.durationFormatted
       ) + ", \(remainingTimeLabel)"
     }
+  }
+
+  /// `"Jellyfin, "` — the spoken counterpart of the provider glyphs, and in the same
+  /// position: they lead the subtitle line, so the names lead the announcement.
+  ///
+  /// Deliberately unlocalized. These are brand names, and wrapping them in a `"from %@"` key
+  /// would be worse than bare: `localized` is a plain `NSLocalizedString` with no fallback to
+  /// Base, so every locale missing the key would announce the key itself and swallow the name.
+  /// Empty when the item isn't linked to a media server.
+  private static func sourcePrefix(for item: SimpleLibraryItem) -> String {
+    let providers = (item.externalResources?.displayOrderedMediaServerResources ?? [])
+      .map { $0.providerName.capitalized }
+
+    guard !providers.isEmpty else { return "" }
+
+    return providers.joined(separator: ", ") + ", "
   }
 
   // MARK: - PlayerMetaView

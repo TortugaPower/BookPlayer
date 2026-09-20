@@ -71,6 +71,17 @@ extension Array where Element == SimpleExternalResource {
     filter(\.isMediaServer)
   }
 
+  /// The item's media-server links in a stable order, for anything the user sees or hears.
+  ///
+  /// `mediaServerResources` filters an UNORDERED set (`resourcesArray` is `allObjects`), so an
+  /// item linked to two providers would otherwise draw its glyphs — and speak their names — in
+  /// whichever order the set yields, varying between launches. Same hazard `streamingResource`
+  /// pins, same comparator.
+  public var displayOrderedMediaServerResources: [SimpleExternalResource] {
+    mediaServerResources
+      .sorted { ($0.providerName, $0.providerId) < ($1.providerName, $1.providerId) }
+  }
+
   /// The link that decides streaming for the item, or nil if none can.
   ///
   /// Deterministic: the source set is UNORDERED, so an item linked to two streaming providers
