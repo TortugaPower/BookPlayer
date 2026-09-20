@@ -143,8 +143,10 @@ first. Reordering boot risks a launch crash.
   progress ingest on the view context; no merge policy), whatever the cloud outcome. It is resource-first:
   `LibraryService.findMediaServerResources(at:)` fetches only the level's media-server `ExternalResource` rows
   (direct children, providers filtered in SQL from `ProviderName.mediaServerRawValues`) on the background context,
-  so the main thread does nothing but the ingest. `ExternalResource.ProviderName.isMediaServer` is the single
-  exhaustive "is this a media server" switch; `SimpleExternalResource.isMediaServer` and the SQL filter derive from it.
+  so the main thread does nothing but the ingest. `ExternalResource.ProviderName.mediaServer` — which maps a
+  provider onto the `ExternalResource.MediaServerProvider` sub-enum (`jellyfin`, `audiobookshelf`) — is the single
+  exhaustive "is this a media server" switch; `isMediaServer`, `SimpleExternalResource.mediaServer`, the SQL filter,
+  and every server-only switch (stream source, host display, progress push, the library-row glyph) derive from it.
 - **Services → SwiftUI:** `ObservableObject`s (`playerManager`, `importManager`, `singleFileDownloadService`,
   `listSyncRefreshService`) via `.environmentObject`, plus `externalImportEvents`, which `MainView` owns as a
   `@StateObject` and injects itself — the coordinator builds services, not SwiftUI-internal wires; the rest via `.environment(\.key, …)`.

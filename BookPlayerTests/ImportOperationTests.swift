@@ -512,6 +512,26 @@ final class ExternalResourceResolutionTests: XCTestCase {
     XCTAssertEqual(resolved["r2"], "unknown-guid", "unknown host falls back to the raw hostId")
   }
 
+  /// Pins the `.audiobookshelf` arm, which nothing else does.
+  /// `testResolvesSavedConnectionsAndFallsBackToRawHostId` above catches a wrong `.jellyfin`
+  /// mapping — it drives a Jellyfin resource through the host resolver, which now routes on
+  /// `mediaServer` — but no test drives an AudiobookShelf resource through one. So
+  /// `case .audiobookshelf: .jellyfin` compiles, leaves `mediaServerRawValues` untouched
+  /// (it filters on nil-ness, not identity, so the SQL predicate still fetches the rows) and
+  /// passes the whole suite, while every AudiobookShelf item resolves against the Jellyfin
+  /// connection: nothing to stream, its progress pushes misrouted into the Jellyfin path and
+  /// silently dropped by that path's own host guard, and its row wearing the wrong glyph.
+  func testProviderNameMapsOntoItsOwnMediaServer() {
+    XCTAssertEqual(ExternalResource.ProviderName.jellyfin.mediaServer, .jellyfin)
+    XCTAssertEqual(ExternalResource.ProviderName.audiobookshelf.mediaServer, .audiobookshelf)
+    XCTAssertNil(ExternalResource.ProviderName.hardcover.mediaServer)
+    XCTAssertEqual(
+      Set(ExternalResource.ProviderName.mediaServerRawValues),
+      ["jellyfin", "audiobookshelf"],
+      "the SQL IN predicate reads these strings — they are the stored providerName values"
+    )
+  }
+
   /// The section shows media-server links only: Hardcover has its own section, and
   /// repeating its link here would render a bare provider/id pair with no host. The rule
   /// allowlists known media servers, and its switch is exhaustive, so adding a provider

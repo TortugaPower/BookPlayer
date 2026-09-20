@@ -56,12 +56,17 @@ public struct SimpleExternalResource: Identifiable, Equatable, Hashable {
 }
 
 extension SimpleExternalResource {
-  /// Whether this link points at a server the user connects to. The answer lives on
-  /// `ExternalResource.ProviderName.isMediaServer`, the one exhaustive switch. A providerName
-  /// this build doesn't know is not streamable: building a URL for it would need
-  /// provider-specific knowledge we don't have.
+  /// The server this link points at, or nil if it points at something else. The answer lives
+  /// on `ExternalResource.ProviderName.mediaServer`, the one exhaustive switch. Hardcover is
+  /// not a server, and a providerName this build doesn't know is not streamable either:
+  /// building a URL for it would need provider-specific knowledge we don't have.
+  public var mediaServer: ExternalResource.MediaServerProvider? {
+    ExternalResource.ProviderName(rawValue: providerName)?.mediaServer
+  }
+
+  /// Convenience over `mediaServer` where only the yes/no matters.
   public var isMediaServer: Bool {
-    ExternalResource.ProviderName(rawValue: providerName)?.isMediaServer ?? false
+    mediaServer != nil
   }
 }
 

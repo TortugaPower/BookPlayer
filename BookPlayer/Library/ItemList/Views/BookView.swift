@@ -65,12 +65,11 @@ struct BookView: View {
     // Media-server links only, same rule the details section uses: Hardcover is
     // progress-sync, not a source the book streams from, so it earns no badge here.
     (item.externalResources?.displayOrderedMediaServerResources ?? [])
-      .reduce(Text(verbatim: "")) { partial, resource in
-        let provider = ExternalResource.ProviderName(rawValue: resource.providerName) ?? .jellyfin
-
+      .compactMap(\.mediaServer)
+      .reduce(Text(verbatim: "")) { partial, provider in
         // Glyph only: the provider name next to its own logo was a second copy of the same
         // fact, and it crowded the author off the one line this row gives it.
-        return partial + Text("\(Image(provider.icon)) ")
+        partial + Text("\(Image(provider.icon)) ")
       }
       // Appended outside the reduce: the author renders even when the item has no external
       // resources (nil for locally-imported books on some construction paths).

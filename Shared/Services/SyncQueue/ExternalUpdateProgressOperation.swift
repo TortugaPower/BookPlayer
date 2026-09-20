@@ -48,12 +48,14 @@ class ExternalUpdateProgressOperation: AsyncOperation, BPLogger, @unchecked Send
       // 2. Wrap the throwing code in a do-catch
       do {
 
-        switch ExternalResource.ProviderName(rawValue: self.providerName) {
+        switch ExternalResource.ProviderName(rawValue: self.providerName)?.mediaServer {
         case .jellyfin:
           try await doJellyfinUpdate()
         case .audiobookshelf:
           try await doAudiobookshelfUpdate()
-        default:
+        case nil:
+          // Hardcover, or a provider this build doesn't know: nothing to push to. The task is
+          // consumed rather than retried forever, same as it always was.
           break
         }
 

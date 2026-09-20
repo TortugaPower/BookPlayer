@@ -61,12 +61,13 @@ public enum IntegrationHostResolver {
     resources.reduce(into: [:]) { hosts, resource in
       let hostId = resource.hostId ?? ""
       let url: URL? =
-        switch ExternalResource.ProviderName(rawValue: resource.providerName) {
+        switch resource.mediaServer {
         case .jellyfin:
           hostURL(for: hostId, key: .jellyfinConnection, of: [JellyfinConnectionData].self, keychain: keychain)
         case .audiobookshelf:
           hostURL(for: hostId, key: .audiobookshelfConnection, of: [AudiobookShelfConnectionData].self, keychain: keychain)
-        default:
+        case nil:
+          // Hardcover, or a provider this build doesn't know: no host to show but its own id.
           nil
         }
       hosts[resource.providerId] = url?.absoluteString ?? hostId
