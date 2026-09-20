@@ -46,8 +46,9 @@ struct MediaServersLoginView: View {
       LoginDisclaimerSectionView(descriptions: ["external_sync_disclaimer_description"])
     }
     .applyListStyle(with: theme, background: theme.systemGroupedBackgroundColor)
-    /// The buttons ARE the inset, so the list reserves exactly their height — `LoginView` does
-    /// this with a spacer of a hardcoded 88pt and a sibling overlay instead.
+    /// The buttons ARE the inset, so the list reserves exactly their height. Opaque, because
+    /// `ContinueWithPasskeyButton` has no background of its own and the disclaimer scrolled
+    /// straight through it on a short screen.
     .safeAreaInset(edge: .bottom) {
       VStack(spacing: Spacing.S) {
         if accountService.account.id.isEmpty {
@@ -68,6 +69,7 @@ struct MediaServersLoginView: View {
           .padding(.bottom, Spacing.S)
         }
       }
+      .background(theme.systemGroupedBackgroundColor)
     }
     /// Load-bearing: `AppleSignInLink` reads `\.loadingState` from the environment and writes
     /// its progress and its errors there. Without the injection it would write into the
