@@ -238,14 +238,14 @@ public final class AccountService: AccountServiceProtocol {
     )
   }
 
-  /// The streaming rule, taking plain values so the composition is testable: the three inputs
-  /// come from RevenueCat and CoreData, neither of which a unit test can stand up.
+  /// The streaming rule, taking plain values so the composition is testable: the inputs come
+  /// from RevenueCat and CoreData, neither of which a unit test can stand up.
   static func resolveStreamingAccess(
+    isSignedIn: Bool,
     hasPlusAccess: Bool,
-    hasEverSubscribed: Bool,
-    donationMade: Bool
+    hasEverSubscribed: Bool
   ) -> Bool {
-    hasPlusAccess || hasEverSubscribed || donationMade
+    isSignedIn && (hasPlusAccess || hasEverSubscribed)
   }
 
   /// The rule behind `hasEverSubscribed()`, taking the refund dates rather than the
@@ -611,22 +611,28 @@ public final class AccountService: AccountServiceProtocol {
 
 
 extension AccountServiceProtocol {
-  /// Whether media-server streaming is available: anyone who has EVER paid, which is broader
-  /// than `hasSyncEnabled()` on purpose. Streaming reaches the user's own Jellyfin/AudiobookShelf
-  /// and never our servers, so it survives a subscription ending — while sync, S3 and the
-  /// progress pull stay behind an active lite/pro subscription.
+  /// Whether media-server streaming is available: signed in, AND has paid at some point —
+  /// broader than `hasSyncEnabled()` on the second half, on purpose. Streaming reaches the
+  /// user's own Jellyfin/AudiobookShelf and never our servers, so it survives a subscription
+  /// ending, while sync, S3 and the progress pull stay behind an active lite/pro subscription.
   ///
-  /// The three clauses are each load-bearing:
-  /// - `hasPlusAccess()` — an active tier, or a one-time tip while its `plus` entitlement holds.
-  /// - `hasEverSubscribed()` — a subscription that expired without being refunded.
-  /// - `donationMade` — a tip, read directly rather than through `hasPlusAccess()`, which
-  ///   returns EARLY on a refunded pro/lite and would otherwise deny someone who tipped and
-  ///   later had a separate subscription refunded.
+  /// `getAccountId()`, not `hasAccount()`: logout blanks the account's fields but leaves the
+  /// row, so `hasAccount()` stays true afterwards — `AccountServiceTests` asserts it is still
+  /// true even after `deleteAccount()`. Only the id going empty marks a signed-out user, and
+  /// without this check a tip alone reopened streaming after sign-out, since `donationMade`
+  /// deliberately outlives logout.
+  ///
+  /// Both remaining clauses are load-bearing:
+  /// - `hasPlusAccess()` — an active tier, or a one-time tip. A tip is not read separately:
+  ///   RevenueCat attaches `plus` to non-subscription purchases, and that check short-circuits
+  ///   before the refund handling, so `hasPlusAccess()` already answers for tippers.
+  /// - `hasEverSubscribed()` — a subscription that expired without being refunded, which no
+  ///   entitlement reports any more.
   public func hasStreamingEnabled() -> Bool {
     return AccountService.resolveStreamingAccess(
+      isSignedIn: getAccountId() != nil,
       hasPlusAccess: hasPlusAccess(),
-      hasEverSubscribed: hasEverSubscribed(),
-      donationMade: getAccount()?.donationMade == true
+      hasEverSubscribed: hasEverSubscribed()
     )
   }
 }
