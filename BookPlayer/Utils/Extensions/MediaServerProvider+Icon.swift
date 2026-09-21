@@ -20,4 +20,19 @@ extension ExternalResource.MediaServerProvider {
     case .audiobookshelf: .audiobookshelfIcon
     }
   }
+
+  /// Height of the mark in the library row's corner badge, per provider because one number
+  /// cannot make these two look the same size: the symbols don't fill their boxes equally, so
+  /// at a shared frame height Jellyfin's ink draws ~0.4pt shorter than Audiobookshelf's and
+  /// reads as undersized beside it. These land both inks at ~10.7pt.
+  ///
+  /// The ceiling is not the corner's diagonal — nothing clips until well past 13. It is the
+  /// ink's centre climbing above the cloud's, which is what makes a media-server row look
+  /// misaligned against a cloud row above it. Raise these together, and not by much.
+  var badgeHeight: CGFloat {
+    switch self {
+    case .jellyfin: 11.5
+    case .audiobookshelf: 11
+    }
+  }
 }

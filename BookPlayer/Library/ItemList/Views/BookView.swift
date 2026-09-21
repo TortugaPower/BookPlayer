@@ -43,39 +43,6 @@ struct BookView: View {
       : theme.primaryColor
   }
 
-  /// Provider glyphs then the author, as ONE `Text` rather than a stack of them.
-  ///
-  /// Concatenation buys three things a stack can't: an interpolated `Image` is sized from the
-  /// font, so the provider icon grows with Dynamic Type instead of sitting at a fixed 12pt;
-  /// the enclosing VStack keeps its font-derived default spacing, which SwiftUI applies only
-  /// between adjacent `Text` views (an `HStack` child forfeits it, and needed a hardcoded gap
-  /// to look right); and the subtitle truncates once at the end instead of each piece
-  /// competing for width and truncating on its own.
-  ///
-  /// The font sizing holds only because the provider icons are symbol sets: a plain image set
-  /// interpolated into `Text` draws at its intrinsic point size with its bottom edge pinned to
-  /// the baseline, which is how these read as oversized and misaligned before. Keep them as
-  /// `.symbolset`s drawn to the cap-height guides, or this comment stops being true.
-  ///
-  /// The row is a single accessibility element (`children: .ignore` +
-  /// `dynamicAccessibilityLabel`), so nothing here reaches VoiceOver and the glyphs need no
-  /// `accessibilityHidden`. They are also the only visible trace of where the item came from,
-  /// which is why `VoiceOverService` takes `includeSource` and speaks the provider names.
-  private var subtitle: Text {
-    // Media-server links only, same rule the details section uses: Hardcover is
-    // progress-sync, not a source the book streams from, so it earns no badge here.
-    (item.externalResources?.displayOrderedMediaServerResources ?? [])
-      .compactMap(\.mediaServer)
-      .reduce(Text(verbatim: "")) { partial, provider in
-        // Glyph only: the provider name next to its own logo was a second copy of the same
-        // fact, and it crowded the author off the one line this row gives it.
-        partial + Text("\(Image(provider.icon)) ")
-      }
-      // Appended outside the reduce: the author renders even when the item has no external
-      // resources (nil for locally-imported books on some construction paths).
-      + Text(verbatim: item.details)
-  }
-
   var body: some View {
     HStack(spacing: 0) {
       Button(action: artworkTap) {
@@ -92,7 +59,7 @@ struct BookView: View {
           .bpFont(.subheadline)
           .fontWeight(.bold)
           .foregroundStyle(titleColor)
-        subtitle
+        Text(verbatim: item.details)
           .foregroundStyle(theme.secondaryColor)
           .bpFont(.caption)
         Text(verbatim: item.durationFormatted)
