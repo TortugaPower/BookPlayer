@@ -32,8 +32,6 @@ struct ItemListView: View {
   @Environment(\.syncService) var syncService
   @Environment(\.hardcoverService) var hardcoverService
   @Environment(\.playerLoaderService) private var playerLoaderService
-  @Environment(\.jellyfinService) var jellyfinService
-  @Environment(\.audiobookshelfService) var audiobookshelfService
   @Environment(\.preferencesService) var preferencesService
   @Environment(\.listState) var listState
   @Environment(\.playerState) private var playerState
@@ -383,7 +381,7 @@ struct ItemListView: View {
 
   @ViewBuilder
   func addFilesOptions() -> some View {
-    Button("import_button", systemImage: "waveform") {
+    Button("import_button", systemImage: "square.and.arrow.down") {
       showDocumentPicker = true
     }
     Button("download_from_url_title", systemImage: "link") {

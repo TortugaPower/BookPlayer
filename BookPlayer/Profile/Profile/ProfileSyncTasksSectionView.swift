@@ -12,17 +12,18 @@ import SwiftUI
 
 struct ProfileSyncTasksSectionView: View {
   @State private var statusMessage: String = ""
-  @State private var jobsCount = 0
+  /// Every lane, summed by the engine that owns them all
+  @State private var queuedCount = 0
 
   private var buttonText: String {
-    String(format: "queued_sync_tasks_title".localized, jobsCount)
+    String(format: "queued_sync_tasks_title".localized, queuedCount)
   }
 
-  @Environment(\.syncService) private var syncService
+  @Environment(\.syncQueueService) private var syncQueueService
   @EnvironmentObject private var theme: ThemeViewModel
 
   var body: some View {
-    NavigationLink(value: ProfileScreen.tasks) {
+    NavigationLink(value: ProfileScreen.queueTasks) {
       VStack {
         Text(buttonText)
           .bpFont(.body)
@@ -32,10 +33,10 @@ struct ProfileSyncTasksSectionView: View {
           .foregroundStyle(theme.secondaryColor)
       }
     }
-    .onReceive(syncService.observeTasksCount()) { count in
-      guard jobsCount != count else { return }
+    .onReceive(syncQueueService.observeQueueCounts()) { counts in
+      guard queuedCount != counts.total else { return }
 
-      jobsCount = count
+      queuedCount = counts.total
     }
     .onReceive(
       NotificationCenter.default.publisher(for: .uploadProgressUpdated)
@@ -90,21 +91,29 @@ struct ProfileSyncTasksSectionView: View {
   }
 }
 
+// Environment defaults are un-setup() placeholders whose count methods trap (see
+// CLAUDE.md's DI section) — previews must construct + setup() + inject.
 #Preview {
-  @Previewable var syncService: SyncService = {
+  @Previewable var syncQueueService: SyncQueueService = {
     let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: ""))
     let audioMetadataService = AudioMetadataService()
     let libraryService = LibraryService()
     libraryService.setup(dataManager: dataManager, audioMetadataService: audioMetadataService)
     let accountService = AccountService()
     accountService.setup(dataManager: dataManager)
-    let syncService = SyncService()
-    syncService.setup(isActive: true, libraryService: libraryService, accountService: accountService, dataManager: dataManager)
+    let syncQueueService = SyncQueueService()
+    syncQueueService.setup(
+      libraryService: libraryService,
+      getAccessLevel: { accountService.getAccessLevel() },
+      tasksDataManager: TasksDataManager(),
+      networkClient: NetworkClient(),
+      dataManager: dataManager
+    )
 
-    return syncService
+    return syncQueueService
   }()
 
   ProfileSyncTasksSectionView()
     .environmentObject(ThemeViewModel())
-    .environment(\.syncService, syncService)
+    .environment(\.syncQueueService, syncQueueService)
 }

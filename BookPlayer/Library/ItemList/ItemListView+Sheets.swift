@@ -17,7 +17,10 @@ extension ItemListView {
     case .itemDetails(let item):
       itemDetailsSheet(for: item)
     case .queuedTasks:
-      QueuedSyncTasksView()
+      // Own stack so the title and the info button show inside the sheet
+      NavigationStack {
+        QueuedTasksView()
+      }
     case .foldersSelection:
       foldersSelectionSheet()
     case .libraryOptions:

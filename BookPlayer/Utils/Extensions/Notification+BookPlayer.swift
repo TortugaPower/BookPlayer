@@ -18,4 +18,7 @@ extension Notification.Name {
   /// surface shares the same `AVPlayer`; the fullscreen surface takes over its video
   /// output, so the inline surface must reclaim rendering once fullscreen is gone.
   static let videoFullscreenDidDismiss = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).video.fullscreen.dismissed")
+  /// Posted to deep-link into Settings → Media Servers (e.g. from the missing-server
+  /// prompt when a synced-down external resource has no matching connection on this device).
+  static let showMediaServers = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).show.mediaservers")
 }

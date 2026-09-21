@@ -400,7 +400,6 @@
 "settings_seekprogressbar_description" = "Enable seeking on the lock screen";
 "donate_title" = "Podarować";
 "bookmark_automatic_sleep_title" = "Last position when the sleep timer was turned on";
-"download_folder_confirmation_title" = "Pobierz folder";
 "download_folder_confirmation_message" = "Pobrać wszystkie %d pliki z tego folderu?";
 "hardcover_searching_books" = "Wyszukiwanie książek...";
 "hardcover_unlink_button" = "Odłącz";
@@ -504,3 +503,16 @@
 "jellyfin_quick_connect_error_no_code" = "Your Jellyfin server didn't return a Quick Connect code. Make sure Quick Connect is enabled in the server's dashboard.";
 "jellyfin_quick_connect_error_generic" = "Quick Connect couldn't complete. Check that Quick Connect is enabled on your server and try again.";
 "jellyfin_quick_connect_error_timeout" = "Timed out waiting for the code to be entered. Please try again.";
+"sync_tasks_concurrent_count_title" = "Zadania współbieżne (%d)";
+"sync_tasks_running_empty_title" = "Brak uruchomionych zadań";
+"sync_tasks_empty_title" = "Brak zadań w kolejce";
+"sync_tasks_empty_description" = "Wszystkie zadania synchronizacji są aktualne.";
+"sync_task_update_progress_label" = "Aktualizacja postępu dla %@";
+"sync_task_upload_file_label" = "Przesyłanie pliku";
+"audiobook_details_narrator_label" = "Czyta %@";
+"stream_button" = "Strumieniuj";
+"passkey_title" = "Klucz dostępu";
+"create_profile_title" = "Utwórz swój profil";
+"create_profile_description" = "Aby włączyć synchronizację w chmurze, zaloguj się do swojego profilu. Możesz to zrobić później w zakładce Profil.";
+"not_now_button" = "Nie teraz";
+"quick_action_label" = "Szybka akcja %d";

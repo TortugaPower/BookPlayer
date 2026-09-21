@@ -14,47 +14,50 @@ struct LoginView: View {
   @State private var loadingState = LoadingOverlayState()
   @State private var showCompleteAccount = false
   @State private var showPasskeyRegistration = false
-
+  
   @EnvironmentObject private var theme: ThemeViewModel
   @Environment(\.dismiss) private var dismiss
 
   var body: some View {
-    ZStack(alignment: .bottom) {
-      Form {
-        LoginBenefitSectionView(
-          imageName: "icloud.and.arrow.up.fill",
-          title: "benefits_cloudsync_title",
-          subtitle: "benefits_cloudsync_description"
-        )
-        LoginBenefitSectionView(
-          imageName: "applewatch.radiowaves.left.and.right",
-          title: "Apple Watch (Beta)",
-          subtitle: "benefits_watchapp_description"
-        )
-        LoginBenefitSectionView(
-          imageName: "paintpalette.fill",
-          title: "benefits_themesicons_title",
-          subtitle: "benefits_themesicons_description"
-        )
-        LoginDisclaimerSectionView()
-      }
-      .applyListStyle(with: theme, background: theme.systemGroupedBackgroundColor)
-      .safeAreaInset(edge: .bottom) {
-        Color.clear
-          .frame(height: 88)
-      }
-
+    Form {
+      LoginBenefitSectionView(
+        imageName: "icloud.and.arrow.up.fill",
+        title: "benefits_cloudsync_title",
+        subtitle: "benefits_cloudsync_description"
+      )
+      LoginBenefitSectionView(
+        imageName: "applewatch.radiowaves.left.and.right",
+        title: "Apple Watch (Beta)",
+        subtitle: "benefits_watchapp_description"
+      )
+      LoginBenefitSectionView(
+        imageName: "paintpalette.fill",
+        title: "benefits_themesicons_title",
+        subtitle: "benefits_themesicons_description"
+      )
+      LoginDisclaimerSectionView()
+    }
+    .applyListStyle(with: theme, background: theme.systemGroupedBackgroundColor)
+    /// The buttons ARE the inset, so the list reserves exactly their height. This used to
+    /// reserve a hardcoded 88pt and overlay the stack as a ZStack sibling — but the stack is
+    /// nearer 100pt before Dynamic Type touches it, so the last disclaimer line could not be
+    /// scrolled clear of the buttons on a short screen. The opaque background matters as much:
+    /// `AppleSignInLink` is an opaque pill and hides what passes behind it, while
+    /// `ContinueWithPasskeyButton` is bare text, so the disclaimer used to scroll straight
+    /// through it.
+    .safeAreaInset(edge: .bottom) {
       VStack(spacing: Spacing.S) {
         AppleSignInLink { hasSubscription in
           handleSignInResult(hasSubscription: hasSubscription)
         }
 
-        // Continue with Passkey - goes to registration/sign-in screen
+        /// Goes to the registration/sign-in screen
         ContinueWithPasskeyButton {
           showPasskeyRegistration = true
         }
         .padding(.bottom, Spacing.S)
       }
+      .background(theme.systemGroupedBackgroundColor)
     }
     .environment(\.loadingState, loadingState)
     .listSectionSpacing(Spacing.S2)

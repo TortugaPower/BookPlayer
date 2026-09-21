@@ -22,5 +22,5 @@ extension Notification.Name {
   public static let uploadProgressUpdated = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).upload.progress.update")
   public static let uploadCompleted = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).upload.completed")
   public static let listeningProgressChanged = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).listening.progress.changed")
-  
+  public static let newTaskInQueue = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).concurrent.task.queue")
 }

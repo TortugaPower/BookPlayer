@@ -29,6 +29,7 @@ class MainCoordinator: NSObject {
   let watchConnectivityService: PhoneWatchConnectivityService
   let jellyfinConnectionService: JellyfinConnectionService
   let audiobookshelfConnectionService: AudiobookShelfConnectionService
+  let syncQueueService: SyncQueueService
   let hardcoverService: HardcoverService
   let preferencesService: PreferencesSyncService
 
@@ -56,8 +57,10 @@ class MainCoordinator: NSObject {
       playerManager: playerManager,
       syncService: syncService,
       playerLoaderService: coreServices.playerLoaderService,
-      preferencesService: coreServices.preferencesService
+      preferencesService: coreServices.preferencesService,
+      externalProgressService: coreServices.externalProgressService
     )
+    self.syncQueueService = coreServices.syncQueueService
     self.singleFileDownloadService = SingleFileDownloadService(networkClient: NetworkClient())
     self.watchConnectivityService = coreServices.watchService
     let jellyfinService = JellyfinConnectionService()
@@ -108,6 +111,7 @@ class MainCoordinator: NSObject {
       .environment(\.playerLoaderService, playerLoaderService)
       .environment(\.playbackService, playbackService)
       .environment(\.preferencesService, preferencesService)
+      .environment(\.syncQueueService, syncQueueService)
     )
     vc.modalPresentationStyle = .fullScreen
     vc.modalTransitionStyle = .crossDissolve

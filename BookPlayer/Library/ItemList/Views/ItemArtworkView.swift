@@ -137,15 +137,57 @@ struct ItemArtworkView: View {
       ZStack(alignment: .bottomTrailing) {
         CornerTriangle()
           .fill(theme.systemGroupedBackgroundColor)
-        Image(systemName: "cloud")
-          .resizable()
-          .aspectRatio(contentMode: .fit)
-          .frame(width: 14, height: 16)
+        downloadBadge
           .padding(1)
           .padding(.trailing, 2)
           .foregroundStyle(theme.linkColor)
       }
       .clipShape(CornerTriangle())
+    }
+  }
+
+  /// The server this row would stream from, or nil when it isn't a media-server item.
+  ///
+  /// `streamingResource` rather than the first media-server link, for two reasons. It is the
+  /// same value `downloadRemoteFiles` picks, so the badge always names the server the tap will
+  /// actually reach. And it is already Hardcover-filtered: the API's `markExternalSourceUploaded`
+  /// marks EVERY provider row of an item 'downloaded', so a dual-linked book's Hardcover row
+  /// passes a bare syncStatus check — which once aimed the download at a provider that has no
+  /// files at all.
+  private var streamingServer: ExternalResource.MediaServerProvider? {
+    item.externalResources?.streamingResource?.mediaServer
+  }
+
+  /// What sits in the corner while the file isn't on the device.
+  ///
+  /// `cloud` is right for our own storage and wrong for a media server — the file is on the
+  /// user's machine, not ours, which is the distinction the media-server paywall copy makes a
+  /// point of. The provider's mark says the same thing the cloud does, and says whose.
+  ///
+  /// All three badges share the cloud's 14pt-wide box so they land on ONE axis. The width is
+  /// what centres them: a height-only frame lets each mark's own width decide where its centre
+  /// falls, and the marks differ enough (Jellyfin is square, Audiobookshelf is taller than
+  /// wide) that they sat 1.6pt and 2.9pt right of the cloud — visibly off against a cloud row
+  /// above. Inside a shared box each one centres itself, whatever its aspect ratio.
+  ///
+  /// The 3pt below buys what the cloud gets for free. `cloud` is a wide, low glyph, so fitting
+  /// it into a 14x16 box letterboxes it and leaves ~4.6pt of air under its ink; a mark that
+  /// fills its box lands flush on the corner's edge instead and reads as sitting lower.
+  ///
+  /// The heights themselves are per-provider — see `MediaServerProvider.badgeHeight`.
+  @ViewBuilder
+  private var downloadBadge: some View {
+    if let streamingServer {
+      Image(streamingServer.icon)
+        .resizable()
+        .aspectRatio(contentMode: .fit)
+        .frame(width: 14, height: streamingServer.badgeHeight)
+        .padding(.bottom, 3)
+    } else {
+      Image(systemName: "cloud")
+        .resizable()
+        .aspectRatio(contentMode: .fit)
+        .frame(width: 14, height: 16)
     }
   }
 }

@@ -400,7 +400,6 @@
 "settings_seekprogressbar_description" = "تمكين البحث في شاشة القفل";
 "donate_title" = "تبرع";
 "bookmark_automatic_sleep_title" = "آخر موضع تم فيه عند تشغيل مؤقت السكون";
-"download_folder_confirmation_title" = "تحميل المجلد";
 "download_folder_confirmation_message" = "تحميل جميع الملفات %d من هذا المجلد؟";
 "hardcover_searching_books" = "البحث عن الكتب...";
 "hardcover_unlink_button" = "إلغاء الربط";
@@ -504,3 +503,16 @@
 "jellyfin_quick_connect_error_no_code" = "Your Jellyfin server didn't return a Quick Connect code. Make sure Quick Connect is enabled in the server's dashboard.";
 "jellyfin_quick_connect_error_generic" = "Quick Connect couldn't complete. Check that Quick Connect is enabled on your server and try again.";
 "jellyfin_quick_connect_error_timeout" = "Timed out waiting for the code to be entered. Please try again.";
+"sync_tasks_concurrent_count_title" = "المهام المتزامنة (%d)";
+"sync_tasks_running_empty_title" = "لا توجد مهام قيد التشغيل";
+"sync_tasks_empty_title" = "لا توجد مهام في الانتظار";
+"sync_tasks_empty_description" = "جميع مهام المزامنة الخاصة بك محدثة.";
+"sync_task_update_progress_label" = "جاري تحديث التقدم لـ %@";
+"sync_task_upload_file_label" = "جاري رفع الملف";
+"audiobook_details_narrator_label" = "رواية %@";
+"stream_button" = "بث";
+"passkey_title" = "مفتاح المرور";
+"create_profile_title" = "أنشئ ملفك الشخصي";
+"create_profile_description" = "لتمكين المزامنة السحابية، قم بتسجيل الدخول إلى ملفك الشخصي. يمكنك القيام بذلك لاحقًا من علامة تبويب الملف الشخصي.";
+"not_now_button" = "ليس الآن";
+"quick_action_label" = "إجراء سريع %d";

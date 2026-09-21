@@ -21,12 +21,22 @@ class AccountServiceMock: AccountServiceProtocol {
     return nil
   }
 
+  /// Settable so a test can model lite/pro (true) vs free/plus (false); defaults to free.
+  var hasSyncEnabledValue = false
+
   func hasSyncEnabled() -> Bool {
-    return false
+    return hasSyncEnabledValue
   }
 
   func hasPlusAccess() -> Bool {
     return false
+  }
+
+  /// Settable so a test can model a lapsed subscriber — paid once, no longer subscribed.
+  var hasEverSubscribedValue = false
+
+  func hasEverSubscribed() -> Bool {
+    return hasEverSubscribedValue
   }
 
   func getSecondOnboarding<T: Decodable>() async throws -> T {
@@ -39,8 +49,13 @@ class AccountServiceMock: AccountServiceProtocol {
     self.account = account
   }
 
+  /// Mirrors the real `getAccountId()`, which maps an empty id to nil. Without that, a mock
+  /// account in the logged-out state — blank id, row still present — reports `Optional("")`
+  /// and reads as signed IN, which is exactly the state the streaming gate has to catch.
   func getAccountId() -> String? {
-    return self.account?.id
+    guard let id = self.account?.id, !id.isEmpty else { return nil }
+
+    return id
   }
 
   func getAccount() -> Account? {
@@ -122,4 +137,10 @@ class AccountServiceMock: AccountServiceProtocol {
   func logout() throws {}
 
   func deleteAccount() async throws -> String { return "Success" }
+  
+  func getAccessLevel() -> BookPlayerKit.AccessLevel {
+    // .free keeps this consistent with the mock's hasSyncEnabled()/hasPlusAccess()
+    // both returning false — a .plus level would contradict them.
+    return .free
+  }
 }

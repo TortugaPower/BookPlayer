@@ -40,6 +40,9 @@ class CarPlayManager: NSObject {
   func connect(_ interfaceController: CPInterfaceController) {
     self.interfaceController = interfaceController
     self.interfaceController?.delegate = self
+    // The arbiter exists from launch, so this can't race CoreServices on a cold start into
+    // the car — the subscription this replaced lived in init and silently never bound there.
+    AppServices.shared.promptSurfaceArbiter.carPlayPresenter = self
     /// Reset connect-scoped state so a re-connect without a paired disconnect doesn't act on a stale flag
     self.shouldShowPlayerOnConnect = false
     self.setupNowPlayingTemplate()
@@ -106,6 +109,7 @@ class CarPlayManager: NSObject {
   }
 
   func disconnect() {
+    AppServices.shared.promptSurfaceArbiter.carPlayPresenter = nil
     self.interfaceController = nil
     self.recentTemplate = nil
     self.libraryTemplate = nil
@@ -138,7 +142,8 @@ class CarPlayManager: NSObject {
           playerManager: coreServices.playerManager,
           syncService: coreServices.syncService,
           playerLoaderService: coreServices.playerLoaderService,
-          preferencesService: coreServices.preferencesService
+          preferencesService: coreServices.preferencesService,
+          externalProgressService: coreServices.externalProgressService
         )
         self?.listSyncRefreshService = listRefreshService
 
@@ -747,5 +752,67 @@ extension CarPlayManager: CPTabBarTemplateDelegate {
 extension CarPlayManager: PlaybackSyncProgressDelegate {
   func waitForSyncInProgress() async {
     _ = await contentsFetchTask?.result
+  }
+}
+
+extension CarPlayManager {
+  /// Whether a modal template would actually reach the screen: connected, and nothing already
+  /// presented. Reporting an optimistic `true` here would drop the prompt entirely, which is
+  /// the failure the surface arbiter exists to prevent.
+  var canPresentTemplate: Bool {
+    guard let interfaceController else { return false }
+
+    return interfaceController.presentedTemplate == nil
+  }
+}
+
+extension CarPlayManager: ResumeOfferPresenting {
+  /// The car's half of the resume offer. PromptSurfaceArbiter decides that the car — and only
+  /// the car — asks; this only presents. No shared flag to clear: the phone never raised one
+  /// for an offer routed here.
+  ///
+  /// Returns false when the car cannot present, so the arbiter hands the prompt back to the
+  /// phone rather than dropping it. CarPlay allows ONE presented template at a time, so an
+  /// alert already on screen would make this one fail silently — and `presentTemplate`
+  /// reports that only through a completion handler we cannot answer synchronously.
+  func presentResumeOffer(at remoteTime: TimeInterval) -> Bool {
+    guard canPresentTemplate else { return false }
+
+    showAlert(
+      BPAlertContent(
+        title: "resume_playback_alert_title".localized,
+        message: String(
+          format: "resume_playback_alert_message".localized,
+          TimeParser.formatTime(remoteTime)
+        ),
+        style: .alert,
+        actionItems: [
+          BPActionItem(title: "yes_button".localized) {
+            AppServices.shared.coreServices?.playerManager.jumpTo(remoteTime)
+          },
+          BPActionItem(title: "ignore_button".localized) {},
+        ]
+      )
+    )
+
+    return true
+  }
+}
+
+extension CarPlayManager: PlaybackFailurePresenting {
+  /// One line and an OK. The phone's copy prints the underlying error and offers the Media
+  /// Servers shortcut; neither belongs on a dashboard, so the car points at the phone instead.
+  func presentPlaybackFailure(_ failure: PlaybackFailure) -> Bool {
+    guard canPresentTemplate else { return false }
+
+    showAlert(
+      BPAlertContent(
+        title: failure.carPlayMessage,
+        style: .alert,
+        actionItems: [BPActionItem.okAction]
+      )
+    )
+
+    return true
   }
 }

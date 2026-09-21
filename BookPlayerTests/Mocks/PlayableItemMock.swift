@@ -22,6 +22,7 @@ extension PlayableItem {
           duration: 100,
           relativePath: "test-path",
           remoteURL: nil,
+          externalURL: nil,
           index: 0
         )
       ],
@@ -49,6 +50,7 @@ extension PlayableItem {
           duration: 100,
           relativePath: "test-path",
           remoteURL: nil,
+          externalURL: nil,
           index: 0
         )
       ],

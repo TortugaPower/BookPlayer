@@ -121,6 +121,9 @@ final class PlayerViewModel: ObservableObject {
   }
   
   func bindBookObservers() {
+    // Called on every player appear — drop the previous generation of sinks or each
+    // open appends another copy of every subscription below
+    disposeBag.removeAll()
     bindBookPlayingProgressEvents()
     bindNotificationSubscribers()
     bindBookSharedObservers()
@@ -195,6 +198,7 @@ final class PlayerViewModel: ObservableObject {
   }
   
   func bindBookPlayingProgressEvents() {
+
     self.playerManager.isPlayingPublisher()
       .removeDuplicates()
       .receive(on: DispatchQueue.main)

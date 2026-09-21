@@ -400,7 +400,6 @@
 "settings_seekprogressbar_description" = "ロック画面でシークを有効にします。";
 "donate_title" = "寄付";
 "bookmark_automatic_sleep_title" = "スリープタイマーがオンになった最後の位置";
-"download_folder_confirmation_title" = "フォルダをダウンロード";
 "download_folder_confirmation_message" = "このフォルダからすべての %d ファイルをダウンロードしますか？";
 "hardcover_searching_books" = "本を検索中...";
 "hardcover_unlink_button" = "リンク解除";
@@ -504,3 +503,16 @@
 "jellyfin_quick_connect_error_no_code" = "Your Jellyfin server didn't return a Quick Connect code. Make sure Quick Connect is enabled in the server's dashboard.";
 "jellyfin_quick_connect_error_generic" = "Quick Connect couldn't complete. Check that Quick Connect is enabled on your server and try again.";
 "jellyfin_quick_connect_error_timeout" = "Timed out waiting for the code to be entered. Please try again.";
+"sync_tasks_concurrent_count_title" = "同時タスク (%d)";
+"sync_tasks_running_empty_title" = "実行中のタスクはありません";
+"sync_tasks_empty_title" = "待機中のタスクはありません";
+"sync_tasks_empty_description" = "すべての同期タスクは最新です。";
+"sync_task_update_progress_label" = "%@ の進捗を更新中";
+"sync_task_upload_file_label" = "ファイルをアップロード中";
+"audiobook_details_narrator_label" = "ナレーション: %@";
+"stream_button" = "ストリーム";
+"passkey_title" = "パスキー";
+"create_profile_title" = "プロフィールを作成";
+"create_profile_description" = "クラウド同期を有効にするには、プロフィールにサインインしてください。これは後でプロフィールタブからいつでも行えます。";
+"not_now_button" = "後で";
+"quick_action_label" = "クイックアクション %d";

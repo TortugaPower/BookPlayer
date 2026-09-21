@@ -400,7 +400,6 @@
 "settings_seekprogressbar_description" = "Enable seeking on the lock screen";
 "donate_title" = "Darovat";
 "bookmark_automatic_sleep_title" = "Last position when the sleep timer was turned on";
-"download_folder_confirmation_title" = "Stáhnout složku";
 "download_folder_confirmation_message" = "Stáhnout všechny %d soubory z této složky?";
 "hardcover_searching_books" = "Hledám knihy...";
 "hardcover_unlink_button" = "Odpojit";
@@ -504,3 +503,16 @@
 "jellyfin_quick_connect_error_no_code" = "Your Jellyfin server didn't return a Quick Connect code. Make sure Quick Connect is enabled in the server's dashboard.";
 "jellyfin_quick_connect_error_generic" = "Quick Connect couldn't complete. Check that Quick Connect is enabled on your server and try again.";
 "jellyfin_quick_connect_error_timeout" = "Timed out waiting for the code to be entered. Please try again.";
+"sync_tasks_concurrent_count_title" = "Souběžné úkoly (%d)";
+"sync_tasks_running_empty_title" = "Žádné běžící úkoly";
+"sync_tasks_empty_title" = "Žádné úkoly ve frontě";
+"sync_tasks_empty_description" = "Všechny vaše synchronizační úkoly jsou aktuální.";
+"sync_task_update_progress_label" = "Aktualizace průběhu pro %@";
+"sync_task_upload_file_label" = "Nahrávání souboru";
+"audiobook_details_narrator_label" = "Vypráví %@";
+"stream_button" = "Streamovat";
+"passkey_title" = "Passkey";
+"create_profile_title" = "Vytvořte si profil";
+"create_profile_description" = "Chcete-li povolit synchronizaci v cloudu, přihlaste se ke svému profilu. To můžete provést kdykoli později na kartě Profil.";
+"not_now_button" = "Nyní ne";
+"quick_action_label" = "Rychlá akce %d";

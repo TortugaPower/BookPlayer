@@ -88,11 +88,20 @@ struct BookView: View {
     libraryService.setup(dataManager: dataManager, audioMetadataService: audioMetadataService)
     let accountService = AccountService()
     accountService.setup(dataManager: dataManager)
+    let tasksDataManager = TasksDataManager()
+    let syncQueueService = SyncQueueService()
+    syncQueueService.setup(
+      libraryService: libraryService,
+      getAccessLevel: { accountService.getAccessLevel() },
+      tasksDataManager: tasksDataManager,
+      networkClient: NetworkClient(),
+      dataManager: dataManager
+    )
     syncService.setup(
       isActive: true,
       libraryService: libraryService,
       accountService: accountService,
-      dataManager: dataManager
+      syncQueueService: syncQueueService
     )
 
     return syncService
