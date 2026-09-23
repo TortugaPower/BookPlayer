@@ -63,8 +63,13 @@ final class QueuedTaskDisplayTests: XCTestCase {
       "Author/Book.m4b"
     )
     XCTAssertEqual(
+      task("u", lane: TaskQueueKey.uploadFile, jobType: .uploadFile, relativePath: "Author/Book.m4b").displayTitle,
+      "Author/Book.m4b"
+    )
+    XCTAssertEqual(
       task("u", lane: TaskQueueKey.uploadFile, jobType: .uploadFile).displayTitle,
-      "task_uploading_file_label".localized
+      "task_uploading_file_label".localized,
+      "a task stored before the key was persisted still reads as an upload"
     )
     XCTAssertEqual(
       task("j", lane: "jellyfin").displayTitle,

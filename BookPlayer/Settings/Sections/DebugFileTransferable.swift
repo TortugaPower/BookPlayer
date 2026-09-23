@@ -90,58 +90,10 @@ struct DebugFileTransferable: Transferable {
     localidentifiers: [String],
     remoteIdentifiers: [String]?
   ) -> String {
-    let identifiers = libraryService.fetchIdentifiers()
-
-    var libraryRepresentation = "Library\n.\n"
-    let processedFolderURL = DataManager.getProcessedFolderURL()
-
-    let baseSeparator = "|   "
-    var nestedLevel = 0
-
-    for (index, identifier) in identifiers.enumerated() {
-      let fileURL = processedFolderURL.appendingPathComponent(identifier)
-      let fileExistsRepresentation = getFileExistsRepresentation(
-        identifier: identifier,
-        fileURL: fileURL,
-        remoteIdentifiers: remoteIdentifiers
-      )
-      let isLast = index == (identifiers.endIndex - 1)
-      let newNestedLevel = identifier.components(separatedBy: "/").count - 1
-      var horizontalSeparator = String(repeating: baseSeparator, count: newNestedLevel)
-
-      if nestedLevel != newNestedLevel || isLast || fileURL.isDirectoryFolder {
-        horizontalSeparator += horizontalSeparator + "`-- "
-      } else {
-        horizontalSeparator += horizontalSeparator + "|-- "
-      }
-
-      libraryRepresentation += "\(horizontalSeparator)\(fileExistsRepresentation) \(fileURL.lastPathComponent)\n"
-
-      nestedLevel = newNestedLevel
-    }
-
-    return libraryRepresentation
-  }
-
-  func getFileExistsRepresentation(
-    identifier: String,
-    fileURL: URL,
-    remoteIdentifiers: [String]?
-  ) -> String {
-    let localRepresentation =
-      FileManager.default.fileExists(atPath: fileURL.path)
-      ? "[✓]"
-      : "[𐄂]"
-
-    guard let remoteIdentifiers else {
-      return localRepresentation
-    }
-
-    if remoteIdentifiers.contains(identifier) {
-      return localRepresentation + "[☑]"
-    } else {
-      return localRepresentation + "[☐]"
-    }
+    LibraryTreeRepresentation.render(
+      entries: libraryService.fetchIdentifiers().map { ($0, nil) },
+      remoteIdentifiers: remoteIdentifiers
+    )
   }
 
   func getRemoteOnlyInformation(
@@ -402,5 +354,70 @@ struct DebugFileTransferable: Transferable {
     info += "Has scheduled library contents: \(hasScheduledContents)\n"
 
     return info
+  }
+}
+
+/// The library as a `tree`-style listing, shared by the debug file and the sync report
+enum LibraryTreeRepresentation {
+  /// - Parameter entries: every item's path, in library order, with its uuid when the
+  ///   listing should show it
+  /// Note:  For the first status, '✓' means the backing file exists, and '𐄂' that it's missing locally,
+  /// and for the second status, ☐ means the file is not uploaded yet, and ☑ that it's already synced
+  static func render(
+    entries: [(relativePath: String, uuid: String?)],
+    remoteIdentifiers: [String]?
+  ) -> String {
+    var libraryRepresentation = "Library\n.\n"
+    let processedFolderURL = DataManager.getProcessedFolderURL()
+
+    let baseSeparator = "|   "
+    var nestedLevel = 0
+
+    for (index, entry) in entries.enumerated() {
+      let identifier = entry.relativePath
+      let fileURL = processedFolderURL.appendingPathComponent(identifier)
+      let fileExistsRepresentation = getFileExistsRepresentation(
+        identifier: identifier,
+        fileURL: fileURL,
+        remoteIdentifiers: remoteIdentifiers
+      )
+      let isLast = index == (entries.endIndex - 1)
+      let newNestedLevel = identifier.components(separatedBy: "/").count - 1
+      var horizontalSeparator = String(repeating: baseSeparator, count: newNestedLevel)
+
+      if nestedLevel != newNestedLevel || isLast || fileURL.isDirectoryFolder {
+        horizontalSeparator += horizontalSeparator + "`-- "
+      } else {
+        horizontalSeparator += horizontalSeparator + "|-- "
+      }
+
+      let uuidSuffix = entry.uuid.map { " (\($0))" } ?? ""
+      libraryRepresentation += "\(horizontalSeparator)\(fileExistsRepresentation) \(fileURL.lastPathComponent)\(uuidSuffix)\n"
+
+      nestedLevel = newNestedLevel
+    }
+
+    return libraryRepresentation
+  }
+
+  static func getFileExistsRepresentation(
+    identifier: String,
+    fileURL: URL,
+    remoteIdentifiers: [String]?
+  ) -> String {
+    let localRepresentation =
+      FileManager.default.fileExists(atPath: fileURL.path)
+      ? "[✓]"
+      : "[𐄂]"
+
+    guard let remoteIdentifiers else {
+      return localRepresentation
+    }
+
+    if remoteIdentifiers.contains(identifier) {
+      return localRepresentation + "[☑]"
+    } else {
+      return localRepresentation + "[☐]"
+    }
   }
 }

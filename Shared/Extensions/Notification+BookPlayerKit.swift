@@ -23,4 +23,7 @@ extension Notification.Name {
   public static let uploadCompleted = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).upload.completed")
   public static let listeningProgressChanged = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).listening.progress.changed")
   public static let newTaskInQueue = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).concurrent.task.queue")
+  /// A queued task was parked on a coded server error and hasn't been reported yet.
+  /// `object` is the `QueuedSyncTask` (with its `pause`).
+  public static let syncTaskPaused = Notification.Name("\(Bundle.main.configurationString(for: .bundleIdentifier)).sync.task.paused")
 }

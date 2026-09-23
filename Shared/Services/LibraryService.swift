@@ -1422,6 +1422,24 @@ extension LibraryService {
     return results.map { $0.relativePath }
   }
 
+  /// Every item's path with its uuid, in `fetchIdentifiers` order (a sync report pairs the
+  /// local tree with the server's records by uuid). View context: call on main.
+  public func fetchIdentifiersWithUuids() -> [(relativePath: String, uuid: String)] {
+    let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
+    fetchRequest.propertiesToFetch = [#keyPath(LibraryItem.relativePath), #keyPath(LibraryItem.uuid)]
+    fetchRequest.sortDescriptors = [
+      NSSortDescriptor(
+        key: #keyPath(LibraryItem.relativePath),
+        ascending: true,
+        selector: #selector(NSString.localizedStandardCompare(_:))
+      )
+    ]
+
+    let results = (try? self.dataManager.getContext().fetch(fetchRequest)) ?? []
+
+    return results.map { ($0.relativePath, $0.uuid) }
+  }
+
   public func fetchContents(at relativePath: String?, limit: Int?, offset: Int?) -> [SimpleLibraryItem]? {
     let context = dataManager.getContext()
 

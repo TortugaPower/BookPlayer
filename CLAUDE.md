@@ -209,7 +209,7 @@ Custom `Notification.Name`s (namespaced with the bundle id at runtime) are the a
 CarPlay event bus. Declared in `Shared/Extensions/Notification+BookPlayerKit.swift` (framework-wide):
 `.chapterChange`, `.bookReady`, `.bookPlayed`, `.bookPaused`, `.bookEnd`, `.bookPlaying`, `.accountUpdate`,
 `.logout`, `.messageReceived`, `.folderProgressUpdated`, `.uploadProgressUpdated`, `.uploadCompleted`,
-`.listeningProgressChanged`; and app-internal ones in `BookPlayer/Utils/Extensions/Notification+BookPlayer.swift`.
+`.listeningProgressChanged`, `.syncTaskPaused`; and app-internal ones in `BookPlayer/Utils/Extensions/Notification+BookPlayer.swift`.
 
 - **`PlayerManager` is the dominant publisher** of playback events; `PhoneWatchConnectivityService` and
   `CarPlayManager` are the dominant cross-target subscribers; `AccountService` is the auth/account hub.
@@ -280,6 +280,37 @@ CarPlay event bus. Declared in `Shared/Extensions/Notification+BookPlayerKit.swi
   `SyncService.canSyncListContents` gates list refresh on the `sync` lane only (repository `getTasksCount(in:)`),
   and `AppDelegate.handleAppRefresh` waits on `laneDrained(TaskQueueKey.sync)` — S3 uploads and provider pushes
   never block a refresh or hold a background window open (pushes retry forever against an unreachable server).
+  **Server-lane gate:** the BookPlayer-server lanes (`sync`, `uploadFile`) run only while
+  `SyncQueueService.serverLanesEnabled` is on. It starts off (workers wake in `setup`, before `SyncService` is
+  set up) and mirrors `SyncService.isActive` — `SyncService` is the ONLY writer: `setup` in the same synchronous
+  call as `isActive`, `updateSyncEnabled` and `logout` inside the main-actor block that writes `isActive` (so a
+  fast re-login can't be overwritten by a late logout write). Workers check it before every pop, so a lapse stops
+  a running lane after its current task. Gated tasks are **held, never cleared**: RevenueCat's cached info is nil
+  before the first fetch, so a paying subscriber can read inactive at launch. Provider lanes ignore the gate, and
+  `handleAppRefresh` completes immediately while it's off (a gated lane never drains).
+  **Parking:** a failed task parks ONLY on a coded 4xx (`BookPlayerError.networkErrorWithCode`, the server's
+  `error` key); anything uncoded keeps the 5 s retry. Today only `LibraryItemSyncOperation` (sync lane) errors
+  reach it — `FileUploadOperation` still consumes a 4xx — so `uploadFile` parks once the multipart engine reports
+  coded errors. `SyncFailurePolicy` owns the rules: leaf tasks (`update`,
+  `uploadArtwork`, `uploadFile`) park alone (`TaskPauseScope.task`, the lane keeps running); every other
+  sync-lane task is structural and stops its lane (`.lane`); `not_subscribed`/`tier_required` park `.account`
+  (holds every server lane) and trigger a fresh RevenueCat read — inactive runs the normal lapse path, active or
+  failed keeps the tasks held and reports; `externalUpdate` keeps its own handling. The watch sets
+  `parkingEnabled = false` (no UI there), so task-level coded failures drop. The pause lives on
+  `QueuedTaskReferenceModel` (`pauseScope`, code, message, status, `pausedAt`, `sentryEventId`);
+  `SyncQueueRepository.getNextTask` skips `.task` rows and stops at a `.lane`/`.account` head, and
+  `TasksDataManager.queueCounts` mirrors those rules (paused counts, blocked lanes; `laneDrained` counts a lane
+  with nothing runnable as drained). Parked tasks and the running task (tracked by id in the repository — a Retry
+  can put a resumed task ahead of it) are never coalescing targets. Retry = one automatic resume at
+  launch (`setup`) plus `retryPausedTask(id:)`; there is deliberately no Skip. A first park posts
+  `.syncTaskPaused`, skipped when the row already carries a `sentryEventId` (recorded via `recordPauseReport`;
+  it survives resumes). The app-target `SyncPauseReporter` (owned by `AppServices`) turns it into ONE Sentry
+  warning per task, fingerprint `["sync-paused", jobType, errorCode]`, with a minimal payload (job type, code,
+  status, lane, scope, item uuid) — **never the server message or a path: both embed file names**. The Queued
+  Tasks row of a parked task shows the server's message with Retry and Report; Report mails (or, without Mail,
+  shares) `SyncPauseReport`: the paused task, every queued task with its state, and the local library tree with
+  uuids. A blocked lane's header turns red, Profile shows "Sync paused: N need attention", and a blocked
+  pull-to-refresh says sync is paused.
 - **Realm is gone** (Realm → SwiftData migration is complete). Only inert remnants remain
   (`DataManager.getSyncTasksRealmURL()` is dead; a stale comment in `LibraryService`). Don't reintroduce it.
 

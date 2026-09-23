@@ -178,6 +178,10 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     self.accountService = accountService
     self.syncQueueService = syncQueueService
     self.jobManager = SyncJobScheduler(tasksRepository: syncQueueService.taskContainer)
+    // The queue holds the server lanes until told otherwise: a lapsed account's persisted
+    // tasks stay put (a fresh install's first RevenueCat fetch may still flip it on) but
+    // never hit the server, which would reject them forever
+    syncQueueService.setServerLanesEnabled(isActive)
     self.client = client
     self.provider = NetworkProvider(client: client)
 
@@ -625,6 +629,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     Task { @MainActor in
       guard self.isActive != enabled else { return }
       self.isActive = enabled
+      self.syncQueueService.setServerLanesEnabled(enabled)
       if !enabled {
         self.cancelAllJobs()
         // Clearing the persisted rows isn't enough (develop parity): an operation
@@ -639,7 +644,12 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   /// clears the persisted task queue, and resets the "scheduled library contents" flag
   /// so the next login runs a fresh initial sync from an empty queue. Idempotent.
   public func logout() async {
-    await MainActor.run { self.isActive = false }
+    // Same main-actor hop as the flag: a fast re-login's updateSyncEnabled(true) runs on
+    // main, so a gate write outside this block could land after it and hold the lanes
+    await MainActor.run {
+      self.isActive = false
+      self.syncQueueService.setServerLanesEnabled(false)
+    }
     UserDefaults.standard.set(
       false,
       forKey: Constants.UserDefaults.hasScheduledLibraryContents

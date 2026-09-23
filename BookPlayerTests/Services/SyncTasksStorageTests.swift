@@ -140,6 +140,64 @@ final class SyncTasksRepositoryTests: XCTestCase {
     XCTAssertEqual(mergedUuids.count, 3)
   }
 
+  /// The server rejects a /uuids request over its per-request limit forever, so the
+  /// scheduler splits a large listing into limit-sized tasks.
+  func testScheduleMatchUuids_overTheLimit_splitsIntoServerSizedTasks() async throws {
+    let scheduler = SyncJobScheduler(tasksRepository: repository)
+    let limit = SyncJobScheduler.matchUuidsBatchLimit
+    let uuids = Dictionary(uniqueKeysWithValues: (0..<(limit * 2 + limit / 2)).map { ("folder/\($0).mp3", "uuid-\($0)") })
+
+    await scheduler.scheduleMatchUuidsJob(uuidsDict: uuids)
+
+    let tasks = await repository.getAllTasksWithParams(in: TaskQueueKey.sync)
+      .filter { $0.jobType == .matchUuid }
+    let sizes = tasks.compactMap { ($0.parameters["uuids"] as? [String: String])?.count }
+    XCTAssertEqual(sizes, [limit, limit, limit / 2])
+    let all = tasks.compactMap { $0.parameters["uuids"] as? [String: String] }
+      .reduce(into: [String: String]()) { $0.merge($1) { first, _ in first } }
+    XCTAssertEqual(all, uuids)
+  }
+
+  /// Merging into a queued matchUuid task must not grow it past the server's limit.
+  func testAppendMatchUuidTask_mergeWouldExceedTheLimit_queuesASeparateTask() async throws {
+    let limit = SyncJobScheduler.matchUuidsBatchLimit
+    try await appendUploadTask(uuid: "upload-uuid", relativePath: "folder/Head.mp3")
+    try await appendMatchUuidTask(uuids: Dictionary(uniqueKeysWithValues: (0..<(limit - 10)).map { ("a/\($0).mp3", "a-\($0)") }))
+    try await appendMatchUuidTask(uuids: Dictionary(uniqueKeysWithValues: (0..<20).map { ("b/\($0).mp3", "b-\($0)") }))
+
+    let tasks = await repository.getAllTasksWithParams(in: TaskQueueKey.sync)
+      .filter { $0.jobType == .matchUuid }
+    XCTAssertEqual(tasks.compactMap { ($0.parameters["uuids"] as? [String: String])?.count }, [limit - 10, 20])
+  }
+
+  /// Only temp-directory files are ever removed as upload hard links.
+  func testRemoveHardLink_deletesOnlyInsideTheTempDirectory() throws {
+    let tempFile = FileManager.default.temporaryDirectory.appendingPathComponent("link-\(UUID().uuidString).mp3")
+    let outside = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
+      .appendingPathComponent("real-\(UUID().uuidString).mp3")
+    try Data("x".utf8).write(to: tempFile)
+    try Data("x".utf8).write(to: outside)
+    defer { try? FileManager.default.removeItem(at: outside) }
+
+    // A folder item's link mirrors its tree; its children's uploads still read inside it.
+    let tempFolder = FileManager.default.temporaryDirectory.appendingPathComponent("folder-\(UUID().uuidString)")
+    try FileManager.default.createDirectory(at: tempFolder, withIntermediateDirectories: true)
+    let child = tempFolder.appendingPathComponent("Book.mp3")
+    try Data("x".utf8).write(to: child)
+    defer { try? FileManager.default.removeItem(at: tempFolder) }
+
+    SyncJobScheduler.removeHardLink(at: tempFile)
+    SyncJobScheduler.removeHardLink(at: outside)
+    SyncJobScheduler.removeHardLink(at: nil)
+    SyncJobScheduler.removeHardLink(at: tempFolder)
+    SyncJobScheduler.removeHardLink(at: FileManager.default.temporaryDirectory)
+
+    XCTAssertFalse(FileManager.default.fileExists(atPath: tempFile.path))
+    XCTAssertTrue(FileManager.default.fileExists(atPath: outside.path))
+    XCTAssertTrue(FileManager.default.fileExists(atPath: child.path))
+    XCTAssertTrue(FileManager.default.fileExists(atPath: FileManager.default.temporaryDirectory.path))
+  }
+
   /// With no prior matchUuid task, the first call should create one normally.
   func testAppendMatchUuidTask_noExisting_createsNewTask() async throws {
     try await appendMatchUuidTask(uuids: ["folder/A.mp3": "uuid-A"])

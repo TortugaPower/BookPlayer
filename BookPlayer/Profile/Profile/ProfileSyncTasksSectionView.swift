@@ -14,6 +14,8 @@ struct ProfileSyncTasksSectionView: View {
   @State private var statusMessage: String = ""
   /// Every lane, summed by the engine that owns them all
   @State private var queuedCount = 0
+  /// Parked tasks across every lane: they need the user, so they replace the sync status
+  @State private var pausedCount = 0
 
   private var buttonText: String {
     String(format: "queued_sync_tasks_title".localized, queuedCount)
@@ -28,15 +30,24 @@ struct ProfileSyncTasksSectionView: View {
         Text(buttonText)
           .bpFont(.body)
           .foregroundStyle(theme.linkColor)
-        Text(statusMessage)
-          .bpFont(.caption)
-          .foregroundStyle(theme.secondaryColor)
+        if pausedCount > 0 {
+          Text(String.localizedStringWithFormat("sync_paused_caption".localized, pausedCount))
+            .bpFont(.caption)
+            .foregroundStyle(.red)
+        } else {
+          Text(statusMessage)
+            .bpFont(.caption)
+            .foregroundStyle(theme.secondaryColor)
+        }
       }
     }
     .onReceive(syncQueueService.observeQueueCounts()) { counts in
-      guard queuedCount != counts.total else { return }
-
-      queuedCount = counts.total
+      if queuedCount != counts.total {
+        queuedCount = counts.total
+      }
+      if pausedCount != counts.totalPaused {
+        pausedCount = counts.totalPaused
+      }
     }
     .onReceive(
       NotificationCenter.default.publisher(for: .uploadProgressUpdated)
@@ -105,6 +116,7 @@ struct ProfileSyncTasksSectionView: View {
     syncQueueService.setup(
       libraryService: libraryService,
       getAccessLevel: { accountService.getAccessLevel() },
+      verifySyncEntitlement: { nil },
       tasksDataManager: TasksDataManager(),
       networkClient: NetworkClient(),
       dataManager: dataManager

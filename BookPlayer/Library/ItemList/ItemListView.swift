@@ -31,6 +31,7 @@ struct ItemListView: View {
   @Environment(\.libraryService) var libraryService
   @Environment(\.accountService) private var accountService
   @Environment(\.syncService) var syncService
+  @Environment(\.syncQueueService) private var syncQueueService
   @Environment(\.hardcoverService) var hardcoverService
   @Environment(\.playerLoaderService) private var playerLoaderService
   @Environment(\.preferencesService) var preferencesService
@@ -41,6 +42,9 @@ struct ItemListView: View {
   @Environment(\.scenePhase) private var scenePhase
   @EnvironmentObject private var importManager: ImportManager
   @EnvironmentObject private var theme: ThemeViewModel
+
+  /// A parked task in the sync lane: the blocked-refresh alert says sync is paused
+  @State private var syncLanePaused = false
 
   init(initModel: @escaping () -> ItemListViewModel) {
     self._model = .init(wrappedValue: initModel())
@@ -236,13 +240,16 @@ struct ItemListView: View {
             do {
               try await model.refreshListState()
             } catch {
-              self.activeAlert = .queuedTasks
+              self.activeAlert = .queuedTasks(paused: syncLanePaused)
             }
           }
           .environment(\.playingItemParentPath, playingItemParentPath)
           .environment(\.libraryNode, model.libraryNode)
         }
       }
+    }
+    .onReceive(syncQueueService.observeQueueCounts()) { counts in
+      syncLanePaused = counts.pausedCount(in: TaskQueueKey.sync) > 0
     }
     .onReceive(
       model.singleFileDownloadService.eventsPublisher

@@ -203,7 +203,11 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
     case 400...499:
       let error = try self.decoder.decode(ErrorResponse.self, from: data)
       if let code = error.error {
-        throw BookPlayerError.networkErrorWithCode(message: error.message, code: code)
+        throw BookPlayerError.networkErrorWithCode(
+          message: error.message,
+          code: code,
+          status: httpURLResponse.statusCode
+        )
       } else {
         throw BookPlayerError.networkError(error.message)
       }
@@ -275,13 +279,14 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
 
     if case .get = method,
        let parameters = parameters {
-      let queryItems = parameters.map({
-        URLQueryItem(
-          name: $0.0,
-          value: "\($0.1)"
-        )
-      })
-      components.queryItems = queryItems
+      // Optionals stored as `Any` interpolate as `Optional("…")`, which is what the
+      // API had been receiving for every GET `uuid` (it silently failed the server's
+      // UUID check and fell back to a path lookup). Unwrap them, and drop absent
+      // values instead of sending the literal string "nil".
+      components.queryItems = parameters.compactMap { key, value in
+        guard let unwrapped = Self.unwrapOptional(value) else { return nil }
+        return URLQueryItem(name: key, value: "\(unwrapped)")
+      }
     }
 
     guard let url = components.url else {
@@ -289,6 +294,13 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
     }
 
     return try buildURLRequest(url: url, method: method, parameters: parameters)
+  }
+
+  /// `nil` for a nil optional, the wrapped value for a non-nil one, the value itself otherwise.
+  private static func unwrapOptional(_ value: Any) -> Any? {
+    if case Optional<Any>.none = value { return nil }
+    if case Optional<Any>.some(let inner) = value { return inner }
+    return value
   }
 }
 

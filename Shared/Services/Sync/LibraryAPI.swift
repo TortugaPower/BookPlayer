@@ -139,6 +139,12 @@ extension LibraryAPI: Endpoint {
         "uuid": uuid as Any
       ]
     case .remoteContentsURL(let path, let uuid):
+      // `uuid` names the container; the trailing slash asks the API for its
+      // children, listed by the container's server-side key — so the listing is
+      // right even when this device still holds a pre-rename path. Requires the
+      // API contract shipped in bookplayer-api#49. (Until the GET encoder fix in
+      // NetworkClient, this uuid reached the server as `Optional("…")` and was
+      // silently ignored, so the path did all the work.)
       return [
         "relativePath": "\(path)/",
         "sign": true,

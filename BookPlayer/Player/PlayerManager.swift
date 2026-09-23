@@ -211,9 +211,13 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
       fileURL = chapterURL
     } else {
       isFetchingRemoteURL = true
+      // For a bound book the chapter is a child file and `currentItem` is the parent:
+      // sending the parent's uuid would make the API return the parent row (no file
+      // URL) instead of this chapter, so resolve bound chapters by path only.
+      let itemUUID = currentItem?.isBoundBook == true ? nil : currentItem?.uuid
       fileURL =
         try await syncService
-        .getRemoteFileURLs(of: chapter.relativePath, for: currentItem?.uuid, type: .book)[0].url
+        .getRemoteFileURLs(of: chapter.relativePath, for: itemUUID, type: .book)[0].url
       isFetchingRemoteURL = false
     }
 

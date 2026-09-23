@@ -98,11 +98,34 @@ public final class TasksDataManager: BPLogger {
 
     do {
       let tasks = try context.fetch(descriptor).first?.tasks ?? []
-      let counts = Dictionary(grouping: tasks, by: { $0.queueKey }).mapValues(\.count)
-      queueCountsSubject.send(QueueCounts(byQueueKey: counts))
+      queueCountsSubject.send(Self.queueCounts(for: tasks))
     } catch {
       queueCountsSubject.send(QueueCounts())
     }
+  }
+
+  /// Same blocking rules as `SyncQueueRepository.getNextTask`
+  static func queueCounts(for tasks: [QueuedTaskReferenceModel]) -> QueueCounts {
+    let lanes = Dictionary(grouping: tasks, by: { $0.queueKey })
+    let accountPaused = tasks.contains { $0.pauseScopeValue == .account }
+    var blocked = Set<String>()
+    for (queueKey, laneTasks) in lanes {
+      let head = laneTasks
+        .sorted { $0.position < $1.position }
+        .first { $0.pauseScopeValue != .task }
+      if (accountPaused && TaskQueueKey.isServerLane(queueKey))
+        || head?.pauseScopeValue == .lane
+        || head?.pauseScopeValue == .account {
+        blocked.insert(queueKey)
+      }
+    }
+    return QueueCounts(
+      byQueueKey: lanes.mapValues(\.count),
+      pausedByQueueKey: lanes
+        .mapValues { $0.filter { $0.pauseScope != nil }.count }
+        .filter { $0.value > 0 },
+      blockedQueueKeys: blocked
+    )
   }
 
   public func deleteAllTasks(with context: ModelContext) throws {

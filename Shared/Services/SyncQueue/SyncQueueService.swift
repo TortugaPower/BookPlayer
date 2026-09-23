@@ -24,6 +24,7 @@ public protocol SyncQueueServiceProtocol {
   func setup(
     libraryService: LibrarySyncProtocol,
     getAccessLevel: @escaping () -> AccessLevel,
+    verifySyncEntitlement: @escaping () async -> Bool?,
     tasksDataManager: TasksDataManager,
     networkClient: NetworkClientProtocol,
     dataManager: DataManager
@@ -46,6 +47,21 @@ public protocol SyncQueueServiceProtocol {
   /// subscription lapse, leaving the tier-independent externalUpdate operations running.
   /// Logout cancels everything via the `.logout` observer instead.
   func cancelServerQueueOperations()
+
+  /// Whether the BookPlayer-server lanes (`sync`, `uploadFile`) may run. Mirrors
+  /// `SyncService.isActive`; starts off.
+  var serverLanesEnabled: Bool { get }
+
+  /// Gates the BookPlayer-server lanes without touching their persisted tasks. Off holds
+  /// them (a lapsed account's tasks would otherwise be rejected by the server forever);
+  /// on wakes them.
+  func setServerLanesEnabled(_ enabled: Bool)
+
+  /// The user's Retry on a parked task: back to pending, and its lane wakes
+  func retryPausedTask(id: String)
+
+  /// Remembers the Sentry event that reported a pause, so it's never reported twice
+  func recordPauseReport(eventId: String, forTask taskId: String)
 }
 
 public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
@@ -70,6 +86,16 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
   }
   // Tracks which queueKeys currently have an active worker looping
   private var activeQueueKeys = Set<String>()
+  /// Off until SyncService reports the account's sync state: workers wake in `setup`,
+  /// before SyncService is set up, and a lapsed account's persisted tasks must never
+  /// reach the server. Guarded by `stateLock`, together with `activeQueueKeys`.
+  private var _serverLanesEnabled = false
+  /// Whether coded failures park (kept, visible, retryable) or are dropped. Off on the
+  /// watch, which has no Queued Tasks screen to show or retry them from. Set before `setup`.
+  public var parkingEnabled = true
+  /// Fresh RevenueCat read of the sync entitlement (nil = the check failed), for an
+  /// account-level rejection. Its update also drives the lapse path when inactive.
+  var verifySyncEntitlement: (() async -> Bool?)!
   private let stateLock = NSLock()
   private let policyLock = NSLock()
   private var disposeBag = Set<AnyCancellable>()
@@ -107,12 +133,14 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
   public func setup(
     libraryService: LibrarySyncProtocol,
     getAccessLevel: @escaping () -> AccessLevel,
+    verifySyncEntitlement: @escaping () async -> Bool?,
     tasksDataManager: TasksDataManager,
     networkClient: NetworkClientProtocol,
     dataManager: DataManager
   ) {
     self.libraryService = libraryService
     self.getAccessLevel = getAccessLevel
+    self.verifySyncEntitlement = verifySyncEntitlement
     self.networkClient = networkClient
     self.dataManager = dataManager
     self.taskContainer = SyncQueueRepository(tasksDataManager: tasksDataManager)
@@ -124,7 +152,9 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
     // persisted upload may run — waking workers first only worked because wakeUpWorkers
     // happens to suspend on the repository actor before any pop
     updateAccessPolicy(getAccessLevel())
-    wakeUpWorkers()
+    // The one automatic retry of parked tasks: a server-side fix (or a fixed app build)
+    // gets its chance on the next launch, without retrying anything in between
+    wakeUpWorkers(resumingPausedTasks: true)
   }
 
   /// Ownership norm (same as SyncService): the service re-derives its own per-job
@@ -180,9 +210,12 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
   }
 
   /// Call this when the app wakes up, or when a new task is added to the database
-  func wakeUpWorkers() {
+  func wakeUpWorkers(resumingPausedTasks: Bool = false) {
     // Get all unique queue keys that currently have pending tasks
     Task {
+      if resumingPausedTasks {
+        await taskContainer.resumeAllPaused()
+      }
       // Now you can safely await the actor!
       let pendingKeys = await taskContainer.getAllQueueKeys()
 
@@ -215,7 +248,35 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
     return tasksDataManager.observeQueueCounts()
   }
 
+  public var serverLanesEnabled: Bool {
+    stateLock.withLock { _serverLanesEnabled }
+  }
+
+  public func setServerLanesEnabled(_ enabled: Bool) {
+    let changed = stateLock.withLock {
+      defer { _serverLanesEnabled = enabled }
+      return _serverLanesEnabled != enabled
+    }
+    // Turning off needs no action here: each worker retires at its next pop
+    if changed, enabled {
+      wakeUpWorkers()
+    }
+  }
+
   private func enqueueNextTask(for queueKey: String) async {
+    // Checked before every pop, not just at wake-up, so a worker already looping when
+    // sync turns off stops after its current task instead of draining the lane
+    if TaskQueueKey.isServerLane(queueKey) {
+      let retired = stateLock.withLock {
+        guard !_serverLanesEnabled else { return false }
+        activeQueueKeys.remove(queueKey)
+        return true
+      }
+      // Checking the flag and retiring under one lock means an enable either happened
+      // before (we keep going) or will see this key inactive and wake a fresh worker
+      if retired { return }
+    }
+
     // 1. AWAIT the actor to safely fetch the next task
     guard let nextTask = await taskContainer.getNextTask(for: queueKey) else {
       // The queue is empty! Use scoped locking to remove the key.
@@ -224,7 +285,9 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
       }
       // Re-check after retiring: a task stored between the empty fetch and the
       // removal above would have seen an "active" worker and skipped waking one.
-      if await taskContainer.getNextTask(for: queueKey) != nil {
+      // A peek: getNextTask would mark a task in flight while another worker may be
+      // running a different one
+      if await taskContainer.hasRunnableTask(for: queueKey) {
         await startWorkerLoop(for: queueKey)
       }
       return
@@ -270,8 +333,8 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
           await self.handleFinishedOperation(operation, task: nextTask)
           await self.taskContainer.pop(nextTask)
         } else {
-          if let syncOperation = operation as? LibraryItemSyncOperation,
-             let error = syncOperation.error {
+          let error = (operation as? LibraryItemSyncOperation)?.error
+          if let error {
             Self.logger.error("Sync task failed: \(error.localizedDescription)")
             await MainActor.run {
               self.lastSyncError = SyncErrorInfo(
@@ -282,7 +345,7 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
               )
             }
           }
-          try? await Task.sleep(for: .seconds(5))
+          await self.handleFailedOperation(error: error, task: nextTask)
         }
 
         // 3. AWAIT the recursive call
@@ -298,6 +361,100 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
     }
 
     operationQueue.addOperation(operation)
+  }
+
+  /// Retry (the usual 5 s), park, drop, or confirm the account, per `SyncFailurePolicy`.
+  /// Returns once the next pop may happen.
+  private func handleFailedOperation(error: Error?, task: QueuedSyncTask) async {
+    let action = SyncFailurePolicy.action(
+      for: error,
+      jobType: task.jobType,
+      parkingEnabled: parkingEnabled
+    )
+    guard
+      action != .retry,
+      let error = error as? BookPlayerError,
+      case .networkErrorWithCode(let message, let code, let status) = error
+    else {
+      try? await Task.sleep(for: .seconds(5))
+      return
+    }
+
+    switch action {
+    case .retry:
+      break
+    case .drop:
+      Self.logger.error("Dropping \(task.jobType.rawValue) task \(task.id): the server answered \(code)")
+      await taskContainer.pop(task)
+    case .park(let scope):
+      await park(task, scope: scope, code: code, message: message, status: status)
+    case .verifyAccount:
+      // Every server lane holds from here: the rejection is about the account, so the
+      // next task would get the same answer
+      guard
+        let pause = await park(task, scope: .account, code: code, message: message, status: status, report: false)
+      else { return }
+      // Off the worker: the lanes already wait on the pause
+      Task {
+        // Inactive: the fetch's account update runs the lapse path, which clears these
+        // lanes. Active, or the check failed: the server disagrees with RevenueCat, so the
+        // tasks stay held (launch retry, Retry) and it's reported.
+        guard await self.verifySyncEntitlement() != false else { return }
+        self.reportPause(of: task, pause: pause)
+      }
+    }
+  }
+
+  @discardableResult
+  private func park(
+    _ task: QueuedSyncTask,
+    scope: TaskPauseScope,
+    code: String,
+    message: String,
+    status: Int,
+    report: Bool = true
+  ) async -> TaskPause? {
+    Self.logger.error("Pausing \(task.jobType.rawValue) task \(task.id) (\(scope.rawValue)): the server answered \(code)")
+    guard
+      let pause = await taskContainer.park(
+        taskId: task.id,
+        pause: TaskPause(scope: scope, errorCode: code, message: message, httpStatus: status, pausedAt: Date())
+      )
+    else { return nil }
+    if report {
+      reportPause(of: task, pause: pause)
+    }
+    return pause
+  }
+
+  /// Once per task: a re-park after a launch retry or Retry was already reported
+  private func reportPause(of task: QueuedSyncTask, pause: TaskPause) {
+    guard pause.sentryEventId == nil else { return }
+    let parked = QueuedSyncTask(
+      id: task.id,
+      queueKey: task.queueKey,
+      jobType: task.jobType,
+      parameters: [:],
+      uuid: task.uuid,
+      relativePath: task.relativePath,
+      pause: pause
+    )
+    Task { @MainActor in
+      NotificationCenter.default.post(name: .syncTaskPaused, object: parked)
+    }
+  }
+
+  public func retryPausedTask(id: String) {
+    Task {
+      await taskContainer.resume(taskId: id)
+      wakeUpWorkers()
+    }
+  }
+
+  public func recordPauseReport(eventId: String, forTask taskId: String) {
+    Task {
+      await taskContainer.setSentryEventId(eventId, forTask: taskId)
+    }
   }
 
   public func getOrderedQueuedJobs(activeTaskIDs: Set<String>) async -> [QueuedSyncTask] {
@@ -418,6 +575,8 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
       /// from the provider via `externalResourceToDownload`
       if task.parameters["provider"] as? String == nil {
         handleUploadResult(result)
+      } else {
+        SyncJobScheduler.removeHardLink(at: URL(string: result.filePath))
       }
     }
   }
@@ -522,12 +681,7 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
   /// operation's own success/4xx/cancel cleanup paths (a real Processed-folder file
   /// must never be deleted here).
   private func cleanUpDroppedUploadTempLink(_ task: QueuedSyncTask) {
-    guard
-      let filePath = task.parameters["filePath"] as? String,
-      let fileURL = URL(string: filePath),
-      fileURL.path.hasPrefix(FileManager.default.temporaryDirectory.path)
-    else { return }
-    try? FileManager.default.removeItem(at: fileURL)
+    SyncJobScheduler.removeHardLink(at: (task.parameters["filePath"] as? String).flatMap(URL.init(string:)))
   }
 }
 
@@ -560,6 +714,8 @@ extension SyncQueueService {
 
   public func scheduleFileUpload(params: [String: Any]) {
     guard accessPolicy[.uploadFile] == true else {
+      /// No upload will read the temp hard link scheduled for it
+      SyncJobScheduler.removeHardLink(at: (params["filePath"] as? String).flatMap(URL.init(string:)))
       return
     }
 
