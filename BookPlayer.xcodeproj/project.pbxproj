@@ -135,6 +135,7 @@
 		28EEB2588DE468A6B8C15272 /* RefreshTaskOperationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65962B5F03D221629A83C22C /* RefreshTaskOperationTests.swift */; };
 		3EBBB264D481A0F2DF48763E /* ListSyncRefreshServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 098A98893A8783E8BE1C5420 /* ListSyncRefreshServiceTests.swift */; };
 		FDA22898B1CD320A1D8F6C52 /* QueuedTaskDisplayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDC06443EFD052E697036798 /* QueuedTaskDisplayTests.swift */; };
+		74054210C96493349539697D /* NetworkClientQueryEncodingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5359C57600F2E373E8F33D39 /* NetworkClientQueryEncodingTests.swift */; };
 		41640A3724416EE8004FB97B /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = 41640A3624416EE8004FB97B /* Intents.intentdefinition */; settings = {ATTRIBUTES = (no_codegen, ); }; };
 		41640A452441ACE2004FB97B /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = 41640A3624416EE8004FB97B /* Intents.intentdefinition */; };
 		4165EE0520A743D500616EDF /* BookPlayer.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 4165EDF920A743D500616EDF /* BookPlayer.xcdatamodeld */; };
@@ -1264,6 +1265,7 @@
 		65962B5F03D221629A83C22C /* RefreshTaskOperationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshTaskOperationTests.swift; sourceTree = "<group>"; };
 		098A98893A8783E8BE1C5420 /* ListSyncRefreshServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListSyncRefreshServiceTests.swift; sourceTree = "<group>"; };
 		EDC06443EFD052E697036798 /* QueuedTaskDisplayTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueuedTaskDisplayTests.swift; sourceTree = "<group>"; };
+		5359C57600F2E373E8F33D39 /* NetworkClientQueryEncodingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkClientQueryEncodingTests.swift; sourceTree = "<group>"; };
 		4163E314214ACB4300072AA2 /* DataTestUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataTestUtils.swift; sourceTree = "<group>"; };
 		41640A1F24416774004FB97B /* IntentsUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IntentsUI.framework; path = System/Library/Frameworks/IntentsUI.framework; sourceTree = SDKROOT; };
 		41640A3624416EE8004FB97B /* Intents.intentdefinition */ = {isa = PBXFileReference; lastKnownFileType = file.intentdefinition; path = Intents.intentdefinition; sourceTree = "<group>"; };
@@ -2474,6 +2476,7 @@
 				65962B5F03D221629A83C22C /* RefreshTaskOperationTests.swift */,
 				098A98893A8783E8BE1C5420 /* ListSyncRefreshServiceTests.swift */,
 				EDC06443EFD052E697036798 /* QueuedTaskDisplayTests.swift */,
+				5359C57600F2E373E8F33D39 /* NetworkClientQueryEncodingTests.swift */,
 				41C3CF7D20AEA5E5007C3EF4 /* DataManagerTests.swift */,
 				9F8A9A5D27AC3F8C0093AA1C /* PlayableItemTests.swift */,
 				689E2BCD29DC1D9253949A53 /* PlayableChapterTests.swift */,
@@ -5275,6 +5278,7 @@
 				28EEB2588DE468A6B8C15272 /* RefreshTaskOperationTests.swift in Sources */,
 				3EBBB264D481A0F2DF48763E /* ListSyncRefreshServiceTests.swift in Sources */,
 				FDA22898B1CD320A1D8F6C52 /* QueuedTaskDisplayTests.swift in Sources */,
+				74054210C96493349539697D /* NetworkClientQueryEncodingTests.swift in Sources */,
 				0CEC6B48350FC9C0A0B7D1C0 /* SyncTasksStorageTests.swift in Sources */,
 				1A26F7D72FFD6D625A313FC5 /* AudioMetadataServiceTests.swift in Sources */,
 				466E4B7066F10717C8CE7B3E /* LibraryServiceReloadChaptersTests.swift in Sources */,
