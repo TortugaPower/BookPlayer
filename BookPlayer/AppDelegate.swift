@@ -447,7 +447,24 @@ extension AppDelegate {
     let request = BGAppRefreshTaskRequest(identifier: refreshTaskIdentifier)
     request.earliestBeginDate = Date(timeIntervalSinceNow: 15 * 60)
 
-    try? BGTaskScheduler.shared.submit(request)
+    submitBackgroundTask(request)
+  }
+
+  /// `submit(_:)` is deprecated from iOS 27 in favor of `submitTaskRequest`.
+  func submitBackgroundTask(
+    _ request: BGTaskRequest,
+    completion: @escaping @Sendable ((any Error)?) -> Void = { _ in }
+  ) {
+    if #available(iOS 27, *) {
+      BGTaskScheduler.shared.submitTaskRequest(request, completionHandler: completion)
+    } else {
+      do {
+        try BGTaskScheduler.shared.submit(request)
+        completion(nil)
+      } catch {
+        completion(error)
+      }
+    }
   }
 
   func handleAppRefresh(task: BGAppRefreshTask) {
@@ -509,11 +526,13 @@ extension AppDelegate {
       request.earliestBeginDate = Date(timeIntervalSinceNow: 24 * 60 * 60)
     }
 
-    do {
-      try BGTaskScheduler.shared.submit(request)
-      Self.logger.info("Database backup scheduled for: \(request.earliestBeginDate?.description ?? "unknown")")
-    } catch {
-      Self.logger.error("Failed to schedule database backup: \(error.localizedDescription)")
+    let scheduledFor = request.earliestBeginDate?.description ?? "unknown"
+    submitBackgroundTask(request) { error in
+      if let error {
+        Self.logger.error("Failed to schedule database backup: \(error.localizedDescription)")
+      } else {
+        Self.logger.info("Database backup scheduled for: \(scheduledFor)")
+      }
     }
   }
 

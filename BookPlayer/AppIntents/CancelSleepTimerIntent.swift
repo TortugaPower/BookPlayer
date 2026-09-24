@@ -9,7 +9,7 @@
 import Foundation
 import AppIntents
 
-@available(iOS 16.4, macOS 14.0, watchOS 10.0, *)
+@available(macOS 14.0, watchOS 10.0, *)
 struct CancelSleepTimerIntent: AppIntent {
   static var title: LocalizedStringResource = "intent_sleeptimer_cancel"
 
