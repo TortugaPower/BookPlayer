@@ -724,16 +724,12 @@ class JellyfinConnectionService: BPLogger {
   }
 
   func createItemDownloadUrl(_ item: JellyfinLibraryItem) throws -> URL {
-    guard let client else {
+    guard client != nil else {
       throw IntegrationError.noClient("Jellyfin")
     }
 
     let request = Paths.getDownload(itemID: item.id)
-    var components = try createUrlComponentsForApiRequest(request)
-
-    var queryItems = components.queryItems ?? []
-    queryItems.append(URLQueryItem(name: "api_key", value: client.accessToken))
-    components.queryItems = queryItems
+    let components = try createUrlComponentsForApiRequest(request)
 
     guard let url = components.url else {
       throw IntegrationError.urlFromComponents(components)
@@ -742,11 +738,19 @@ class JellyfinConnectionService: BPLogger {
     return url
   }
 
-  /// Returns a URLRequest for downloading a library item, carrying the user-defined
-  /// custom HTTP headers (needed for servers behind Cloudflare Access etc.).
+  /// Returns a URLRequest for downloading a library item, carrying the access token plus the
+  /// user-defined custom HTTP headers (needed for servers behind Cloudflare Access etc.).
+  ///
+  /// The token goes in the `Authorization` header, not in an `?api_key=` query item: Jellyfin 12
+  /// servers can reject the query token with a 401, and a token in the URL leaks into the download task's
+  /// persisted `taskDescription`. It is set after the custom headers, so they can't clobber it.
   func createItemDownloadRequest(_ item: JellyfinLibraryItem) throws -> URLRequest {
     let url = try createItemDownloadUrl(item)
-    return wrapWithCustomHeaders(url)
+    var request = wrapWithCustomHeaders(url)
+    if let accessToken = client?.accessToken {
+      request.setValue("MediaBrowser Token=\"\(accessToken)\"", forHTTPHeaderField: "Authorization")
+    }
+    return request
   }
 
   /// Wraps an arbitrary URL (e.g. a cover image) in a URLRequest carrying the current
