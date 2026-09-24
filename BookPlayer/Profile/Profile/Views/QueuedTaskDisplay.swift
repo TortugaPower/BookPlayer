@@ -65,14 +65,16 @@ extension Array where Element == QueuedSyncTask {
 }
 
 extension QueuedSyncTask {
-  /// Sync-lane jobs name the item they touch (the library match names the whole library);
-  /// file uploads and provider pushes describe the work instead.
+  /// Jobs name the item they touch (the library match names the whole library); a provider
+  /// push describes the work instead, since the row's lane already names the provider.
   var displayTitle: String {
     switch jobType {
     case .matchUuid:
       return "sync_library_title".localized
     case .uploadFile:
-      return "task_uploading_file_label".localized
+      // The reference carries the library key (see `handleUploadResult`), so the upload lane
+      // names the file like every other row — fall back only if a legacy task stored none.
+      return relativePath.isEmpty ? "task_uploading_file_label".localized : relativePath
     case .externalUpdate:
       return String(format: "task_updating_progress_label".localized, QueueDisplay.name(for: queueKey))
     default:
