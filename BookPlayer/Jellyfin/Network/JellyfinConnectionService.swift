@@ -494,7 +494,7 @@ class JellyfinConnectionService: BPLogger {
   }
 
   /// Fetch narrators by scanning audiobook items for People with "Narrator" role or type.
-  /// Jellyfin doesn't have a native "Narrator" person kind, so we extract them from item metadata.
+  /// Jellyfin has no narrator endpoint, so we extract them from item metadata.
   public func fetchNarrators(
     parentID: String? = nil,
     searchTerm: String? = nil,
@@ -511,20 +511,29 @@ class JellyfinConnectionService: BPLogger {
       enableImages: false
     )
 
-    let response = try await send(Paths.getItems(parameters: parameters))
+    // Raw data: the SDK's `PersonKind` has no "Narrator" case, so its decode would throw (#1602)
+    let response = try await send { try await $0.data(for: Paths.getItems(parameters: parameters)) }
     try Task.checkCancellation()
 
-    // Extract unique narrators from People arrays
+    let narratorItems = try Self.narrators(fromItemsResponse: response.value)
+
+    return (narratorItems, narratorItems.count)
+  }
+
+  /// Extracts unique narrators, sorted by name, from a `/Items` response that includes `People`.
+  nonisolated static func narrators(fromItemsResponse data: Data) throws -> [JellyfinLibraryItem] {
+    let response = try JSONDecoder().decode(JellyfinPeopleResponse.self, from: data)
+
     var seenNames = Set<String>()
     var narratorItems = [JellyfinLibraryItem]()
 
-    for apiItem in response.value.items ?? [] {
+    for apiItem in response.items ?? [] {
       for person in apiItem.people ?? [] {
         guard let name = person.name, !name.isEmpty else { continue }
 
         let isNarrator =
           person.role?.localizedCaseInsensitiveContains("narrator") == true
-          || person.type?.rawValue.localizedCaseInsensitiveContains("narrator") == true
+          || person.type?.localizedCaseInsensitiveContains("narrator") == true
 
         guard isNarrator, !seenNames.contains(name) else { continue }
         seenNames.insert(name)
@@ -538,7 +547,7 @@ class JellyfinConnectionService: BPLogger {
 
     narratorItems.sort { $0.name.localizedCaseInsensitiveCompare($1.name) == .orderedAscending }
 
-    return (narratorItems, narratorItems.count)
+    return narratorItems
   }
 
   /// Fetch audiobooks by a specific narrator (person name or ID).
@@ -597,10 +606,10 @@ class JellyfinConnectionService: BPLogger {
   }
 
   public func fetchItemDetails(for id: String) async throws -> JellyfinAudiobookDetailsData {
-    let response = try await send(Paths.getItem(itemID: id))
+    let response = try await send { try await $0.data(for: Paths.getItem(itemID: id)) }
     try Task.checkCancellation()
 
-    let itemInfo = response.value
+    let itemInfo = try Self.decodeLeniently(BaseItemDto.self, from: response.value)
     let artist: String? = itemInfo.albumArtist
     let filePath: String? = itemInfo.mediaSources?.first?.path ?? itemInfo.path
     let fileSize: Int? = itemInfo.mediaSources?.first?.size
@@ -649,12 +658,18 @@ class JellyfinConnectionService: BPLogger {
   private func send<T>(
     _ request: Request<T>
   ) async throws -> Response<T> where T: Decodable {
+    try await send { try await $0.send(request) }
+  }
+
+  private func send<Value>(
+    _ operation: (JellyfinClient) async throws -> Value
+  ) async throws -> Value {
     guard let client else {
       throw IntegrationError.noClient("Jellyfin")
     }
 
     do {
-      return try await client.send(request)
+      return try await operation(client)
     } catch APIError.unacceptableStatusCode(let status)
             where (status == 401 || status == 403) && connection != nil {
       // Mid-session unauthorized — the saved access token is no longer accepted (server
@@ -669,6 +684,72 @@ class JellyfinConnectionService: BPLogger {
         serverName: connection?.serverName ?? "Jellyfin"
       )
     }
+  }
+
+  /// Decodes a Jellyfin response the same way as the SDK, but does not fail on a `People[].Type`
+  /// value that the SDK's `PersonKind` does not know (for example "Narrator" in SDK 0.4, #1602).
+  /// Only when the normal decode fails, such values are replaced with "Unknown" and decoded again.
+  nonisolated static func decodeLeniently<T: Decodable>(_ type: T.Type, from data: Data) throws -> T {
+    // Same date formats as the SDK's `OpenISO8601DateFormatter`, whose initializer is internal
+    let dateFormatters = ["yyyy-MM-dd'T'HH:mm:ss.SSSZZZZZ", "yyyy-MM-dd'T'HH:mm:ssZZZZZ"].map { format in
+      let formatter = DateFormatter()
+      formatter.calendar = Calendar(identifier: .iso8601)
+      formatter.locale = Locale(identifier: "en_US_POSIX")
+      formatter.timeZone = TimeZone(secondsFromGMT: 0)
+      formatter.dateFormat = format
+      return formatter
+    }
+    let decoder = JSONDecoder()
+    decoder.dateDecodingStrategy = .custom { decoder in
+      let container = try decoder.singleValueContainer()
+      let string = try container.decode(String.self)
+      guard let date = dateFormatters.lazy.compactMap({ $0.date(from: string) }).first else {
+        throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid date: \(string)")
+      }
+      return date
+    }
+
+    do {
+      return try decoder.decode(type, from: data)
+    } catch let error as DecodingError {
+      guard
+        var json = try? JSONSerialization.jsonObject(with: data),
+        replaceUnknownPersonKinds(in: &json),
+        let sanitizedData = try? JSONSerialization.data(withJSONObject: json)
+      else {
+        throw error
+      }
+      return try decoder.decode(type, from: sanitizedData)
+    }
+  }
+
+  /// Sets every unknown `Type` inside a `People` array to "Unknown". Returns `true` if it changed a value.
+  private nonisolated static func replaceUnknownPersonKinds(in json: inout Any) -> Bool {
+    var changed = false
+
+    if var array = json as? [Any] {
+      for index in array.indices where replaceUnknownPersonKinds(in: &array[index]) {
+        changed = true
+      }
+      if changed { json = array }
+    } else if var object = json as? [String: Any] {
+      for key in Array(object.keys) {
+        if key == "People", var people = object[key] as? [[String: Any]] {
+          for index in people.indices {
+            guard let kind = people[index]["Type"] as? String, PersonKind(rawValue: kind) == nil else { continue }
+            people[index]["Type"] = PersonKind.unknown.rawValue
+            changed = true
+          }
+          object[key] = people
+        } else if var child = object[key], replaceUnknownPersonKinds(in: &child) {
+          object[key] = child
+          changed = true
+        }
+      }
+      if changed { json = object }
+    }
+
+    return changed
   }
 
   /// Pure factory: builds a client + injector pair without touching `self`. Used by
@@ -804,5 +885,37 @@ class JellyfinConnectionService: BPLogger {
     }
 
     return components
+  }
+}
+
+/// The part of a `/Items` response that ``JellyfinConnectionService/narrators(fromItemsResponse:)``
+/// reads. `type` is a `String`, so person kinds that the SDK's `PersonKind` does not know still decode.
+private struct JellyfinPeopleResponse: Decodable {
+  struct Item: Decodable {
+    let people: [Person]?
+
+    enum CodingKeys: String, CodingKey {
+      case people = "People"
+    }
+  }
+
+  struct Person: Decodable {
+    let name: String?
+    let id: String?
+    let role: String?
+    let type: String?
+
+    enum CodingKeys: String, CodingKey {
+      case name = "Name"
+      case id = "Id"
+      case role = "Role"
+      case type = "Type"
+    }
+  }
+
+  let items: [Item]?
+
+  enum CodingKeys: String, CodingKey {
+    case items = "Items"
   }
 }
