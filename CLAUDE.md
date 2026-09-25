@@ -109,7 +109,7 @@ a build phase) and its output is committed.
    `MainCoordinator`, retains it, and calls `start()`.
 5. `MainCoordinator.start()` hosts SwiftUI `MainView` inside `AppHostingViewController` (a `UIHostingController`
    subclass that only overrides orientation) and **modally presents it full-screen** over the loading nav
-   controller. `MainView` is a `TabView` (Library / Profile / Settings [+ iOS 26 Search]) with a mini-player
+   controller. `MainView` is a `TabView` (Library / Profile / Settings [+ Search on iPhone]) with a mini-player
    overlay and a `.fullScreenCover` for the player.
 
 **Invariant:** the strong chain `SceneDelegate → LoadingCoordinator.mainCoordinator → MainCoordinator` is the

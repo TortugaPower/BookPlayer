@@ -221,12 +221,6 @@ extension View {
   }
 }
 
-extension WidgetConfiguration {
-  public func contentMarginsDisabledIfAvailable() -> some WidgetConfiguration {
-    return self.contentMarginsDisabled()
-  }
-}
-
 #if os(iOS)
   extension WidgetUtils {
     class func isValidSize(image: UIImage) -> Bool {

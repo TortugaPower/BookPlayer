@@ -138,7 +138,7 @@ struct RecentBooksWidget: Widget {
     .configurationDisplayName("Recent Books")
     .description("See the recent played books")
     .supportedFamilies([.systemMedium])
-    .contentMarginsDisabledIfAvailable()
+    .contentMarginsDisabled()
   }
 }
 
