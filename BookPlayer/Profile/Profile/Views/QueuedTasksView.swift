@@ -63,7 +63,8 @@ struct QueuedTasksView: View, BPLogger {
                   isUpload: task.tracksByteProgress,
                   pause: task.pause,
                   onRetry: { syncQueueService.retryPausedTask(id: task.id) },
-                  onReport: { report(task) }
+                  onReport: { report(task) },
+                  onDismiss: { syncQueueService.dismissPausedTask(id: task.id) }
                 )
               }
             } label: {

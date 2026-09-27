@@ -1238,3 +1238,59 @@ extension SyncQueueTests {
     XCTAssertEqual(URL(string: result.filePath)?.path, fileURL.path)
   }
 }
+
+// MARK: - Dismiss (too-large uploads only)
+
+extension SyncQueueTests {
+  func testDismiss_removesATooLargeUploadAndItsLink() async throws {
+    let service = makeGatedEngine()
+    let link = FileManager.default.temporaryDirectory.appendingPathComponent("dismiss-\(UUID().uuidString).m4b")
+    try Data("x".utf8).write(to: link)
+    defer { try? FileManager.default.removeItem(at: link) }
+    var params = uploadFileParams(id: "big")
+    params["filePath"] = link.absoluteString
+    try await repository.storeTask(parameters: params)
+    await repository.park(
+      taskId: "big",
+      pause: TaskPause(scope: .task, errorCode: "file_too_large", message: "m", httpStatus: nil, pausedAt: Date())
+    )
+
+    service.dismissPausedTask(id: "big")
+
+    try await waitForEmptyQueue()
+    // The link goes right after the pop, off the actor
+    let deadline = Date().addingTimeInterval(2)
+    while Date() < deadline, FileManager.default.fileExists(atPath: link.path) {
+      try await Task.sleep(for: .milliseconds(20))
+    }
+    XCTAssertFalse(FileManager.default.fileExists(atPath: link.path))
+  }
+
+  func testDismiss_ignoresATaskThatIsNotParked() async throws {
+    let service = makeGatedEngine()
+    try await repository.storeTask(parameters: uploadFileParams(id: "pending"))
+
+    service.dismissPausedTask(id: "pending")
+    service.dismissPausedTask(id: "unknown")
+    try await Task.sleep(for: .milliseconds(300))
+
+    let tasks = await repository.getAllTasks()
+    XCTAssertEqual(tasks.map(\.id), ["pending"])
+  }
+
+  /// Server-refused tasks never get a Skip: Dismiss refuses them
+  func testDismiss_refusesAnyOtherPause() async throws {
+    let service = makeGatedEngine()
+    try await repository.storeTask(parameters: uploadFileParams(id: "refused"))
+    await repository.park(
+      taskId: "refused",
+      pause: TaskPause(scope: .task, errorCode: "invalid_parts", message: "m", httpStatus: 422, pausedAt: Date())
+    )
+
+    service.dismissPausedTask(id: "refused")
+    try await Task.sleep(for: .milliseconds(300))
+
+    let tasks = await repository.getAllTasks()
+    XCTAssertEqual(tasks.map(\.id), ["refused"])
+  }
+}

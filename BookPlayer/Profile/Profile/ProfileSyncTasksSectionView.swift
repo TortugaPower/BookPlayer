@@ -14,7 +14,7 @@ struct ProfileSyncTasksSectionView: View {
   @State private var statusMessage: String = ""
   /// Every lane, summed by the engine that owns them all
   @State private var queuedCount = 0
-  /// Parked tasks across every lane: they need the user, so they replace the sync status
+  /// Parked tasks across every lane: the title turns into a warning while any need the user
   @State private var pausedCount = 0
 
   private var buttonText: String {
@@ -27,19 +27,22 @@ struct ProfileSyncTasksSectionView: View {
   var body: some View {
     NavigationLink(value: ProfileScreen.queueTasks) {
       VStack {
-        Text(buttonText)
-          .bpFont(.body)
-          .foregroundStyle(theme.linkColor)
-        if pausedCount > 0 {
-          Text(String.localizedStringWithFormat("sync_paused_caption".localized, pausedCount))
-            .bpFont(.caption)
-            .foregroundStyle(.red)
-        } else {
-          Text(statusMessage)
-            .bpFont(.caption)
-            .foregroundStyle(theme.secondaryColor)
+        HStack(spacing: Spacing.S4) {
+          if pausedCount > 0 {
+            Image(systemName: "exclamationmark.triangle.fill")
+              .accessibilityHidden(true)
+          }
+          Text(buttonText)
         }
+        .bpFont(.body)
+        .foregroundStyle(pausedCount > 0 ? .red : theme.linkColor)
+        Text(statusMessage)
+          .bpFont(.caption)
+          .foregroundStyle(theme.secondaryColor)
       }
+      // Not by colour alone: VoiceOver hears it too
+      .accessibilityElement(children: .combine)
+      .accessibilityValue(pausedCount > 0 ? "sync_tasks_need_attention_voiceover".localized : "")
     }
     .onReceive(syncQueueService.observeQueueCounts()) { counts in
       if queuedCount != counts.total {

@@ -563,6 +563,7 @@ We're working hard on providing a seamless experience, if possible, please conta
 "sync_task_retry_button" = "Retry";
 "sync_task_report_button" = "Report";
 "sync_task_paused_voiceover" = "Paused: %@";
-"sync_paused_caption" = "Sync paused: %d need attention";
 "sync_paused_alert_title" = "Sync is paused until a queued task is resolved";
 "upload_file_too_large_message" = "Larger than 10 GB, so it stays on this device and isn't backed up.";
+"sync_task_dismiss_button" = "Dismiss";
+"sync_tasks_need_attention_voiceover" = "Needs attention";

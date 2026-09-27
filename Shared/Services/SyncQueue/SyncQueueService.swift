@@ -62,6 +62,10 @@ public protocol SyncQueueServiceProtocol {
 
   /// Remembers the Sentry event that reported a pause, so it's never reported twice
   func recordPauseReport(eventId: String, forTask taskId: String)
+
+  /// Removes an upload the app refuses (a book over the size limit): the book stays on this
+  /// device only. The one dismissible pause — server-refused tasks only Retry or Report.
+  func dismissPausedTask(id: String)
 }
 
 public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
@@ -508,6 +512,20 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
     Task {
       await taskContainer.resume(taskId: id)
       wakeUpWorkers()
+    }
+  }
+
+  public func dismissPausedTask(id: String) {
+    Task {
+      guard
+        let task = await taskContainer.getAllTasks().first(where: { $0.id == id }),
+        task.pause?.errorCode == UploadFileError.fileTooLarge.code
+      else { return }
+      // The upload's own parameters name its temp link
+      let filePath = await taskContainer.getAllTasksWithParams(in: TaskQueueKey.uploadFile)
+        .first { $0.id == id }?.parameters["filePath"] as? String
+      await taskContainer.pop(task)
+      SyncJobScheduler.removeHardLink(at: filePath.flatMap(URL.init(string:)))
     }
   }
 
