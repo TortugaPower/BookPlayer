@@ -24,7 +24,6 @@ public enum LibraryAPI {
   case setBookmark(path: String, note: String?, time: Double, isActive: Bool, uuid: String)
   case uploadArtwork(path: String, filename: String, uploaded: Bool?, uuid: String)
   case matchUuids(uuidsDictionary: [String: String])
-  case externalResourceToDownload(uuid: String, uploaded: Bool)
   case deleteExternalResource(uuid: String, providerName: String, providerId: String)
   /// Multipart upload of a book's file (bookplayer-api docs/multipart-uploads.md). Every
   /// call names the book by uuid; the server derives the S3 key. Call `startUpload` only
@@ -73,8 +72,6 @@ extension LibraryAPI: Endpoint {
       return "/v1/library/uuids"
     case .externalResource:
       return "/v1/library/external"
-    case .externalResourceToDownload:
-      return "/v1/library/external_set"
     case .deleteExternalResource:
       return "/v1/library/external"
     case .startUpload:
@@ -120,8 +117,6 @@ extension LibraryAPI: Endpoint {
       return .post
     case .externalResource:
       return .put
-    case .externalResourceToDownload:
-      return .post
     case .deleteExternalResource:
       return .delete
     case .startUpload, .uploadPartURLs, .completeUpload, .abortUpload:
@@ -211,11 +206,6 @@ extension LibraryAPI: Endpoint {
       ]
     case .externalResource(let params):
       return params
-    case .externalResourceToDownload(let uuid, let uploaded):
-      return [
-        "uuid": uuid,
-        "uploaded": uploaded
-      ]
     case .deleteExternalResource(let uuid, let providerName, let providerId):
       return [
         "uuid": uuid,

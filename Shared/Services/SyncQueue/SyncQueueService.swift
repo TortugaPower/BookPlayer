@@ -96,6 +96,15 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
   /// Fresh RevenueCat read of the sync entitlement (nil = the check failed), for an
   /// account-level rejection. Its update also drives the lapse path when inactive.
   var verifySyncEntitlement: (() async -> Bool?)!
+  /// The book as it stands now, by uuid — for handing an upload the server doesn't
+  /// recognize back to the sync lane. Internal for @testable injection.
+  lazy var findSyncableItem: (String) async -> SyncableItem? = { [weak self] uuid in
+    await self?.libraryService?.fetchSyncableItem(forUuid: uuid)
+  }
+  /// Books handed back to the sync lane this session. A second `item_not_found` for one
+  /// means re-registering doesn't help (e.g. another uuid holds its key on the server):
+  /// it parks instead of cycling. Guarded by `stateLock`.
+  private var handedBackUuids = Set<String>()
   private let stateLock = NSLock()
   private let policyLock = NSLock()
   private var disposeBag = Set<AnyCancellable>()
@@ -367,6 +376,16 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
   /// Retry (the usual 5 s), park, drop, or confirm the account, per `SyncFailurePolicy`.
   /// Returns once the next pop may happen.
   private func handleFailedOperation(error: Error?, task: QueuedSyncTask) async {
+    // The server has no such book for this upload: register it again (bookplayer-api
+    // docs/multipart-uploads.md) rather than park a task the user can't fix
+    if task.jobType == .uploadFile,
+       SyncFailurePolicy.codedFailure(error)?.code == "item_not_found",
+       stateLock.withLock({ handedBackUuids.insert(task.uuid).inserted }) {
+      await handBackUpload(task)
+      try? await Task.sleep(for: .seconds(5))
+      return
+    }
+
     let action = SyncFailurePolicy.action(
       for: error,
       jobType: task.jobType,
@@ -403,6 +422,47 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
         self.reportPause(of: task, pause: pause)
       }
     }
+  }
+
+  /// Re-registers the book through the sync lane like a fresh upload — the item, its
+  /// external resources and bookmarks (`SyncService.handleItemsToUpload`); the `.upload`'s
+  /// answer schedules a new upload task — or drops the upload when the book is gone
+  /// locally too. The replacement is stored before this task is popped, so a kill in
+  /// between can't lose the upload.
+  private func handBackUpload(_ task: QueuedSyncTask) async {
+    // Before the new job links the file again at the same path
+    cleanUpDroppedUploadTempLink(task)
+    guard let item = await findSyncableItem(task.uuid) else {
+      Self.logger.info("Dropping upload \(task.id): the book is gone on the server and on this device")
+      await taskContainer.pop(task)
+      return
+    }
+    Self.logger.info("Upload \(task.id): the server lost the book, registering it again")
+    let scheduler = SyncJobScheduler(tasksRepository: taskContainer)
+    await scheduler.scheduleLibraryItemUploadJob(for: item)
+    let itemOrigin = LibraryItemRef(relativePath: item.relativePath, uuid: item.uuid)
+    for resource in item.externalResources ?? [] {
+      await scheduler.scheduleExternalResourceUpload(for: resource, itemOrigin: itemOrigin)
+    }
+    // Bookmarks are read on the view context
+    let libraryService = libraryService
+    let bookmarks = await MainActor.run {
+      libraryService?.getBookmarks(of: .user, relativePath: item.relativePath) ?? []
+    }
+    for bookmark in bookmarks {
+      await scheduler.scheduleSetBookmarkJob(
+        with: bookmark.relativePath,
+        time: floor(bookmark.time),
+        note: bookmark.note,
+        for: item.uuid
+      )
+    }
+    // A media-server book's metadata upload never schedules its file (streamed books have
+    // none yet): queue the file last, the way a finished download does
+    if item.mediaServerProviderName != nil {
+      await scheduler.scheduleResourceToDownload(with: item.relativePath, for: item.uuid)
+    }
+    await taskContainer.pop(task)
   }
 
   @discardableResult
@@ -554,8 +614,9 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
     case .matchUuid(let response):
       await handleMatchUuidsResponse(response)
     case .uploadMetadata(let result):
-      /// Provider-backed items don't upload the local file; the server pulls it
-      /// from the provider via `externalResourceToDownload`
+      /// Provider-backed items don't upload their file from the metadata upload: it goes
+      /// up once downloaded, through the `externalResourceToDownload` job (which carries no
+      /// `provider`, so its result schedules the upload here)
       if task.parameters["provider"] as? String == nil {
         handleUploadResult(result)
       } else {

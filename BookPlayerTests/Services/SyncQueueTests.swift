@@ -1082,3 +1082,159 @@ extension SyncQueueTests {
     XCTAssertTrue(FileManager.default.fileExists(atPath: link.path), "the link stays for a Retry")
   }
 }
+
+// MARK: - Sync-lane hand-offs to the upload lane
+
+extension SyncQueueTests {
+  private func syncableItem(uuid: String, mediaServer: Bool) throws -> SyncableItem {
+    let resources = mediaServer
+      ? #","externalResources":[{"providerName":"jellyfin","providerId":"jf-1","syncStatus":"stream"}]"#
+      : ""
+    let json = #"{"relativePath":"Book.m4b","originalFileName":"Book.m4b","title":"Book","isFinished":false,"type":2,"uuid":"\#(uuid)"\#(resources)}"#
+    return try JSONDecoder().decode(SyncableItem.self, from: Data(json.utf8))
+  }
+
+  /// The upload lane hit `item_not_found`: the book is registered again through the sync
+  /// lane (from its current state), and this upload task is gone
+  private func runHandBack(item: SyncableItem?) async throws -> [QueuedSyncTask] {
+    let service = makeGatedEngine()
+    // `start` answers item_not_found; everything after (the re-registration) just fails,
+    // so the new sync task stays queued for the assertions
+    service.networkClient = FailingNetworkClient(
+      errors: [BookPlayerError.networkErrorWithCode(message: "gone", code: "item_not_found", status: 404)]
+        + Array(repeating: URLError(.timedOut), count: 50)
+    )
+    service.findSyncableItem = { _ in item }
+    let link = FileManager.default.temporaryDirectory.appendingPathComponent("handback-\(UUID().uuidString).m4b")
+    try Data("0123456789".utf8).write(to: link)
+    defer { try? FileManager.default.removeItem(at: link) }
+    var params = uploadFileParams(id: "lost")
+    params["filePath"] = link.absoluteString
+    params["uuid"] = item?.uuid ?? UUID().uuidString
+    try await repository.storeTask(parameters: params)
+
+    service.setServerLanesEnabled(true)
+
+    let deadline = Date().addingTimeInterval(3)
+    var tasks = [QueuedSyncTask]()
+    while Date() < deadline {
+      tasks = await repository.getAllTasks()
+      if !tasks.contains(where: { $0.id == "lost" }) { break }
+      try await Task.sleep(for: .milliseconds(20))
+    }
+    service.setServerLanesEnabled(false)
+    return tasks
+  }
+
+  func testUploadOfABookTheServerLost_registersItAgain() async throws {
+    let uuid = UUID().uuidString
+    let tasks = try await runHandBack(item: try syncableItem(uuid: uuid, mediaServer: false))
+
+    XCTAssertFalse(tasks.contains { $0.id == "lost" })
+    XCTAssertEqual(tasks.map(\.jobType), [.upload])
+    XCTAssertEqual(tasks.first?.uuid, uuid)
+    XCTAssertNil(tasks.first?.pause)
+  }
+
+  /// A media-server book's re-registration carries `provider`, which never schedules the
+  /// file: the pipe job follows it so the file still goes up
+  func testUploadOfAMediaServerBookTheServerLost_alsoQueuesItsFile() async throws {
+    let tasks = try await runHandBack(item: try syncableItem(uuid: UUID().uuidString, mediaServer: true))
+
+    // The item, its media-server link (so `complete` has a resource to mark downloaded),
+    // then its file
+    XCTAssertEqual(tasks.map(\.jobType), [.upload, .externalResource, .externalResourceToDownload])
+  }
+
+  /// Re-registering didn't help (e.g. another uuid holds the key on the server): the second
+  /// item_not_found for the same book parks it instead of cycling PUT + start forever
+  func testSecondItemNotFound_forTheSameBook_parksInsteadOfCycling() async throws {
+    let service = makeGatedEngine()
+    let lost = BookPlayerError.networkErrorWithCode(message: "gone", code: "item_not_found", status: 404)
+    service.networkClient = FailingNetworkClient(errors: [lost, lost] + Array(repeating: URLError(.timedOut), count: 50))
+    let uuid = UUID().uuidString
+    service.findSyncableItem = { _ in nil }
+    for id in ["first", "second"] {
+      let link = FileManager.default.temporaryDirectory.appendingPathComponent("cycle-\(id)-\(UUID().uuidString).m4b")
+      try Data("0123456789".utf8).write(to: link)
+      var params = uploadFileParams(id: id)
+      params["filePath"] = link.absoluteString
+      params["uuid"] = uuid
+      try await repository.storeTask(parameters: params)
+    }
+
+    service.setServerLanesEnabled(true)
+
+    let deadline = Date().addingTimeInterval(10)
+    var tasks = [QueuedSyncTask]()
+    while Date() < deadline {
+      tasks = await repository.getAllTasks()
+      if tasks.map(\.id) == ["second"], tasks.first?.pause != nil { break }
+      try await Task.sleep(for: .milliseconds(50))
+    }
+    service.setServerLanesEnabled(false)
+    XCTAssertEqual(tasks.map(\.id), ["second"], "the first was handed back (dropped: gone locally), the second parks")
+    XCTAssertEqual(tasks.first?.pause?.errorCode, "item_not_found")
+    XCTAssertEqual(tasks.first?.pause?.scope, .task)
+  }
+
+  /// Only a media-server link marks a book as streamed: a Hardcover link has no file and
+  /// must not stop the book's own file from uploading
+  func testUploadJob_flagsOnlyMediaServerBooksAsProviderBacked() async throws {
+    let scheduler = SyncJobScheduler(tasksRepository: repository)
+    let hardcover = try JSONDecoder().decode(SyncableItem.self, from: Data(
+      #"{"relativePath":"Local.m4b","originalFileName":"Local.m4b","title":"Local","isFinished":false,"type":2,"uuid":"\#(UUID().uuidString)","externalResources":[{"providerName":"hardcover","providerId":"hc-1","syncStatus":"not_synced"}]}"#.utf8
+    ))
+    let streamed = try syncableItem(uuid: UUID().uuidString, mediaServer: true)
+
+    await scheduler.scheduleLibraryItemUploadJob(for: hardcover)
+    await scheduler.scheduleLibraryItemUploadJob(for: streamed)
+
+    let jobs = await repository.getAllTasksWithParams(in: TaskQueueKey.sync)
+    XCTAssertEqual(jobs.count, 2)
+    XCTAssertNil(jobs.first { $0.relativePath == "Local.m4b" }?.parameters["provider"])
+    XCTAssertEqual(jobs.first { $0.relativePath == "Book.m4b" }?.parameters["provider"] as? String, "jellyfin")
+  }
+
+  func testUploadOfABookGoneEverywhere_isDropped() async throws {
+    let tasks = try await runHandBack(item: nil)
+
+    XCTAssertTrue(tasks.isEmpty)
+  }
+
+  /// A downloaded media-server book's file goes to S3 through the upload lane: the job's
+  /// result schedules the upload of the local file (no server call of its own)
+  func testMediaServerDownload_queuesTheUploadOfItsFile() async throws {
+    let name = "pipe-\(UUID().uuidString).m4b"
+    let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(name)
+    try FileManager.default.createDirectory(at: DataManager.getProcessedFolderURL(), withIntermediateDirectories: true)
+    try Data("0123456789".utf8).write(to: fileURL)
+    defer { try? FileManager.default.removeItem(at: fileURL) }
+    let uuid = UUID().uuidString
+    let operation = LibraryItemSyncOperation(
+      client: FailingNetworkClient(errors: []),
+      task: SyncTask(
+        id: "pipe",
+        uuid: uuid,
+        relativePath: name,
+        jobType: .externalResourceToDownload,
+        parameters: ["id": "pipe", "uuid": uuid, "relativePath": name]
+      )
+    )
+
+    let done = expectation(description: "finished")
+    let observer = operation.observe(\.isFinished, options: [.initial, .new]) { op, _ in
+      if op.isFinished { done.fulfill() }
+    }
+    operation.start()
+    await fulfillment(of: [done], timeout: 3)
+    observer.invalidate()
+
+    XCTAssertTrue(operation.didSucceed)
+    guard case .uploadMetadata(let result) = operation.results else {
+      return XCTFail("expected the file to be handed to the upload lane")
+    }
+    XCTAssertEqual(result.uuid, uuid)
+    XCTAssertEqual(URL(string: result.filePath)?.path, fileURL.path)
+  }
+}

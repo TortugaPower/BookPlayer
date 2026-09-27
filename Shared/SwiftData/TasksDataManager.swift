@@ -376,8 +376,7 @@ public final class TasksDataManager: BPLogger {
         id: parameters["id"] as! String,
         // The producer types uuid as String? and only inserts it `if let` — match
         // storeTask's defensive read instead of trapping on a persisted absence
-        uuid: parameters["uuid"] as? String ?? "",
-        uploaded: parameters["uploaded"] as? Bool ?? false
+        uuid: parameters["uuid"] as? String ?? ""
       )
       context.insert(task)
     case .deleteExternalResource:

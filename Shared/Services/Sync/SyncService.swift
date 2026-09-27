@@ -921,7 +921,7 @@ extension SyncService {
     // Deliberately NOT gated on `isActive`: external-resource sync is tier-independent by
     // design (the reference lives in the DB for every tier and the server validates
     // entitlements) — matching getDownloadState, which permits these downloads when !isActive.
-    await jobManager.scheduleResourceToDownload(with: relativePath, for: snapshot.uuid, uploaded: false)
+    await jobManager.scheduleResourceToDownload(with: relativePath, for: snapshot.uuid)
   }
 
   /// Backstop against truncated/botched downloads that finish without surfacing a

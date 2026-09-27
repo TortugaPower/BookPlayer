@@ -422,16 +422,13 @@ public enum SchemaV3: VersionedSchema {
   public class ExternalResourceToDownloadTaskModel {
     @Attribute(.unique) public var id: String
     public var uuid: String
-    public var uploaded: Bool
 
     public init(
       id: String,
-      uuid: String,
-      uploaded: Bool
+      uuid: String
     ) {
       self.id = id
       self.uuid = uuid
-      self.uploaded = uploaded
     }
   }
 

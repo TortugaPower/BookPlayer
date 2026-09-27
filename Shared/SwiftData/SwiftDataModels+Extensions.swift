@@ -210,7 +210,6 @@ extension ExternalResourceToDownloadTaskModel: DictionaryConvertible {
     return [
       "id": id,
       "uuid": uuid,
-      "uploaded": uploaded
     ]
   }
 }

@@ -57,6 +57,11 @@ public protocol LibrarySyncProtocol {
   /// The item's current path, read on a background context (an upload in the background
   /// finds its book's file by uuid after the user moved it)
   func fetchRelativePath(forUuid uuid: String) async -> String?
+
+  /// The item as the server would register it, found by uuid on a background context: an
+  /// upload the server no longer recognizes is re-registered from the book's CURRENT state
+  /// (a stale path would make the server move another item into place)
+  func fetchSyncableItem(forUuid uuid: String) async -> SyncableItem?
 }
 
 extension LibraryService: LibrarySyncProtocol {
@@ -109,6 +114,23 @@ extension LibraryService: LibrarySyncProtocol {
           Self.logger.error("Failed to look up the item \(uuid): \(error)")
           continuation.resume(returning: nil)
         }
+      }
+    }
+  }
+
+  public func fetchSyncableItem(forUuid uuid: String) async -> SyncableItem? {
+    guard Constants.isRealUuid(uuid) else { return nil }
+    return await withCheckedContinuation { continuation in
+      let context = dataManager.getBackgroundContext()
+      context.perform { [unowned self, context] in
+        let fetchRequest = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
+        fetchRequest.propertiesToFetch = SyncableItem.fetchRequestProperties
+        fetchRequest.resultType = .dictionaryResultType
+        fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.uuid), uuid)
+        fetchRequest.fetchLimit = 1
+
+        let results = try? context.fetch(fetchRequest) as? [[String: Any]]
+        continuation.resume(returning: parseSyncableItems(from: results, context: context)?.first)
       }
     }
   }

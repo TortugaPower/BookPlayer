@@ -309,67 +309,21 @@ extension LibraryItemSyncOperation {
 }
 
 extension LibraryItemSyncOperation {
+  /// A media-server book finished downloading on a PRO account: its file goes to S3 like
+  /// any book's, through the upload lane. Run from the sync lane so it follows the task
+  /// that created the item's row; `complete` marks its media-server resources downloaded.
   func handleExternalResourceToDownload() async throws {
-    let response: UploadItemContent = try await self.provider.request(
-      .externalResourceToDownload(uuid: uuid, uploaded: false)
-    )
-    
     let hardLinkURL = SyncJobScheduler.hardLinkURL(for: self.relativePath)
     let fileURL = FileManager.default.fileExists(atPath: hardLinkURL.path)
       ? hardLinkURL
       : DataManager.getProcessedFolderURL().appendingPathComponent(self.relativePath)
-    
-    guard FileManager.default.fileExists(atPath: fileURL.path),
-    let remoteUrl = response.url else {
-      // Consuming on nil url is the server CONTRACT, not an accident: external_set answers
-      // url == null when the account tier has no S3 (lite) or the object already exists —
-      // both permanent for this task. A missing local file likewise can't heal by retrying.
-      return
-    }
 
-    // Streamed straight from disk — audiobooks run into the GBs and must never be
-    // materialized as a single in-memory Data. A failed upload THROWS so the task is
-    // retried and the server is never told the file exists when it doesn't.
-    // Foreground session by design (for now): this pipe upload runs inside the retrying
-    // sync operation while the app is in use, matching the Android app's current behavior;
-    // surviving app termination is the planned background-transfer follow-up on both
-    // platforms, which needs the BPURLSession delegate machinery, not just a session swap.
-    try await client.upload(fileURL: fileURL, remoteURL: remoteUrl)
+    // No file (or no uuid to name the book by): nothing to upload, and retrying can't heal it
+    guard !uuid.isEmpty, FileManager.default.fileExists(atPath: fileURL.path) else { return }
 
-    // The bytes are on S3 now — failing the operation on a flaky confirmation would
-    // retry the uploaded:false branch and re-upload the entire (potentially multi-GB)
-    // file. Retry just the confirmation instead, mirroring the synced:true handling
-    // in SyncQueueService.handleFinishedOperation.
-    var confirmationError: Error?
-    for attempt in 1...3 {
-      do {
-        let _: Empty = try await self.provider.request(
-          .externalResourceToDownload(uuid: uuid, uploaded: true)
-        )
-        return
-      } catch {
-        confirmationError = error
-        Self.logger.error("uploaded:true confirmation attempt \(attempt) failed for \(self.uuid): \(error.localizedDescription)")
-        // Space out the attempts (same 2s as the SyncQueueService sibling): a single
-        // transient blip would otherwise burn all three back-to-back in under a second
-        // and re-upload the file anyway
-        if attempt < 3 {
-          try? await Task.sleep(for: .seconds(2))
-        }
-      }
-    }
-    // Exhausted: CONSUME rather than throw. A failed operation is retried from the
-    // top, which re-runs the uploaded:false branch and re-PUTs the whole file — the
-    // exact waste this loop exists to avoid. The bytes are safely on S3; the server
-    // still thinks the object isn't uploaded, so the next external_set round-trip
-    // heals cheaply (it answers url == null for an already-existing object, which the
-    // nil-url branch above consumes). Same bytes-are-on-S3 semantics as the
-    // FileUploadOperation confirmation in SyncQueueService.handleFinishedOperation.
-    if let confirmationError {
-      Self.logger.error(
-        "uploaded:true confirmation exhausted for \(self.uuid), consuming (bytes on S3): \(confirmationError.localizedDescription)"
-      )
-    }
+    results = .uploadMetadata(
+      UploadResponse(uuid: uuid, filePath: fileURL.absoluteString, relativePath: relativePath)
+    )
   }
 }
 
