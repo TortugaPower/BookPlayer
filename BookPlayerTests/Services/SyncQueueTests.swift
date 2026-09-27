@@ -422,3 +422,191 @@ extension SyncQueueTests {
     XCTAssertEqual(seen, [false, true, true])
   }
 }
+
+// MARK: - Server-lane gate (sync off holds the BookPlayer-server lanes)
+
+extension SyncQueueTests {
+  /// Engine wired to the in-memory repository. The upload's source file doesn't exist, so
+  /// once it runs the operation consumes it without any network: the pop is the signal.
+  private func makeGatedEngine() -> SyncQueueService {
+    let service = SyncQueueService(maxConcurrentTasks: 1)
+    service.taskContainer = repository
+    service.tasksDataManager = tasksDataManager
+    service.accessPolicy = [.uploadFile: true, .externalUpdate: true]
+    return service
+  }
+
+  private func waitForEmptyQueue(timeout: TimeInterval = 3) async throws {
+    let deadline = Date().addingTimeInterval(timeout)
+    while Date() < deadline {
+      if await repository.getAllTasks().isEmpty { return }
+      try await Task.sleep(for: .milliseconds(50))
+    }
+    XCTFail("timed out waiting for the queue to drain")
+  }
+
+  /// The lapsed-subscriber retry storm: a persisted server-lane task must not run while
+  /// sync is off, must survive (not be cleared), and must run once sync turns on.
+  func testServerLanes_holdTasksWhileGated_andRunThemOnEnable() async throws {
+    let service = makeGatedEngine()
+    var params = uploadFileParams(id: "gated-1")
+    params["filePath"] = URL(fileURLWithPath: "/nonexistent/\(UUID().uuidString).m4b").absoluteString
+    try await repository.storeTask(parameters: params)
+
+    XCTAssertFalse(service.serverLanesEnabled)
+    service.wakeUpWorkers()
+    try await Task.sleep(for: .milliseconds(400))
+    let held = await repository.getAllTasks()
+    XCTAssertEqual(held.count, 1, "a gated lane must neither run nor drop its tasks")
+
+    service.setServerLanesEnabled(true)
+    try await waitForEmptyQueue()
+  }
+
+  /// A lapse while a worker is mid-lane: the running task finishes, the next one is held
+  /// (not popped, not run), and it runs once sync is back on.
+  func testServerLanes_runningWorkerStopsAfterItsCurrentTask_whenGatedMidLane() async throws {
+    let service = makeGatedEngine()
+    let client = BlockingNetworkClient()
+    service.networkClient = client
+    for (id, path) in [("del-1", "a.mp3"), ("del-2", "b.mp3")] {
+      try await repository.storeTask(parameters: [
+        "id": id,
+        "uuid": UUID().uuidString,
+        "jobType": SyncJobType.delete.rawValue,
+        "queueKey": TaskQueueKey.sync,
+        "relativePath": path,
+      ])
+    }
+
+    service.setServerLanesEnabled(true)
+    try await client.waitForRequests(1)
+    service.setServerLanesEnabled(false)
+    client.release()
+
+    try await waitForTaskCount(exactly: 1)
+    try await Task.sleep(for: .milliseconds(300))
+    let held = await repository.getAllTasks()
+    XCTAssertEqual(held.map(\.id), ["del-2"])
+    XCTAssertEqual(client.requestCount, 1, "the held task must not reach the server")
+
+    service.setServerLanesEnabled(true)
+    try await waitForEmptyQueue()
+    XCTAssertEqual(client.requestCount, 2)
+  }
+
+  private func waitForTaskCount(exactly count: Int, timeout: TimeInterval = 3) async throws {
+    let deadline = Date().addingTimeInterval(timeout)
+    while Date() < deadline {
+      if await repository.getAllTasks().count == count { return }
+      try await Task.sleep(for: .milliseconds(50))
+    }
+    XCTFail("timed out waiting for exactly \(count) task(s)")
+  }
+
+  /// Provider pushes go to the user's own media server, on every tier: the gate leaves them alone.
+  func testProviderLanes_runWhileServerLanesAreGated() async throws {
+    let service = makeGatedEngine()
+    // Non-finite position: the engine discards (pops) it without any network call
+    var params = externalUpdateParams(id: "push-1")
+    params["currentTime"] = Double.infinity
+    try await repository.storeTask(parameters: params)
+
+    service.wakeUpWorkers()
+    try await waitForEmptyQueue()
+    XCTAssertFalse(service.serverLanesEnabled)
+  }
+
+  /// SyncService is the one writer: setup seeds the gate from `isActive`, and every
+  /// enable/disable and logout moves it with the flag.
+  @MainActor
+  func testSyncService_drivesTheServerLaneGate() async throws {
+    let queue = makeGatedEngine()
+    let sync = SyncService()
+    sync.setup(
+      isActive: false,
+      libraryService: LibraryService(),
+      accountService: AccountServiceMock(account: nil),
+      syncQueueService: queue,
+      client: NetworkClientMock(mockedResponse: Empty())
+    )
+    XCTAssertFalse(queue.serverLanesEnabled)
+
+    sync.updateSyncEnabled(true)
+    try await waitUntil { queue.serverLanesEnabled }
+    XCTAssertTrue(sync.isActive)
+
+    sync.updateSyncEnabled(false)
+    try await waitUntil { !queue.serverLanesEnabled }
+
+    sync.updateSyncEnabled(true)
+    try await waitUntil { queue.serverLanesEnabled }
+    await sync.logout()
+    XCTAssertFalse(queue.serverLanesEnabled)
+    XCTAssertFalse(sync.isActive)
+  }
+
+  @MainActor
+  private func waitUntil(timeout: TimeInterval = 2, _ condition: () -> Bool) async throws {
+    let deadline = Date().addingTimeInterval(timeout)
+    while Date() < deadline {
+      if condition() { return }
+      try await Task.sleep(for: .milliseconds(20))
+    }
+    XCTFail("timed out waiting for the condition")
+  }
+}
+
+/// Answers `Empty` like `NetworkClientMock`, but holds the FIRST request until `release()`,
+/// so a test can act while an operation is in flight.
+private final class BlockingNetworkClient: NetworkClientMock, @unchecked Sendable {
+  private let lock = NSLock()
+  private var _requestCount = 0
+  private var gate: CheckedContinuation<Void, Never>?
+  private var released = false
+
+  var requestCount: Int { lock.withLock { _requestCount } }
+
+  init() { super.init(mockedResponse: Empty()) }
+
+  override func request<T: Decodable>(
+    path: String,
+    method: HTTPMethod,
+    parameters: [String: Any]?
+  ) async throws -> T {
+    let isFirst = lock.withLock {
+      _requestCount += 1
+      return _requestCount == 1 && !released
+    }
+    if isFirst {
+      await withCheckedContinuation { continuation in
+        let resumeNow = lock.withLock {
+          if released { return true }
+          gate = continuation
+          return false
+        }
+        if resumeNow { continuation.resume() }
+      }
+    }
+    // swiftlint:disable:next force_cast
+    return Empty() as! T
+  }
+
+  func release() {
+    let continuation = lock.withLock {
+      released = true
+      defer { gate = nil }
+      return gate
+    }
+    continuation?.resume()
+  }
+
+  func waitForRequests(_ count: Int, timeout: TimeInterval = 3) async throws {
+    let deadline = Date().addingTimeInterval(timeout)
+    while Date() < deadline {
+      if requestCount >= count { return }
+      try await Task.sleep(for: .milliseconds(20))
+    }
+    XCTFail("timed out waiting for \(count) request(s)")
+  }
+}

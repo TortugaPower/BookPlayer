@@ -470,6 +470,13 @@ extension AppDelegate {
   func handleAppRefresh(task: BGAppRefreshTask) {
     guard let syncQueueService = AppServices.shared.coreServices?.syncQueueService else { return }
 
+    // A gated sync lane (sync off) never drains, so waiting on it would only hold the
+    // window open until expiration
+    guard syncQueueService.serverLanesEnabled else {
+      task.setTaskCompleted(success: true)
+      return
+    }
+
     // Sync lane only: metadata pushes are what the refresh window is for. Provider pushes
     // retry forever against an unreachable home server, and S3 uploads already run on a
     // background URLSession — neither should keep the process awake until expiration.

@@ -46,6 +46,15 @@ public protocol SyncQueueServiceProtocol {
   /// subscription lapse, leaving the tier-independent externalUpdate operations running.
   /// Logout cancels everything via the `.logout` observer instead.
   func cancelServerQueueOperations()
+
+  /// Whether the BookPlayer-server lanes (`sync`, `uploadFile`) may run. Mirrors
+  /// `SyncService.isActive`; starts off.
+  var serverLanesEnabled: Bool { get }
+
+  /// Gates the BookPlayer-server lanes without touching their persisted tasks. Off holds
+  /// them (a lapsed account's tasks would otherwise be rejected by the server forever);
+  /// on wakes them.
+  func setServerLanesEnabled(_ enabled: Bool)
 }
 
 public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
@@ -70,6 +79,10 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
   }
   // Tracks which queueKeys currently have an active worker looping
   private var activeQueueKeys = Set<String>()
+  /// Off until SyncService reports the account's sync state: workers wake in `setup`,
+  /// before SyncService is set up, and a lapsed account's persisted tasks must never
+  /// reach the server. Guarded by `stateLock`, together with `activeQueueKeys`.
+  private var _serverLanesEnabled = false
   private let stateLock = NSLock()
   private let policyLock = NSLock()
   private var disposeBag = Set<AnyCancellable>()
@@ -215,7 +228,39 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
     return tasksDataManager.observeQueueCounts()
   }
 
+  private static func isServerLane(_ queueKey: String) -> Bool {
+    queueKey == TaskQueueKey.sync || queueKey == TaskQueueKey.uploadFile
+  }
+
+  public var serverLanesEnabled: Bool {
+    stateLock.withLock { _serverLanesEnabled }
+  }
+
+  public func setServerLanesEnabled(_ enabled: Bool) {
+    let changed = stateLock.withLock {
+      defer { _serverLanesEnabled = enabled }
+      return _serverLanesEnabled != enabled
+    }
+    // Turning off needs no action here: each worker retires at its next pop
+    if changed, enabled {
+      wakeUpWorkers()
+    }
+  }
+
   private func enqueueNextTask(for queueKey: String) async {
+    // Checked before every pop, not just at wake-up, so a worker already looping when
+    // sync turns off stops after its current task instead of draining the lane
+    if Self.isServerLane(queueKey) {
+      let retired = stateLock.withLock {
+        guard !_serverLanesEnabled else { return false }
+        activeQueueKeys.remove(queueKey)
+        return true
+      }
+      // Checking the flag and retiring under one lock means an enable either happened
+      // before (we keep going) or will see this key inactive and wake a fresh worker
+      if retired { return }
+    }
+
     // 1. AWAIT the actor to safely fetch the next task
     guard let nextTask = await taskContainer.getNextTask(for: queueKey) else {
       // The queue is empty! Use scoped locking to remove the key.

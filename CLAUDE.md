@@ -265,6 +265,14 @@ CarPlay event bus. Declared in `Shared/Extensions/Notification+BookPlayerKit.swi
   `SyncService.canSyncListContents` gates list refresh on the `sync` lane only (repository `getTasksCount(in:)`),
   and `AppDelegate.handleAppRefresh` waits on `laneDrained(TaskQueueKey.sync)` — S3 uploads and provider pushes
   never block a refresh or hold a background window open (pushes retry forever against an unreachable server).
+  **Server-lane gate:** the BookPlayer-server lanes (`sync`, `uploadFile`) run only while
+  `SyncQueueService.serverLanesEnabled` is on. It starts off (workers wake in `setup`, before `SyncService` is
+  set up) and mirrors `SyncService.isActive` — `SyncService` is the ONLY writer: `setup` in the same synchronous
+  call as `isActive`, `updateSyncEnabled` and `logout` inside the main-actor block that writes `isActive` (so a
+  fast re-login can't be overwritten by a late logout write). Workers check it before every pop, so a lapse stops
+  a running lane after its current task. Gated tasks are **held, never cleared**: RevenueCat's cached info is nil
+  before the first fetch, so a paying subscriber can read inactive at launch. Provider lanes ignore the gate, and
+  `handleAppRefresh` completes immediately while it's off (a gated lane never drains).
 - **Realm is gone** (Realm → SwiftData migration is complete). Only inert remnants remain
   (`DataManager.getSyncTasksRealmURL()` is dead; a stale comment in `LibraryService`). Don't reintroduce it.
 
