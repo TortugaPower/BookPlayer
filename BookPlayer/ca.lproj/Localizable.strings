@@ -309,11 +309,6 @@
 "choose_plan_title" = "Trieu el vostre pla";
 "tasks_title" = "Tasques";
 "queued_sync_tasks_title" = "Tasques de sincronització a la cua (%@)";
-"sync_tasks_alert_description" = "Si hi ha una tasca de sincronització que està encallada i no s'esborra després de tenir una connexió a Internet activa, podeu tancar la sessió i iniciar la sessió per esborrar les tasques actuals. Això revertirà la vostra biblioteca a l'últim estat sincronitzat amb els nostres servidors.
-
-Tingueu en compte que les tasques de càrrega poden trigar una mica i el progrés es publicarà periòdicament a la pantalla anterior.
-
-Estem treballant dur per oferir una experiència perfecta; si és possible, poseu-vos en contacte amb nosaltres a support@bookplayer.app amb una captura d'aquesta pantalla. Gràcies!";
 "sort_by_size_title" = "Mida";
 "settings_storage_sync_deleted_description" = "Fitxers eliminats (operacions de sincronització)";
 "storage_sync_deleted_recover_description" = "Podeu tornar a importar els vostres llibres i carpetes locals si s'han suprimit mitjançant una operació de sincronització. Això els traslladarà tots a la carpeta de documents, activant el procés d'importació. Si hi ha carpetes implicades, això podria significar que els originals encara es troben a la biblioteca i s'haurà de canviar el nom, disculpeu les molèsties.";

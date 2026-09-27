@@ -10,6 +10,20 @@ import Foundation
 import Combine
 import CoreData
 
+/// A book the server holds without its file, for the upload lane
+public struct MissingFileUpload: Sendable, Equatable {
+  public let uuid: String
+  public let relativePath: String
+  /// The book's current Processed file
+  public let fileURL: URL
+
+  public init(uuid: String, relativePath: String, fileURL: URL) {
+    self.uuid = uuid
+    self.relativePath = relativePath
+    self.fileURL = fileURL
+  }
+}
+
 public protocol SyncQueueServiceProtocol {
   var accessPolicy: [SyncJobType: Bool] { get set }
 
@@ -42,6 +56,13 @@ public protocol SyncQueueServiceProtocol {
 
   func scheduleFileUpload(params: [String: Any])
 
+  /// Queues the files of books the server holds without one (the missing-items pass), by
+  /// uuid, skipping any book with an upload already queued. Returns how many were queued.
+  func scheduleMissingFileUploads(_ uploads: [MissingFileUpload]) async -> Int
+
+  /// Adopts the server's uuids for items it holds under another one (a `matchUuid` answer):
+  /// in the library, then in every queued task
+  func applyUuidConflicts(_ conflicts: [ItemConflict]) async throws
 
   /// Cancels in-flight BookPlayer-server operations (serial sync + S3 uploads) on a
   /// subscription lapse, leaving the tier-independent externalUpdate operations running.
@@ -57,11 +78,60 @@ public protocol SyncQueueServiceProtocol {
   /// on wakes them.
   func setServerLanesEnabled(_ enabled: Bool)
 
-  /// The user's Retry on a parked task: back to pending, and its lane wakes
-  func retryPausedTask(id: String)
+  /// The user's Retry on a parked task: back to pending, and its lane wakes. Returns once
+  /// the task is pending again.
+  func retryPausedTask(id: String) async
+
+  /// The latest queue counts, read now
+  var queueCounts: QueueCounts { get }
 
   /// Remembers the Sentry event that reported a pause, so it's never reported twice
   func recordPauseReport(eventId: String, forTask taskId: String)
+
+  /// Removes an upload the app refuses (a book over the size limit): the book stays on this
+  /// device only. The one dismissible pause — server-refused tasks only Retry or Report.
+  func dismissPausedTask(id: String)
+
+  /// Returns once the running upload has handled the part events delivered so far and
+  /// queued its next parts, or right away when no upload will run (sync off, nothing
+  /// runnable). A background wake awaits this before telling iOS it's finished.
+  func settleUploads() async
+
+  /// Books whose file still has to reach S3, in queue order — the sync lane's book
+  /// `.upload`s (not media-server ones: they carry no file) and media-server file jobs, then
+  /// the upload lane — with the parked ones counted apart (they wait for the user)
+  func pendingBookUploads() async -> PendingBookUploads
+}
+
+/// A book still to upload, as the continued task counts it
+public struct PendingBookUpload: Equatable {
+  public let uuid: String
+  public let relativePath: String
+  /// On disk now (0 when the file can't be read)
+  public let fileSize: Int64
+  /// The lane it's waiting in: a blocked lane can't bring it any closer
+  public let queueKey: String
+
+  public init(uuid: String, relativePath: String, fileSize: Int64, queueKey: String = TaskQueueKey.uploadFile) {
+    self.uuid = uuid
+    self.relativePath = relativePath
+    self.fileSize = fileSize
+    self.queueKey = queueKey
+  }
+
+  public var fileName: String { (relativePath as NSString).lastPathComponent }
+}
+
+public struct PendingBookUploads: Equatable {
+  /// Not parked, in queue order
+  public let books: [PendingBookUpload]
+  /// Parked book uploads (either lane)
+  public let parkedCount: Int
+
+  public init(books: [PendingBookUpload], parkedCount: Int) {
+    self.books = books
+    self.parkedCount = parkedCount
+  }
 }
 
 public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
@@ -96,6 +166,15 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
   /// Fresh RevenueCat read of the sync entitlement (nil = the check failed), for an
   /// account-level rejection. Its update also drives the lapse path when inactive.
   var verifySyncEntitlement: (() async -> Bool?)!
+  /// The book as it stands now, by uuid — for handing an upload the server doesn't
+  /// recognize back to the sync lane. Internal for @testable injection.
+  lazy var findSyncableItem: (String) async -> SyncableItem? = { [weak self] uuid in
+    await self?.libraryService?.fetchSyncableItem(forUuid: uuid)
+  }
+  /// Books handed back to the sync lane this session. A second `item_not_found` for one
+  /// means re-registering doesn't help (e.g. another uuid holds its key on the server):
+  /// it parks instead of cycling. Guarded by `stateLock`.
+  private var handedBackUuids = Set<String>()
   private let stateLock = NSLock()
   private let policyLock = NSLock()
   private var disposeBag = Set<AnyCancellable>()
@@ -334,6 +413,7 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
           await self.taskContainer.pop(nextTask)
         } else {
           let error = (operation as? LibraryItemSyncOperation)?.error
+            ?? (operation as? FileUploadOperation)?.error
           if let error {
             Self.logger.error("Sync task failed: \(error.localizedDescription)")
             await MainActor.run {
@@ -366,19 +446,28 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
   /// Retry (the usual 5 s), park, drop, or confirm the account, per `SyncFailurePolicy`.
   /// Returns once the next pop may happen.
   private func handleFailedOperation(error: Error?, task: QueuedSyncTask) async {
+    // The server has no such book for this upload: register it again (bookplayer-api
+    // docs/multipart-uploads.md) rather than park a task the user can't fix
+    if task.jobType == .uploadFile,
+       SyncFailurePolicy.codedFailure(error)?.code == "item_not_found",
+       stateLock.withLock({ handedBackUuids.insert(task.uuid).inserted }) {
+      await handBackUpload(task)
+      try? await Task.sleep(for: .seconds(5))
+      return
+    }
+
     let action = SyncFailurePolicy.action(
       for: error,
       jobType: task.jobType,
       parkingEnabled: parkingEnabled
     )
-    guard
-      action != .retry,
-      let error = error as? BookPlayerError,
-      case .networkErrorWithCode(let message, let code, let status) = error
-    else {
+    guard action != .retry, let failure = SyncFailurePolicy.codedFailure(error) else {
       try? await Task.sleep(for: .seconds(5))
       return
     }
+    let code = failure.code
+    let message = failure.message
+    let status = failure.httpStatus
 
     switch action {
     case .retry:
@@ -387,7 +476,15 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
       Self.logger.error("Dropping \(task.jobType.rawValue) task \(task.id): the server answered \(code)")
       await taskContainer.pop(task)
     case .park(let scope):
-      await park(task, scope: scope, code: code, message: message, status: status)
+      // A too-large book is the app's own limit, not a failure: nothing to report
+      await park(
+        task,
+        scope: scope,
+        code: code,
+        message: message,
+        status: status,
+        report: code != UploadFileError.fileTooLarge.code
+      )
     case .verifyAccount:
       // Every server lane holds from here: the rejection is about the account, so the
       // next task would get the same answer
@@ -405,16 +502,57 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
     }
   }
 
+  /// Re-registers the book through the sync lane like a fresh upload — the item, its
+  /// external resources and bookmarks (`SyncService.handleItemsToUpload`); the `.upload`'s
+  /// answer schedules a new upload task — or drops the upload when the book is gone
+  /// locally too. The replacement is stored before this task is popped, so a kill in
+  /// between can't lose the upload.
+  private func handBackUpload(_ task: QueuedSyncTask) async {
+    // Before the new job links the file again at the same path
+    cleanUpDroppedUploadTempLink(task)
+    guard let item = await findSyncableItem(task.uuid) else {
+      Self.logger.info("Dropping upload \(task.id): the book is gone on the server and on this device")
+      await taskContainer.pop(task)
+      return
+    }
+    Self.logger.info("Upload \(task.id): the server lost the book, registering it again")
+    let scheduler = SyncJobScheduler(tasksRepository: taskContainer)
+    await scheduler.scheduleLibraryItemUploadJob(for: item)
+    let itemOrigin = LibraryItemRef(relativePath: item.relativePath, uuid: item.uuid)
+    for resource in item.externalResources ?? [] {
+      await scheduler.scheduleExternalResourceUpload(for: resource, itemOrigin: itemOrigin)
+    }
+    // Bookmarks are read on the view context
+    let libraryService = libraryService
+    let bookmarks = await MainActor.run {
+      libraryService?.getBookmarks(of: .user, relativePath: item.relativePath) ?? []
+    }
+    for bookmark in bookmarks {
+      await scheduler.scheduleSetBookmarkJob(
+        with: bookmark.relativePath,
+        time: floor(bookmark.time),
+        note: bookmark.note,
+        for: item.uuid
+      )
+    }
+    // A media-server book's metadata upload never schedules its file (streamed books have
+    // none yet): queue the file last, the way a finished download does
+    if item.mediaServerProviderName != nil {
+      await scheduler.scheduleResourceToDownload(with: item.relativePath, for: item.uuid)
+    }
+    await taskContainer.pop(task)
+  }
+
   @discardableResult
   private func park(
     _ task: QueuedSyncTask,
     scope: TaskPauseScope,
     code: String,
     message: String,
-    status: Int,
+    status: Int?,
     report: Bool = true
   ) async -> TaskPause? {
-    Self.logger.error("Pausing \(task.jobType.rawValue) task \(task.id) (\(scope.rawValue)): the server answered \(code)")
+    Self.logger.error("Pausing \(task.jobType.rawValue) task \(task.id) (\(scope.rawValue)): failed with \(code)")
     guard
       let pause = await taskContainer.park(
         taskId: task.id,
@@ -444,10 +582,83 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
     }
   }
 
-  public func retryPausedTask(id: String) {
+  public func retryPausedTask(id: String) async {
+    // An explicit Retry of an upload asks for the book again: it gets another
+    // re-registration even if it already had one this session
+    if let task = await taskContainer.getAllTasks().first(where: { $0.id == id }),
+       task.jobType == .uploadFile,
+       task.pause != nil {
+      stateLock.withLock { _ = handedBackUuids.remove(task.uuid) }
+    }
+    await taskContainer.resume(taskId: id)
+    wakeUpWorkers()
+  }
+
+  public var queueCounts: QueueCounts { tasksDataManager.currentQueueCounts }
+
+  public func settleUploads() async {
+    // Bounded: the caller also times out, but a lane that never starts mustn't spin here
+    for _ in 0..<100 {
+      guard serverLanesEnabled else { return }
+      let running = operationQueue.operations.first {
+        $0 is FileUploadOperation && $0.isExecuting && !$0.isCancelled
+      } as? FileUploadOperation
+      if let running {
+        // Settled while still uploading; if the book finished instead, the lane's next
+        // upload starts and tops up in turn
+        if await running.settle() { return }
+        continue
+      }
+      guard await taskContainer.hasRunnableTask(for: TaskQueueKey.uploadFile) else { return }
+      // A worker is about to start one (the lane was just woken)
+      try? await Task.sleep(for: .milliseconds(200))
+    }
+  }
+
+  public func pendingBookUploads() async -> PendingBookUploads {
+    // One actor call: both lanes read at the same instant
+    let candidates = await taskContainer.getUploadCandidates().filter { candidate in
+      switch candidate.task.jobType {
+      case .upload:
+        let type = (candidate.task.parameters["type"] as? Int16).flatMap(SimpleItemType.init(rawValue:))
+        // A media-server book's metadata upload schedules no file
+        return type == .book && candidate.task.parameters["provider"] == nil
+      case .externalResourceToDownload, .uploadFile:
+        return true
+      default:
+        return false
+      }
+    }
+
+    var seen = Set<String>()
+    var parkedCount = 0
+    let books = candidates.compactMap { candidate -> PendingBookUpload? in
+      let job = candidate.task
+      guard seen.insert(job.uuid).inserted else { return nil }
+      guard !candidate.isParked else {
+        parkedCount += 1
+        return nil
+      }
+      let temporaryLink = (job.parameters["filePath"] as? String).flatMap(URL.init(string:))
+        ?? SyncJobScheduler.hardLinkURL(for: job.relativePath)
+      let files = [temporaryLink, DataManager.getProcessedFolderURL().appendingPathComponent(job.relativePath)]
+      let size = files.lazy.compactMap { try? FileUploadOperation.fileSize(of: $0) }.first ?? 0
+      return PendingBookUpload(uuid: job.uuid, relativePath: job.relativePath, fileSize: size, queueKey: candidate.queueKey)
+    }
+    return PendingBookUploads(books: books, parkedCount: parkedCount)
+  }
+
+  public func dismissPausedTask(id: String) {
     Task {
-      await taskContainer.resume(taskId: id)
-      wakeUpWorkers()
+      guard
+        let task = await taskContainer.getAllTasks().first(where: { $0.id == id }),
+        task.pause?.errorCode == UploadFileError.fileTooLarge.code
+      else { return }
+      // The upload's own parameters name its temp link
+      let filePath = await taskContainer.getAllTasksWithParams(in: TaskQueueKey.uploadFile)
+        .first { $0.id == id }?.parameters["filePath"] as? String
+      await taskContainer.pop(task)
+      SyncJobScheduler.removeHardLink(at: filePath.flatMap(URL.init(string:)))
     }
   }
 
@@ -500,15 +711,25 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
         return nil
       }
       guard let filePath = task.parameters["filePath"] as? String,
-            let remotePath = task.parameters["remotePath"] as? String,
             let fileURL = URL(string: filePath),
-            let remoteURL = URL(string: remotePath),
             let uuid = task.parameters["uuid"] as? String else {
         Self.logger.error("Discarding uploadFile task \(task.id): missing or malformed parameters")
         cleanUpDroppedUploadTempLink(task)
         return nil
       }
-      return FileUploadOperation(fileURL: fileURL, remoteURL: remoteURL, uuid: uuid)
+      let libraryService = libraryService
+      return FileUploadOperation(
+        taskId: task.id,
+        uuid: uuid,
+        fileURL: fileURL,
+        state: MultipartUploadState(parameters: task.parameters),
+        client: networkClient,
+        repository: taskContainer,
+        libraryFileURL: { uuid in
+          guard let relativePath = await libraryService?.fetchRelativePath(forUuid: uuid) else { return nil }
+          return DataManager.getProcessedFolderURL().appendingPathComponent(relativePath)
+        }
+      )
     default:
       /// Serial BookPlayer-server queue
       return LibraryItemSyncOperation(
@@ -519,46 +740,20 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
           relativePath: task.relativePath,
           jobType: task.jobType,
           parameters: task.parameters
-        )
+        ),
+        canUploadFiles: accessPolicy[.uploadFile] == true
       )
     }
   }
 
   /// Post-completion side effects for finished sync tasks
   private func handleFinishedOperation(_ operation: AsyncOperation, task: QueuedSyncTask) async {
-    // The synced:true confirmation for file-backed books happens HERE, after the bytes are
-    // actually on S3 — LibraryItemSyncOperation deliberately no longer confirms when it
-    // schedules a file upload (confirming before the PUT lies to the server if the upload
-    // later fails permanently).
-    // uploadCompleted (a real 2xx), NOT didSucceed: consumed permanent failures (missing
-    // file, 4xx) also report didSucceed so the queue stops retrying, but no bytes reached
-    // the server — confirming synced:true for those lies to the backend.
-    if let uploadOperation = operation as? FileUploadOperation, uploadOperation.uploadCompleted {
-      let provider = NetworkProvider<LibraryAPI>(client: networkClient)
-      // The task is popped unconditionally after this, so a transient confirmation failure
-      // would strand the item as synced:false with its bytes already on S3 — retry a few
-      // times before surfacing it in lastSyncError (a later re-upload of the same item heals).
-      for attempt in 1...3 {
-        do {
-          let _: UploadItemResponse = try await provider.request(.update(params: [
-            "uuid": uploadOperation.uuid,
-            "relativePath": task.relativePath,
-            "synced": true
-          ]))
-          NotificationCenter.default.post(name: .uploadCompleted, object: nil)
-          return
-        } catch {
-          Self.logger.error("Upload confirmation attempt \(attempt) failed for \(uploadOperation.uuid): \(error.localizedDescription)")
-          if attempt < 3 { try? await Task.sleep(for: .seconds(2)) }
-          else {
-            await MainActor.run {
-              self.lastSyncError = SyncErrorInfo(
-                taskId: task.id, uuid: uploadOperation.uuid,
-                jobType: .uploadFile, error: error.localizedDescription
-              )
-            }
-          }
-        }
+    // The server sets synced:true itself when it assembles a multipart upload; there is
+    // nothing to confirm. uploadCompleted (S3 has the file), NOT didSucceed: a consumed
+    // task (its file gone) also reports didSucceed.
+    if let uploadOperation = operation as? FileUploadOperation {
+      if uploadOperation.uploadCompleted {
+        NotificationCenter.default.post(name: .uploadCompleted, object: nil)
       }
       return
     }
@@ -571,21 +766,32 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
     case .matchUuid(let response):
       await handleMatchUuidsResponse(response)
     case .uploadMetadata(let result):
-      /// Provider-backed items don't upload the local file; the server pulls it
-      /// from the provider via `externalResourceToDownload`
+      /// Provider-backed items don't upload their file from the metadata upload: it goes
+      /// up once downloaded, through the `externalResourceToDownload` job (which carries no
+      /// `provider`, so its result schedules the upload here)
       if task.parameters["provider"] as? String == nil {
-        handleUploadResult(result)
+        // Stored before the caller pops this task: the book is never in neither lane (a kill
+        // in between would lose the upload, and the continued task would count it done)
+        await handleUploadResult(result)
       } else {
         SyncJobScheduler.removeHardLink(at: URL(string: result.filePath))
       }
     }
   }
 
+  public func applyUuidConflicts(_ conflicts: [ItemConflict]) async throws {
+    // The same local uuid can come back twice (two rows sharing it): adopt the first answer
+    var seen = Set<String>()
+    let conflicts = conflicts.filter { seen.insert($0.key).inserted }
+    guard !conflicts.isEmpty else { return }
+    try await applyCoreDataConflicts(conflicts)
+    try await taskContainer.applyMatchUuidConflicts(conflicts)
+  }
+
   private func handleMatchUuidsResponse(_ results: MatchUuidsResponse) async {
     guard !results.conflicts.isEmpty else { return }
     do {
-      try await applyCoreDataConflicts(results.conflicts)
-      try await taskContainer.applyMatchUuidConflicts(results.conflicts)
+      try await applyUuidConflicts(results.conflicts)
     } catch {
       Self.logger.error("Failed to apply matchUuid conflicts: \(error.localizedDescription)")
       await MainActor.run {
@@ -623,20 +829,17 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
     }
   }
 
-  private func handleUploadResult(_ result: UploadResponse) {
-    guard let remotePath = result.remotePath else { return }
-
+  /// The server answered the metadata upload with a URL: it needs the file's bytes
+  private func handleUploadResult(_ result: UploadResponse) async {
     var params: [String: Any] = [
       "filePath": result.filePath,
-      "remotePath": remotePath,
       "uuid": result.uuid,
     ]
-    // Persisted onto the task reference — the post-PUT synced:true confirmation posts it,
-    // and an empty relativePath there mismatches the server's item key.
+    // Persisted onto the task reference, which names the row in Queued Tasks
     if let relativePath = result.relativePath {
       params["relativePath"] = relativePath
     }
-    scheduleFileUpload(params: params)
+    await storeFileUpload(params: params)
   }
 
   public func cancelServerQueueOperations() {
@@ -719,17 +922,46 @@ extension SyncQueueService {
       return
     }
 
-    Task {
-      var params = params
-      params["id"] = UUID().uuidString
-      params["jobType"] = SyncJobType.uploadFile.rawValue
-      params["queueKey"] = TaskQueueKey.uploadFile
+    Task { await storeFileUpload(params: params) }
+  }
 
-      do {
-        try await taskContainer.storeTask(parameters: params)
-      } catch {
-        Self.logger.error("Failed to schedule upload file task: \(error)")
-      }
+  public func scheduleMissingFileUploads(_ uploads: [MissingFileUpload]) async -> Int {
+    guard accessPolicy[.uploadFile] == true, !uploads.isEmpty else { return 0 }
+    // The Processed file itself, not a temp hard link: the engine never deletes a source
+    // outside tmp, and finds the book again by uuid if it moves
+    let parameterList: [[String: Any]] = uploads.map { upload in
+      [
+        "id": UUID().uuidString,
+        "jobType": SyncJobType.uploadFile.rawValue,
+        "queueKey": TaskQueueKey.uploadFile,
+        "uuid": upload.uuid,
+        "relativePath": upload.relativePath,
+        "filePath": upload.fileURL.absoluteString,
+      ]
+    }
+    do {
+      return try await taskContainer.storeFileUploadsIfAbsent(parameterList)
+    } catch {
+      Self.logger.error("Failed to queue the missing file uploads: \(error)")
+      return 0
+    }
+  }
+
+  /// `scheduleFileUpload`, awaited: returns once the task is stored
+  private func storeFileUpload(params: [String: Any]) async {
+    guard accessPolicy[.uploadFile] == true else {
+      SyncJobScheduler.removeHardLink(at: (params["filePath"] as? String).flatMap(URL.init(string:)))
+      return
+    }
+    var params = params
+    params["id"] = UUID().uuidString
+    params["jobType"] = SyncJobType.uploadFile.rawValue
+    params["queueKey"] = TaskQueueKey.uploadFile
+
+    do {
+      try await taskContainer.storeTask(parameters: params)
+    } catch {
+      Self.logger.error("Failed to schedule upload file task: \(error)")
     }
   }
 }

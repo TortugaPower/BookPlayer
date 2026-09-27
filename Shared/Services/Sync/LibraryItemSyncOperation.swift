@@ -17,6 +17,9 @@ class LibraryItemSyncOperation: AsyncOperation, BPLogger, @unchecked Sendable {
   let uuid: String
   let jobType: SyncJobType
   let parameters: [String: Any]
+  /// Whether the account's tier stores files in S3 (PRO). A book's `synced` means "its file
+  /// is in S3", so on any other tier the app never confirms one
+  let canUploadFiles: Bool
 
   /// Written from the operation's detached Task (and `cancel()`), read from the
   /// queue-thread completionBlock — lock-guarded like the base class's `didSucceed`
@@ -49,9 +52,11 @@ class LibraryItemSyncOperation: AsyncOperation, BPLogger, @unchecked Sendable {
   /// - Parameters:
   ///   - client: Network client
   ///   - task: Sync task to be handled in the operation
+  ///   - canUploadFiles: Whether the account's tier stores files in S3
   init(
     client: NetworkClientProtocol,
-    task: SyncTask
+    task: SyncTask,
+    canUploadFiles: Bool
   ) {
     self.client = client
     self.provider = NetworkProvider(client: client)
@@ -59,6 +64,7 @@ class LibraryItemSyncOperation: AsyncOperation, BPLogger, @unchecked Sendable {
     self.jobType = task.jobType
     self.parameters = task.parameters
     self.uuid = task.uuid
+    self.canUploadFiles = canUploadFiles
   }
 
   /// Written in main() on the queue thread, read/cancelled by cancel() from any thread
@@ -198,7 +204,11 @@ extension LibraryItemSyncOperation {
       if type == .book {
         SyncJobScheduler.removeHardLink(at: SyncJobScheduler.hardLinkURL(for: self.relativePath))
       }
-      try await markUploadAsSynced(uuid: self.uuid)
+      /// Without S3 access no URL only means "this tier stores no file", so a book stays
+      /// unconfirmed: it's what lets its file go up if the account becomes PRO
+      if type != .book || canUploadFiles {
+        try await markUploadAsSynced(uuid: self.uuid)
+      }
       finish()
       return
     }
@@ -231,11 +241,9 @@ extension LibraryItemSyncOperation {
       return
     }
 
-    results = .uploadMetadata(UploadResponse(uuid: self.uuid, filePath: fileURL.absoluteString, remotePath: remoteURL.absoluteString, relativePath: self.relativePath))
-    // Deliberately NOT handleUploadFinished() here: a backing file still has to be PUT by the
-    // FileUploadOperation this result schedules — confirming synced:true now lies to the server
-    // if that upload later fails permanently. The metadata-only branch above confirms
-    // immediately; this branch confirms from the file upload's completion.
+    // The URL only says the server needs the bytes: the upload lane sends them as a
+    // multipart upload, and the server marks the row synced when it assembles the file
+    results = .uploadMetadata(UploadResponse(uuid: self.uuid, filePath: fileURL.absoluteString, relativePath: self.relativePath))
     finish()
   }
 
@@ -311,67 +319,21 @@ extension LibraryItemSyncOperation {
 }
 
 extension LibraryItemSyncOperation {
+  /// A media-server book finished downloading on a PRO account: its file goes to S3 like
+  /// any book's, through the upload lane. Run from the sync lane so it follows the task
+  /// that created the item's row; `complete` marks its media-server resources downloaded.
   func handleExternalResourceToDownload() async throws {
-    let response: UploadItemContent = try await self.provider.request(
-      .externalResourceToDownload(uuid: uuid, uploaded: false)
-    )
-    
     let hardLinkURL = SyncJobScheduler.hardLinkURL(for: self.relativePath)
     let fileURL = FileManager.default.fileExists(atPath: hardLinkURL.path)
       ? hardLinkURL
       : DataManager.getProcessedFolderURL().appendingPathComponent(self.relativePath)
-    
-    guard FileManager.default.fileExists(atPath: fileURL.path),
-    let remoteUrl = response.url else {
-      // Consuming on nil url is the server CONTRACT, not an accident: external_set answers
-      // url == null when the account tier has no S3 (lite) or the object already exists —
-      // both permanent for this task. A missing local file likewise can't heal by retrying.
-      return
-    }
 
-    // Streamed straight from disk — audiobooks run into the GBs and must never be
-    // materialized as a single in-memory Data. A failed upload THROWS so the task is
-    // retried and the server is never told the file exists when it doesn't.
-    // Foreground session by design (for now): this pipe upload runs inside the retrying
-    // sync operation while the app is in use, matching the Android app's current behavior;
-    // surviving app termination is the planned background-transfer follow-up on both
-    // platforms, which needs the BPURLSession delegate machinery, not just a session swap.
-    try await client.upload(fileURL: fileURL, remoteURL: remoteUrl)
+    // No file (or no uuid to name the book by): nothing to upload, and retrying can't heal it
+    guard !uuid.isEmpty, FileManager.default.fileExists(atPath: fileURL.path) else { return }
 
-    // The bytes are on S3 now — failing the operation on a flaky confirmation would
-    // retry the uploaded:false branch and re-upload the entire (potentially multi-GB)
-    // file. Retry just the confirmation instead, mirroring the synced:true handling
-    // in SyncQueueService.handleFinishedOperation.
-    var confirmationError: Error?
-    for attempt in 1...3 {
-      do {
-        let _: Empty = try await self.provider.request(
-          .externalResourceToDownload(uuid: uuid, uploaded: true)
-        )
-        return
-      } catch {
-        confirmationError = error
-        Self.logger.error("uploaded:true confirmation attempt \(attempt) failed for \(self.uuid): \(error.localizedDescription)")
-        // Space out the attempts (same 2s as the SyncQueueService sibling): a single
-        // transient blip would otherwise burn all three back-to-back in under a second
-        // and re-upload the file anyway
-        if attempt < 3 {
-          try? await Task.sleep(for: .seconds(2))
-        }
-      }
-    }
-    // Exhausted: CONSUME rather than throw. A failed operation is retried from the
-    // top, which re-runs the uploaded:false branch and re-PUTs the whole file — the
-    // exact waste this loop exists to avoid. The bytes are safely on S3; the server
-    // still thinks the object isn't uploaded, so the next external_set round-trip
-    // heals cheaply (it answers url == null for an already-existing object, which the
-    // nil-url branch above consumes). Same bytes-are-on-S3 semantics as the
-    // FileUploadOperation confirmation in SyncQueueService.handleFinishedOperation.
-    if let confirmationError {
-      Self.logger.error(
-        "uploaded:true confirmation exhausted for \(self.uuid), consuming (bytes on S3): \(confirmationError.localizedDescription)"
-      )
-    }
+    results = .uploadMetadata(
+      UploadResponse(uuid: uuid, filePath: fileURL.absoluteString, relativePath: relativePath)
+    )
   }
 }
 

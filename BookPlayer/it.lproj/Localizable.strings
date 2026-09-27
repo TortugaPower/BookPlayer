@@ -309,11 +309,6 @@
 "choose_plan_title" = "Scegli il tuo piano";
 "tasks_title" = "Compiti";
 "queued_sync_tasks_title" = "Attività di sincronizzazione in coda (%d)";
-"sync_tasks_alert_description" = "Se c'è un'attività di sincronizzazione che è bloccata e non si cancella dopo avere una connessione Internet attiva, puoi disconnetterti e accedere per cancellare le attività correnti. Questo ripristinerà la tua libreria all'ultimo stato sincronizzato con i nostri server.
-
- Tieni presente che le attività di caricamento possono richiedere del tempo e l'avanzamento verrà periodicamente pubblicato nella schermata precedente.
-
- Stiamo lavorando sodo per fornire un'esperienza senza soluzione di continuità, se possibile, contattaci all'indirizzo support@bookplayer.app con uno screenshot di questa schermata. Grazie!";
 "sort_by_size_title" = "Misurare";
 "settings_storage_sync_deleted_description" = "File rimossi (operazioni di sincronizzazione)";
 "storage_sync_deleted_recover_description" = "Puoi reimportare i libri e le cartelle locali se sono stati eliminati da un'operazione di sincronizzazione. Questo li riporterà tutti nella cartella dei documenti, attivando il processo di importazione. Se sono coinvolte le cartelle, ciò potrebbe significare che gli originali sono ancora nella libreria e sarà necessario rinominarli, ci scusiamo per l'inconveniente";

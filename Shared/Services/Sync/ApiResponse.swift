@@ -38,8 +38,7 @@ public struct ItemConflict: Decodable {
 public struct UploadResponse: Decodable {
   let uuid: String
   let filePath: String
-  let remotePath: String?
-  /// The library key of the item being uploaded — the synced:true confirmation after the
-  /// file PUT needs it, and it can't be derived from the (absolute, possibly temp) filePath.
+  /// The library key of the item being uploaded: it names the upload's Queued Tasks row,
+  /// and can't be derived from the (absolute, possibly temp) filePath
   var relativePath: String?
 }

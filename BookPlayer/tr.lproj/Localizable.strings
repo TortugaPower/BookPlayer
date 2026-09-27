@@ -309,11 +309,6 @@
 "choose_plan_title" = "planınızı seçin";
 "tasks_title" = "Görevler";
 "queued_sync_tasks_title" = "Kuyruğa alınmış eşitleme görevleri (%d)";
-"sync_tasks_alert_description" = "Etkin bir internet bağlantısına sahip olduktan sonra takılıp kalmayan bir eşitleme görevi varsa, mevcut görevleri temizlemek için oturumu kapatıp oturum açabilirsiniz. Bu, kitaplığınızı sunucularımızla senkronize edilen son duruma geri döndürür.
-
- Yükleme görevlerinin biraz zaman alabileceğini ve ilerlemenin periyodik olarak önceki ekranda yayınlanacağını unutmayın.
-
- Kusursuz bir deneyim sağlamak için çok çalışıyoruz, mümkünse lütfen bu ekranın ekran görüntüsüyle birlikte support@bookplayer.app adresinden bizimle iletişime geçin. Teşekkürler!";
 "sort_by_size_title" = "Boyut";
 "settings_storage_sync_deleted_description" = "Kaldırılan dosyalar (senkronizasyon işlemleri)";
 "storage_sync_deleted_recover_description" = "Yerel kitaplarınızı ve klasörlerinizi bir eşitleme işlemiyle silinmişlerse geri alabilirsiniz. Bu, hepsini içe aktarma işlemini tetikleyerek belgeler klasörüne geri taşıyacaktır. Klasörler söz konusuysa bu, orijinallerin hâlâ kitaplıkta olduğu ve bazı yeniden adlandırma işlemlerinin yapılması gerekeceği anlamına gelebilir, bu rahatsızlıktan dolayı özür dileriz";

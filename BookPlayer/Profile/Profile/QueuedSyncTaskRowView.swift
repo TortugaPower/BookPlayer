@@ -17,10 +17,12 @@ struct QueuedSyncTaskRowView: View {
   let progressKey: String
   var initialProgress: Double
   var isUpload: Bool
-  /// Set while the task is parked: the row shows why, with Retry and Report
+  /// Set while the task is parked: the row shows why, with Retry and Report — or, for a
+  /// book the app won't upload (too large), its own message and Dismiss
   var pause: TaskPause? = nil
   var onRetry: () -> Void = {}
   var onReport: () -> Void = {}
+  var onDismiss: () -> Void = {}
 
   @EnvironmentObject var themeViewModel: ThemeViewModel
 
@@ -73,14 +75,24 @@ struct QueuedSyncTaskRowView: View {
 extension QueuedSyncTaskRowView {
   @ViewBuilder
   private func pausedDetails(_ pause: TaskPause) -> some View {
-    Text(pause.message)
+    // The app's own refusal is worded by the app (in the current language); a server
+    // pause shows the server's message
+    let isTooLarge = pause.errorCode == UploadFileError.fileTooLarge.code
+    let message = isTooLarge ? UploadFileError.fileTooLarge.message : pause.message
+
+    Text(message)
       .bpFont(.caption)
       .foregroundStyle(.red)
-      .accessibilityLabel(String(format: "sync_task_paused_voiceover".localized, pause.message))
+      .accessibilityLabel(String(format: "sync_task_paused_voiceover".localized, message))
 
     HStack(spacing: Spacing.S) {
-      pausedAction("sync_task_retry_button", action: onRetry)
-      pausedAction("sync_task_report_button", action: onReport)
+      if isTooLarge {
+        // Retrying can't make the file smaller, and there's nothing to report
+        pausedAction("sync_task_dismiss_button", action: onDismiss)
+      } else {
+        pausedAction("sync_task_retry_button", action: onRetry)
+        pausedAction("sync_task_report_button", action: onReport)
+      }
     }
     .bpFont(.subheadline)
     .foregroundStyle(themeViewModel.linkColor)

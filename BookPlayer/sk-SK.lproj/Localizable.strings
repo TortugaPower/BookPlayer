@@ -309,11 +309,6 @@
 "choose_plan_title" = "Výber svojho plánu";
 "tasks_title" = "Úlohy";
 "queued_sync_tasks_title" = "Úlohy synchronizácie vo fronte (%d)";
-"sync_tasks_alert_description" = "Ak je synchronizačná úloha zaseknutá a nevymaže sa ani po aktívnom pripojení na internet, môžete sa odhlásiť a prihlásiť, aby ste vymazali aktuálne úlohy. Tým sa vaša knižnica vráti do posledného stavu synchronizovaného s našimi servermi.
-
-Majte na pamäti, že úlohy nahrávania môžu chvíľu trvať a priebeh sa bude pravidelne zobrazovať na predchádzajúcej obrazovke.
-
-Usilovne pracujeme na poskytovaní bezproblémového zážitku, ak je to možné, kontaktujte nás na adrese support@bookplayer.app so snímkou obrazovky tejto obrazovky. Vďaka!";
 "sort_by_size_title" = "veľkosti";
 "settings_storage_sync_deleted_description" = "Súbory boli odstránené (operácia synchronizácie)";
 "storage_sync_deleted_recover_description" = "Lokálne knihy a priečinky môžete importovať späť, ak boli odstránené operáciou synchronizácie. Týmto sa presunie všetko späť do priečinka dokumentov, čím sa spustí proces importu. Ak ide o priečinky, môže to znamenať, že originály sú stále v knižnici a bude potrebné niektoré premenovať, ospravedlňujeme sa za túto nepríjemnosť.";

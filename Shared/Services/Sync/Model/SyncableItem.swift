@@ -163,3 +163,13 @@ extension SyncableItem {
     )
   }
 }
+
+extension SyncableItem {
+  /// The media server this book streams from, if any. A Hardcover link is not one: it has
+  /// no file, so it must never keep the book's own file from uploading.
+  public var mediaServerProviderName: String? {
+    externalResources?
+      .first { ExternalResource.ProviderName(rawValue: $0.providerName)?.mediaServer != nil }?
+      .providerName
+  }
+}

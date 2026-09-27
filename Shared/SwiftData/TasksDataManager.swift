@@ -84,6 +84,9 @@ public final class TasksDataManager: BPLogger {
     initializeTasksCount()
   }
 
+  /// The latest snapshot, read now (thread-safe)
+  public var currentQueueCounts: QueueCounts { queueCountsSubject.value }
+
   /// Pending-task counts per queue key, delivered on main. Replays the latest snapshot on
   /// subscribe, then emits after every store/pop.
   public func observeQueueCounts() -> AnyPublisher<QueueCounts, Never> {
@@ -376,8 +379,7 @@ public final class TasksDataManager: BPLogger {
         id: parameters["id"] as! String,
         // The producer types uuid as String? and only inserts it `if let` — match
         // storeTask's defensive read instead of trapping on a persisted absence
-        uuid: parameters["uuid"] as? String ?? "",
-        uploaded: parameters["uploaded"] as? Bool ?? false
+        uuid: parameters["uuid"] as? String ?? ""
       )
       context.insert(task)
     case .deleteExternalResource:
@@ -388,8 +390,7 @@ public final class TasksDataManager: BPLogger {
       let task = UploadFileTaskModel(
         id: parameters["id"] as! String,
         uuid: parameters["uuid"] as! String,
-        filePath: parameters["filePath"] as! String,
-        remotePath: parameters["remotePath"] as? String
+        filePath: parameters["filePath"] as! String
       )
       context.insert(task)
     }

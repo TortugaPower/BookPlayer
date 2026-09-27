@@ -387,19 +387,34 @@ public enum SchemaV3: VersionedSchema {
   public class UploadFileTaskModel {
     @Attribute(.unique) public var id: String
     public var filePath: String
-    public var remotePath: String?
     public var uuid: String
-    
+    /// The open multipart upload (nil until `start` answers). With it, the upload resumes
+    /// from S3's part list; `start` again would abort it.
+    public var uploadId: String?
+    /// Fixed for the life of `uploadId`: every part but the last is exactly this size
+    public var partSize: Int = 0
+    /// The file's size when the upload started; `complete` must match it
+    public var fileSize: Int64 = 0
+    /// Fresh starts after S3 lost or rejected the upload (`upload_not_found`,
+    /// `invalid_parts`); past the budget the task parks
+    public var restartCount: Int = 0
+
     public init(
       id: String,
       uuid: String,
       filePath: String,
-      remotePath: String? = nil
+      uploadId: String? = nil,
+      partSize: Int = 0,
+      fileSize: Int64 = 0,
+      restartCount: Int = 0
     ) {
       self.id = id
       self.uuid = uuid
       self.filePath = filePath
-      self.remotePath = remotePath
+      self.uploadId = uploadId
+      self.partSize = partSize
+      self.fileSize = fileSize
+      self.restartCount = restartCount
     }
   }
   
@@ -407,16 +422,13 @@ public enum SchemaV3: VersionedSchema {
   public class ExternalResourceToDownloadTaskModel {
     @Attribute(.unique) public var id: String
     public var uuid: String
-    public var uploaded: Bool
 
     public init(
       id: String,
-      uuid: String,
-      uploaded: Bool
+      uuid: String
     ) {
       self.id = id
       self.uuid = uuid
-      self.uploaded = uploaded
     }
   }
 

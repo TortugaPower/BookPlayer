@@ -309,11 +309,6 @@
 "choose_plan_title" = "Kies je abonnement";
 "tasks_title" = "Taken";
 "queued_sync_tasks_title" = "Synchronisatietaken in wachtrij (%d)";
-"sync_tasks_alert_description" = "Als er een synchronisatietaak is vastgelopen en niet wordt gewist na een actieve internetverbinding, kunt u uitloggen en inloggen om de huidige taken te wissen. Hierdoor wordt uw bibliotheek teruggezet naar de laatste staat die is gesynchroniseerd met onze servers.
-
- Houd er rekening mee dat het uploaden van taken enige tijd kan duren en dat de voortgang regelmatig op het vorige scherm wordt weergegeven.
-
- We werken er hard aan om een naadloze ervaring te bieden, neem indien mogelijk contact met ons op via support@bookplayer.app met een screenshot van dit scherm. Bedankt!";
 "sort_by_size_title" = "Maat";
 "settings_storage_sync_deleted_description" = "Bestanden verwijderd (synchronisatiebewerkingen)";
 "storage_sync_deleted_recover_description" = "U kunt uw lokale boeken en mappen terug importeren als ze zijn verwijderd door een synchronisatiebewerking. Hierdoor worden ze allemaal terugverplaatst naar de documentenmap, waardoor het importproces wordt geactiveerd. Als er mappen bij betrokken zijn, kan dit betekenen dat de originelen zich nog in de bibliotheek bevinden en dat er een aantal hernoemingen moeten plaatsvinden. Excuses voor dit ongemak";

@@ -46,7 +46,8 @@ public protocol JobSchedulerProtocol {
   /// Delete an external resource on the server
   func scheduleDeleteExternalResource(providerName: String, providerId: String, itemOrigin: LibraryItemRef) async
 
-  func scheduleResourceToDownload(with relativePath: String, for uuid: String?, uploaded: Bool) async
+  /// Upload a downloaded media-server book's file (queued behind the item's own sync tasks)
+  func scheduleResourceToDownload(with relativePath: String, for uuid: String?) async
 }
 
 /// Scheduling facade for the serial BookPlayer-server queue: builds task parameters
@@ -126,7 +127,9 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
       parameters["speed"] = speed
     }
 
-    if let provider = item.externalResources?.first?.providerName {
+    // Media-server books upload their file once downloaded (the pipe job), not from this
+    // job's answer
+    if let provider = item.mediaServerProviderName {
       parameters["provider"] = provider
     }
 
@@ -285,12 +288,11 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
     await persistTask(parameters: params)
   }
 
-  public func scheduleResourceToDownload(with relativePath: String, for uuid: String?, uploaded: Bool) async {
+  public func scheduleResourceToDownload(with relativePath: String, for uuid: String?) async {
     var params: [String: Any] = [
       "id": UUID().uuidString,
       "relativePath": relativePath,
       "jobType": SyncJobType.externalResourceToDownload.rawValue,
-      "uploaded": uploaded
     ]
 
     if let uuid = uuid {

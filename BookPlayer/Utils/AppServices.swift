@@ -7,6 +7,7 @@
 //
 
 import AppIntents
+import BackgroundTasks
 import BookPlayerKit
 import Combine
 import CoreData
@@ -34,6 +35,10 @@ final class AppServices: BPLogger {
   let reviewPromptService = ReviewPromptService()
   /// Reports parked sync tasks to Sentry; lives as long as the services it observes
   private var syncPauseReporter: SyncPauseReporter?
+  /// Keeps book uploads going in the background (a continued processing task)
+  let uploadContinuation = UploadContinuationController()
+  /// The Wi-Fi-only transfer setting needs to know the current network
+  private let networkMonitor = NetworkMonitor()
 
   private init() {
     let playerState = PlayerState()
@@ -159,12 +164,45 @@ final class AppServices: BPLogger {
       )
 
       self.coreServices = coreServices
+      setupUploadContinuation(syncQueueService: syncQueueService)
 
       // Wire up accountService for Watch auth transfer
       watchService.setAccountService(accountService)
 
       return coreServices
     }
+  }
+
+  private func setupUploadContinuation(syncQueueService: SyncQueueService) {
+    let networkMonitor = networkMonitor
+    uploadContinuation.setup(dependencies: .init(
+      canUpload: { syncQueueService.serverLanesEnabled && syncQueueService.accessPolicy[.uploadFile] == true },
+      // Wi-Fi-only means "not over cellular", as the non-cellular session does (wired
+      // Ethernet counts)
+      networkAllowsUploads: {
+        UserDefaults.standard.bool(forKey: Constants.UserDefaults.allowCellularData)
+          || (networkMonitor.isConnected && !networkMonitor.isConnectedViaCellular)
+      },
+      isForeground: { UIApplication.shared.applicationState == .active },
+      pendingUploads: { await syncQueueService.pendingBookUploads() },
+      submit: { request in
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+          AppDelegate.submitBackgroundTask(request) { error in
+            if let error {
+              continuation.resume(throwing: error)
+            } else {
+              continuation.resume()
+            }
+          }
+        }
+      },
+      hasPendingRequest: {
+        await BGTaskScheduler.shared.pendingTaskRequests()
+          .contains { $0.identifier == UploadContinuationController.identifier }
+      },
+      queueChanges: { syncQueueService.observeQueueCounts() },
+      currentCounts: { syncQueueService.queueCounts }
+    ))
   }
 
   // MARK: - Convenience Methods
@@ -263,7 +301,8 @@ final class AppServices: BPLogger {
       isActive: accountService.hasSyncEnabled(),
       libraryService: libraryService,
       accountService: accountService,
-      syncQueueService: syncQueueService
+      syncQueueService: syncQueueService,
+      runsMissingItemsPass: true
     )
     return service
   }

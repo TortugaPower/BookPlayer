@@ -38,7 +38,16 @@ public protocol SyncQueueRepositoryProtocol: ModelActor {
 
   func getAllTasksWithParams(in queueKey: String) -> [SyncTask]
 
+  /// The tasks that can lead to a book file upload, read in one go (the sync lane's
+  /// `.upload`s and media-server file jobs first, then the upload lane): only their payloads
+  /// are fetched, not every bookmark or move job's
+  func getUploadCandidates() -> [UploadCandidate]
+
   func hasUploadTask(for relativePath: String) -> Bool
+
+  /// Stores each upload-lane task unless its book already has an upload queued in either
+  /// lane, parked ones included. Returns how many were stored.
+  func storeFileUploadsIfAbsent(_ parameterList: [[String: Any]]) async throws -> Int
 
   func applyMatchUuidConflicts(_ conflicts: [ItemConflict]) throws
 
@@ -60,6 +69,39 @@ public protocol SyncQueueRepositoryProtocol: ModelActor {
 
   /// Remembers the Sentry event that reported this task's pause
   func setSentryEventId(_ eventId: String, forTask taskId: String)
+
+  /// Persists a multipart upload's progress-independent state, so a relaunch resumes the
+  /// same S3 upload instead of starting over. A nil `uploadId` forgets the open upload.
+  /// `false` when the task is gone (cleared by a logout or lapse mid-upload): stop uploading.
+  @discardableResult
+  func saveUploadState(_ state: MultipartUploadState, forTask taskId: String) -> Bool
+}
+
+/// What a multipart upload must remember across launches (the parts themselves are read
+/// back from S3). `uploadId` alone decides resume vs start: the sizes only count while it's
+/// set (0 means unset, and the server rejects 0).
+public struct MultipartUploadState: Equatable, Sendable {
+  public var uploadId: String?
+  public var partSize: Int
+  public var fileSize: Int64
+  public var restartCount: Int
+
+  public init(uploadId: String?, partSize: Int, fileSize: Int64, restartCount: Int) {
+    self.uploadId = uploadId
+    self.partSize = partSize
+    self.fileSize = fileSize
+    self.restartCount = restartCount
+  }
+
+  /// Read back from an `uploadFile` task's parameters (`UploadFileTaskModel.toDictionaryPayload`)
+  public init(parameters: [String: Any]) {
+    self.init(
+      uploadId: parameters["uploadId"] as? String,
+      partSize: parameters["partSize"] as? Int ?? 0,
+      fileSize: parameters["fileSize"] as? Int64 ?? 0,
+      restartCount: parameters["restartCount"] as? Int ?? 0
+    )
+  }
 }
 
 public actor SyncQueueRepository: SyncQueueRepositoryProtocol, BPLogger {
@@ -197,6 +239,29 @@ public actor SyncQueueRepository: SyncQueueRepositoryProtocol, BPLogger {
 
     reference.sentryEventId = eventId
     saveAndNotify("record the report of \(taskId)")
+  }
+
+  @discardableResult
+  public func saveUploadState(_ state: MultipartUploadState, forTask taskId: String) -> Bool {
+    guard
+      let task = try? modelContext.fetch(
+        FetchDescriptor<UploadFileTaskModel>(predicate: #Predicate { $0.id == taskId })
+      ).first
+    else {
+      Self.logger.info("Upload task \(taskId) is gone; its state wasn't saved")
+      return false
+    }
+
+    task.uploadId = state.uploadId
+    task.partSize = state.partSize
+    task.fileSize = state.fileSize
+    task.restartCount = state.restartCount
+    do {
+      try modelContext.save()
+    } catch {
+      Self.logger.error("Failed to persist the upload state of \(taskId): \(error)")
+    }
+    return true
   }
 
   private func clearInFlight(_ taskId: String) {
@@ -461,6 +526,47 @@ public actor SyncQueueRepository: SyncQueueRepositoryProtocol, BPLogger {
     return tasksContainer.tasks.filter { $0.queueKey == queueKey }.count
   }
 
+  public func getUploadCandidates() -> [UploadCandidate] {
+    guard let tasksContainer = fetchGlobalQueueModel() else { return [] }
+
+    let syncCandidates = tasksContainer.orderedTasks(for: TaskQueueKey.sync).filter {
+      $0.jobType == .upload || $0.jobType == .externalResourceToDownload
+    }
+    let uploads = tasksContainer.orderedTasks(for: TaskQueueKey.uploadFile)
+    // One fetch per payload type, not per task: this runs on every queue change during a
+    // continued run, on the actor the workers need
+    var payloads = [String: any DictionaryConvertible]()
+    do {
+      for model in try modelContext.fetch(FetchDescriptor<UploadTaskModel>()) {
+        payloads[model.id] = model
+      }
+      for model in try modelContext.fetch(FetchDescriptor<ExternalResourceToDownloadTaskModel>()) {
+        payloads[model.id] = model
+      }
+      for model in try modelContext.fetch(FetchDescriptor<UploadFileTaskModel>()) {
+        payloads[model.id] = model
+      }
+    } catch {
+      // Read as "nothing waiting", which can end a continued run early: make it traceable
+      Self.logger.error("Failed to read the upload candidates: \(error)")
+    }
+    return (syncCandidates + uploads).compactMap { taskRef in
+      guard let storedObject = payloads[taskRef.taskID] else { return nil }
+
+      return UploadCandidate(
+        task: SyncTask(
+          id: taskRef.taskID,
+          uuid: taskRef.uuid,
+          relativePath: taskRef.relativePath,
+          jobType: taskRef.jobType,
+          parameters: storedObject.toDictionaryPayload()
+        ),
+        queueKey: taskRef.queueKey,
+        isParked: taskRef.pauseScope != nil
+      )
+    }
+  }
+
   public func getAllTasksWithParams(in queueKey: String) -> [SyncTask] {
     guard let tasksContainer = fetchGlobalQueueModel() else { return [] }
 
@@ -483,6 +589,53 @@ public actor SyncQueueRepository: SyncQueueRepositoryProtocol, BPLogger {
         parameters: storedObject.toDictionaryPayload()
       )
     }
+  }
+
+  /// Checked and stored in one actor turn, so an upload queued meanwhile can't be doubled.
+  /// One save and one change notice for the whole batch: a LITE → PRO backlog can be
+  /// thousands of books, and a store per task would hold the actor for each of them
+  public func storeFileUploadsIfAbsent(_ parameterList: [[String: Any]]) async throws -> Int {
+    var queued = Set(getUploadCandidates().map(\.task.uuid))
+    let context = modelContext
+    let containers = try context.fetch(FetchDescriptor<SyncQueueContainer>())
+    let tasksContainer = containers.first ?? SyncQueueContainer()
+    if containers.isEmpty {
+      context.insert(tasksContainer)
+    }
+    var nextPosition = (tasksContainer.tasks.map(\.position).max() ?? -1) + 1
+    var stored = 0
+    for parameters in parameterList {
+      guard
+        let taskId = parameters["id"] as? String,
+        let uuid = parameters["uuid"] as? String,
+        !queued.contains(uuid)
+      else { continue }
+      // Upload-lane tasks never coalesce: each is its book's one upload
+      tasksDataManager.createTaskModel(for: .uploadFile, with: parameters, in: context)
+      let taskReference = QueuedTaskReferenceModel(
+        queueKey: TaskQueueKey.uploadFile,
+        taskID: taskId,
+        jobType: .uploadFile,
+        position: nextPosition,
+        uuid: uuid,
+        relativePath: parameters["relativePath"] as? String ?? ""
+      )
+      tasksContainer.tasks.append(taskReference)
+      taskReference.container = tasksContainer
+      nextPosition += 1
+      queued.insert(uuid)
+      stored += 1
+    }
+    guard stored > 0 else { return 0 }
+
+    try context.save()
+    tasksDataManager.notifyTasksChanged(context: context)
+    NotificationCenter.default.post(
+      name: .newTaskInQueue,
+      object: nil,
+      userInfo: ["queueKey": TaskQueueKey.uploadFile]
+    )
+    return stored
   }
 
   /// Check if there's an upload task queued for the item
@@ -624,4 +777,11 @@ extension QueuedTaskReferenceModel {
     httpStatus = nil
     pausedAt = nil
   }
+}
+
+/// A task that can lead to a book file upload
+public struct UploadCandidate {
+  public let task: SyncTask
+  public let queueKey: String
+  public let isParked: Bool
 }

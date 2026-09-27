@@ -309,11 +309,6 @@
 "choose_plan_title" = "Velg din plan";
 "tasks_title" = "Oppgaver";
 "queued_sync_tasks_title" = "Køede synkroniseringsoppgaver (%@)";
-"sync_tasks_alert_description" = "Hvis det er en synkroniseringsoppgave som har stoppet opp og ikke forsvinner når du har en aktiv internettforbindelse, så kan du logge inn og ut igjen for å fjerne disse fra pågående oppgaver. Dette vil tilbakestille biblioteket ditt til siste tilstanden som har blitt synkronisert med våre servere.
-
-Vær obs på at opplastingsoppgaver kan ta noe tid, og at fremdriften vil periodisk bli oppdatert på det forrige skjermbildet.
-
-Vi jobber hardt for å gi deg en sømløs opplevelse. Hvis mulig, kontakt oss på support@bookplayer.app med et skjermbilde av denne skjermen. Tusen takk!";
 "sort_by_size_title" = "Størrelse";
 "settings_storage_sync_deleted_description" = "Filer fjernet (synkronisering)";
 "storage_sync_deleted_recover_description" = "Du kan reimportere dine lokale bøker og mapper hvis de har blitt slettet av en synkroniseringsoperasjon. Dette vil flytte de tilbake til dokumenter mappen og dermed starte import prosessen. Hvis du bruker mapper kan du oppleve at originalene fremdeles er i biblioteket og at du må navngi disse på nytt, beklager ulempen.";

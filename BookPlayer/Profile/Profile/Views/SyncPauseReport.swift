@@ -52,10 +52,7 @@ struct SyncPauseReport {
     }
 
     report += "\n-- Local library (\(library.count)) --\n"
-    report += LibraryTreeRepresentation.render(
-      entries: library.map { ($0.relativePath, $0.uuid) },
-      remoteIdentifiers: nil
-    )
+    report += LibraryTreeRepresentation.render(entries: library.map { ($0.relativePath, $0.uuid) })
     return report
   }
 

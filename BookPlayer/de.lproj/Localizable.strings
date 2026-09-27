@@ -310,11 +310,6 @@
 "tasks_title" = "Aufgaben";
 "queued_sync_tasks_title" = "Synchronisierungsaufgaben in der Warteschlange (%d)";
 "sync_tasks_queued_count_title" = "Warteschlangen-Aufgaben (%d)";
-"sync_tasks_alert_description" = "Wenn eine Synchronisierungsaufgabe hängen bleibt und nach einer aktiven Internetverbindung nicht gelöscht werden kann, kannst du dich abmelden und wieder anmelden, um die aktuellen Aufgaben zu löschen. Dadurch wird deine Bibliothek auf den letzten mit unseren Servern synchronisierten Status zurückgesetzt.
-
- Beachte, dass Upload-Aufgaben einige Zeit in Anspruch nehmen können und der Fortschritt regelmäßig auf dem vorherigen Bildschirm angezeigt wird.
-
- Wir arbeiten hart daran, ein nahtloses Erlebnis zu bieten. Wenn möglich, kontaktiere uns bitte unter support@bookplayer.app mit einem Screenshot dieses Bildschirms. Danke!";
 "sort_by_size_title" = "Größe";
 "settings_storage_sync_deleted_description" = "Entfernte Dateien (Synchronisierungsvorgänge)";
 "storage_sync_deleted_recover_description" = "Du kannst deine lokalen Bücher und Ordner wieder importieren, wenn sie durch einen Synchronisierungsvorgang gelöscht wurden. Dadurch werden alle Dateien zurück in den Dokumentenordner verschoben und der Importvorgang ausgelöst. Wenn es sich um Ordner handelt, kann dies bedeuten, dass sich die Originale noch in der Bibliothek befinden und einige Umbenennungen vorgenommen werden müssen. Bitte entschuldige die Unannehmlichkeiten.";

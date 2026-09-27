@@ -136,9 +136,12 @@ class AccountServiceMock: AccountServiceProtocol {
 
   func deleteAccount() async throws -> String { return "Success" }
   
+  /// Settable so a test can model a tier change. The default .free keeps this consistent
+  /// with the mock's hasSyncEnabled()/hasPlusAccess() both returning false — a .plus level
+  /// would contradict them.
+  var accessLevelValue: BookPlayerKit.AccessLevel = .free
+
   func getAccessLevel() -> BookPlayerKit.AccessLevel {
-    // .free keeps this consistent with the mock's hasSyncEnabled()/hasPlusAccess()
-    // both returning false — a .plus level would contradict them.
-    return .free
+    return accessLevelValue
   }
 }

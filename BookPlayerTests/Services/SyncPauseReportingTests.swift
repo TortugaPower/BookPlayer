@@ -220,13 +220,10 @@ final class SyncPauseReportingTests: XCTestCase {
     XCTAssertTrue(report.subject.contains("item_not_found"))
   }
 
-  /// The debug file keeps its listing unchanged: no uuid column
-  func testLibraryTree_withoutUuids_matchesTheDebugFileFormat() {
-    let tree = LibraryTreeRepresentation.render(
-      entries: [("Book.mp3", nil)],
-      remoteIdentifiers: ["Book.mp3"]
-    )
-    XCTAssertEqual(tree, "Library\n.\n`-- [𐄂][☑] Book.mp3\n")
+  /// Local state only: whether each item's file is on this device, with its uuid when given
+  func testLibraryTree_showsLocalFilesAndUuids() {
+    let tree = LibraryTreeRepresentation.render(entries: [("Book.mp3", "book-uuid"), ("Other.mp3", nil)])
+    XCTAssertEqual(tree, "Library\n.\n|-- [𐄂] Book.mp3 (book-uuid)\n`-- [𐄂] Other.mp3\n")
   }
 
   func testReport_writesANamedFile() throws {

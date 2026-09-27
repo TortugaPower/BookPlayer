@@ -287,6 +287,11 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
         guard let unwrapped = Self.unwrapOptional(value) else { return nil }
         return URLQueryItem(name: key, value: "\(unwrapped)")
       }
+      // URLComponents leaves `+` as is, and the API (Express/qs) decodes a literal `+` in
+      // a query value as a space: "A+B.mp3" arrived as "A B.mp3", and an S3 upload id
+      // carrying `+` would be reported as not found
+      components.percentEncodedQuery = components.percentEncodedQuery?
+        .replacingOccurrences(of: "+", with: "%2B")
     }
 
     guard let url = components.url else {

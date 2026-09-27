@@ -46,14 +46,21 @@ public protocol SyncServiceProtocol {
   /// Fetch the contents at the relativePath and override local contents with the remote repsonse
   func syncListContents(at relativePath: String?) async throws
 
-  /// Fetch the synced identifiers and upload new local items
-  /// Note: Should only be called once when the user logs in
+  /// The first sync: registers what the server is missing (the missing-items pass), then
+  /// reconciles the library root without deleting anything. Runs after signing in and on
+  /// coming back from a lapse
   func syncLibraryContents() async throws
 
   func syncBookmarksList(relativePath: String) async throws -> [SimpleBookmark]?
 
-  /// Fetch the remote synced identifiers
-  func fetchSyncedIdentifiers() async throws -> [String]
+  /// Whether the first sync has registered this device's items (after signing in, or on coming
+  /// back from a lapse): until then no listing may delete local items
+  var hasRunFirstSync: Bool { get }
+
+  /// The missing-items pass outside the first sync: once the account becomes PRO (its books'
+  /// files can now go up), and weekly. Runs only when due, sync is on, the first sync has
+  /// run and nothing waits in the sync lane; one at a time
+  func scheduleMissingItemsIfNeeded() async
 
   func getRemoteFileURLs(
     of relativePath: String,
@@ -94,6 +101,9 @@ public protocol SyncServiceProtocol {
   func getLastSyncError() -> SyncErrorInfo?
   /// Cancel all scheduled jobs
   func cancelAllJobs()
+  /// Returns once every finished download's follow-up (chapters, verification, media-server
+  /// upload scheduling) is done: a background wake awaits it before letting iOS suspend
+  func settleDownloads() async
   /// Cancel all scheduled jobs and wait for completion
   func resetAllJobs() async
 
@@ -153,8 +163,27 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   public var downloadErrorPublisher = PassthroughSubject<(String, Error), Never>()
   /// Background URL session to handle downloading synced items
   private var downloadURLSession: BPDownloadURLSession!
+  /// Finished downloads still being finalized, so a background wake can wait for them
+  private let finalizeLock = NSLock()
+  private var finalizeTasks = [UUID: Task<Void, Never>]()
 
   private var provider: NetworkProvider<LibraryAPI>!
+
+  /// Only the phone runs the missing-items pass: the watch has downloaded files of its own
+  /// and must never upload them
+  private var runsMissingItemsPass = false
+  /// One pass at a time: an account update and a list refresh can ask together
+  private let missingItemsPassLock = NSLock()
+  private var isRunningMissingItemsPass = false
+  /// Where the first-sync flag and the pass's schedule live (injected by tests)
+  private var defaults: UserDefaults = .standard
+  /// Bumped (under `missingItemsPassLock`) whenever sync goes off: a pass that began earlier
+  /// can't tell a new session from its own by `isActive` alone if sync came back meanwhile
+  private var syncSession = 0
+
+  public var hasRunFirstSync: Bool {
+    defaults.bool(forKey: Constants.UserDefaults.hasScheduledLibraryContents)
+  }
 
   private var disposeBag = Set<AnyCancellable>()
 
@@ -170,12 +199,23 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     accountService: AccountServiceProtocol,
     syncQueueService: SyncQueueServiceProtocol,
     client: NetworkClientProtocol = NetworkClient(),
-    streamResolver: ExternalStreamResolving = ExternalStreamResolver()
+    streamResolver: ExternalStreamResolving = ExternalStreamResolver(),
+    runsMissingItemsPass: Bool = false,
+    userDefaults: UserDefaults = .standard
   ) {
     self.isActive = isActive
+    self.runsMissingItemsPass = runsMissingItemsPass
+    self.defaults = userDefaults
     self.streamResolver = streamResolver
     self.libraryService = libraryService
     self.accountService = accountService
+    // Signed in but not syncing is a lapse too, usually one that happened while the app was
+    // closed (the cached entitlement expired), with no transition for updateSyncEnabled to
+    // see. A paying subscriber whose cached read is stale lands here as well: harmless, the
+    // first sync never clears queued work and only runs once the sync lane is empty
+    if runsMissingItemsPass, !isActive, accountService.getAccountId() != nil {
+      defaults.set(false, forKey: Constants.UserDefaults.hasScheduledLibraryContents)
+    }
     self.syncQueueService = syncQueueService
     self.jobManager = SyncJobScheduler(tasksRepository: syncQueueService.taskContainer)
     // The queue holds the server lanes until told otherwise: a lapsed account's persisted
@@ -241,6 +281,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
       .sink(receiveValue: { [weak self] _ in
         guard let self, self.accountService.hasAccount() else { return }
         self.updateSyncEnabled(self.accountService.hasSyncEnabled())
+        self.noteProAccess()
       })
       .store(in: &disposeBag)
 
@@ -308,33 +349,43 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     guard isActive else {
       throw BookPlayerError.networkError("Sync is not enabled")
     }
+    // Its pass queues this device's files for upload: never from the watch
+    guard runsMissingItemsPass else {
+      throw BookPlayerError.runtimeError("The first sync runs on the phone only")
+    }
 
     /// Wait for any in-flight logout teardown to finish before scheduling, so a fast
     /// logout→login can't have a late `resetAllJobs()` wipe freshly-scheduled jobs.
     await teardownTask?.value
 
-    if await queuedJobsCount() > 0 {
-      Self.logger.trace("Clearing orphaned tasks before initial library sync")
-      await resetAllJobs()
+    // Work queued before sync went off is held, never cleared (a paying subscriber can read
+    // lapsed at launch): it runs first, so the server has it before it's asked what it's
+    // missing. The flag stays off meanwhile, and the next root refresh runs this again
+    guard await queuedJobsCount() == 0 else {
+      Self.logger.trace("First sync waits for the queued sync tasks")
+      return
     }
+    guard beginMissingItemsPass() else { return }
+    defer { endMissingItemsPass() }
+    let session = currentSyncSession()
 
-    Self.logger.trace("Fetching synced library identifiers")
+    Self.logger.trace("Registering what the server is missing")
 
-    let fetchedIdentifiers = try await fetchSyncedIdentifiers()
-
-    if let itemsToUpload = await libraryService.getItemsToSync(remoteIdentifiers: fetchedIdentifiers),
-      !itemsToUpload.isEmpty
-    {
-      Self.logger.trace("Scheduling upload tasks")
-      await handleItemsToUpload(itemsToUpload)
+    // By uuid, never by comparing paths: a path that went stale on this device (after a
+    // lapse, the stalest case) would make the server move its item back
+    let couldQueueFiles = try await runMissingItemsPass(startsContinuedUploads: true, session: session)
+    // Sync went off meanwhile (and maybe came back): its teardown wiped what this queued
+    guard isStillSyncSession(session) else { return }
+    // Only once its books' files could be queued: an account update may not have given the
+    // queue its PRO policy yet, and the next root refresh then runs the pass again
+    if couldQueueFiles {
+      defaults.set(false, forKey: Constants.UserDefaults.missingItemsPassPending)
     }
 
     let response = try await fetchContents(at: nil)
 
-    UserDefaults.standard.set(
-      true,
-      forKey: Constants.UserDefaults.hasScheduledLibraryContents
-    )
+    // Checked and written in one step with the session's end, which clears the flag
+    guard markFirstSyncDone(in: session) else { return }
 
     try await processContentsResponse(response, parentFolder: nil, canDelete: false)
   }
@@ -427,12 +478,6 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     }
 
     return libraryService.getBookmarks(of: .user, relativePath: relativePath)
-  }
-
-  public func fetchSyncedIdentifiers() async throws -> [String] {
-    let response: IdentifiersResponse = try await self.provider.request(.syncedIdentifiers)
-
-    return response.content
   }
 
   func fetchContents(at relativePath: String?) async throws -> ContentsResponse {
@@ -631,6 +676,9 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
       self.isActive = enabled
       self.syncQueueService.setServerLanesEnabled(enabled)
       if !enabled {
+        // A lapse makes the return a first sync: what's imported meanwhile never reaches the
+        // server, and a plain listing would delete it (it isn't on the server)
+        self.endSyncSession(resettingFirstSync: self.runsMissingItemsPass)
         self.cancelAllJobs()
         // Clearing the persisted rows isn't enough (develop parity): an operation
         // already executing keeps uploading after the lapse without this. Scoped so
@@ -650,10 +698,14 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
       self.isActive = false
       self.syncQueueService.setServerLanesEnabled(false)
     }
-    UserDefaults.standard.set(
-      false,
-      forKey: Constants.UserDefaults.hasScheduledLibraryContents
-    )
+    endSyncSession(resettingFirstSync: true)
+    for key in [
+      Constants.UserDefaults.missingItemsPassLastRun,
+      Constants.UserDefaults.missingItemsPassPending,
+      Constants.UserDefaults.lastKnownProAccess,
+    ] {
+      defaults.removeObject(forKey: key)
+    }
     await resetAllJobs()
   }
 }
@@ -694,7 +746,8 @@ extension SyncService {
 }
 
 extension SyncService {
-  func handleItemsToUpload(_ items: [SyncableItem]) async {
+  /// - Parameter announcesUploads: whether queued book files may start the continued task
+  func handleItemsToUpload(_ items: [SyncableItem], announcesUploads: Bool = true) async {
     for item in items {
       await jobManager.scheduleLibraryItemUploadJob(for: item)
       
@@ -705,17 +758,24 @@ extension SyncService {
       }
     }
 
-    /// Handle bookmarks in separate loop, as the viewContext can be unreliable
+    /// Bookmarks after every item, read in batches on a background context: a first sync
+    /// registers the whole library, and this runs off main
+    let bookmarksByPath = await libraryService.getUserBookmarks(forItemsAt: items.map(\.relativePath))
     for item in items {
-      if let bookmarks = libraryService.getBookmarks(of: .user, relativePath: item.relativePath) {
-        for bookmark in bookmarks {
-          await jobManager.scheduleSetBookmarkJob(
-            with: bookmark.relativePath,
-            time: floor(bookmark.time),
-            note: bookmark.note,
-            for: item.uuid
-          )
-        }
+      for bookmark in bookmarksByPath[item.relativePath] ?? [] {
+        await jobManager.scheduleSetBookmarkJob(
+          with: bookmark.relativePath,
+          time: floor(bookmark.time),
+          note: bookmark.note,
+          for: item.uuid
+        )
+      }
+    }
+
+    // Media-server books have no file to upload from here (theirs goes up once downloaded)
+    if announcesUploads, items.contains(where: { $0.type == .book && $0.mediaServerProviderName == nil }) {
+      await MainActor.run {
+        NotificationCenter.default.post(name: .bookUploadsQueued, object: nil)
       }
     }
   }
@@ -858,13 +918,25 @@ extension SyncService {
     /// download that already finished: nothing to move, nothing to announce.
     guard let movedFileURL else { return }
 
-    Task {
-      await self.finalizeDownloadedFile(
-        relativePath: relativePath,
-        fileURL: movedFileURL,
-        startingItemPath: startingItemPath,
-        parentFolderPath: parentFolderPath
-      )
+    let id = UUID()
+    // Stored under the lock it removes itself with, so an instant finish can't beat the insert
+    finalizeLock.withLock {
+      finalizeTasks[id] = Task {
+        await self.finalizeDownloadedFile(
+          relativePath: relativePath,
+          fileURL: movedFileURL,
+          startingItemPath: startingItemPath,
+          parentFolderPath: parentFolderPath
+        )
+        _ = self.finalizeLock.withLock { self.finalizeTasks.removeValue(forKey: id) }
+      }
+    }
+  }
+
+  public func settleDownloads() async {
+    let tasks = finalizeLock.withLock { Array(finalizeTasks.values) }
+    for task in tasks {
+      await task.value
     }
   }
 
@@ -921,7 +993,7 @@ extension SyncService {
     // Deliberately NOT gated on `isActive`: external-resource sync is tier-independent by
     // design (the reference lives in the DB for every tier and the server validates
     // entitlements) — matching getDownloadState, which permits these downloads when !isActive.
-    await jobManager.scheduleResourceToDownload(with: relativePath, for: snapshot.uuid, uploaded: false)
+    await jobManager.scheduleResourceToDownload(with: relativePath, for: snapshot.uuid)
   }
 
   /// Backstop against truncated/botched downloads that finish without surfacing a
@@ -1079,6 +1151,203 @@ extension SyncService {
 
       return libraryService.getMaxItemsCount(at: item.relativePath) == enumerator.allObjects.count
         ? .downloaded : .notDownloaded
+    }
+  }
+}
+
+// MARK: - Missing-items pass
+
+extension SyncService {
+  /// How often the pass runs without a tier change
+  static let missingItemsPassInterval: TimeInterval = 7 * 24 * 60 * 60
+
+  /// The missing-items pass (bookplayer-api docs/multipart-uploads.md): asks the server about
+  /// every uuid in the local library, registers the items it has never seen like an import
+  /// and, with S3 access, queues the files of books it holds without one. By uuid, never by
+  /// path, so a path that went stale on this device can't move anything back.
+  /// - Parameters:
+  ///   - startsContinuedUploads: whether queued book files may start the continued task (the
+  ///     first sync and a tier change; the weekly run never does)
+  ///   - session: the sync session the caller began in (its own, when nil)
+  /// - Returns: whether the tier could queue book files (a pending tier change is done)
+  @discardableResult
+  func runMissingItemsPass(startsContinuedUploads: Bool, session: Int? = nil) async throws -> Bool {
+    let session = session ?? currentSyncSession()
+    guard let localUuids = await libraryService.fetchAllUuids() else {
+      throw BookPlayerError.runtimeError("Couldn't read the library for the missing-items pass")
+    }
+    let status: ItemsStatusResponse = try await provider.request(.itemsStatus(uuids: localUuids))
+    // Sync went off while the server answered (and maybe came back): its teardown already ran
+    guard isStillSyncSession(session) else { return false }
+
+    // A book with an upload queued (parked included) isn't lost: leave it to that task
+    let queuedUploads = Set(await syncQueueService.taskContainer.getUploadCandidates().map(\.task.uuid))
+
+    let unknownUuids = status.unknown.filter { !queuedUploads.contains($0) }
+    var unknownItems = [SyncableItem]()
+    if !unknownUuids.isEmpty {
+      guard let items = await libraryService.getSyncableItems(forUuids: unknownUuids) else {
+        throw BookPlayerError.runtimeError("Couldn't read the items the server is missing")
+      }
+      unknownItems = try await matchUuids(of: items)
+      guard isStillSyncSession(session) else { return false }
+      await handleItemsToUpload(unknownItems, announcesUploads: false)
+    }
+
+    // A logout during the registrations: don't queue into the next account's session
+    guard isStillSyncSession(session) else { return false }
+    // Read once: the same answer decides whether files are queued and whether a pending tier
+    // change is done
+    let canQueueFiles = syncQueueService.accessPolicy[.uploadFile] == true
+    var queuedFiles = 0
+    if canQueueFiles, !status.unsynced.isEmpty {
+      guard let books = await libraryService.getSyncableItems(forUuids: status.unsynced) else {
+        throw BookPlayerError.runtimeError("Couldn't read the books the server has no file for")
+      }
+      queuedFiles = await syncQueueService.scheduleMissingFileUploads(books.compactMap(Self.missingFileUpload(for:)))
+    }
+
+    if startsContinuedUploads,
+      queuedFiles > 0 || unknownItems.contains(where: { $0.type == .book && $0.mediaServerProviderName == nil })
+    {
+      await MainActor.run {
+        NotificationCenter.default.post(name: .bookUploadsQueued, object: nil)
+      }
+    }
+
+    // After a logout, the next account starts with no run on record
+    guard isStillSyncSession(session) else { return false }
+    defaults.set(Date().timeIntervalSince1970, forKey: Constants.UserDefaults.missingItemsPassLastRun)
+    return canQueueFiles
+  }
+
+  /// Matches the items' uuids by path BEFORE anything registers them: the server may already
+  /// hold a row at an item's path under no uuid (a legacy row: the server takes ours) or
+  /// another one (the same file imported on another device: this device adopts it, in the
+  /// library and every queued task). `PUT /` at such a path would answer with that row without
+  /// storing our uuid. Done inline, not as a queued job, so every task registered afterwards
+  /// already carries the uuid the server knows. Returns the items as they now are.
+  private func matchUuids(of items: [SyncableItem]) async throws -> [SyncableItem] {
+    var conflicts = [ItemConflict]()
+    let limit = SyncJobScheduler.matchUuidsBatchLimit
+    for start in stride(from: 0, to: items.count, by: limit) {
+      let batch = items[start..<min(start + limit, items.count)]
+      let response: MatchUuidsResponse = try await provider.request(
+        .matchUuids(uuidsDictionary: Dictionary(batch.map { ($0.relativePath, $0.uuid) }) { first, _ in first })
+      )
+      conflicts += response.conflicts
+    }
+    guard !conflicts.isEmpty else { return items }
+
+    try await syncQueueService.applyUuidConflicts(conflicts)
+    let adopted = Dictionary(conflicts.map { ($0.key, $0.uuid) }) { first, _ in first }
+    guard let current = await libraryService.getSyncableItems(forUuids: items.map { adopted[$0.uuid] ?? $0.uuid }) else {
+      throw BookPlayerError.runtimeError("Couldn't read the items after matching their uuids")
+    }
+    return current
+  }
+
+  /// A book the server holds without its file, worth uploading from here: not streamed from a
+  /// media server (its file goes up once downloaded, through the pipe job), its file on this
+  /// device, and within the 10 GiB ceiling (a too-large book the user dismissed stays gone)
+  static func missingFileUpload(for item: SyncableItem) -> MissingFileUpload? {
+    guard item.type == .book, item.mediaServerProviderName == nil else { return nil }
+    let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(item.relativePath)
+    guard
+      let values = try? fileURL.resourceValues(forKeys: [.isRegularFileKey, .fileSizeKey]),
+      values.isRegularFile == true,
+      let size = values.fileSize,
+      Int64(size) <= FileUploadOperation.maxFileSize
+    else { return nil }
+    return MissingFileUpload(uuid: item.uuid, relativePath: item.relativePath, fileURL: fileURL)
+  }
+
+  public func scheduleMissingItemsIfNeeded() async {
+    guard runsMissingItemsPass, isActive else { return }
+    // Until then, the first sync is the pass
+    guard defaults.bool(forKey: Constants.UserDefaults.hasScheduledLibraryContents) else { return }
+    guard isMissingItemsPassDue() else { return }
+
+    guard beginMissingItemsPass() else { return }
+    defer { endMissingItemsPass() }
+
+    await teardownTask?.value
+    let session = currentSyncSession()
+    // A tier change that arrived during a weekly run runs right after it, not a week later
+    while isMissingItemsPassDue() {
+      // Off (a logout or lapse) the pass stops without recording a run: stop with it. Queued
+      // changes haven't reached the server yet: a queued import would come back unknown and be
+      // registered twice
+      guard isStillSyncSession(session), hasRunFirstSync, await jobManager.queuedJobsCount() == 0 else { return }
+      let isPending = defaults.bool(forKey: Constants.UserDefaults.missingItemsPassPending)
+      do {
+        let couldQueueFiles = try await runMissingItemsPass(startsContinuedUploads: isPending, session: session)
+        guard isPending else { continue }
+        guard couldQueueFiles else { return }
+        defaults.set(false, forKey: Constants.UserDefaults.missingItemsPassPending)
+      } catch {
+        Self.logger.error("Missing-items pass failed: \(error.localizedDescription)")
+        return
+      }
+    }
+  }
+
+  private func isMissingItemsPassDue() -> Bool {
+    let lastRun = defaults.double(forKey: Constants.UserDefaults.missingItemsPassLastRun)
+    return defaults.bool(forKey: Constants.UserDefaults.missingItemsPassPending)
+      || Date().timeIntervalSince1970 - lastRun >= Self.missingItemsPassInterval
+  }
+
+  /// LITE → PRO: the books registered without their file can now upload, so the next pass is
+  /// due at once (and starts the continued task). Leaving PRO drops a pass still pending. The
+  /// first reading (an app update, a fresh install, a sign-in) is no tier change: the first
+  /// sync and the weekly run cover what's missing
+  func noteProAccess() {
+    guard runsMissingItemsPass else { return }
+    let isPro = accountService.getAccessLevel() == .pro
+    if let wasPro = defaults.object(forKey: Constants.UserDefaults.lastKnownProAccess) as? Bool, wasPro != isPro {
+      defaults.set(isPro, forKey: Constants.UserDefaults.missingItemsPassPending)
+    }
+    defaults.set(isPro, forKey: Constants.UserDefaults.lastKnownProAccess)
+    Task { await self.scheduleMissingItemsIfNeeded() }
+  }
+
+  private func beginMissingItemsPass() -> Bool {
+    missingItemsPassLock.withLock {
+      guard !isRunningMissingItemsPass else { return false }
+      isRunningMissingItemsPass = true
+      return true
+    }
+  }
+
+  private func endMissingItemsPass() {
+    missingItemsPassLock.withLock { isRunningMissingItemsPass = false }
+  }
+
+  private func currentSyncSession() -> Int {
+    missingItemsPassLock.withLock { syncSession }
+  }
+
+  private func isStillSyncSession(_ session: Int) -> Bool {
+    isActive && missingItemsPassLock.withLock { syncSession == session }
+  }
+
+  /// Sync went off (a logout, a lapse): the session ends and, where asked, the first-sync
+  /// flag clears in the same step, so a pass from the old session can't mark itself done after
+  private func endSyncSession(resettingFirstSync: Bool) {
+    missingItemsPassLock.withLock {
+      syncSession += 1
+      if resettingFirstSync {
+        defaults.set(false, forKey: Constants.UserDefaults.hasScheduledLibraryContents)
+      }
+    }
+  }
+
+  private func markFirstSyncDone(in session: Int) -> Bool {
+    missingItemsPassLock.withLock {
+      guard isActive, syncSession == session else { return false }
+      defaults.set(true, forKey: Constants.UserDefaults.hasScheduledLibraryContents)
+      return true
     }
   }
 }

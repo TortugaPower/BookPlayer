@@ -14,7 +14,7 @@ struct ProfileSyncTasksSectionView: View {
   @State private var statusMessage: String = ""
   /// Every lane, summed by the engine that owns them all
   @State private var queuedCount = 0
-  /// Parked tasks across every lane: they need the user, so they replace the sync status
+  /// Parked tasks across every lane: the title turns into a warning while any need the user
   @State private var pausedCount = 0
 
   private var buttonText: String {
@@ -22,24 +22,70 @@ struct ProfileSyncTasksSectionView: View {
   }
 
   @Environment(\.syncQueueService) private var syncQueueService
+  @Environment(\.uploadContinuation) private var uploadContinuation
+  @Environment(\.scenePhase) private var scenePhase
+  /// Read so the button follows the setting (the offer checks it, but can't observe it)
+  @AppStorage(Constants.UserDefaults.allowCellularData) private var allowsCellularData = false
   @EnvironmentObject private var theme: ThemeViewModel
 
+  /// The offer checks the cellular setting through a closure SwiftUI can't observe: reading
+  /// the setting here makes the button follow it
+  private var showsContinueButton: Bool {
+    _ = allowsCellularData
+    return uploadContinuation.isOfferAvailable
+  }
+
+  /// While the continued task runs, its progress replaces the sync status
+  private var caption: String {
+    if uploadContinuation.state == .running, let percent = uploadContinuation.runningPercent {
+      return String(format: "uploads_running_background_caption".localized, percent)
+    }
+    return statusMessage
+  }
+
   var body: some View {
+    VStack(spacing: Spacing.S2) {
+      queuedTasksLink
+      if showsContinueButton {
+        Button {
+          uploadContinuation.continueInBackground()
+        } label: {
+          Text("continue_uploads_background_button")
+            .frame(minHeight: 44)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.borderless)
+        .bpFont(.subheadline)
+        .foregroundStyle(theme.linkColor)
+      }
+    }
+    .task { await uploadContinuation.refreshState() }
+    // iOS may drop the request while the app is away
+    .onChange(of: scenePhase) { _, phase in
+      guard phase == .active else { return }
+      Task { await uploadContinuation.refreshState() }
+    }
+  }
+
+  private var queuedTasksLink: some View {
     NavigationLink(value: ProfileScreen.queueTasks) {
       VStack {
-        Text(buttonText)
-          .bpFont(.body)
-          .foregroundStyle(theme.linkColor)
-        if pausedCount > 0 {
-          Text(String.localizedStringWithFormat("sync_paused_caption".localized, pausedCount))
-            .bpFont(.caption)
-            .foregroundStyle(.red)
-        } else {
-          Text(statusMessage)
-            .bpFont(.caption)
-            .foregroundStyle(theme.secondaryColor)
+        HStack(spacing: Spacing.S4) {
+          if pausedCount > 0 {
+            Image(systemName: "exclamationmark.triangle.fill")
+              .accessibilityHidden(true)
+          }
+          Text(buttonText)
         }
+        .bpFont(.body)
+        .foregroundStyle(pausedCount > 0 ? .red : theme.linkColor)
+        Text(caption)
+          .bpFont(.caption)
+          .foregroundStyle(theme.secondaryColor)
       }
+      // Not by colour alone: VoiceOver hears it too
+      .accessibilityElement(children: .combine)
+      .accessibilityValue(pausedCount > 0 ? "sync_tasks_need_attention_voiceover".localized : "")
     }
     .onReceive(syncQueueService.observeQueueCounts()) { counts in
       if queuedCount != counts.total {
