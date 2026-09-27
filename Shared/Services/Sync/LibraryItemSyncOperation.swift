@@ -231,11 +231,9 @@ extension LibraryItemSyncOperation {
       return
     }
 
-    results = .uploadMetadata(UploadResponse(uuid: self.uuid, filePath: fileURL.absoluteString, remotePath: remoteURL.absoluteString, relativePath: self.relativePath))
-    // Deliberately NOT handleUploadFinished() here: a backing file still has to be PUT by the
-    // FileUploadOperation this result schedules — confirming synced:true now lies to the server
-    // if that upload later fails permanently. The metadata-only branch above confirms
-    // immediately; this branch confirms from the file upload's completion.
+    // The URL only says the server needs the bytes: the upload lane sends them as a
+    // multipart upload, and the server marks the row synced when it assembles the file
+    results = .uploadMetadata(UploadResponse(uuid: self.uuid, filePath: fileURL.absoluteString, relativePath: self.relativePath))
     finish()
   }
 

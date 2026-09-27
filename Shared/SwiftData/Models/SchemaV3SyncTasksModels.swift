@@ -387,7 +387,6 @@ public enum SchemaV3: VersionedSchema {
   public class UploadFileTaskModel {
     @Attribute(.unique) public var id: String
     public var filePath: String
-    public var remotePath: String?
     public var uuid: String
     /// The open multipart upload (nil until `start` answers). With it, the upload resumes
     /// from S3's part list; `start` again would abort it.
@@ -404,7 +403,6 @@ public enum SchemaV3: VersionedSchema {
       id: String,
       uuid: String,
       filePath: String,
-      remotePath: String? = nil,
       uploadId: String? = nil,
       partSize: Int = 0,
       fileSize: Int64 = 0,
@@ -413,7 +411,6 @@ public enum SchemaV3: VersionedSchema {
       self.id = id
       self.uuid = uuid
       self.filePath = filePath
-      self.remotePath = remotePath
       self.uploadId = uploadId
       self.partSize = partSize
       self.fileSize = fileSize

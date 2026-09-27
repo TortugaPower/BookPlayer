@@ -188,7 +188,7 @@ final class SyncQueueTests: XCTestCase {
     let link = FileManager.default.temporaryDirectory.appendingPathComponent("denied-\(UUID().uuidString).mp3")
     try Data("x".utf8).write(to: link)
 
-    service.scheduleFileUpload(params: ["filePath": link.absoluteString, "remotePath": "https://s3/a", "uuid": "u1"])
+    service.scheduleFileUpload(params: ["filePath": link.absoluteString, "uuid": "u1"])
 
     XCTAssertFalse(FileManager.default.fileExists(atPath: link.path))
     let tasks = await repository.getAllTasks()
@@ -200,13 +200,13 @@ final class SyncQueueTests: XCTestCase {
     service.taskContainer = repository
 
     service.accessPolicy = [.uploadFile: false]
-    service.scheduleFileUpload(params: ["filePath": "/tmp/a", "remotePath": "https://s3/a", "uuid": "u1"])
+    service.scheduleFileUpload(params: ["filePath": "/tmp/a", "uuid": "u1"])
     try await Task.sleep(for: .milliseconds(300))
     let denied = await repository.getAllTasks()
     XCTAssertTrue(denied.isEmpty)
 
     service.accessPolicy = [.uploadFile: true]
-    service.scheduleFileUpload(params: ["filePath": "/tmp/a", "remotePath": "https://s3/a", "uuid": "u1"])
+    service.scheduleFileUpload(params: ["filePath": "/tmp/a", "uuid": "u1"])
     try await waitForTaskCount(1)
     let allowed = await repository.getNextTask(for: TaskQueueKey.uploadFile)
     XCTAssertEqual(allowed?.jobType, .uploadFile)
@@ -238,28 +238,6 @@ final class SyncQueueTests: XCTestCase {
     operation.cancel()
     operation.start()
     XCTAssertTrue(operation.isFinished)
-  }
-
-  /// A permanently-missing source file must CONSUME the upload (didSucceed) instead of failing:
-  /// the queue retries failures forever on one serial key, so a poison task would hot-loop and
-  /// block every other upload behind it.
-  func testFileUploadOperation_missingSourceFile_isConsumedNotRetried() {
-    let operation = FileUploadOperation(
-      fileURL: URL(fileURLWithPath: "/nonexistent/\(UUID().uuidString).m4b"),
-      remoteURL: URL(string: "https://example.com/upload")!,
-      uuid: "task-uuid"
-    )
-
-    operation.start()
-
-    let done = expectation(description: "operation finished")
-    let observer = operation.observe(\.isFinished, options: [.initial, .new]) { op, _ in
-      if op.isFinished { done.fulfill() }
-    }
-    wait(for: [done], timeout: 5)
-    observer.invalidate()
-
-    XCTAssertTrue(operation.didSucceed, "a missing source file is permanent — the task must be consumed")
   }
 
   // MARK: - Helpers
@@ -324,7 +302,6 @@ extension SyncQueueTests {
       "jobType": SyncJobType.uploadFile.rawValue,
       "queueKey": TaskQueueKey.uploadFile,
       "filePath": "/tmp/\(id).m4b",
-      "remotePath": "https://s3/\(id)",
       "uuid": id,
     ]
   }
@@ -433,6 +410,7 @@ extension SyncQueueTests {
     service.taskContainer = repository
     service.tasksDataManager = tasksDataManager
     service.accessPolicy = [.uploadFile: true, .externalUpdate: true]
+    service.networkClient = NetworkClientMock(mockedResponse: Empty())
     return service
   }
 
@@ -1069,5 +1047,38 @@ extension SyncQueueTests {
       from: Data(#"{"parts":[{"partNumber":1,"size":67108864}]}"#.utf8)
     )
     XCTAssertEqual(uploaded.parts.first?.size, 67_108_864)
+  }
+}
+
+// MARK: - Upload lane wiring
+
+extension SyncQueueTests {
+  /// End to end through the engine: the upload task's operation runs, its local refusal
+  /// reaches the parking policy, and the task parks alone with the app's own reason
+  func testTooLargeUpload_parksTheTaskWithItsLocalReason() async throws {
+    let service = makeGatedEngine()
+    let link = FileManager.default.temporaryDirectory.appendingPathComponent("huge-\(UUID().uuidString).m4b")
+    FileManager.default.createFile(atPath: link.path, contents: nil)
+    let handle = try FileHandle(forWritingTo: link)
+    try handle.truncate(atOffset: UInt64(FileUploadOperation.maxFileSize) + 1)
+    try handle.close()
+    defer { try? FileManager.default.removeItem(at: link) }
+    var params = uploadFileParams(id: "huge")
+    params["filePath"] = link.absoluteString
+    try await repository.storeTask(parameters: params)
+
+    service.setServerLanesEnabled(true)
+
+    let deadline = Date().addingTimeInterval(3)
+    var pause: TaskPause?
+    while Date() < deadline {
+      pause = await repository.getAllTasks().first?.pause
+      if pause != nil { break }
+      try await Task.sleep(for: .milliseconds(20))
+    }
+    XCTAssertEqual(pause?.scope, .task)
+    XCTAssertEqual(pause?.errorCode, "file_too_large")
+    XCTAssertNil(pause?.httpStatus)
+    XCTAssertTrue(FileManager.default.fileExists(atPath: link.path), "the link stays for a Retry")
   }
 }

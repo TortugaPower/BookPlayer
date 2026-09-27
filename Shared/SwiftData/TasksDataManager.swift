@@ -388,8 +388,7 @@ public final class TasksDataManager: BPLogger {
       let task = UploadFileTaskModel(
         id: parameters["id"] as! String,
         uuid: parameters["uuid"] as! String,
-        filePath: parameters["filePath"] as! String,
-        remotePath: parameters["remotePath"] as? String
+        filePath: parameters["filePath"] as! String
       )
       context.insert(task)
     }

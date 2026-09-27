@@ -60,21 +60,38 @@ public enum SyncFailureAction: Equatable {
   case verifyAccount
 }
 
+/// A failure that says it can never succeed as it is: the server's coded 4xx, or a book
+/// the app itself refuses to upload
+public struct CodedFailure: Equatable {
+  public let code: String
+  public let message: String
+  public let httpStatus: Int?
+}
+
 public enum SyncFailurePolicy {
   /// Codes about the account, not the task
   static let accountCodes: Set<String> = ["not_subscribed", "tier_required"]
 
-  /// Only a coded 4xx parks: a code means the request can never succeed as sent. Anything
-  /// uncoded keeps retrying, so a new server failure mode never strands tasks.
+  /// nil for anything uncoded (network, 5xx, cancellation): those keep retrying
+  public static func codedFailure(_ error: Error?) -> CodedFailure? {
+    if let error = error as? UploadFileError {
+      return CodedFailure(code: error.code, message: error.message, httpStatus: nil)
+    }
+    guard
+      let error = error as? BookPlayerError,
+      case .networkErrorWithCode(let message, let code, let status) = error
+    else { return nil }
+    return CodedFailure(code: code, message: message, httpStatus: status)
+  }
+
+  /// Only a coded failure parks: a code means the request can never succeed as sent.
+  /// Anything uncoded keeps retrying, so a new server failure mode never strands tasks.
   public static func action(
     for error: Error?,
     jobType: SyncJobType,
     parkingEnabled: Bool
   ) -> SyncFailureAction {
-    guard
-      let error = error as? BookPlayerError,
-      case .networkErrorWithCode(_, let code, _) = error
-    else { return .retry }
+    guard let code = codedFailure(error)?.code else { return .retry }
 
     // Media-server pushes never hit the BookPlayer server; their own failure handling
     // stands, and an account pause must never land on a provider lane

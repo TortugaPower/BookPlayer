@@ -15,20 +15,19 @@ class BPURLSession {
 
   public let backgroundSession: URLSession
   public let backgroundCellularSession: URLSession
-  public let progressPublisher: PassthroughSubject<(String, Double), Never>
+  /// The emitting task and its bytes sent so far
+  public let progressPublisher: PassthroughSubject<(URLSessionTask, Int64), Never>
   public let completionPublisher: PassthroughSubject<(URLSessionTask, Error?), Never>
   private var cellularDataObserver: NSKeyValueObservation?
 
   private init() {
-    let progressPublisher = PassthroughSubject<(String, Double), Never>()
+    let progressPublisher = PassthroughSubject<(URLSessionTask, Int64), Never>()
     let completionPublisher = PassthroughSubject<(URLSessionTask, Error?), Never>()
     let bundleIdentifier: String = Bundle.main.configurationValue(for: .bundleIdentifier)
 
     let delegate = BPTaskUploadDelegate()
-    delegate.uploadProgressUpdated = { [progressPublisher] task, uploadProgress in
-      guard let relativePath = task.taskDescription else { return }
-
-      progressPublisher.send((relativePath, uploadProgress))
+    delegate.uploadProgressUpdated = { [progressPublisher] task, bytesSent in
+      progressPublisher.send((task, bytesSent))
     }
     delegate.didFinishTask = { [completionPublisher] task, error in
       completionPublisher.send((task, error))

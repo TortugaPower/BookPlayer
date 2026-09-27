@@ -9,8 +9,9 @@
 import Foundation
 
 class BPTaskUploadDelegate: NSObject, URLSessionTaskDelegate {
-  /// Callback triggered when there's an update on the upload progress
-  var uploadProgressUpdated: ((URLSessionTask, Double) -> Void)?
+  /// Callback triggered when there's an update on the upload progress, with the task's
+  /// bytes sent so far (a multipart upload sums them across its parts)
+  var uploadProgressUpdated: ((URLSessionTask, Int64) -> Void)?
   /// Callback triggered when the download task is finished
   var didFinishTask: ((URLSessionTask, Error?) -> Void)?
 
@@ -21,8 +22,7 @@ class BPTaskUploadDelegate: NSObject, URLSessionTaskDelegate {
     totalBytesSent: Int64,
     totalBytesExpectedToSend: Int64
   ) {
-    let uploadProgress = Float(totalBytesSent) / Float(totalBytesExpectedToSend)
-    uploadProgressUpdated?(task, Double(uploadProgress))
+    uploadProgressUpdated?(task, totalBytesSent)
   }
 
   func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {

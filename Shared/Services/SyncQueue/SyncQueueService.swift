@@ -334,6 +334,7 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
           await self.taskContainer.pop(nextTask)
         } else {
           let error = (operation as? LibraryItemSyncOperation)?.error
+            ?? (operation as? FileUploadOperation)?.error
           if let error {
             Self.logger.error("Sync task failed: \(error.localizedDescription)")
             await MainActor.run {
@@ -371,14 +372,13 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
       jobType: task.jobType,
       parkingEnabled: parkingEnabled
     )
-    guard
-      action != .retry,
-      let error = error as? BookPlayerError,
-      case .networkErrorWithCode(let message, let code, let status) = error
-    else {
+    guard action != .retry, let failure = SyncFailurePolicy.codedFailure(error) else {
       try? await Task.sleep(for: .seconds(5))
       return
     }
+    let code = failure.code
+    let message = failure.message
+    let status = failure.httpStatus
 
     switch action {
     case .retry:
@@ -411,10 +411,10 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
     scope: TaskPauseScope,
     code: String,
     message: String,
-    status: Int,
+    status: Int?,
     report: Bool = true
   ) async -> TaskPause? {
-    Self.logger.error("Pausing \(task.jobType.rawValue) task \(task.id) (\(scope.rawValue)): the server answered \(code)")
+    Self.logger.error("Pausing \(task.jobType.rawValue) task \(task.id) (\(scope.rawValue)): failed with \(code)")
     guard
       let pause = await taskContainer.park(
         taskId: task.id,
@@ -500,15 +500,25 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
         return nil
       }
       guard let filePath = task.parameters["filePath"] as? String,
-            let remotePath = task.parameters["remotePath"] as? String,
             let fileURL = URL(string: filePath),
-            let remoteURL = URL(string: remotePath),
             let uuid = task.parameters["uuid"] as? String else {
         Self.logger.error("Discarding uploadFile task \(task.id): missing or malformed parameters")
         cleanUpDroppedUploadTempLink(task)
         return nil
       }
-      return FileUploadOperation(fileURL: fileURL, remoteURL: remoteURL, uuid: uuid)
+      let libraryService = libraryService
+      return FileUploadOperation(
+        taskId: task.id,
+        uuid: uuid,
+        fileURL: fileURL,
+        state: MultipartUploadState(parameters: task.parameters),
+        client: networkClient,
+        repository: taskContainer,
+        libraryFileURL: { uuid in
+          guard let relativePath = await libraryService?.fetchRelativePath(forUuid: uuid) else { return nil }
+          return DataManager.getProcessedFolderURL().appendingPathComponent(relativePath)
+        }
+      )
     default:
       /// Serial BookPlayer-server queue
       return LibraryItemSyncOperation(
@@ -526,39 +536,12 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
 
   /// Post-completion side effects for finished sync tasks
   private func handleFinishedOperation(_ operation: AsyncOperation, task: QueuedSyncTask) async {
-    // The synced:true confirmation for file-backed books happens HERE, after the bytes are
-    // actually on S3 — LibraryItemSyncOperation deliberately no longer confirms when it
-    // schedules a file upload (confirming before the PUT lies to the server if the upload
-    // later fails permanently).
-    // uploadCompleted (a real 2xx), NOT didSucceed: consumed permanent failures (missing
-    // file, 4xx) also report didSucceed so the queue stops retrying, but no bytes reached
-    // the server — confirming synced:true for those lies to the backend.
-    if let uploadOperation = operation as? FileUploadOperation, uploadOperation.uploadCompleted {
-      let provider = NetworkProvider<LibraryAPI>(client: networkClient)
-      // The task is popped unconditionally after this, so a transient confirmation failure
-      // would strand the item as synced:false with its bytes already on S3 — retry a few
-      // times before surfacing it in lastSyncError (a later re-upload of the same item heals).
-      for attempt in 1...3 {
-        do {
-          let _: UploadItemResponse = try await provider.request(.update(params: [
-            "uuid": uploadOperation.uuid,
-            "relativePath": task.relativePath,
-            "synced": true
-          ]))
-          NotificationCenter.default.post(name: .uploadCompleted, object: nil)
-          return
-        } catch {
-          Self.logger.error("Upload confirmation attempt \(attempt) failed for \(uploadOperation.uuid): \(error.localizedDescription)")
-          if attempt < 3 { try? await Task.sleep(for: .seconds(2)) }
-          else {
-            await MainActor.run {
-              self.lastSyncError = SyncErrorInfo(
-                taskId: task.id, uuid: uploadOperation.uuid,
-                jobType: .uploadFile, error: error.localizedDescription
-              )
-            }
-          }
-        }
+    // The server sets synced:true itself when it assembles a multipart upload; there is
+    // nothing to confirm. uploadCompleted (S3 has the file), NOT didSucceed: a consumed
+    // task (its file gone) also reports didSucceed.
+    if let uploadOperation = operation as? FileUploadOperation {
+      if uploadOperation.uploadCompleted {
+        NotificationCenter.default.post(name: .uploadCompleted, object: nil)
       }
       return
     }
@@ -623,16 +606,13 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
     }
   }
 
+  /// The server answered the metadata upload with a URL: it needs the file's bytes
   private func handleUploadResult(_ result: UploadResponse) {
-    guard let remotePath = result.remotePath else { return }
-
     var params: [String: Any] = [
       "filePath": result.filePath,
-      "remotePath": remotePath,
       "uuid": result.uuid,
     ]
-    // Persisted onto the task reference — the post-PUT synced:true confirmation posts it,
-    // and an empty relativePath there mismatches the server's item key.
+    // Persisted onto the task reference, which names the row in Queued Tasks
     if let relativePath = result.relativePath {
       params["relativePath"] = relativePath
     }

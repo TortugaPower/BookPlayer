@@ -273,10 +273,11 @@ CarPlay event bus. Declared in `Shared/Extensions/Notification+BookPlayerKit.swi
   a running lane after its current task. Gated tasks are **held, never cleared**: RevenueCat's cached info is nil
   before the first fetch, so a paying subscriber can read inactive at launch. Provider lanes ignore the gate, and
   `handleAppRefresh` completes immediately while it's off (a gated lane never drains).
-  **Parking:** a failed task parks ONLY on a coded 4xx (`BookPlayerError.networkErrorWithCode`, the server's
-  `error` key); anything uncoded keeps the 5 s retry. Today only `LibraryItemSyncOperation` (sync lane) errors
-  reach it — `FileUploadOperation` still consumes a 4xx — so `uploadFile` parks once the multipart engine reports
-  coded errors. `SyncFailurePolicy` owns the rules: leaf tasks (`update`,
+  **Parking:** a failed task parks ONLY on a coded failure — `SyncFailurePolicy.codedFailure` returns a
+  `CodedFailure` for the server's coded 4xx (`BookPlayerError.networkErrorWithCode`, its `error` key) and for the
+  app's own `UploadFileError.fileTooLarge` (`file_too_large`, no HTTP status); anything uncoded (network, 5xx,
+  the engine's retry-later) keeps the 5 s retry. Errors from both `LibraryItemSyncOperation` and
+  `FileUploadOperation` reach it. `SyncFailurePolicy` owns the rules: leaf tasks (`update`,
   `uploadArtwork`, `uploadFile`) park alone (`TaskPauseScope.task`, the lane keeps running); every other
   sync-lane task is structural and stops its lane (`.lane`); `not_subscribed`/`tier_required` park `.account`
   (holds every server lane) and trigger a fresh RevenueCat read — inactive runs the normal lapse path, active or
@@ -349,11 +350,28 @@ lines). It is the highest-risk file in the app.
   to `BookPlayerError` (`4xx` decode `ErrorResponse` → `.networkError`/`.networkErrorWithCode`, `5xx` →
   `.networkError`). Decoder is `.iso8601`.
 - **The bearer token must never be attached to S3/presigned or third-party (Jellyfin/ABS/Hardcover) URLs.**
-  Uploads to S3 presigned PUTs use `useKeychain: false` (the URL carries its own auth); media-server calls use
+  S3 presigned PUTs through `NetworkClient` (folders and bound books in `handleUploadJob`, artwork) use
+  `useKeychain: false` (the URL carries its own auth); book files never go through `NetworkClient` — their parts
+  are header-less background upload tasks (below). Media-server calls use
   their own connection tokens. Any new `request(url:...)` must set `useKeychain` deliberately — the default
   `true` attaches the JWT to whatever host is passed.
 - **Background `URLSession`s** (`Shared/Network/BPURLSession.swift`): two sessions (`.background` and
   `.background.cellular`) chosen by the `allowCellularData` default; downloads via `BPDownloadURLSession`.
+  They carry multipart upload PARTS, one upload task each, described `<uuid>#<partNumber>@<uploadId>`
+  (`BackgroundPartUploadTransport`); `progressPublisher` emits `(task, bytesSent)`.
+- **Book uploads are S3 multipart** (`FileUploadOperation`, the `uploadFile` lane; contract in
+  bookplayer-api `docs/multipart-uploads.md`). A non-nil `url` from `PUT /v1/library` only means "the server
+  needs the bytes" — the client never PUTs to it. **The server sets `synced` at `/upload/complete`; the client
+  never confirms a book's file.** S3 is the source of truth: every run rebuilds from `GET /upload/parts` plus
+  the session's tasks for the current `uploadId`, so a relaunch or a lost event resumes without re-sending. The
+  resumable state (`uploadId`, `partSize`, `fileSize`, `restartCount`) lives on `UploadFileTaskModel`; parts are
+  sliced to `tmp/uploads/<uuid>/`; 64 MiB parts, 8 in flight (fewer on low disk), fresh part URLs every top-up
+  (403 = expired), up to 3 restarts (`upload_not_found`/`invalid_parts`/NoSuchUpload, or `complete` answering
+  `parts_missing` 5 rounds running while S3 lists every part) before the task parks with the server's code — the
+  dead upload is forgotten and the budget reset first, so a Retry starts fresh; books over 10 GiB park as
+  `file_too_large`. The source is the temp hard link, else the book's
+  current Processed file found by uuid (`LibrarySyncProtocol.fetchRelativePath(forUuid:)`) — never deleted. A
+  cellular-setting change cancels the parts in flight so they resend through the session that now applies.
 - `SyncService.swift` is `@Observable`. **`isActive` is `public private(set)` and must be mutated only via
   `updateSyncEnabled(_:)` / `logout()`** (both hop to `@MainActor`). It is driven by `.logout` (→ teardown, clears
   scheduled-contents flag, resets jobs) and `.accountUpdate` (→ `updateSyncEnabled(hasSyncEnabled())`)
@@ -367,8 +385,9 @@ lines). It is the highest-risk file in the app.
   gates both the on-play resume prompt and the list refresh on `accountService.hasSyncEnabled()` (lite/pro),
   read live on every pull, and cancels an in-flight pull on an `.accountUpdate` that drops the entitlement —
   free/plus users push to their own server but never see other devices' positions. Android must mirror this.
-  Job types (`SyncJobType`): `upload, update, move,
-  renameFolder, delete, shallowDelete, setBookmark, deleteBookmark, uploadArtwork, matchUuid`.
+  Job types (`SyncJobType`): `upload, update, move, renameFolder, delete, shallowDelete, setBookmark,
+  deleteBookmark, uploadArtwork, matchUuid, externalResource, externalResourceToDownload, deleteExternalResource`
+  (sync lane), `uploadFile` (upload lane), `externalUpdate` (provider lanes).
 - **Download verification:** `verifyDownloadedFile` rejects truncated files by comparing `AVURLAsset` duration to
   the stored duration (tolerance `max(2, expected*0.02)`); completion is broadcast only after verification.
   Don't skip it — it prevents promoting a truncated book.

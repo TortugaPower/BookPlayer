@@ -53,6 +53,10 @@ public protocol LibrarySyncProtocol {
   func getItemResourcesSnapshot(for relativePath: String) -> (uuid: String, resources: [SyncableExternalResource])?
 
   func updateExternalResource(for item: SyncableExternalResource) async
+
+  /// The item's current path, read on a background context (an upload in the background
+  /// finds its book's file by uuid after the user moved it)
+  func fetchRelativePath(forUuid uuid: String) async -> String?
 }
 
 extension LibraryService: LibrarySyncProtocol {
@@ -83,6 +87,28 @@ extension LibraryService: LibrarySyncProtocol {
         let storedItem = getItemReference(with: relativePath, context: context)
 
         continuation.resume(returning: storedItem != nil)
+      }
+    }
+  }
+
+  public func fetchRelativePath(forUuid uuid: String) async -> String? {
+    guard Constants.isRealUuid(uuid) else { return nil }
+    return await withCheckedContinuation { continuation in
+      let context = dataManager.getBackgroundContext()
+      context.perform { [context] in
+        let fetchRequest = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
+        fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.uuid), uuid)
+        fetchRequest.propertiesToFetch = [#keyPath(LibraryItem.relativePath)]
+        fetchRequest.resultType = .dictionaryResultType
+        fetchRequest.fetchLimit = 1
+
+        do {
+          let relativePath = try context.fetch(fetchRequest).first?[#keyPath(LibraryItem.relativePath)] as? String
+          continuation.resume(returning: relativePath)
+        } catch {
+          Self.logger.error("Failed to look up the item \(uuid): \(error)")
+          continuation.resume(returning: nil)
+        }
       }
     }
   }

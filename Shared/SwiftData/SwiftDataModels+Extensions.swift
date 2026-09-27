@@ -278,10 +278,6 @@ extension UploadFileTaskModel: DictionaryConvertible {
       "restartCount": restartCount,
     ]
 
-    if let remotePath {
-      dictionary["remotePath"] = remotePath
-    }
-
     if let uploadId {
       dictionary["uploadId"] = uploadId
     }
