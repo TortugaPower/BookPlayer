@@ -60,6 +60,39 @@ public protocol SyncQueueRepositoryProtocol: ModelActor {
 
   /// Remembers the Sentry event that reported this task's pause
   func setSentryEventId(_ eventId: String, forTask taskId: String)
+
+  /// Persists a multipart upload's progress-independent state, so a relaunch resumes the
+  /// same S3 upload instead of starting over. A nil `uploadId` forgets the open upload.
+  /// `false` when the task is gone (cleared by a logout or lapse mid-upload): stop uploading.
+  @discardableResult
+  func saveUploadState(_ state: MultipartUploadState, forTask taskId: String) -> Bool
+}
+
+/// What a multipart upload must remember across launches (the parts themselves are read
+/// back from S3). `uploadId` alone decides resume vs start: the sizes only count while it's
+/// set (0 means unset, and the server rejects 0).
+public struct MultipartUploadState: Equatable, Sendable {
+  public var uploadId: String?
+  public var partSize: Int
+  public var fileSize: Int64
+  public var restartCount: Int
+
+  public init(uploadId: String?, partSize: Int, fileSize: Int64, restartCount: Int) {
+    self.uploadId = uploadId
+    self.partSize = partSize
+    self.fileSize = fileSize
+    self.restartCount = restartCount
+  }
+
+  /// Read back from an `uploadFile` task's parameters (`UploadFileTaskModel.toDictionaryPayload`)
+  public init(parameters: [String: Any]) {
+    self.init(
+      uploadId: parameters["uploadId"] as? String,
+      partSize: parameters["partSize"] as? Int ?? 0,
+      fileSize: parameters["fileSize"] as? Int64 ?? 0,
+      restartCount: parameters["restartCount"] as? Int ?? 0
+    )
+  }
 }
 
 public actor SyncQueueRepository: SyncQueueRepositoryProtocol, BPLogger {
@@ -197,6 +230,29 @@ public actor SyncQueueRepository: SyncQueueRepositoryProtocol, BPLogger {
 
     reference.sentryEventId = eventId
     saveAndNotify("record the report of \(taskId)")
+  }
+
+  @discardableResult
+  public func saveUploadState(_ state: MultipartUploadState, forTask taskId: String) -> Bool {
+    guard
+      let task = try? modelContext.fetch(
+        FetchDescriptor<UploadFileTaskModel>(predicate: #Predicate { $0.id == taskId })
+      ).first
+    else {
+      Self.logger.info("Upload task \(taskId) is gone; its state wasn't saved")
+      return false
+    }
+
+    task.uploadId = state.uploadId
+    task.partSize = state.partSize
+    task.fileSize = state.fileSize
+    task.restartCount = state.restartCount
+    do {
+      try modelContext.save()
+    } catch {
+      Self.logger.error("Failed to persist the upload state of \(taskId): \(error)")
+    }
+    return true
   }
 
   private func clearInFlight(_ taskId: String) {

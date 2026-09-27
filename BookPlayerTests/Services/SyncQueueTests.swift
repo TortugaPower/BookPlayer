@@ -989,3 +989,85 @@ private final class FailingNetworkClient: NetworkClientMock, @unchecked Sendable
     return Empty() as! T
   }
 }
+
+// MARK: - Multipart upload state and API
+
+extension SyncQueueTests {
+  /// A relaunch must resume the same S3 upload: what's saved comes back with the task
+  func testUploadState_roundTripsThroughTheTask() async throws {
+    try await repository.storeTask(parameters: uploadFileParams(id: "mp1"))
+    var loaded = await repository.getNextTask(for: TaskQueueKey.uploadFile)
+    XCTAssertEqual(
+      MultipartUploadState(parameters: loaded?.parameters ?? [:]),
+      MultipartUploadState(uploadId: nil, partSize: 0, fileSize: 0, restartCount: 0)
+    )
+
+    let state = MultipartUploadState(
+      uploadId: "upload-1",
+      partSize: 64 * 1024 * 1024,
+      fileSize: 6_000_000_000,
+      restartCount: 2
+    )
+    await repository.saveUploadState(state, forTask: "mp1")
+    loaded = await repository.getNextTask(for: TaskQueueKey.uploadFile)
+    XCTAssertEqual(MultipartUploadState(parameters: loaded?.parameters ?? [:]), state)
+
+    // Forgetting the upload (before a fresh start) keeps the rest
+    var forgotten = state
+    forgotten.uploadId = nil
+    await repository.saveUploadState(forgotten, forTask: "mp1")
+    loaded = await repository.getNextTask(for: TaskQueueKey.uploadFile)
+    XCTAssertEqual(MultipartUploadState(parameters: loaded?.parameters ?? [:]), forgotten)
+  }
+
+  func testMultipartRoutes_matchTheServerContract() {
+    let start = LibraryAPI.startUpload(uuid: "u", fileSize: 6_000_000_000, partSize: 67_108_864)
+    XCTAssertEqual(start.path, "/v1/library/upload/start")
+    XCTAssertEqual(start.method, .post)
+    XCTAssertEqual(start.parameters?["fileSize"] as? Int64, 6_000_000_000)
+    XCTAssertEqual(start.parameters?["partSize"] as? Int, 67_108_864)
+
+    let urls = LibraryAPI.uploadPartURLs(uuid: "u", uploadId: "x", partNumbers: [1, 2])
+    XCTAssertEqual(urls.path, "/v1/library/upload/parts")
+    XCTAssertEqual(urls.method, .post)
+    XCTAssertEqual(urls.parameters?["partNumbers"] as? [Int], [1, 2])
+
+    let parts = LibraryAPI.uploadedParts(uuid: "u", uploadId: "x")
+    XCTAssertEqual(parts.path, "/v1/library/upload/parts")
+    XCTAssertEqual(parts.method, .get)
+
+    let complete = LibraryAPI.completeUpload(uuid: "u", uploadId: "x", partCount: 90, fileSize: 6_000_000_000)
+    XCTAssertEqual(complete.path, "/v1/library/upload/complete")
+    XCTAssertEqual(complete.parameters?["partCount"] as? Int, 90)
+
+    let abort = LibraryAPI.abortUpload(uuid: "u", uploadId: "x")
+    XCTAssertEqual(abort.path, "/v1/library/upload/abort")
+    XCTAssertEqual(abort.method, .post)
+  }
+
+  func testMultipartResponses_decode() throws {
+    let decoder = JSONDecoder()
+    let started = try decoder.decode(
+      StartUploadResponse.self,
+      from: Data(#"{"status":"started","uploadId":"x","partSize":67108864,"partCount":90}"#.utf8)
+    )
+    XCTAssertEqual(started.status, .started)
+    XCTAssertEqual(started.partCount, 90)
+
+    let exists = try decoder.decode(StartUploadResponse.self, from: Data(#"{"status":"exists"}"#.utf8))
+    XCTAssertEqual(exists.status, .exists)
+    XCTAssertNil(exists.uploadId)
+
+    let urls = try decoder.decode(
+      UploadPartURLsResponse.self,
+      from: Data(#"{"parts":[{"partNumber":3,"url":"https://s3/p3","expiresAt":1790000000}]}"#.utf8)
+    )
+    XCTAssertEqual(urls.parts.first?.partNumber, 3)
+
+    let uploaded = try decoder.decode(
+      UploadedPartsResponse.self,
+      from: Data(#"{"parts":[{"partNumber":1,"size":67108864}]}"#.utf8)
+    )
+    XCTAssertEqual(uploaded.parts.first?.size, 67_108_864)
+  }
+}

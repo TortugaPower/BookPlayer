@@ -26,6 +26,18 @@ public enum LibraryAPI {
   case matchUuids(uuidsDictionary: [String: String])
   case externalResourceToDownload(uuid: String, uploaded: Bool)
   case deleteExternalResource(uuid: String, providerName: String, providerId: String)
+  /// Multipart upload of a book's file (bookplayer-api docs/multipart-uploads.md). Every
+  /// call names the book by uuid; the server derives the S3 key. Call `startUpload` only
+  /// without an `uploadId` — it aborts any upload still open for the book.
+  case startUpload(uuid: String, fileSize: Int64, partSize: Int)
+  /// Presigned URLs for up to 32 parts
+  case uploadPartURLs(uuid: String, uploadId: String, partNumbers: [Int])
+  /// The parts S3 already holds — the source of truth for resuming
+  case uploadedParts(uuid: String, uploadId: String)
+  /// Assembles the file; the server sets `synced` (and marks media-server resources
+  /// downloaded). Safe to repeat.
+  case completeUpload(uuid: String, uploadId: String, partCount: Int, fileSize: Int64)
+  case abortUpload(uuid: String, uploadId: String)
 }
 
 extension LibraryAPI: Endpoint {
@@ -65,6 +77,14 @@ extension LibraryAPI: Endpoint {
       return "/v1/library/external_set"
     case .deleteExternalResource:
       return "/v1/library/external"
+    case .startUpload:
+      return "/v1/library/upload/start"
+    case .uploadPartURLs, .uploadedParts:
+      return "/v1/library/upload/parts"
+    case .completeUpload:
+      return "/v1/library/upload/complete"
+    case .abortUpload:
+      return "/v1/library/upload/abort"
     }
   }
 
@@ -104,6 +124,10 @@ extension LibraryAPI: Endpoint {
       return .post
     case .deleteExternalResource:
       return .delete
+    case .startUpload, .uploadPartURLs, .completeUpload, .abortUpload:
+      return .post
+    case .uploadedParts:
+      return .get
     }
   }
 
@@ -198,6 +222,16 @@ extension LibraryAPI: Endpoint {
         "providerName": providerName,
         "providerId": providerId
       ]
+    case .startUpload(let uuid, let fileSize, let partSize):
+      return ["uuid": uuid, "fileSize": fileSize, "partSize": partSize]
+    case .uploadPartURLs(let uuid, let uploadId, let partNumbers):
+      return ["uuid": uuid, "uploadId": uploadId, "partNumbers": partNumbers]
+    case .uploadedParts(let uuid, let uploadId):
+      return ["uuid": uuid, "uploadId": uploadId]
+    case .completeUpload(let uuid, let uploadId, let partCount, let fileSize):
+      return ["uuid": uuid, "uploadId": uploadId, "partCount": partCount, "fileSize": fileSize]
+    case .abortUpload(let uuid, let uploadId):
+      return ["uuid": uuid, "uploadId": uploadId]
     }
   }
 }

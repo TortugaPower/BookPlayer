@@ -41,4 +41,23 @@ final class NetworkClientQueryEncodingTests: XCTestCase {
     XCTAssertFalse(url.absoluteString.contains("Optional"))
     XCTAssertFalse(url.absoluteString.contains("nil"))
   }
+
+  /// The API decodes a literal `+` in a query value as a space, so it must travel as %2B:
+  /// file names ("A+B.mp3") and S3 upload ids can both carry one
+  func testPlusSignsAreEncodedSoTheServerDoesNotReadThemAsSpaces() throws {
+    let client = NetworkClient()
+
+    let request = try client.buildURLRequest(
+      path: "/v1/library/upload/parts",
+      method: .get,
+      parameters: ["uploadId": "a+b/c=d", "relativePath": "A+B.mp3"]
+    )
+
+    let url = try XCTUnwrap(request.url)
+    XCTAssertFalse(url.absoluteString.contains("+"))
+    let items = try XCTUnwrap(URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems)
+    let byName = Dictionary(uniqueKeysWithValues: items.map { ($0.name, $0.value ?? "") })
+    XCTAssertEqual(byName["uploadId"], "a+b/c=d")
+    XCTAssertEqual(byName["relativePath"], "A+B.mp3")
+  }
 }

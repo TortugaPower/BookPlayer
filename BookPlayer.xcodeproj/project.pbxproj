@@ -900,7 +900,9 @@
 		9FBDBC7D287940D900D315A2 /* ContentsResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBDBC7C287940D900D315A2 /* ContentsResponse.swift */; };
 		9FBDBC7E287940D900D315A2 /* ContentsResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBDBC7C287940D900D315A2 /* ContentsResponse.swift */; };
 		9FBDBC802879C6C900D315A2 /* UploadItemResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBDBC7F2879C6C900D315A2 /* UploadItemResponse.swift */; };
+		BEC7B87D99BB26DE10DEEBC7 /* MultipartUploadResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1713BB63A647FA8447545EFD /* MultipartUploadResponse.swift */; };
 		9FBDBC812879C6C900D315A2 /* UploadItemResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBDBC7F2879C6C900D315A2 /* UploadItemResponse.swift */; };
+		04376D0C9384C1655823B498 /* MultipartUploadResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1713BB63A647FA8447545EFD /* MultipartUploadResponse.swift */; };
 		9FBF33EC29F6293C00501639 /* SimpleBookmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBF33EB29F6293C00501639 /* SimpleBookmark.swift */; };
 		9FBF33ED29F6293C00501639 /* SimpleBookmark.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBF33EB29F6293C00501639 /* SimpleBookmark.swift */; };
 		9FC1E44A2814C4DE00522FA8 /* NetworkClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FC1E4492814C4DE00522FA8 /* NetworkClient.swift */; };
@@ -1926,6 +1928,7 @@
 		9FBDBC782879409600D315A2 /* SyncableItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncableItem.swift; sourceTree = "<group>"; };
 		9FBDBC7C287940D900D315A2 /* ContentsResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentsResponse.swift; sourceTree = "<group>"; };
 		9FBDBC7F2879C6C900D315A2 /* UploadItemResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadItemResponse.swift; sourceTree = "<group>"; };
+		1713BB63A647FA8447545EFD /* MultipartUploadResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultipartUploadResponse.swift; sourceTree = "<group>"; };
 		9FBF33EB29F6293C00501639 /* SimpleBookmark.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleBookmark.swift; sourceTree = "<group>"; };
 		9FC1E4492814C4DE00522FA8 /* NetworkClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkClient.swift; sourceTree = "<group>"; };
 		9FC1E4582814E0B000522FA8 /* NetworkUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkUtils.swift; sourceTree = "<group>"; };
@@ -3800,6 +3803,7 @@
 				9911FBC62F7738C100DC9A2B /* SyncableExternalResource.swift */,
 				9F9C7B5229F9672700E257B0 /* SyncableBookmark.swift */,
 				9FBDBC7F2879C6C900D315A2 /* UploadItemResponse.swift */,
+				1713BB63A647FA8447545EFD /* MultipartUploadResponse.swift */,
 				9FBDBC7C287940D900D315A2 /* ContentsResponse.swift */,
 				9F2E00912A568F800001FE20 /* IdentifiersResponse.swift */,
 				9F9C7B4F29F9670100E257B0 /* BookmarksResponse.swift */,
@@ -4806,6 +4810,7 @@
 				4140EA75227289B20009F794 /* Theme+CoreDataProperties.swift in Sources */,
 				99F3C1FF2F5FC2F200AC91A2 /* SchemaV1SyncTasksModels.swift in Sources */,
 				9FBDBC812879C6C900D315A2 /* UploadItemResponse.swift in Sources */,
+				04376D0C9384C1655823B498 /* MultipartUploadResponse.swift in Sources */,
 				41A90C4627563F5A00C30394 /* ItemType.swift in Sources */,
 				9F2E00932A568F800001FE20 /* IdentifiersResponse.swift in Sources */,
 				4140EA7E227289CE0009F794 /* Library+CoreDataClass.swift in Sources */,
@@ -5441,6 +5446,7 @@
 				99F3C20A2F62285800AC91A2 /* ApiResponse.swift in Sources */,
 				99D995872F719E7600BAF216 /* JellyfinConnectionService.swift in Sources */,
 				9FBDBC802879C6C900D315A2 /* UploadItemResponse.swift in Sources */,
+				BEC7B87D99BB26DE10DEEBC7 /* MultipartUploadResponse.swift in Sources */,
 				41A1B11D226F88C500EA0400 /* Theme+CoreDataClass.swift in Sources */,
 				41A894202652A5DE0032E972 /* Configuration.swift in Sources */,
 				99F3C20F2F650F0900AC91A2 /* ExternalResource+CoreDataClass.swift in Sources */,

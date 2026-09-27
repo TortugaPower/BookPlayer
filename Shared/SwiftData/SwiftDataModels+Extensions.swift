@@ -272,13 +272,20 @@ extension UploadFileTaskModel: DictionaryConvertible {
     var dictionary: [String: Any] = [
       "id": id,
       "uuid": uuid,
-      "filePath": filePath
+      "filePath": filePath,
+      "partSize": partSize,
+      "fileSize": fileSize,
+      "restartCount": restartCount,
     ]
-    
+
     if let remotePath {
       dictionary["remotePath"] = remotePath
     }
-    
+
+    if let uploadId {
+      dictionary["uploadId"] = uploadId
+    }
+
     return dictionary
   }
 }
