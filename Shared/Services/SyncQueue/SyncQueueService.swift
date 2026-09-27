@@ -418,6 +418,8 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
       /// from the provider via `externalResourceToDownload`
       if task.parameters["provider"] as? String == nil {
         handleUploadResult(result)
+      } else {
+        SyncJobScheduler.removeHardLink(at: URL(string: result.filePath))
       }
     }
   }
@@ -522,12 +524,7 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
   /// operation's own success/4xx/cancel cleanup paths (a real Processed-folder file
   /// must never be deleted here).
   private func cleanUpDroppedUploadTempLink(_ task: QueuedSyncTask) {
-    guard
-      let filePath = task.parameters["filePath"] as? String,
-      let fileURL = URL(string: filePath),
-      fileURL.path.hasPrefix(FileManager.default.temporaryDirectory.path)
-    else { return }
-    try? FileManager.default.removeItem(at: fileURL)
+    SyncJobScheduler.removeHardLink(at: (task.parameters["filePath"] as? String).flatMap(URL.init(string:)))
   }
 }
 
@@ -560,6 +557,8 @@ extension SyncQueueService {
 
   public func scheduleFileUpload(params: [String: Any]) {
     guard accessPolicy[.uploadFile] == true else {
+      /// No upload will read the temp hard link scheduled for it
+      SyncJobScheduler.removeHardLink(at: (params["filePath"] as? String).flatMap(URL.init(string:)))
       return
     }
 

@@ -180,6 +180,21 @@ final class SyncQueueTests: XCTestCase {
     XCTAssertEqual(stored?.parameters["hostId"] as? String, "guid-1")
   }
 
+  /// A denied upload never reads the temp hard link scheduled for it, so it's removed.
+  func testScheduleFileUpload_denied_removesTheTempHardLink() async throws {
+    let service = SyncQueueService(maxConcurrentTasks: 1)
+    service.taskContainer = repository
+    service.accessPolicy = [.uploadFile: false]
+    let link = FileManager.default.temporaryDirectory.appendingPathComponent("denied-\(UUID().uuidString).mp3")
+    try Data("x".utf8).write(to: link)
+
+    service.scheduleFileUpload(params: ["filePath": link.absoluteString, "remotePath": "https://s3/a", "uuid": "u1"])
+
+    XCTAssertFalse(FileManager.default.fileExists(atPath: link.path))
+    let tasks = await repository.getAllTasks()
+    XCTAssertTrue(tasks.isEmpty)
+  }
+
   func testScheduleFileUpload_gatedByPolicy() async throws {
     let service = SyncQueueService(maxConcurrentTasks: 1)
     service.taskContainer = repository

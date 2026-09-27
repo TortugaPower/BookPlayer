@@ -249,6 +249,11 @@ public actor SyncQueueRepository: SyncQueueRepositoryProtocol, BPLogger {
       for (path, uuid) in newUuidsDict where merged[path] == nil {
         merged[path] = uuid
       }
+      /// Past the server's per-request limit the merged task could never succeed: queue a
+      /// separate task instead
+      guard merged.count <= SyncJobScheduler.matchUuidsBatchLimit else {
+        return false
+      }
       candidateTask.uuids = merged
       return true
 

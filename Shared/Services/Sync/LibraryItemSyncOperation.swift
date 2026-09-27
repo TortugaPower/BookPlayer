@@ -193,7 +193,11 @@ extension LibraryItemSyncOperation {
     let uploadParams = parameters.filter { $0.key != "provider" }
     let response: UploadItemResponse = try await provider.request(.upload(params: uploadParams))
     guard let remoteURL = response.content.url else {
-      /// The file is already present in the storage
+      /// The file is already present in the storage (or the tier doesn't store files): the
+      /// book's hard link scheduled for the upload will never be read
+      if type == .book {
+        SyncJobScheduler.removeHardLink(at: SyncJobScheduler.hardLinkURL(for: self.relativePath))
+      }
       try await markUploadAsSynced(uuid: self.uuid)
       finish()
       return
@@ -211,7 +215,7 @@ extension LibraryItemSyncOperation {
       return
     }
 
-    let hardLinkURL = FileManager.default.temporaryDirectory.appendingPathComponent(self.relativePath)
+    let hardLinkURL = SyncJobScheduler.hardLinkURL(for: self.relativePath)
 
     /// Prefer the hard link URL and fallback to recorded item path
     /// Note: the recorded item path may not have the item if the user moved it
@@ -312,7 +316,7 @@ extension LibraryItemSyncOperation {
       .externalResourceToDownload(uuid: uuid, uploaded: false)
     )
     
-    let hardLinkURL = FileManager.default.temporaryDirectory.appendingPathComponent(self.relativePath)
+    let hardLinkURL = SyncJobScheduler.hardLinkURL(for: self.relativePath)
     let fileURL = FileManager.default.fileExists(atPath: hardLinkURL.path)
       ? hardLinkURL
       : DataManager.getProcessedFolderURL().appendingPathComponent(self.relativePath)

@@ -58,8 +58,32 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
     self.tasksRepository = tasksRepository
   }
 
+  /// `POST /v1/library/uuids` rejects more items than this in one request (the server's
+  /// MAX_RECORDS_LIMIT), with an error the queue would retry forever.
+  public static let matchUuidsBatchLimit = 1000
+
+  /// Where `scheduleLibraryItemUploadJob` hard-links a book so the upload survives the
+  /// user moving it in the library.
+  static func hardLinkURL(for relativePath: String) -> URL {
+    FileManager.default.temporaryDirectory.appendingPathComponent(relativePath)
+  }
+
+  /// Removes an upload's temp hard link once nothing will read it. Only ever deletes a regular
+  /// file inside the temp directory: never a real Processed-folder file, never the temp
+  /// directory itself, and never a directory (a folder item's `linkItem` mirrors its whole
+  /// tree, and its children's queued uploads still read those links).
+  static func removeHardLink(at url: URL?) {
+    let tempPath = FileManager.default.temporaryDirectory.path
+    guard
+      let url,
+      url.path.hasPrefix(tempPath.hasSuffix("/") ? tempPath : tempPath + "/"),
+      (try? url.resourceValues(forKeys: [.isRegularFileKey]))?.isRegularFile == true
+    else { return }
+    try? FileManager.default.removeItem(at: url)
+  }
+
   private func createHardLink(for item: SyncableItem) {
-    let hardLinkURL = FileManager.default.temporaryDirectory.appendingPathComponent(item.relativePath)
+    let hardLinkURL = Self.hardLinkURL(for: item.relativePath)
 
     let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(item.relativePath)
 
@@ -170,14 +194,19 @@ public class SyncJobScheduler: JobSchedulerProtocol, BPLogger {
   public func scheduleMatchUuidsJob(uuidsDict: [String: String]) async {
     guard !uuidsDict.isEmpty else { return }
 
-    let parameters: [String: Any] = [
-      "jobType": SyncJobType.matchUuid.rawValue,
-      "id": UUID().uuidString,
-      "relativePath": "",
-      "uuid": "",
-      "uuids": uuidsDict
-    ]
-    await persistTask(parameters: parameters)
+    /// One task per server-sized batch: a larger request can never succeed
+    let paths = uuidsDict.keys.sorted()
+    for start in stride(from: 0, to: paths.count, by: Self.matchUuidsBatchLimit) {
+      let batch = paths[start..<min(start + Self.matchUuidsBatchLimit, paths.count)]
+      let parameters: [String: Any] = [
+        "jobType": SyncJobType.matchUuid.rawValue,
+        "id": UUID().uuidString,
+        "relativePath": "",
+        "uuid": "",
+        "uuids": Dictionary(uniqueKeysWithValues: batch.map { ($0, uuidsDict[$0]!) })
+      ]
+      await persistTask(parameters: parameters)
+    }
   }
 
   public func scheduleDeleteJob(with relativePath: String, mode: DeleteMode, for uuid: String) async {
