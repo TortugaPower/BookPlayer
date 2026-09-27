@@ -312,6 +312,16 @@ public enum SchemaV3: VersionedSchema {
     public var uuid: String = ""
     public var relativePath: String = ""
     public var container: SyncQueueContainer?
+    /// Parking: set when the server answered with a coded error the task can never get
+    /// past as sent (`TaskPauseScope` raw value); nil = pending. The rest describes it.
+    public var pauseScope: String?
+    public var errorCode: String?
+    public var errorMessage: String?
+    public var httpStatus: Int?
+    public var pausedAt: Date?
+    /// The Sentry event reporting this pause, so a re-park (launch retry, Retry) doesn't
+    /// report it again; kept across resumes
+    public var sentryEventId: String?
 
     public init(
       id: String = UUID().uuidString,

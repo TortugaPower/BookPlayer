@@ -610,3 +610,382 @@ private final class BlockingNetworkClient: NetworkClientMock, @unchecked Sendabl
     XCTFail("timed out waiting for \(count) request(s)")
   }
 }
+
+// MARK: - Parking (coded server errors)
+
+extension SyncQueueTests {
+  private func coded(_ code: String, status: Int = 404) -> BookPlayerError {
+    .networkErrorWithCode(message: "Item not found: \"a.mp3\"", code: code, status: status)
+  }
+
+  private func syncTaskParams(id: String, jobType: SyncJobType, path: String) -> [String: Any] {
+    [
+      "id": id,
+      "uuid": UUID().uuidString,
+      "jobType": jobType.rawValue,
+      "queueKey": TaskQueueKey.sync,
+      "relativePath": path,
+    ]
+  }
+
+  private func pause(_ scope: TaskPauseScope, code: String = "item_not_found") -> TaskPause {
+    TaskPause(scope: scope, errorCode: code, message: "msg", httpStatus: 404, pausedAt: Date())
+  }
+
+  func testFailurePolicy_parksOnlyCodedErrors_scopedByJobType() {
+    typealias Policy = SyncFailurePolicy
+    XCTAssertEqual(Policy.action(for: nil, jobType: .move, parkingEnabled: true), .retry)
+    XCTAssertEqual(Policy.action(for: BookPlayerError.networkError("x"), jobType: .move, parkingEnabled: true), .retry)
+    XCTAssertEqual(Policy.action(for: URLError(.timedOut), jobType: .move, parkingEnabled: true), .retry)
+
+    XCTAssertEqual(Policy.action(for: coded("item_not_found"), jobType: .move, parkingEnabled: true), .park(.lane))
+    XCTAssertEqual(Policy.action(for: coded("uuid_conflict", status: 409), jobType: .upload, parkingEnabled: true), .park(.lane))
+    XCTAssertEqual(Policy.action(for: coded("item_not_found"), jobType: .matchUuid, parkingEnabled: true), .park(.lane))
+    XCTAssertEqual(Policy.action(for: coded("item_not_found"), jobType: .setBookmark, parkingEnabled: true), .park(.lane))
+    XCTAssertEqual(Policy.action(for: coded("invalid_request", status: 400), jobType: .update, parkingEnabled: true), .park(.task))
+    XCTAssertEqual(Policy.action(for: coded("item_not_found"), jobType: .uploadArtwork, parkingEnabled: true), .park(.task))
+
+    XCTAssertEqual(Policy.action(for: coded("not_subscribed", status: 400), jobType: .move, parkingEnabled: true), .verifyAccount)
+    XCTAssertEqual(Policy.action(for: coded("tier_required", status: 403), jobType: .uploadFile, parkingEnabled: true), .verifyAccount)
+
+    // Watch: task-level failures drop, account-level handling is the same
+    XCTAssertEqual(Policy.action(for: coded("item_not_found"), jobType: .move, parkingEnabled: false), .drop)
+    XCTAssertEqual(Policy.action(for: coded("not_subscribed", status: 400), jobType: .move, parkingEnabled: false), .verifyAccount)
+
+    // Media-server pushes keep their own handling, account codes included
+    XCTAssertEqual(Policy.action(for: coded("item_not_found"), jobType: .externalUpdate, parkingEnabled: true), .retry)
+    XCTAssertEqual(Policy.action(for: coded("not_subscribed", status: 400), jobType: .externalUpdate, parkingEnabled: true), .retry)
+
+    // A logout/lapse cancellation is not the server's answer
+    XCTAssertEqual(Policy.action(for: BookPlayerError.cancelledTask, jobType: .move, parkingEnabled: true), .retry)
+  }
+
+  func testGetNextTask_skipsTaskPausedRows_andStopsAtALanePause() async throws {
+    try await repository.storeTask(parameters: syncTaskParams(id: "t1", jobType: .update, path: "a.mp3"))
+    try await repository.storeTask(parameters: syncTaskParams(id: "t2", jobType: .shallowDelete, path: "b.mp3"))
+    try await repository.storeTask(parameters: syncTaskParams(id: "t3", jobType: .delete, path: "c.mp3"))
+
+    await repository.park(taskId: "t1", pause: pause(.task))
+    var next = await repository.getNextTask(for: TaskQueueKey.sync)
+    XCTAssertEqual(next?.id, "t2", "a task-level pause lets the rest of the lane run")
+
+    await repository.park(taskId: "t2", pause: pause(.lane))
+    next = await repository.getNextTask(for: TaskQueueKey.sync)
+    XCTAssertNil(next, "a lane-level pause holds every later task")
+
+    await repository.resume(taskId: "t2")
+    next = await repository.getNextTask(for: TaskQueueKey.sync)
+    XCTAssertEqual(next?.id, "t2")
+  }
+
+  func testAccountPause_holdsEveryServerLane_butNotProviderLanes() async throws {
+    try await repository.storeTask(parameters: syncTaskParams(id: "s1", jobType: .shallowDelete, path: "a.mp3"))
+    try await repository.storeTask(parameters: syncTaskParams(id: "s2", jobType: .delete, path: "b.mp3"))
+    try await repository.storeTask(parameters: uploadFileParams(id: "u1"))
+    try await repository.storeTask(parameters: externalUpdateParams(id: "j1"))
+
+    await repository.park(taskId: "s1", pause: pause(.account, code: "not_subscribed"))
+    await repository.park(taskId: "s2", pause: pause(.account, code: "not_subscribed"))
+
+    let sync = await repository.getNextTask(for: TaskQueueKey.sync)
+    let upload = await repository.getNextTask(for: TaskQueueKey.uploadFile)
+    let push = await repository.getNextTask(for: "jellyfin")
+    XCTAssertNil(sync)
+    XCTAssertNil(upload)
+    XCTAssertEqual(push?.id, "j1")
+
+    // One cause: resuming one account pause resumes them all
+    await repository.resume(taskId: "s1")
+    let resumedUpload = await repository.getNextTask(for: TaskQueueKey.uploadFile)
+    let resumedSync = await repository.getNextTask(for: TaskQueueKey.sync)
+    XCTAssertEqual(resumedUpload?.id, "u1")
+    XCTAssertEqual(resumedSync?.id, "s1")
+    XCTAssertNil(resumedSync?.pause)
+  }
+
+  func testResumeAllPaused_keepsTheSentryEventId() async throws {
+    try await repository.storeTask(parameters: syncTaskParams(id: "t1", jobType: .shallowDelete, path: "a.mp3"))
+    await repository.park(taskId: "t1", pause: pause(.lane))
+    await repository.setSentryEventId("evt-1", forTask: "t1")
+
+    var stored = await repository.getAllTasks().first
+    XCTAssertEqual(stored?.pause?.errorCode, "item_not_found")
+    XCTAssertEqual(stored?.pause?.message, "msg")
+    XCTAssertEqual(stored?.pause?.httpStatus, 404)
+    XCTAssertEqual(stored?.pause?.sentryEventId, "evt-1")
+
+    await repository.resumeAllPaused()
+    stored = await repository.getAllTasks().first
+    XCTAssertNil(stored?.pause)
+
+    let reparked = await repository.park(taskId: "t1", pause: pause(.lane))
+    XCTAssertEqual(reparked?.sentryEventId, "evt-1", "a re-park must not be reported again")
+
+    let gone = await repository.park(taskId: "missing", pause: pause(.lane))
+    XCTAssertNil(gone)
+  }
+
+  /// New work never merges into a parked task (it would wait behind the failure); it lands
+  /// in a task of its own, which later updates may merge into as usual
+  func testCoalescing_skipsParkedTasks() async throws {
+    var first = syncTaskParams(id: "u1", jobType: .update, path: "a.mp3")
+    first["uuid"] = "book-1"
+    try await repository.storeTask(parameters: first)
+    await repository.park(taskId: "u1", pause: pause(.task))
+
+    var second = syncTaskParams(id: "u2", jobType: .update, path: "a.mp3")
+    second["uuid"] = "book-1"
+    try await repository.storeTask(parameters: second)
+    var third = syncTaskParams(id: "u3", jobType: .update, path: "a.mp3")
+    third["uuid"] = "book-1"
+    try await repository.storeTask(parameters: third)
+
+    let ids = await repository.getAllTasks().map(\.id)
+    XCTAssertEqual(ids, ["u1", "u2"], "u2 stands apart from the parked u1; u3 merges into u2")
+  }
+
+  /// A parked task behind the runnable head is still never a merge target
+  func testCoalescing_skipsAParkedTaskBehindTheHead() async throws {
+    var head = syncTaskParams(id: "h1", jobType: .update, path: "h.mp3")
+    head["uuid"] = "book-head"
+    try await repository.storeTask(parameters: head)
+    var parked = syncTaskParams(id: "p1", jobType: .update, path: "a.mp3")
+    parked["uuid"] = "book-1"
+    try await repository.storeTask(parameters: parked)
+    await repository.park(taskId: "p1", pause: pause(.task))
+
+    var newer = syncTaskParams(id: "p2", jobType: .update, path: "a.mp3")
+    newer["uuid"] = "book-1"
+    try await repository.storeTask(parameters: newer)
+
+    let ids = await repository.getAllTasks().map(\.id)
+    XCTAssertEqual(ids, ["h1", "p1", "p2"])
+  }
+
+  /// A Retry puts the resumed task ahead of the one running: the running task's parameters
+  /// were already read, so merging into it would lose the new update
+  func testCoalescing_neverMergesIntoTheRunningTask_afterARetryReordersTheLane() async throws {
+    var parked = syncTaskParams(id: "r1", jobType: .update, path: "a.mp3")
+    parked["uuid"] = "book-1"
+    try await repository.storeTask(parameters: parked)
+    await repository.park(taskId: "r1", pause: pause(.task))
+    var running = syncTaskParams(id: "r2", jobType: .update, path: "b.mp3")
+    running["uuid"] = "book-2"
+    try await repository.storeTask(parameters: running)
+
+    let picked = await repository.getNextTask(for: TaskQueueKey.sync)
+    XCTAssertEqual(picked?.id, "r2")
+    await repository.resume(taskId: "r1")
+
+    var newer = syncTaskParams(id: "r3", jobType: .update, path: "b.mp3")
+    newer["uuid"] = "book-2"
+    try await repository.storeTask(parameters: newer)
+
+    let ids = await repository.getAllTasks().map(\.id)
+    XCTAssertEqual(ids, ["r1", "r2", "r3"])
+  }
+
+  func testQueueCounts_reportPausedAndBlockedLanes() async throws {
+    try await repository.storeTask(parameters: syncTaskParams(id: "t1", jobType: .update, path: "a.mp3"))
+    try await repository.storeTask(parameters: uploadFileParams(id: "u1"))
+    await repository.park(taskId: "t1", pause: pause(.task))
+
+    var counts = try await awaitCounts(from: tasksDataManager.observeQueueCounts()) { $0.totalPaused == 1 }
+    XCTAssertEqual(counts.pausedCount(in: TaskQueueKey.sync), 1)
+    XCTAssertFalse(counts.isBlocked(TaskQueueKey.sync))
+    XCTAssertTrue(counts.isIdle(TaskQueueKey.sync), "only parked tasks left: nothing to wait for")
+    XCTAssertFalse(counts.isIdle(TaskQueueKey.uploadFile))
+
+    try await repository.storeTask(parameters: syncTaskParams(id: "t2", jobType: .shallowDelete, path: "b.mp3"))
+    await repository.park(taskId: "t2", pause: pause(.account, code: "not_subscribed"))
+    counts = try await awaitCounts(from: tasksDataManager.observeQueueCounts()) { $0.totalPaused == 2 }
+    XCTAssertTrue(counts.isBlocked(TaskQueueKey.sync))
+    XCTAssertTrue(counts.isBlocked(TaskQueueKey.uploadFile))
+    XCTAssertEqual(counts.count(in: TaskQueueKey.sync), 2)
+  }
+
+  func testLaneDrained_treatsABlockedLaneAsDrained() {
+    let subject = CurrentValueSubject<QueueCounts, Never>(
+      QueueCounts(byQueueKey: [TaskQueueKey.sync: 2])
+    )
+    var seen = [Bool]()
+    let subscription = subject.laneDrained(TaskQueueKey.sync).sink { seen.append($0) }
+    defer { subscription.cancel() }
+
+    subject.send(QueueCounts(byQueueKey: [TaskQueueKey.sync: 2], pausedByQueueKey: [TaskQueueKey.sync: 1]))
+    subject.send(QueueCounts(
+      byQueueKey: [TaskQueueKey.sync: 2],
+      pausedByQueueKey: [TaskQueueKey.sync: 1],
+      blockedQueueKeys: [TaskQueueKey.sync]
+    ))
+
+    XCTAssertEqual(seen, [false, false, true])
+  }
+
+  // MARK: Engine
+
+  private func makeParkingEngine(
+    client: NetworkClientProtocol,
+    verify: @escaping () async -> Bool? = { true }
+  ) -> SyncQueueService {
+    let service = makeGatedEngine()
+    service.networkClient = client
+    service.verifySyncEntitlement = verify
+    return service
+  }
+
+  private func waitForPause(of taskId: String, timeout: TimeInterval = 3) async throws -> TaskPause? {
+    let deadline = Date().addingTimeInterval(timeout)
+    while Date() < deadline {
+      if let pause = await repository.getAllTasks().first(where: { $0.id == taskId })?.pause { return pause }
+      try await Task.sleep(for: .milliseconds(20))
+    }
+    XCTFail("timed out waiting for \(taskId) to park")
+    return nil
+  }
+
+  /// A structural task that can never succeed stops its lane at once (no 5 s retry loop),
+  /// is reported once, and Retry runs it again
+  func testCodedFailure_parksAStructuralTask_holdsTheLane_andRetryRunsIt() async throws {
+    let client = FailingNetworkClient(errors: [coded("item_not_found")])
+    let service = makeParkingEngine(client: client)
+    try await repository.storeTask(parameters: syncTaskParams(id: "e3m1", jobType: .delete, path: "a.mp3"))
+    try await repository.storeTask(parameters: syncTaskParams(id: "e3m2", jobType: .delete, path: "b.mp3"))
+
+    let reported = expectation(forNotification: .syncTaskPaused, object: nil) { note in
+      (note.object as? QueuedSyncTask)?.id == "e3m1"
+    }
+    service.setServerLanesEnabled(true)
+
+    let pause = try await waitForPause(of: "e3m1")
+    XCTAssertEqual(pause?.scope, .lane)
+    XCTAssertEqual(pause?.errorCode, "item_not_found")
+    XCTAssertEqual(pause?.httpStatus, 404)
+    await fulfillment(of: [reported], timeout: 2)
+
+    try await Task.sleep(for: .milliseconds(300))
+    XCTAssertEqual(client.requestCount, 1, "the lane waits behind the parked task")
+
+    service.retryPausedTask(id: "e3m1")
+    try await waitForEmptyQueue()
+    XCTAssertEqual(client.requestCount, 3)
+  }
+
+  func testCodedFailure_onALeafTask_parksItAlone() async throws {
+    let client = FailingNetworkClient(errors: [coded("invalid_request", status: 400)])
+    let service = makeParkingEngine(client: client)
+    try await repository.storeTask(parameters: syncTaskParams(id: "e4a1", jobType: .update, path: "a.mp3"))
+    try await repository.storeTask(parameters: syncTaskParams(id: "e4d1", jobType: .delete, path: "b.mp3"))
+
+    service.setServerLanesEnabled(true)
+    try await waitForTaskCount(exactly: 1)
+    let left = await repository.getAllTasks()
+    XCTAssertEqual(left.map(\.id), ["e4a1"])
+    XCTAssertEqual(left.first?.pause?.scope, .task)
+  }
+
+  func testCodedFailure_withParkingDisabled_dropsTheTask() async throws {
+    let client = FailingNetworkClient(errors: [coded("item_not_found")])
+    let service = makeParkingEngine(client: client)
+    service.parkingEnabled = false
+    try await repository.storeTask(parameters: syncTaskParams(id: "e5m1", jobType: .delete, path: "a.mp3"))
+    try await repository.storeTask(parameters: syncTaskParams(id: "e5m2", jobType: .delete, path: "b.mp3"))
+
+    service.setServerLanesEnabled(true)
+    try await waitForEmptyQueue()
+    XCTAssertEqual(client.requestCount, 2)
+  }
+
+  /// RevenueCat still says active: every server lane holds and the pause is reported
+  func testAccountRejection_whileRevenueCatSaysActive_holdsTheServerLanes_andReports() async throws {
+    let client = FailingNetworkClient(errors: [coded("not_subscribed", status: 400)])
+    let service = makeParkingEngine(client: client, verify: { true })
+    try await repository.storeTask(parameters: syncTaskParams(id: "e7m1", jobType: .delete, path: "a.mp3"))
+
+    let reported = expectation(forNotification: .syncTaskPaused, object: nil) { note in
+      (note.object as? QueuedSyncTask)?.pause?.scope == .account
+    }
+    service.setServerLanesEnabled(true)
+
+    let pause = try await waitForPause(of: "e7m1")
+    XCTAssertEqual(pause?.scope, .account)
+    await fulfillment(of: [reported], timeout: 2)
+
+    // An upload that would otherwise run (its missing file is consumed without network)
+    var upload = uploadFileParams(id: "e7u1")
+    upload["filePath"] = URL(fileURLWithPath: "/nonexistent/\(UUID().uuidString).m4b").absoluteString
+    try await repository.storeTask(parameters: upload)
+    service.wakeUpWorkers()
+    try await Task.sleep(for: .milliseconds(300))
+    let held = await repository.getAllTasks()
+    XCTAssertEqual(Set(held.map(\.id)), ["e7m1", "e7u1"], "the upload lane holds too")
+    let counts = try await awaitCounts(from: tasksDataManager.observeQueueCounts()) {
+      $0.count(in: TaskQueueKey.uploadFile) == 1
+    }
+    XCTAssertTrue(counts.isBlocked(TaskQueueKey.uploadFile))
+  }
+
+  /// RevenueCat confirms the lapse: nothing is reported (the lapse path clears the lanes)
+  func testAccountRejection_confirmedInactive_isNotReported() async throws {
+    let client = FailingNetworkClient(errors: [coded("not_subscribed", status: 400)])
+    let verified = expectation(description: "entitlement checked")
+    let service = makeParkingEngine(client: client, verify: {
+      verified.fulfill()
+      return false
+    })
+    try await repository.storeTask(parameters: syncTaskParams(id: "e9m1", jobType: .delete, path: "a.mp3"))
+
+    // Filtered on this test's task: the notification is global, and an earlier test's
+    // engine may still post late
+    let reported = expectation(forNotification: .syncTaskPaused, object: nil) { note in
+      (note.object as? QueuedSyncTask)?.id == "e9m1"
+    }
+    reported.isInverted = true
+    service.setServerLanesEnabled(true)
+
+    await fulfillment(of: [verified], timeout: 2)
+    await fulfillment(of: [reported], timeout: 0.5)
+  }
+
+  /// The one automatic retry: a launch resumes parked tasks before waking the lanes
+  func testLaunchWake_resumesParkedTasks() async throws {
+    let service = makeParkingEngine(client: FailingNetworkClient(errors: []))
+    try await repository.storeTask(parameters: syncTaskParams(id: "e11m1", jobType: .delete, path: "a.mp3"))
+    await repository.park(taskId: "e11m1", pause: pause(.lane))
+    service.setServerLanesEnabled(true)
+    try await Task.sleep(for: .milliseconds(300))
+    let stillParked = await repository.getAllTasks()
+    XCTAssertEqual(stillParked.count, 1, "an ordinary wake leaves parked tasks alone")
+
+    service.wakeUpWorkers(resumingPausedTasks: true)
+    try await waitForEmptyQueue()
+  }
+}
+
+/// Throws the queued errors for the first requests, then answers `Empty`
+private final class FailingNetworkClient: NetworkClientMock, @unchecked Sendable {
+  private let lock = NSLock()
+  private var errors: [Error]
+  private var _requestCount = 0
+
+  var requestCount: Int { lock.withLock { _requestCount } }
+
+  init(errors: [Error]) {
+    self.errors = errors
+    super.init(mockedResponse: Empty())
+  }
+
+  override func request<T: Decodable>(
+    path: String,
+    method: HTTPMethod,
+    parameters: [String: Any]?
+  ) async throws -> T {
+    let error: Error? = lock.withLock {
+      _requestCount += 1
+      return errors.isEmpty ? nil : errors.removeFirst()
+    }
+    if let error { throw error }
+    // swiftlint:disable:next force_cast
+    return Empty() as! T
+  }
+}

@@ -34,4 +34,10 @@ public enum SyncJobType: String, CaseIterable, Codable {
 public enum TaskQueueKey {
   public static let sync = "sync"
   public static let uploadFile = "uploadFile"
+
+  /// The lanes that talk to the BookPlayer server: gated on the sync entitlement, and held
+  /// by an account-level pause
+  public static func isServerLane(_ queueKey: String) -> Bool {
+    queueKey == sync || queueKey == uploadFile
+  }
 }

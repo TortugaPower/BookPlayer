@@ -699,7 +699,9 @@
 		9911FBB52F72486D00DC9A2B /* ExternalUpdateProgressOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBB42F72486400DC9A2B /* ExternalUpdateProgressOperation.swift */; };
 		9911FBB62F72486D00DC9A2B /* ExternalUpdateProgressOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBB42F72486400DC9A2B /* ExternalUpdateProgressOperation.swift */; };
 		9911FBB82F72F46900DC9A2B /* QueuedSyncTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBB72F72F46200DC9A2B /* QueuedSyncTask.swift */; };
+		A6E159ACC6815095CB182A05 /* TaskPause.swift in Sources */ = {isa = PBXBuildFile; fileRef = 099268746F86BD2193897F88 /* TaskPause.swift */; };
 		9911FBB92F72F46900DC9A2B /* QueuedSyncTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBB72F72F46200DC9A2B /* QueuedSyncTask.swift */; };
+		693CFE4C25CFFA22F7151780 /* TaskPause.swift in Sources */ = {isa = PBXBuildFile; fileRef = 099268746F86BD2193897F88 /* TaskPause.swift */; };
 		9911FBBE2F74527800DC9A2B /* SyncQueueProgressMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBBD2F74526F00DC9A2B /* SyncQueueProgressMonitor.swift */; };
 		F99B9D63217ABDAFED95696A /* QueueCounts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25C877CDD6114F67F0CD2AFC /* QueueCounts.swift */; };
 		9911FBBF2F74527800DC9A2B /* SyncQueueProgressMonitor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBBD2F74526F00DC9A2B /* SyncQueueProgressMonitor.swift */; };
@@ -1783,6 +1785,7 @@
 		9911FBB12F71E54600DC9A2B /* SyncQueueRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncQueueRepository.swift; sourceTree = "<group>"; };
 		9911FBB42F72486400DC9A2B /* ExternalUpdateProgressOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExternalUpdateProgressOperation.swift; sourceTree = "<group>"; };
 		9911FBB72F72F46200DC9A2B /* QueuedSyncTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueuedSyncTask.swift; sourceTree = "<group>"; };
+		099268746F86BD2193897F88 /* TaskPause.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskPause.swift; sourceTree = "<group>"; };
 		9911FBBD2F74526F00DC9A2B /* SyncQueueProgressMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncQueueProgressMonitor.swift; sourceTree = "<group>"; };
 		25C877CDD6114F67F0CD2AFC /* QueueCounts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueueCounts.swift; sourceTree = "<group>"; };
 		9911FBC32F76121C00DC9A2B /* FileUploadOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FileUploadOperation.swift; sourceTree = "<group>"; };
@@ -3444,6 +3447,7 @@
 				9911FBBD2F74526F00DC9A2B /* SyncQueueProgressMonitor.swift */,
 				25C877CDD6114F67F0CD2AFC /* QueueCounts.swift */,
 				9911FBB72F72F46200DC9A2B /* QueuedSyncTask.swift */,
+				099268746F86BD2193897F88 /* TaskPause.swift */,
 				9911FBB12F71E54600DC9A2B /* SyncQueueRepository.swift */,
 				9911FBAE2F71D03100DC9A2B /* SyncQueueService.swift */,
 				9911FBAB2F71CD5F00DC9A2B /* AsyncOperation.swift */,
@@ -4757,6 +4761,7 @@
 				638352D02E67F327009EE79E /* SyncTasksModels.swift in Sources */,
 				638352D12E67F327009EE79E /* SwiftDataModels+Extensions.swift in Sources */,
 				9911FBB82F72F46900DC9A2B /* QueuedSyncTask.swift in Sources */,
+				A6E159ACC6815095CB182A05 /* TaskPause.swift in Sources */,
 				4140EA74227289AE0009F794 /* Theme+CoreDataClass.swift in Sources */,
 				4140EA6E227289960009F794 /* DeleteMode.swift in Sources */,
 				9F6BC86727E6D03E002CF2A6 /* WatchApplicationContext.swift in Sources */,
@@ -5307,6 +5312,7 @@
 				9FC1E46C2815A8CA00522FA8 /* LibraryAPI.swift in Sources */,
 				9FAFC9F42995BB5C00FD531E /* RemoteFileURLResponse.swift in Sources */,
 				9911FBB92F72F46900DC9A2B /* QueuedSyncTask.swift in Sources */,
+				693CFE4C25CFFA22F7151780 /* TaskPause.swift in Sources */,
 				992D6E172FA98C5C0091849F /* AudiobookShelfLibraryItem.swift in Sources */,
 				4124AB2125DFE1A60007C839 /* CoreDataStack.swift in Sources */,
 				41A1B11F226F88C500EA0400 /* Chapter+CoreDataClass.swift in Sources */,

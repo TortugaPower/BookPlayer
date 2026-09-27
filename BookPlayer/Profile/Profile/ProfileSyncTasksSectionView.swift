@@ -105,6 +105,7 @@ struct ProfileSyncTasksSectionView: View {
     syncQueueService.setup(
       libraryService: libraryService,
       getAccessLevel: { accountService.getAccessLevel() },
+      verifySyncEntitlement: { nil },
       tasksDataManager: TasksDataManager(),
       networkClient: NetworkClient(),
       dataManager: dataManager

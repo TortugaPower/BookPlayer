@@ -13,6 +13,8 @@ public struct QueuedSyncTask: Identifiable {
   public let uuid: String
   public let relativePath: String
   public let parameters: [String: Any]
+  /// Set while the task is parked on a coded server error
+  public let pause: TaskPause?
 
   public init(
     id: String,
@@ -20,7 +22,8 @@ public struct QueuedSyncTask: Identifiable {
     jobType: SyncJobType,
     parameters: [String: Any],
     uuid: String = "",
-    relativePath: String = ""
+    relativePath: String = "",
+    pause: TaskPause? = nil
   ) {
     self.id = id
     self.queueKey = queueKey
@@ -28,6 +31,7 @@ public struct QueuedSyncTask: Identifiable {
     self.parameters = parameters
     self.uuid = uuid
     self.relativePath = relativePath
+    self.pause = pause
   }
 
   /// The key `.uploadProgressUpdated` carries for this item — what a row matches on

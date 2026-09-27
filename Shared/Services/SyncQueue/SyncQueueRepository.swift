@@ -13,7 +13,12 @@ import SwiftData
 public protocol SyncQueueRepositoryProtocol: ModelActor {
   init(tasksDataManager: TasksDataManager)
 
+  /// The next task the lane's worker should run, marked in flight (never a coalescing
+  /// target until popped or parked). Worker-only: use `hasRunnableTask(for:)` to peek.
   func getNextTask(for queueKey: String) -> QueuedSyncTask?
+
+  /// Whether the lane has a task its worker could run, without marking anything in flight
+  func hasRunnableTask(for queueKey: String) -> Bool
 
   func pop(_ task: QueuedSyncTask)
 
@@ -40,6 +45,21 @@ public protocol SyncQueueRepositoryProtocol: ModelActor {
   func clearAll(in queueKey: String) throws
 
   func clearAll() throws
+
+  /// Parks the task. Returns the stored pause (carrying any earlier `sentryEventId`), or
+  /// nil when the task is gone (popped or cleared meanwhile).
+  @discardableResult
+  func park(taskId: String, pause: TaskPause) -> TaskPause?
+
+  /// Returns a parked task to pending. Resuming one account-level pause resumes them all:
+  /// they share one cause.
+  func resume(taskId: String)
+
+  /// Returns every parked task to pending (the one automatic retry, at launch)
+  func resumeAllPaused()
+
+  /// Remembers the Sentry event that reported this task's pause
+  func setSentryEventId(_ eventId: String, forTask taskId: String)
 }
 
 public actor SyncQueueRepository: SyncQueueRepositoryProtocol, BPLogger {
@@ -47,6 +67,11 @@ public actor SyncQueueRepository: SyncQueueRepositoryProtocol, BPLogger {
   nonisolated public let modelExecutor: any ModelExecutor
 
   private let tasksDataManager: TasksDataManager
+  /// The task each lane's worker is running: handed out by `getNextTask`, dropped on pop
+  /// or park. Its parameters were already read, so it must never be a coalescing target —
+  /// and once parking exists it isn't always the lane's first row (a Retry can put a
+  /// resumed task ahead of it).
+  private var inFlightTaskIDs: [String: String] = [:]
 
   public init(tasksDataManager: TasksDataManager) {
     self.modelContainer = tasksDataManager.container
@@ -59,9 +84,46 @@ public actor SyncQueueRepository: SyncQueueRepositoryProtocol, BPLogger {
   }
 
   public func getNextTask(for queueKey: String) -> QueuedSyncTask? {
+    guard let (reference, storedObject) = nextRunnableTask(for: queueKey) else { return nil }
+
+    inFlightTaskIDs[queueKey] = reference.taskID
+    return QueuedSyncTask(
+      id: reference.taskID,
+      queueKey: reference.queueKey,
+      jobType: reference.jobType,
+      parameters: storedObject.toDictionaryPayload(),
+      uuid: reference.uuid,
+      relativePath: reference.relativePath,
+      pause: reference.pause
+    )
+  }
+
+  public func hasRunnableTask(for queueKey: String) -> Bool {
+    nextRunnableTask(for: queueKey) != nil
+  }
+
+  /// The pause rules: `.task` rows are skipped, a `.lane`/`.account` head stops the lane,
+  /// and any `.account` pause holds every server lane
+  private func nextRunnableTask(
+    for queueKey: String
+  ) -> (QueuedTaskReferenceModel, any DictionaryConvertible)? {
     guard let tasksContainer = fetchGlobalQueueModel() else { return nil }
 
+    if TaskQueueKey.isServerLane(queueKey),
+       tasksContainer.tasks.contains(where: { $0.pauseScopeValue == .account }) {
+      return nil
+    }
+
     for reference in tasksContainer.orderedTasks(for: queueKey) {
+      switch reference.pauseScopeValue {
+      case .task:
+        continue
+      case .lane, .account:
+        return nil
+      case nil:
+        break
+      }
+
       guard
         let storedObject = tasksDataManager.getTaskModel(
           with: reference.taskID,
@@ -83,20 +145,75 @@ public actor SyncQueueRepository: SyncQueueRepositoryProtocol, BPLogger {
         continue
       }
 
-      return QueuedSyncTask(
-        id: reference.taskID,
-        queueKey: reference.queueKey,
-        jobType: reference.jobType,
-        parameters: storedObject.toDictionaryPayload(),
-        uuid: reference.uuid,
-        relativePath: reference.relativePath
-      )
+      return (reference, storedObject)
     }
 
     return nil
   }
 
+  @discardableResult
+  public func park(taskId: String, pause: TaskPause) -> TaskPause? {
+    clearInFlight(taskId)
+    guard
+      let reference = fetchGlobalQueueModel()?.tasks.first(where: { $0.taskID == taskId })
+    else { return nil }
+
+    reference.pauseScope = pause.scope.rawValue
+    reference.errorCode = pause.errorCode
+    reference.errorMessage = pause.message
+    reference.httpStatus = pause.httpStatus
+    reference.pausedAt = pause.pausedAt
+    saveAndNotify("park \(taskId)")
+    return reference.pause
+  }
+
+  public func resume(taskId: String) {
+    guard
+      let tasks = fetchGlobalQueueModel()?.tasks,
+      let reference = tasks.first(where: { $0.taskID == taskId }),
+      let scope = reference.pauseScopeValue
+    else { return }
+
+    if scope == .account {
+      tasks.filter { $0.pauseScopeValue == .account }.forEach { $0.clearPause() }
+    } else {
+      reference.clearPause()
+    }
+    saveAndNotify("resume \(taskId)")
+  }
+
+  public func resumeAllPaused() {
+    let paused = fetchGlobalQueueModel()?.tasks.filter { $0.pauseScope != nil } ?? []
+    guard !paused.isEmpty else { return }
+
+    paused.forEach { $0.clearPause() }
+    saveAndNotify("resume all paused tasks")
+  }
+
+  public func setSentryEventId(_ eventId: String, forTask taskId: String) {
+    guard
+      let reference = fetchGlobalQueueModel()?.tasks.first(where: { $0.taskID == taskId })
+    else { return }
+
+    reference.sentryEventId = eventId
+    saveAndNotify("record the report of \(taskId)")
+  }
+
+  private func clearInFlight(_ taskId: String) {
+    inFlightTaskIDs = inFlightTaskIDs.filter { $0.value != taskId }
+  }
+
+  private func saveAndNotify(_ action: String) {
+    do {
+      try modelContext.save()
+    } catch {
+      Self.logger.error("Failed to persist \(action): \(error)")
+    }
+    tasksDataManager.notifyTasksChanged(context: modelContext)
+  }
+
   public func pop(_ task: QueuedSyncTask) {
+    clearInFlight(task.id)
     guard let tasksContainer = fetchGlobalQueueModel() else { return }
 
     let context = modelContext
@@ -112,7 +229,7 @@ public actor SyncQueueRepository: SyncQueueRepositoryProtocol, BPLogger {
       context.delete(reference)
     }
 
-    // Removal happens ONLY here (getNextTask is a peek): a silently-failed save leaves the
+    // Removal happens ONLY here (getNextTask never removes): a silently-failed save leaves the
     // reference behind and the worker re-runs the same task forever. Retry once after a
     // rollback, then surface loudly.
     do {
@@ -218,18 +335,21 @@ public actor SyncQueueRepository: SyncQueueRepositoryProtocol, BPLogger {
   }
 
   /// Merge the new task into an equivalent queued one when possible, so the queue
-  /// doesn't accumulate redundant work. The head of the queue is never a merge target:
-  /// its parameter snapshot may already have been read by `getNextTask`, so mutations
-  /// would be silently dropped when the running task finishes and gets deleted.
+  /// doesn't accumulate redundant work. The running task is never a merge target: its
+  /// parameter snapshot was already read by `getNextTask`, so mutations would be silently
+  /// dropped when it finishes and gets deleted.
   private func coalesceTaskIfPossible(
     jobType: SyncJobType,
     queueKey: String,
     parameters: [String: Any],
     tasksContainer: SyncQueueContainer
   ) -> Bool {
-    let queuedReferences = tasksContainer.orderedTasks(for: queueKey)
-    /// Skip the head of the queue when looking for a merge target
-    let mergeableReferences = queuedReferences.dropFirst()
+    /// Parked tasks are never merge targets (new work would wait behind their failure),
+    /// nor is the running one: its parameters were already read. It used to be the lane's
+    /// first row, but a Retry can now put a resumed task ahead of it, so it's excluded by id.
+    let mergeableReferences = tasksContainer.orderedTasks(for: queueKey).filter {
+      $0.pauseScope == nil && $0.taskID != inFlightTaskIDs[queueKey]
+    }
 
     switch jobType {
     case .matchUuid:
@@ -313,7 +433,8 @@ public actor SyncQueueRepository: SyncQueueRepositoryProtocol, BPLogger {
         jobType: task.jobType,
         parameters: [:],
         uuid: task.uuid,
-        relativePath: task.relativePath
+        relativePath: task.relativePath,
+        pause: task.pause
       )
     }
   }
@@ -452,6 +573,7 @@ public actor SyncQueueRepository: SyncQueueRepositoryProtocol, BPLogger {
   }
 
   public func clearAll(in queueKey: String) throws {
+    inFlightTaskIDs[queueKey] = nil
     guard let tasksContainer = fetchGlobalQueueModel() else { return }
 
     let context = modelContext
@@ -472,6 +594,34 @@ public actor SyncQueueRepository: SyncQueueRepositoryProtocol, BPLogger {
   }
 
   public func clearAll() throws {
+    inFlightTaskIDs.removeAll()
     try tasksDataManager.deleteAllTasks(with: modelContext)
+  }
+}
+
+extension QueuedTaskReferenceModel {
+  var pauseScopeValue: TaskPauseScope? {
+    pauseScope.flatMap(TaskPauseScope.init(rawValue:))
+  }
+
+  var pause: TaskPause? {
+    guard let scope = pauseScopeValue else { return nil }
+    return TaskPause(
+      scope: scope,
+      errorCode: errorCode ?? "",
+      message: errorMessage ?? "",
+      httpStatus: httpStatus,
+      pausedAt: pausedAt ?? Date(),
+      sentryEventId: sentryEventId
+    )
+  }
+
+  /// Back to pending. `sentryEventId` stays, so a re-park isn't reported twice.
+  func clearPause() {
+    pauseScope = nil
+    errorCode = nil
+    errorMessage = nil
+    httpStatus = nil
+    pausedAt = nil
   }
 }

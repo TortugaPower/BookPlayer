@@ -183,6 +183,22 @@ public final class AccountService: AccountServiceProtocol {
     return Purchases.shared.cachedCustomerInfo?.entitlements.all["pro"]?.isActive == true || Purchases.shared.cachedCustomerInfo?.entitlements.all["lite"]?.isActive == true
   }
   
+  /// A fresh (network) RevenueCat read of the sync entitlement, for when the server rejects
+  /// the account while the cached info says otherwise. The account update it triggers
+  /// posts `.accountUpdate`, so an inactive result runs the usual lapse path. nil = the
+  /// fetch failed.
+  public func refreshSyncEntitlement() async -> Bool? {
+    do {
+      let customerInfo = try await Purchases.shared.customerInfo(fetchPolicy: .fetchCurrent)
+      // updateAccount works on the view context: main only, like every other caller
+      await MainActor.run { self.updateAccount(from: customerInfo) }
+      let entitlements = customerInfo.entitlements.all
+      return entitlements["pro"]?.isActive == true || entitlements["lite"]?.isActive == true
+    } catch {
+      return nil
+    }
+  }
+
   public func hasLiteEnabled() -> Bool {
     return Purchases.shared.cachedCustomerInfo?.entitlements.all["lite"]?.isActive == true
   }

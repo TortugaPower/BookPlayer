@@ -93,6 +93,7 @@ struct BookView: View {
     syncQueueService.setup(
       libraryService: libraryService,
       getAccessLevel: { accountService.getAccessLevel() },
+      verifySyncEntitlement: { nil },
       tasksDataManager: tasksDataManager,
       networkClient: NetworkClient(),
       dataManager: dataManager

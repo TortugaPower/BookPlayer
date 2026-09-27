@@ -203,7 +203,11 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
     case 400...499:
       let error = try self.decoder.decode(ErrorResponse.self, from: data)
       if let code = error.error {
-        throw BookPlayerError.networkErrorWithCode(message: error.message, code: code)
+        throw BookPlayerError.networkErrorWithCode(
+          message: error.message,
+          code: code,
+          status: httpURLResponse.statusCode
+        )
       } else {
         throw BookPlayerError.networkError(error.message)
       }

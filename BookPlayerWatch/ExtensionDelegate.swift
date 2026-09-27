@@ -73,9 +73,12 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate, ObservableObject {
       libraryService.setup(dataManager: dataManager, audioMetadataService: audioMetadataService)
       let tasksDataManager = TasksDataManager()
       let syncQueueService = SyncQueueService()
+      // No Queued Tasks screen here to show or retry a parked task: coded failures drop
+      syncQueueService.parkingEnabled = false
       syncQueueService.setup(
         libraryService: libraryService,
         getAccessLevel: { accountService.getAccessLevel() },
+        verifySyncEntitlement: { await accountService.refreshSyncEntitlement() },
         tasksDataManager: tasksDataManager,
         networkClient: NetworkClient(),
         dataManager: dataManager
