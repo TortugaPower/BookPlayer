@@ -289,7 +289,13 @@ CarPlay event bus. Declared in `Shared/Extensions/Notification+BookPlayerKit.swi
   can put a resumed task ahead of it) are never coalescing targets. Retry = one automatic resume at
   launch (`setup`) plus `retryPausedTask(id:)`; there is deliberately no Skip. A first park posts
   `.syncTaskPaused`, skipped when the row already carries a `sentryEventId` (recorded via `recordPauseReport`;
-  it survives resumes).
+  it survives resumes). The app-target `SyncPauseReporter` (owned by `AppServices`) turns it into ONE Sentry
+  warning per task, fingerprint `["sync-paused", jobType, errorCode]`, with a minimal payload (job type, code,
+  status, lane, scope, item uuid) — **never the server message or a path: both embed file names**. The Queued
+  Tasks row of a parked task shows the server's message with Retry and Report; Report mails (or, without Mail,
+  shares) `SyncPauseReport`: the paused task, every queued task with its state, and the local library tree with
+  uuids. A blocked lane's header turns red, Profile shows "Sync paused: N need attention", and a blocked
+  pull-to-refresh says sync is paused.
 - **Realm is gone** (Realm → SwiftData migration is complete). Only inert remnants remain
   (`DataManager.getSyncTasksRealmURL()` is dead; a stale comment in `LibraryService`). Don't reintroduce it.
 

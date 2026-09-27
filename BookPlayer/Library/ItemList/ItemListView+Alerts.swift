@@ -217,8 +217,10 @@ extension ItemListView {
   
   func alertTitle(for alert: ItemListAlert) -> String {
     switch alert {
-    case .queuedTasks:
-      return "sync_tasks_inprogress_alert_title".localized
+    case .queuedTasks(let paused):
+      return paused
+        ? "sync_paused_alert_title".localized
+        : "sync_tasks_inprogress_alert_title".localized
     case .importCompletion(let parameters):
       let filesCount = parameters.itemIdentifiers.count
       return String.localizedStringWithFormat("import_alert_title".localized, filesCount)

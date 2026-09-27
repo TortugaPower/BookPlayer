@@ -32,6 +32,8 @@ final class AppServices: BPLogger {
   let promptSurfaceArbiter: PromptSurfaceArbiter
 
   let reviewPromptService = ReviewPromptService()
+  /// Reports parked sync tasks to Sentry; lives as long as the services it observes
+  private var syncPauseReporter: SyncPauseReporter?
 
   private init() {
     let playerState = PlayerState()
@@ -92,6 +94,11 @@ final class AppServices: BPLogger {
         tasksDataManager: tasksDataManager,
         dataManager: dataManager
       )
+      // Not in the unit-test host: tests post `.syncTaskPaused` themselves, and those must
+      // never reach the real Sentry project
+      if ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil {
+        syncPauseReporter = SyncPauseReporter(syncQueueService: syncQueueService)
+      }
       let syncService = makeSyncService(
         accountService: accountService,
         libraryService: libraryService,

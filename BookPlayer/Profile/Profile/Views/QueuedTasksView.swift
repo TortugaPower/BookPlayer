@@ -7,12 +7,13 @@
 //
 
 import BookPlayerKit
+import MessageUI
 import SwiftUI
 
 /// Every queued task on one screen: a collapsible section per lane (sync first, then the
 /// rest alphabetically), fed by the engine that owns all of them. Pushed from Profile and
 /// presented as a sheet from the library list when a refresh is blocked by queued jobs.
-struct QueuedTasksView: View {
+struct QueuedTasksView: View, BPLogger {
   @AppStorage(Constants.UserDefaults.allowCellularData)
   private var allowsCellularData: Bool = false
   @State private var tasks = [QueuedSyncTask]()
@@ -21,9 +22,16 @@ struct QueuedTasksView: View {
   @State private var collapsedLanes = Set<String>()
   @State private var showInfoAlert = false
   @State private var networkMonitor = NetworkMonitor()
+  /// Report's destination: Mail when it's set up, the share sheet otherwise
+  @State private var reportMail: SyncPauseReportMail?
+  @State private var reportShare: SyncPauseReportShare?
+  /// A second tap while the report builds (or its sheet is up) is ignored
+  @State private var isBuildingReport = false
   var monitor = SyncQueueProgressMonitor.shared
 
   @Environment(\.syncQueueService) private var syncQueueService
+  @Environment(\.libraryService) private var libraryService
+  @Environment(\.accountService) private var accountService
   @EnvironmentObject private var theme: ThemeViewModel
 
   private var sections: [QueuedTaskSection] { tasks.groupedByLane() }
@@ -52,7 +60,10 @@ struct QueuedTasksView: View {
                   title: .constant(task.displayTitle),
                   progressKey: task.progressKey,
                   initialProgress: monitor.getTaskProgress(taskID: task.id),
-                  isUpload: task.tracksByteProgress
+                  isUpload: task.tracksByteProgress,
+                  pause: task.pause,
+                  onRetry: { syncQueueService.retryPausedTask(id: task.id) },
+                  onReport: { report(task) }
                 )
               }
             } label: {
@@ -85,6 +96,23 @@ struct QueuedTasksView: View {
         .foregroundStyle(theme.linkColor)
       }
     }
+    .sheet(item: $reportMail) { mail in
+      SettingsMailView(
+        recipients: [SyncPauseReport.supportEmail],
+        subject: mail.report.subject,
+        messageBody: mail.report.body,
+        isHTML: true,
+        attachmentData: AttachmentData(
+          data: Data(mail.report.text.utf8),
+          mimeType: "text/plain",
+          fileName: SyncPauseReport.fileName
+        )
+      )
+    }
+    .sheet(item: $reportShare) { share in
+      ActivityView(activityItems: [share.fileURL])
+        .presentationDetents([.medium, .large])
+    }
     // Replays the current snapshot on subscribe, so this is the initial load as well.
     .onReceive(syncQueueService.observeQueueCounts()) { snapshot in
       counts = snapshot
@@ -93,13 +121,21 @@ struct QueuedTasksView: View {
   }
 
   private func laneHeader(_ queueKey: String) -> some View {
-    HStack(spacing: Spacing.S1) {
-      Image(systemName: QueueDisplay.imageName(for: queueKey))
+    let isBlocked = counts.isBlocked(queueKey)
+    return HStack(spacing: Spacing.S1) {
+      Image(systemName: isBlocked ? "exclamationmark.triangle.fill" : QueueDisplay.imageName(for: queueKey))
         .frame(width: 24)
-        .foregroundStyle(theme.linkColor)
-      Text(QueueDisplay.name(for: queueKey))
-        .bpFont(.headline)
-        .foregroundStyle(theme.primaryColor)
+        .foregroundStyle(isBlocked ? .red : theme.linkColor)
+      VStack(alignment: .leading, spacing: 0) {
+        Text(QueueDisplay.name(for: queueKey))
+          .bpFont(.headline)
+          .foregroundStyle(theme.primaryColor)
+        if isBlocked {
+          Text("sync_paused_lane_title")
+            .bpFont(.caption)
+            .foregroundStyle(.red)
+        }
+      }
       Spacer()
       Text("\(counts.count(in: queueKey))")
         .bpFont(.subheadline)
@@ -158,11 +194,44 @@ struct QueuedTasksView: View {
     )
   }
 
+  private func report(_ task: QueuedSyncTask) {
+    guard !isBuildingReport, reportMail == nil, reportShare == nil else { return }
+    isBuildingReport = true
+    Task { @MainActor in
+      defer { isBuildingReport = false }
+      let report = await SyncPauseReport.make(
+        for: task,
+        syncQueueService: syncQueueService,
+        libraryService: libraryService,
+        accessLevel: accountService.accessLevel
+      )
+      if MFMailComposeViewController.canSendMail() {
+        reportMail = SyncPauseReportMail(report: report)
+      } else {
+        do {
+          reportShare = SyncPauseReportShare(fileURL: try report.writeToTemporaryFile())
+        } catch {
+          Self.logger.error("Couldn't write the sync report: \(error.localizedDescription)")
+        }
+      }
+    }
+  }
+
   func reloadTasks() {
     Task { @MainActor in
       tasks = await syncQueueService.getOrderedQueuedJobs(activeTaskIDs: Set(monitor.activeTasks.keys))
     }
   }
+}
+
+private struct SyncPauseReportMail: Identifiable {
+  let id = UUID()
+  let report: SyncPauseReport
+}
+
+private struct SyncPauseReportShare: Identifiable {
+  let id = UUID()
+  let fileURL: URL
 }
 
 // MARK: - Preview
