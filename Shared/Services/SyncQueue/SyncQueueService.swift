@@ -704,7 +704,8 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
           relativePath: task.relativePath,
           jobType: task.jobType,
           parameters: task.parameters
-        )
+        ),
+        canUploadFiles: accessPolicy[.uploadFile] == true
       )
     }
   }

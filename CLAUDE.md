@@ -393,7 +393,11 @@ lines). It is the highest-risk file in the app.
 - **Book uploads are S3 multipart** (`FileUploadOperation`, the `uploadFile` lane; contract in
   bookplayer-api `docs/multipart-uploads.md`). A non-nil `url` from `PUT /v1/library` only means "the server
   needs the bytes" — the client never PUTs to it. **The server sets `synced` at `/upload/complete`; the client
-  never confirms a book's file.** S3 is the source of truth: every run rebuilds from `GET /upload/parts` plus
+  never confirms a book upload it made** (folders and bound books are confirmed after their presigned PUT). A nil `url` is confirmed with `synced:true` for folders and bound books on
+  every tier, but for a book only when the tier has S3 access (`LibraryItemSyncOperation.canUploadFiles`, from
+  `accessPolicy[.uploadFile]` when `createOperation` builds it): there it means the file is already in S3, while on
+  LITE it only means the tier stores no file, so LITE books stay `synced=false` and their files can go up after an
+  upgrade. S3 is the source of truth: every run rebuilds from `GET /upload/parts` plus
   the session's tasks for the current `uploadId`, so a relaunch or a lost event resumes without re-sending. The
   resumable state (`uploadId`, `partSize`, `fileSize`, `restartCount`) lives on `UploadFileTaskModel`; parts are
   sliced to `tmp/uploads/<uuid>/`; 64 MiB parts, 8 in flight (fewer on low disk), fresh part URLs every top-up

@@ -17,6 +17,9 @@ class LibraryItemSyncOperation: AsyncOperation, BPLogger, @unchecked Sendable {
   let uuid: String
   let jobType: SyncJobType
   let parameters: [String: Any]
+  /// Whether the account's tier stores files in S3 (PRO). A book's `synced` means "its file
+  /// is in S3", so on any other tier the app never confirms one
+  let canUploadFiles: Bool
 
   /// Written from the operation's detached Task (and `cancel()`), read from the
   /// queue-thread completionBlock — lock-guarded like the base class's `didSucceed`
@@ -49,9 +52,11 @@ class LibraryItemSyncOperation: AsyncOperation, BPLogger, @unchecked Sendable {
   /// - Parameters:
   ///   - client: Network client
   ///   - task: Sync task to be handled in the operation
+  ///   - canUploadFiles: Whether the account's tier stores files in S3
   init(
     client: NetworkClientProtocol,
-    task: SyncTask
+    task: SyncTask,
+    canUploadFiles: Bool
   ) {
     self.client = client
     self.provider = NetworkProvider(client: client)
@@ -59,6 +64,7 @@ class LibraryItemSyncOperation: AsyncOperation, BPLogger, @unchecked Sendable {
     self.jobType = task.jobType
     self.parameters = task.parameters
     self.uuid = task.uuid
+    self.canUploadFiles = canUploadFiles
   }
 
   /// Written in main() on the queue thread, read/cancelled by cancel() from any thread
@@ -198,7 +204,11 @@ extension LibraryItemSyncOperation {
       if type == .book {
         SyncJobScheduler.removeHardLink(at: SyncJobScheduler.hardLinkURL(for: self.relativePath))
       }
-      try await markUploadAsSynced(uuid: self.uuid)
+      /// Without S3 access no URL only means "this tier stores no file", so a book stays
+      /// unconfirmed: it's what lets its file go up if the account becomes PRO
+      if type != .book || canUploadFiles {
+        try await markUploadAsSynced(uuid: self.uuid)
+      }
       finish()
       return
     }

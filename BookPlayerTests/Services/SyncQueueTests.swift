@@ -1219,7 +1219,8 @@ extension SyncQueueTests {
         relativePath: name,
         jobType: .externalResourceToDownload,
         parameters: ["id": "pipe", "uuid": uuid, "relativePath": name]
-      )
+      ),
+      canUploadFiles: true
     )
 
     let done = expectation(description: "finished")
@@ -1420,5 +1421,114 @@ extension SyncQueueTests {
       recorded[firstQueued...].contains { $0.total == 0 },
       "the book was briefly in neither lane"
     )
+  }
+}
+
+// MARK: - Upload confirmation by tier
+
+/// Records each library request and answers the metadata upload with no URL
+private final class NoURLLibraryClient: NetworkClientMock, @unchecked Sendable {
+  private let lock = NSLock()
+  private var _calls = [String]()
+  private var _lastParameters: [String: Any]?
+
+  var calls: [String] { lock.withLock { _calls } }
+  var lastParameters: [String: Any]? { lock.withLock { _lastParameters } }
+
+  init() {
+    super.init(mockedResponse: Empty())
+  }
+
+  override func request<T: Decodable>(
+    path: String,
+    method: HTTPMethod,
+    parameters: [String: Any]?
+  ) async throws -> T {
+    lock.withLock {
+      _calls.append("\(method.rawValue) \(path)")
+      _lastParameters = parameters
+    }
+    return try JSONDecoder().decode(T.self, from: Data(#"{"content":{"url":null}}"#.utf8))
+  }
+}
+
+extension SyncQueueTests {
+  private func runMetadataUpload(type: SimpleItemType, canUploadFiles: Bool) async throws -> NoURLLibraryClient {
+    let client = NoURLLibraryClient()
+    let uuid = UUID().uuidString
+    let operation = LibraryItemSyncOperation(
+      client: client,
+      task: SyncTask(
+        id: "meta",
+        uuid: uuid,
+        relativePath: "Tier-\(uuid).m4b",
+        jobType: .upload,
+        parameters: ["id": "meta", "uuid": uuid, "relativePath": "Tier-\(uuid).m4b", "type": type.rawValue]
+      ),
+      canUploadFiles: canUploadFiles
+    )
+
+    let done = expectation(description: "finished")
+    let observer = operation.observe(\.isFinished, options: [.initial, .new]) { op, _ in
+      if op.isFinished { done.fulfill() }
+    }
+    operation.start()
+    await fulfillment(of: [done], timeout: 3)
+    observer.invalidate()
+
+    XCTAssertTrue(operation.didSucceed)
+    return client
+  }
+
+  /// A book's `synced` means its file is in S3. Without S3 access, no URL only means the tier
+  /// stores no file, so the book stays unconfirmed and its file can go up after an upgrade
+  func testMetadataUploadWithoutS3Access_neverConfirmsABook() async throws {
+    let client = try await runMetadataUpload(type: .book, canUploadFiles: false)
+
+    XCTAssertEqual(client.calls, ["PUT /v1/library"])
+  }
+
+  /// With S3 access, no URL means the file is already there: the book is confirmed
+  func testMetadataUploadWithS3Access_confirmsABookAlreadyStored() async throws {
+    let client = try await runMetadataUpload(type: .book, canUploadFiles: true)
+
+    XCTAssertEqual(client.calls, ["PUT /v1/library", "POST /v1/library"])
+    XCTAssertEqual(client.lastParameters?["synced"] as? Bool, true)
+  }
+
+  /// Folders and bound books aren't confirmed by a file: they're confirmed on every tier
+  func testMetadataUploadWithoutS3Access_stillConfirmsFoldersAndBoundBooks() async throws {
+    for type in [SimpleItemType.folder, .bound] {
+      let client = try await runMetadataUpload(type: type, canUploadFiles: false)
+
+      XCTAssertEqual(client.calls, ["PUT /v1/library", "POST /v1/library"], "\(type)")
+      XCTAssertEqual(client.lastParameters?["synced"] as? Bool, true, "\(type)")
+    }
+  }
+
+  /// The queue hands its tier to the operation it builds: a book queued on a tier without
+  /// S3 access is registered but never confirmed, and one queued on PRO is
+  func testQueuedMetadataUpload_confirmsABookOnlyWithS3Access() async throws {
+    for canUploadFiles in [false, true] {
+      let service = makeGatedEngine()
+      service.accessPolicy = [.uploadFile: canUploadFiles, .externalUpdate: true]
+      let client = NoURLLibraryClient()
+      service.networkClient = client
+      let uuid = UUID().uuidString
+      let book = try JSONDecoder().decode(SyncableItem.self, from: Data(
+        #"{"relativePath":"Tier-\#(uuid).m4b","originalFileName":"Tier.m4b","title":"Tier","isFinished":false,"type":2,"uuid":"\#(uuid)"}"#.utf8
+      ))
+      await SyncJobScheduler(tasksRepository: repository).scheduleLibraryItemUploadJob(for: book)
+
+      service.setServerLanesEnabled(true)
+      try await waitForEmptyQueue()
+      service.setServerLanesEnabled(false)
+
+      XCTAssertEqual(
+        client.calls,
+        canUploadFiles ? ["PUT /v1/library", "POST /v1/library"] : ["PUT /v1/library"],
+        "canUploadFiles: \(canUploadFiles)"
+      )
+    }
   }
 }
