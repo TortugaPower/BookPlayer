@@ -22,9 +22,52 @@ struct ProfileSyncTasksSectionView: View {
   }
 
   @Environment(\.syncQueueService) private var syncQueueService
+  @Environment(\.uploadContinuation) private var uploadContinuation
+  @Environment(\.scenePhase) private var scenePhase
+  /// Read so the button follows the setting (the offer checks it, but can't observe it)
+  @AppStorage(Constants.UserDefaults.allowCellularData) private var allowsCellularData = false
   @EnvironmentObject private var theme: ThemeViewModel
 
+  /// The offer checks the cellular setting through a closure SwiftUI can't observe: reading
+  /// the setting here makes the button follow it
+  private var showsContinueButton: Bool {
+    _ = allowsCellularData
+    return uploadContinuation.isOfferAvailable
+  }
+
+  /// While the continued task runs, its progress replaces the sync status
+  private var caption: String {
+    if uploadContinuation.state == .running, let percent = uploadContinuation.runningPercent {
+      return String(format: "uploads_running_background_caption".localized, percent)
+    }
+    return statusMessage
+  }
+
   var body: some View {
+    VStack(spacing: Spacing.S2) {
+      queuedTasksLink
+      if showsContinueButton {
+        Button {
+          uploadContinuation.continueInBackground()
+        } label: {
+          Text("continue_uploads_background_button")
+            .frame(minHeight: 44)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.borderless)
+        .bpFont(.subheadline)
+        .foregroundStyle(theme.linkColor)
+      }
+    }
+    .task { await uploadContinuation.refreshState() }
+    // iOS may drop the request while the app is away
+    .onChange(of: scenePhase) { _, phase in
+      guard phase == .active else { return }
+      Task { await uploadContinuation.refreshState() }
+    }
+  }
+
+  private var queuedTasksLink: some View {
     NavigationLink(value: ProfileScreen.queueTasks) {
       VStack {
         HStack(spacing: Spacing.S4) {
@@ -36,7 +79,7 @@ struct ProfileSyncTasksSectionView: View {
         }
         .bpFont(.body)
         .foregroundStyle(pausedCount > 0 ? .red : theme.linkColor)
-        Text(statusMessage)
+        Text(caption)
           .bpFont(.caption)
           .foregroundStyle(theme.secondaryColor)
       }

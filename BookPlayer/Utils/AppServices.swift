@@ -200,7 +200,8 @@ final class AppServices: BPLogger {
         await BGTaskScheduler.shared.pendingTaskRequests()
           .contains { $0.identifier == UploadContinuationController.identifier }
       },
-      queueChanges: { syncQueueService.observeQueueCounts() }
+      queueChanges: { syncQueueService.observeQueueCounts() },
+      currentCounts: { syncQueueService.queueCounts }
     ))
   }
 

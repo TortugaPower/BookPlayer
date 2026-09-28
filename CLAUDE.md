@@ -376,7 +376,9 @@ lines). It is the highest-risk file in the app.
   `<bundle>.uploads.continued`) runs ONE `BGContinuedProcessingTask` for the whole upload queue, so uploads keep
   full speed in the background (Live Activity "Uploading files", "(x / n) <file name>", progress in bytes). It is
   submitted whenever books are queued for upload — `SyncService.handleItemsToUpload` posts `.bookUploadsQueued`
-  (an import, or the first sync after signing in or subscribing; decided: always, no size threshold) — only from
+  (an import, or the first sync after signing in or subscribing; decided: always, no size threshold), on a parked
+  task's Retry, and from the "Continue in background" buttons (the Queued Tasks File Uploads header, a
+  borderless button under Profile's Queued Tasks link; shown only when `isOfferAvailable`) — only from
   the foreground, with S3 access, when the Wi-Fi-only setting allows the current network, and when some waiting
   book sits in a lane that can run (not all behind a blocked lane). Its books come from
   `SyncQueueService.pendingBookUploads()` (one repository read of both lanes: the sync lane's book `.upload`s —
@@ -386,7 +388,8 @@ lines). It is the highest-risk file in the app.
   parked uploads remain or nothing can move (no S3 access, every waiting book behind a blocked lane). On expiry
   or a Live Activity cancel it answers `setTaskCompleted(false)` in the handler and the parts carry on in the
   background sessions. A task iOS launches before the services exist is held, not failed; a request iOS dropped
-  (`pendingTaskRequests`) no longer blocks the next submit.
+  (`pendingTaskRequests`) no longer blocks the next submit. While a task runs, Profile's caption reads "Uploading in background · N%"
+  (`runningPercent`); Profile stays two lines (no Wi-Fi caption there — the banner is Queued Tasks only).
 - **Book uploads are S3 multipart** (`FileUploadOperation`, the `uploadFile` lane; contract in
   bookplayer-api `docs/multipart-uploads.md`). A non-nil `url` from `PUT /v1/library` only means "the server
   needs the bytes" — the client never PUTs to it. **The server sets `synced` at `/upload/complete`; the client

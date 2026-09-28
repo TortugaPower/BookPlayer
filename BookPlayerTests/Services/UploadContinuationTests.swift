@@ -90,6 +90,8 @@ final class UploadContinuationTests: XCTestCase {
   private var foreground = true
   private var requestPending = true
   private let changes = PassthroughSubject<QueueCounts, Never>()
+  /// What the queue reports right now (the throttled subscription may lag)
+  private var currentCounts = QueueCounts()
 
   private func dependencies() -> UploadContinuationController.Dependencies {
     .init(
@@ -103,6 +105,7 @@ final class UploadContinuationTests: XCTestCase {
       },
       hasPendingRequest: { [unowned self] in self.requestPending },
       queueChanges: { [unowned self] in self.changes.eraseToAnyPublisher() },
+      currentCounts: { [unowned self] in self.currentCounts },
       confirmEmptyAfter: .milliseconds(50)
     )
   }
@@ -259,7 +262,8 @@ final class UploadContinuationTests: XCTestCase {
     controller.attach(task)
     try await waitUntil { !task.titles.isEmpty }
 
-    changes.send(QueueCounts(byQueueKey: [TaskQueueKey.sync: 2], pausedByQueueKey: [TaskQueueKey.sync: 1], blockedQueueKeys: [TaskQueueKey.sync]))
+    currentCounts = QueueCounts(byQueueKey: [TaskQueueKey.sync: 2], pausedByQueueKey: [TaskQueueKey.sync: 1], blockedQueueKeys: [TaskQueueKey.sync])
+    changes.send(currentCounts)
 
     try await waitUntil { !task.completions.isEmpty }
     XCTAssertEqual(task.completions, [false])
@@ -302,13 +306,142 @@ final class UploadContinuationTests: XCTestCase {
   func testSubmit_behindABlockedLane_isHeldBack() async throws {
     pending = [PendingBookUpload(uuid: "a", relativePath: "A.m4b", fileSize: 1, queueKey: TaskQueueKey.sync)]
     let controller = makeController()
-    changes.send(QueueCounts(byQueueKey: [TaskQueueKey.sync: 2], pausedByQueueKey: [TaskQueueKey.sync: 1], blockedQueueKeys: [TaskQueueKey.sync]))
-    try await Task.sleep(for: .milliseconds(50))
+    currentCounts = QueueCounts(byQueueKey: [TaskQueueKey.sync: 2], pausedByQueueKey: [TaskQueueKey.sync: 1], blockedQueueKeys: [TaskQueueKey.sync])
 
     await controller.submitIfNeeded()
 
     XCTAssertTrue(submitted.isEmpty)
     XCTAssertEqual(controller.state, .idle)
+  }
+
+  // MARK: - The "Continue in background" buttons
+
+  private func uploadLaneCounts(waiting: Int, paused: Int = 0, blocked: Bool = false) -> QueueCounts {
+    QueueCounts(
+      byQueueKey: [TaskQueueKey.uploadFile: waiting + paused],
+      pausedByQueueKey: paused > 0 ? [TaskQueueKey.uploadFile: paused] : [:],
+      blockedQueueKeys: blocked ? [TaskQueueKey.uploadFile] : []
+    )
+  }
+
+  func testOffer_showsOnlyWhenUploadsCanRunAndNothingIsLive() async throws {
+    let controller = makeController()
+    XCTAssertFalse(controller.isOfferAvailable, "nothing waiting")
+
+    changes.send(uploadLaneCounts(waiting: 2))
+    try await waitUntil { controller.isOfferAvailable }
+    XCTAssertTrue(controller.isOfferAvailable)
+
+    networkAllows = false
+    XCTAssertFalse(controller.isOfferAvailable, "Wi-Fi only, on cellular")
+    networkAllows = true
+    canUpload = false
+    XCTAssertFalse(controller.isOfferAvailable, "no S3 access")
+    canUpload = true
+
+    changes.send(uploadLaneCounts(waiting: 0, paused: 2))
+    try await waitUntil { !controller.isOfferAvailable }
+    XCTAssertFalse(controller.isOfferAvailable, "only parked uploads")
+
+    // An account-level pause blocks the upload lane itself
+    changes.send(uploadLaneCounts(waiting: 2, blocked: true))
+    try await waitUntil { controller.counts.isBlocked(TaskQueueKey.uploadFile) }
+    XCTAssertFalse(controller.isOfferAvailable, "the lane is blocked")
+  }
+
+  func testOffer_hidesWhileATaskRuns() async throws {
+    pending = [book("a", "A.m4b", 100)]
+    let controller = makeController()
+    changes.send(uploadLaneCounts(waiting: 1))
+    try await waitUntil { controller.isOfferAvailable }
+
+    controller.attach(FakeContinuedTask())
+
+    XCTAssertEqual(controller.state, .running)
+    XCTAssertFalse(controller.isOfferAvailable)
+  }
+
+  func testButton_submitsTheTask_andHidesWhileStarting() async throws {
+    pending = [book("a", "A.m4b", 100)]
+    let controller = makeController()
+    changes.send(uploadLaneCounts(waiting: 1))
+    try await waitUntil { controller.isOfferAvailable }
+
+    controller.continueInBackground()
+
+    try await waitUntil { !submitted.isEmpty }
+    XCTAssertEqual(controller.state, .starting)
+    XCTAssertFalse(controller.isOfferAvailable)
+  }
+
+  /// A request iOS dropped leaves "Starting…": re-checked when the screen appears
+  func testRefreshState_clearsARequestIOSDropped() async {
+    pending = [book("a", "A.m4b", 100)]
+    let controller = makeController()
+    await controller.submitIfNeeded()
+    XCTAssertEqual(controller.state, .starting)
+
+    await controller.refreshState()
+    XCTAssertEqual(controller.state, .starting, "still pending with iOS")
+
+    requestPending = false
+    await controller.refreshState()
+    XCTAssertEqual(controller.state, .idle)
+  }
+
+  /// Our own submit still on its way to iOS isn't a dropped request
+  func testRefreshState_duringAnInFlightSubmit_keepsStarting() async throws {
+    pending = [book("a", "A.m4b", 100)]
+    var release: CheckedContinuation<Void, Never>?
+    var deps = dependencies()
+    deps.submit = { _ in await withCheckedContinuation { release = $0 } }
+    let controller = UploadContinuationController()
+    controller.setup(dependencies: deps)
+    let submitting = Task { await controller.submitIfNeeded() }
+    try await waitUntil { release != nil }
+    requestPending = false
+
+    await controller.refreshState()
+    XCTAssertEqual(controller.state, .starting)
+
+    release?.resume()
+    await submitting.value
+    XCTAssertEqual(controller.state, .starting)
+  }
+
+  /// A Retry that just unblocked the lane counts at once, before the throttled counts catch up
+  func testSubmit_readsTheCurrentCounts_notTheThrottledOnes() async throws {
+    pending = [PendingBookUpload(uuid: "a", relativePath: "A.m4b", fileSize: 1, queueKey: TaskQueueKey.sync)]
+    let controller = makeController()
+    changes.send(QueueCounts(byQueueKey: [TaskQueueKey.sync: 2], pausedByQueueKey: [TaskQueueKey.sync: 1], blockedQueueKeys: [TaskQueueKey.sync]))
+    try await waitUntil { controller.counts.isBlocked(TaskQueueKey.sync) }
+    XCTAssertTrue(controller.counts.isBlocked(TaskQueueKey.sync), "the throttled counts still say blocked")
+    currentCounts = QueueCounts(byQueueKey: [TaskQueueKey.sync: 2])
+
+    await controller.submitIfNeeded()
+
+    XCTAssertEqual(submitted.count, 1)
+  }
+
+  func testRunningPercent_followsTheTask_andClearsWhenItEnds() async throws {
+    pending = [book("a", "A.m4b", 100)]
+    let controller = makeController()
+    let task = FakeContinuedTask()
+    controller.attach(task)
+    try await waitUntil { controller.runningPercent != nil }
+    XCTAssertEqual(controller.runningPercent, 0)
+
+    NotificationCenter.default.post(
+      name: .uploadProgressUpdated,
+      object: nil,
+      userInfo: ["uuid": "a", "relativePath": "Folder/A.m4b", "progress": 0.37]
+    )
+    try await waitUntil { controller.runningPercent == 37 }
+    XCTAssertEqual(controller.runningPercent, 37)
+
+    task.expirationHandler?()
+    try await waitUntil { controller.state == .idle }
+    XCTAssertNil(controller.runningPercent)
   }
 
   /// Expiry (and a cancel from the Live Activity) is answered once, right in the handler

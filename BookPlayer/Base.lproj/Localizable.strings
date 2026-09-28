@@ -569,3 +569,9 @@ We're working hard on providing a seamless experience, if possible, please conta
 "sync_tasks_need_attention_voiceover" = "Needs attention";
 "continued_upload_title" = "Uploading files";
 "continued_upload_subtitle" = "(%1$d / %2$d) %3$@";
+"continue_in_background_button" = "Continue in background";
+"continue_uploads_background_button" = "Continue uploads in background";
+"uploads_starting_title" = "Starting…";
+"uploads_running_background_title" = "Uploading in background";
+"uploads_running_background_caption" = "Uploading in background · %d%%";
+"continue_uploads_short_button" = "Continue";

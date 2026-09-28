@@ -81,7 +81,8 @@ struct UploadContinuationProgress {
 /// Keeps book uploads running at full speed while the app is in the background, through a
 /// `BGContinuedProcessingTask` (its Live Activity: "Uploading files", "(x / n) name").
 /// Submitted whenever books are queued for upload (an import, the first sync after signing
-/// in or subscribing); covers the whole queue, not one book,
+/// in or subscribing), on a parked task's Retry, and from the "Continue in background"
+/// buttons (Queued Tasks, Profile); covers the whole queue, not one book,
 /// and ends when nothing is waiting — or nothing can move (a blocked lane, no S3 access).
 /// When it expires (or the user cancels it) the parts keep going in the background
 /// sessions, only slower.
@@ -108,6 +109,9 @@ final class UploadContinuationController: BPLogger {
     var hasPendingRequest: () async -> Bool
     /// The queue's counts: a change can mean a book finished, was added or got blocked
     var queueChanges: () -> AnyPublisher<QueueCounts, Never>
+    /// The counts right now (the subscription above is throttled): a Retry that just
+    /// unblocked a lane must count as runnable at once
+    var currentCounts: () -> QueueCounts
     /// A queue that's empty for this long is done (a book moving between lanes shows up
     /// again within it)
     var confirmEmptyAfter: Duration = .seconds(1)
@@ -116,19 +120,30 @@ final class UploadContinuationController: BPLogger {
   static let identifier = "\(Bundle.main.configurationString(for: .bundleIdentifier)).uploads.continued"
 
   private(set) var state = State.idle
+  /// Whole percent of the running task, for the "Uploading in background · 37%" caption
+  private(set) var runningPercent: Int?
+  /// The latest queue counts (throttled), for what the buttons offer
+  private(set) var counts = QueueCounts()
 
   @ObservationIgnored private var dependencies: Dependencies?
   @ObservationIgnored private var task: ContinuedUploadTask?
   /// A task iOS launched before the services were up (a cold launch into it)
   @ObservationIgnored private var heldTask: ContinuedUploadTask?
   @ObservationIgnored private var progress = UploadContinuationProgress()
-  @ObservationIgnored private var counts = QueueCounts()
   @ObservationIgnored private var subscriptions = Set<AnyCancellable>()
   @ObservationIgnored private var queueSubscription: AnyCancellable?
   @ObservationIgnored private var lastSubtitle: String?
   @ObservationIgnored private var queuedObserver: NSObjectProtocol?
   @ObservationIgnored private var isRefreshing = false
+  /// Our own submit is on its way to iOS (on iOS 27 it's handed over asynchronously): not
+  /// a request iOS dropped
+  @ObservationIgnored private var isSubmitting = false
+  /// Bumped per submit: a "no pending request" answer from before a newer submit is stale
+  @ObservationIgnored private var submitGeneration = 0
   @ObservationIgnored private var refreshAgain = false
+
+  /// `nonisolated` so an environment default (`@Entry`) can build the placeholder
+  nonisolated init() {}
 
   /// Wired once the core services exist
   func setup(dependencies: Dependencies) {
@@ -174,9 +189,7 @@ final class UploadContinuationController: BPLogger {
   func submitIfNeeded() async {
     guard let dependencies else { return }
     // A request iOS accepted but dropped (or never ran) mustn't block every later one
-    if state == .starting, await !dependencies.hasPendingRequest(), state == .starting {
-      state = .idle
-    }
+    await refreshState()
     guard state == .idle else { return }
     guard
       dependencies.isForeground(),
@@ -197,6 +210,9 @@ final class UploadContinuationController: BPLogger {
       subtitle: Self.subtitle(for: initial)
     )
     state = .starting
+    submitGeneration += 1
+    isSubmitting = true
+    defer { isSubmitting = false }
     do {
       try await dependencies.submit(request)
       Self.logger.info("Continued upload task submitted for \(pending.books.count) book(s)")
@@ -303,13 +319,49 @@ final class UploadContinuationController: BPLogger {
   /// behind a blocked lane (a lane-level or account-level pause), means waiting on the user
   private func canMakeProgress(_ pending: PendingBookUploads) -> Bool {
     guard let dependencies, dependencies.canUpload() else { return false }
+    let counts = dependencies.currentCounts()
     return pending.books.contains { !counts.isBlocked($0.queueKey) }
+  }
+
+  // MARK: - The "Continue in background" buttons
+
+  /// Whether the buttons show: uploads waiting in a lane that can run, S3 access, a
+  /// network the setting allows, and no task starting or running
+  var isOfferAvailable: Bool {
+    guard let dependencies, state == .idle else { return false }
+    let uploadLane = TaskQueueKey.uploadFile
+    let waiting = counts.count(in: uploadLane) - counts.pausedCount(in: uploadLane)
+    return waiting > 0
+      && !counts.isBlocked(uploadLane)
+      && dependencies.canUpload()
+      && dependencies.networkAllowsUploads()
+  }
+
+  /// A button tap (a user action, as iOS requires for a continued task)
+  func continueInBackground() {
+    Task { await submitIfNeeded() }
+  }
+
+  /// A request iOS dropped (or never ran) leaves `.starting`: re-checked when a screen
+  /// showing it appears
+  func refreshState() async {
+    guard let dependencies, state == .starting, !isSubmitting else { return }
+    let generation = submitGeneration
+    if await !dependencies.hasPendingRequest(),
+       state == .starting, !isSubmitting, generation == submitGeneration {
+      state = .idle
+    }
   }
 
   private func report() {
     guard let task else { return }
     task.progress.totalUnitCount = max(progress.totalBytes, 1)
     task.progress.completedUnitCount = min(progress.completedBytes, task.progress.totalUnitCount)
+    // Integer math: a floating-point product shows 29% as 28
+    let percent = Int(task.progress.completedUnitCount * 100 / max(task.progress.totalUnitCount, 1))
+    if percent != runningPercent {
+      runningPercent = percent
+    }
     // Nothing to name (the queue emptied): keep the last subtitle
     guard progress.currentFileName != nil else { return }
     let subtitle = Self.subtitle(for: progress)
@@ -325,6 +377,7 @@ final class UploadContinuationController: BPLogger {
     self.task = nil
     subscriptions.removeAll()
     state = .idle
+    runningPercent = nil
     if !alreadyCompleted {
       task.setTaskCompleted(success: success)
     }

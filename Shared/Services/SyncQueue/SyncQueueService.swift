@@ -57,8 +57,12 @@ public protocol SyncQueueServiceProtocol {
   /// on wakes them.
   func setServerLanesEnabled(_ enabled: Bool)
 
-  /// The user's Retry on a parked task: back to pending, and its lane wakes
-  func retryPausedTask(id: String)
+  /// The user's Retry on a parked task: back to pending, and its lane wakes. Returns once
+  /// the task is pending again.
+  func retryPausedTask(id: String) async
+
+  /// The latest queue counts, read now
+  var queueCounts: QueueCounts { get }
 
   /// Remembers the Sentry event that reported a pause, so it's never reported twice
   func recordPauseReport(eventId: String, forTask taskId: String)
@@ -549,12 +553,12 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
     }
   }
 
-  public func retryPausedTask(id: String) {
-    Task {
-      await taskContainer.resume(taskId: id)
-      wakeUpWorkers()
-    }
+  public func retryPausedTask(id: String) async {
+    await taskContainer.resume(taskId: id)
+    wakeUpWorkers()
   }
+
+  public var queueCounts: QueueCounts { tasksDataManager.currentQueueCounts }
 
   public func settleUploads() async {
     // Bounded: the caller also times out, but a lane that never starts mustn't spin here

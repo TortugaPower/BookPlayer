@@ -112,6 +112,7 @@ class MainCoordinator: NSObject {
       .environment(\.playbackService, playbackService)
       .environment(\.preferencesService, preferencesService)
       .environment(\.syncQueueService, syncQueueService)
+      .environment(\.uploadContinuation, AppServices.shared.uploadContinuation)
     )
     vc.modalPresentationStyle = .fullScreen
     vc.modalTransitionStyle = .crossDissolve

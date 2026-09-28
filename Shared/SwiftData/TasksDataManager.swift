@@ -84,6 +84,9 @@ public final class TasksDataManager: BPLogger {
     initializeTasksCount()
   }
 
+  /// The latest snapshot, read now (thread-safe)
+  public var currentQueueCounts: QueueCounts { queueCountsSubject.value }
+
   /// Pending-task counts per queue key, delivered on main. Replays the latest snapshot on
   /// subscribe, then emits after every store/pop.
   public func observeQueueCounts() -> AnyPublisher<QueueCounts, Never> {

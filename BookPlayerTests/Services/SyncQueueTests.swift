@@ -844,7 +844,7 @@ extension SyncQueueTests {
     try await Task.sleep(for: .milliseconds(300))
     XCTAssertEqual(client.requestCount, 1, "the lane waits behind the parked task")
 
-    service.retryPausedTask(id: "e3m1")
+    await service.retryPausedTask(id: "e3m1")
     try await waitForEmptyQueue()
     XCTAssertEqual(client.requestCount, 3)
   }

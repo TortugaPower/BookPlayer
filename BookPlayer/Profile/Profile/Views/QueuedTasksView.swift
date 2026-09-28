@@ -32,6 +32,9 @@ struct QueuedTasksView: View, BPLogger {
   @Environment(\.syncQueueService) private var syncQueueService
   @Environment(\.libraryService) private var libraryService
   @Environment(\.accountService) private var accountService
+  @Environment(\.uploadContinuation) private var uploadContinuation
+  @Environment(\.accessibilityVoiceOverEnabled) private var voiceOverEnabled
+  @Environment(\.scenePhase) private var scenePhase
   @EnvironmentObject private var theme: ThemeViewModel
 
   private var sections: [QueuedTaskSection] { tasks.groupedByLane() }
@@ -62,7 +65,13 @@ struct QueuedTasksView: View, BPLogger {
                   initialProgress: monitor.getTaskProgress(taskID: task.id),
                   isUpload: task.tracksByteProgress,
                   pause: task.pause,
-                  onRetry: { syncQueueService.retryPausedTask(id: task.id) },
+                  onRetry: {
+                    Task {
+                      await syncQueueService.retryPausedTask(id: task.id)
+                      // A user action: the unblocked uploads may now run at full speed
+                      await uploadContinuation.submitIfNeeded()
+                    }
+                  },
                   onReport: { report(task) },
                   onDismiss: { syncQueueService.dismissPausedTask(id: task.id) }
                 )
@@ -114,6 +123,12 @@ struct QueuedTasksView: View, BPLogger {
       ActivityView(activityItems: [share.fileURL])
         .presentationDetents([.medium, .large])
     }
+    .task { await uploadContinuation.refreshState() }
+    // iOS may drop the request while the app is away
+    .onChange(of: scenePhase) { _, phase in
+      guard phase == .active else { return }
+      Task { await uploadContinuation.refreshState() }
+    }
     // Replays the current snapshot on subscribe, so this is the initial load as well.
     .onReceive(syncQueueService.observeQueueCounts()) { snapshot in
       counts = snapshot
@@ -121,29 +136,114 @@ struct QueuedTasksView: View, BPLogger {
     }
   }
 
+  /// The upload lane offers "Continue in background" when it can help; every other lane
+  /// (and the upload lane otherwise) is the plain header
+  @ViewBuilder
   private func laneHeader(_ queueKey: String) -> some View {
+    if queueKey == TaskQueueKey.uploadFile, uploadContinuation.isOfferAvailable {
+      // Each wording measured against the whole row, so the lane title never breaks
+      // mid-word to make room for a longer button
+      ViewThatFits(in: .horizontal) {
+        laneHeaderRow(queueKey, continueLabel: .full)
+        laneHeaderRow(queueKey, continueLabel: .short)
+        laneHeaderRow(queueKey, continueLabel: .icon)
+      }
+    } else {
+      laneHeaderRow(queueKey, continueLabel: nil)
+    }
+  }
+
+  private enum ContinueLabel {
+    case full, short, icon
+  }
+
+  private func laneHeaderRow(_ queueKey: String, continueLabel: ContinueLabel?) -> some View {
     let isBlocked = counts.isBlocked(queueKey)
     return HStack(spacing: Spacing.S1) {
-      Image(systemName: isBlocked ? "exclamationmark.triangle.fill" : QueueDisplay.imageName(for: queueKey))
-        .frame(width: 24)
-        .foregroundStyle(isBlocked ? .red : theme.linkColor)
-      VStack(alignment: .leading, spacing: 0) {
-        Text(QueueDisplay.name(for: queueKey))
-          .bpFont(.headline)
-          .foregroundStyle(theme.primaryColor)
-        if isBlocked {
-          Text("sync_paused_lane_title")
-            .bpFont(.caption)
-            .foregroundStyle(.red)
+      HStack(spacing: Spacing.S1) {
+        Image(systemName: isBlocked ? "exclamationmark.triangle.fill" : QueueDisplay.imageName(for: queueKey))
+          .frame(width: 24)
+          .foregroundStyle(isBlocked ? .red : theme.linkColor)
+        VStack(alignment: .leading, spacing: 0) {
+          Text(QueueDisplay.name(for: queueKey))
+            .bpFont(.headline)
+            .foregroundStyle(theme.primaryColor)
+          if isBlocked {
+            Text("sync_paused_lane_title")
+              .bpFont(.caption)
+              .foregroundStyle(.red)
+          }
+          if queueKey == TaskQueueKey.uploadFile {
+            backgroundUploadStatus
+          }
+        }
+        Spacer()
+        Text("\(counts.count(in: queueKey))")
+          .bpFont(.subheadline)
+          .foregroundStyle(theme.secondaryColor)
+      }
+      .accessibilityElement(children: .combine)
+      // The button sits inside the lane's disclosure label, which VoiceOver may read as one
+      // element: for VoiceOver the action is offered on the header itself
+      .accessibilityActions {
+        if continueLabel != nil, voiceOverEnabled {
+          Button("continue_in_background_button") {
+            uploadContinuation.continueInBackground()
+          }
         }
       }
-      Spacer()
-      Text("\(counts.count(in: queueKey))")
-        .bpFont(.subheadline)
-        .foregroundStyle(theme.secondaryColor)
+      if let continueLabel {
+        continueButton(continueLabel)
+      }
     }
     .padding(.vertical, Spacing.S3)
-    .accessibilityElement(children: .combine)
+  }
+
+  /// What the continued task is doing, under the lane title
+  @ViewBuilder
+  private var backgroundUploadStatus: some View {
+    switch uploadContinuation.state {
+    case .starting:
+      Text("uploads_starting_title")
+        .bpFont(.caption)
+        .foregroundStyle(theme.secondaryColor)
+    case .running:
+      Text("uploads_running_background_title")
+        .bpFont(.caption)
+        .foregroundStyle(theme.secondaryColor)
+    case .idle:
+      EmptyView()
+    }
+  }
+
+  private func continueButton(_ label: ContinueLabel) -> some View {
+    Button {
+      uploadContinuation.continueInBackground()
+    } label: {
+      Group {
+        switch label {
+        case .full:
+          Text("continue_in_background_button")
+        case .short:
+          Text("continue_uploads_short_button")
+        case .icon:
+          Image(systemName: "icloud.and.arrow.up")
+        }
+      }
+      .lineLimit(1)
+      .frame(minWidth: 44, minHeight: 44)
+      .contentShape(Rectangle())
+    }
+    // Borderless: a plain button in the label would toggle the lane instead
+    .buttonStyle(.borderless)
+    .bpFont(.subheadline)
+    .foregroundStyle(theme.linkColor)
+    // The 44 pt target reaches into the row's padding instead of growing the header
+    .padding(.vertical, -Spacing.S3)
+    // Named for Voice Control in every variant (the icon's symbol name isn't usable);
+    // VoiceOver uses the header's action instead
+    .accessibilityLabel("continue_in_background_button")
+    .accessibilityHidden(voiceOverEnabled)
   }
 
   private var wifiRequiredBanner: some View {
