@@ -194,7 +194,7 @@ Custom `Notification.Name`s (namespaced with the bundle id at runtime) are the a
 CarPlay event bus. Declared in `Shared/Extensions/Notification+BookPlayerKit.swift` (framework-wide):
 `.chapterChange`, `.bookReady`, `.bookPlayed`, `.bookPaused`, `.bookEnd`, `.bookPlaying`, `.accountUpdate`,
 `.logout`, `.messageReceived`, `.folderProgressUpdated`, `.uploadProgressUpdated`, `.uploadCompleted`,
-`.listeningProgressChanged`, `.syncTaskPaused`; and app-internal ones in `BookPlayer/Utils/Extensions/Notification+BookPlayer.swift`.
+`.listeningProgressChanged`, `.syncTaskPaused`, `.backgroundSessionFinishedEvents`, `.bookUploadsQueued`; and app-internal ones in `BookPlayer/Utils/Extensions/Notification+BookPlayer.swift`.
 
 - **`PlayerManager` is the dominant publisher** of playback events; `PhoneWatchConnectivityService` and
   `CarPlayManager` are the dominant cross-target subscribers; `AccountService` is the auth/account hub.
@@ -372,6 +372,21 @@ lines). It is the highest-risk file in the app.
   away. Both delegates post `.backgroundSessionFinishedEvents` from SERIAL delegate queues (so it follows the last
   completion); either order of handler and events works. The coordinator is created in `didFinishLaunching`, before
   anything can wake a session. These session names are NOT `BGTaskSchedulerPermittedIdentifiers`.
+  **Continued task:** `UploadContinuationController` (app target, owned by `AppServices`, registered at launch as
+  `<bundle>.uploads.continued`) runs ONE `BGContinuedProcessingTask` for the whole upload queue, so uploads keep
+  full speed in the background (Live Activity "Uploading files", "(x / n) <file name>", progress in bytes). It is
+  submitted whenever books are queued for upload — `SyncService.handleItemsToUpload` posts `.bookUploadsQueued`
+  (an import, or the first sync after signing in or subscribing; decided: always, no size threshold) — only from
+  the foreground, with S3 access, when the Wi-Fi-only setting allows the current network, and when some waiting
+  book sits in a lane that can run (not all behind a blocked lane). Its books come from
+  `SyncQueueService.pendingBookUploads()` (one repository read of both lanes: the sync lane's book `.upload`s —
+  not media-server ones, which carry no file — and pipe jobs, then the upload lane; parked ones counted apart);
+  refreshes are coalesced (one in flight). It ends when the queue stays empty for a moment (a book between
+  lanes can look absent; the upload task is stored BEFORE the sync `.upload` is popped), unsuccessfully if only
+  parked uploads remain or nothing can move (no S3 access, every waiting book behind a blocked lane). On expiry
+  or a Live Activity cancel it answers `setTaskCompleted(false)` in the handler and the parts carry on in the
+  background sessions. A task iOS launches before the services exist is held, not failed; a request iOS dropped
+  (`pendingTaskRequests`) no longer blocks the next submit.
 - **Book uploads are S3 multipart** (`FileUploadOperation`, the `uploadFile` lane; contract in
   bookplayer-api `docs/multipart-uploads.md`). A non-nil `url` from `PUT /v1/library` only means "the server
   needs the bytes" — the client never PUTs to it. **The server sets `synced` at `/upload/complete`; the client

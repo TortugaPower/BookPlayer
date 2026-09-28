@@ -724,6 +724,13 @@ extension SyncService {
         }
       }
     }
+
+    // Media-server books have no file to upload from here (theirs goes up once downloaded)
+    if items.contains(where: { $0.type == .book && $0.mediaServerProviderName == nil }) {
+      await MainActor.run {
+        NotificationCenter.default.post(name: .bookUploadsQueued, object: nil)
+      }
+    }
   }
 
   /// Schedule upload tasks for recently imported books and folders

@@ -564,6 +564,7 @@
 		63B4A3C62E93858C00784A22 /* PlayerControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B4A3C52E93858C00784A22 /* PlayerControlsView.swift */; };
 		63B50F052B692E4200BCABBA /* ListSyncRefreshService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B50F042B692E4200BCABBA /* ListSyncRefreshService.swift */; };
 		F015116186D7F12201CDB4C0 /* SyncPauseReporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 185FB83C0CF083AC102D8753 /* SyncPauseReporter.swift */; };
+		4907B9D7B059A2A93D35AAE0 /* UploadContinuationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DAECA780F8170162DAD1492 /* UploadContinuationController.swift */; };
 		AD7114A34343C516BD1890E2 /* BackgroundSessionWakeCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EEA5B438944574494C5385F /* BackgroundSessionWakeCoordinator.swift */; };
 		D071ABD44684949C58C7D8D0 /* PromptSurfaceArbiter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42B6A047D0689D9E2E2D9749 /* PromptSurfaceArbiter.swift */; };
 		9AB6B44F84D195FCCF7A4F9F /* PromptSurfaceArbiterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D4833D717C7B97F7B5DFDC5 /* PromptSurfaceArbiterTests.swift */; };
@@ -974,6 +975,7 @@
 		C972F5D6BD6375832F59BF7E /* IntegrationHTTPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5265B16421BFC176BFFE4EA5 /* IntegrationHTTPClient.swift */; };
 		CA3B408256F8458669106CF9 /* IntegrationConnectionViewModelProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D91D6855100BD1823B2674F /* IntegrationConnectionViewModelProtocol.swift */; };
 		CB3844DD8C695EAD32A4A811 /* SyncQueueTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF75FEB4DEC37DBE232CD140 /* SyncQueueTests.swift */; };
+		6C5741E68D44175ECF900294 /* UploadContinuationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04EDE7B20E949F916D8ECA2D /* UploadContinuationTests.swift */; };
 		50EEEAE96509B6867FC9180B /* BackgroundSessionWakeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83C482DCC8DC2DF811A3C7BC /* BackgroundSessionWakeTests.swift */; };
 		B2B1B1BF822F47AA40EE1B71 /* MultipartUploadEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C5F08C368941D45696C7891 /* MultipartUploadEngineTests.swift */; };
 		3F42C29BC62913D44C22CBC0 /* SyncPauseReportingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C64E54AA0319D8F687DFB6E4 /* SyncPauseReportingTests.swift */; };
@@ -1685,6 +1687,7 @@
 		63B4A3C52E93858C00784A22 /* PlayerControlsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerControlsView.swift; sourceTree = "<group>"; };
 		63B50F042B692E4200BCABBA /* ListSyncRefreshService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListSyncRefreshService.swift; sourceTree = "<group>"; };
 		185FB83C0CF083AC102D8753 /* SyncPauseReporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncPauseReporter.swift; sourceTree = "<group>"; };
+		7DAECA780F8170162DAD1492 /* UploadContinuationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadContinuationController.swift; sourceTree = "<group>"; };
 		5EEA5B438944574494C5385F /* BackgroundSessionWakeCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundSessionWakeCoordinator.swift; sourceTree = "<group>"; };
 		42B6A047D0689D9E2E2D9749 /* PromptSurfaceArbiter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptSurfaceArbiter.swift; sourceTree = "<group>"; };
 		3D4833D717C7B97F7B5DFDC5 /* PromptSurfaceArbiterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptSurfaceArbiterTests.swift; sourceTree = "<group>"; };
@@ -2008,6 +2011,7 @@
 		FEEDBABE0000000000000001 /* SharedWidgetStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedWidgetStore.swift; sourceTree = "<group>"; };
 		FEEDBABE0000000000000004 /* SharedWidgetStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedWidgetStoreTests.swift; sourceTree = "<group>"; };
 		FF75FEB4DEC37DBE232CD140 /* SyncQueueTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SyncQueueTests.swift; sourceTree = "<group>"; };
+		04EDE7B20E949F916D8ECA2D /* UploadContinuationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UploadContinuationTests.swift; sourceTree = "<group>"; };
 		83C482DCC8DC2DF811A3C7BC /* BackgroundSessionWakeTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BackgroundSessionWakeTests.swift; sourceTree = "<group>"; };
 		5C5F08C368941D45696C7891 /* MultipartUploadEngineTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MultipartUploadEngineTests.swift; sourceTree = "<group>"; };
 		C64E54AA0319D8F687DFB6E4 /* SyncPauseReportingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SyncPauseReportingTests.swift; sourceTree = "<group>"; };
@@ -3374,6 +3378,7 @@
 				9F82DF9B27DFE46B001B0EA8 /* PhoneWatchConnectivityService.swift */,
 				63B50F042B692E4200BCABBA /* ListSyncRefreshService.swift */,
 				185FB83C0CF083AC102D8753 /* SyncPauseReporter.swift */,
+				7DAECA780F8170162DAD1492 /* UploadContinuationController.swift */,
 				5EEA5B438944574494C5385F /* BackgroundSessionWakeCoordinator.swift */,
 				42B6A047D0689D9E2E2D9749 /* PromptSurfaceArbiter.swift */,
 				F05D3B1199FC741AB2FDED67 /* PlaybackFailure.swift */,
@@ -3400,6 +3405,7 @@
 				A11C418B028982CF431C589F /* LibraryServiceReloadChaptersTests.swift */,
 				5BE48B26D3726D5519F45ED9 /* IntegrationHostResolverTests.swift */,
 				FF75FEB4DEC37DBE232CD140 /* SyncQueueTests.swift */,
+				04EDE7B20E949F916D8ECA2D /* UploadContinuationTests.swift */,
 				83C482DCC8DC2DF811A3C7BC /* BackgroundSessionWakeTests.swift */,
 				5C5F08C368941D45696C7891 /* MultipartUploadEngineTests.swift */,
 				C64E54AA0319D8F687DFB6E4 /* SyncPauseReportingTests.swift */,
@@ -5220,6 +5226,7 @@
 				416AAC3323F51031005AD04F /* LocalizableButton.swift in Sources */,
 				63B50F052B692E4200BCABBA /* ListSyncRefreshService.swift in Sources */,
 				F015116186D7F12201CDB4C0 /* SyncPauseReporter.swift in Sources */,
+				4907B9D7B059A2A93D35AAE0 /* UploadContinuationController.swift in Sources */,
 				AD7114A34343C516BD1890E2 /* BackgroundSessionWakeCoordinator.swift in Sources */,
 				D071ABD44684949C58C7D8D0 /* PromptSurfaceArbiter.swift in Sources */,
 				5823F9DE917AE83D3C4DC04E /* PlaybackFailure.swift in Sources */,
@@ -5329,6 +5336,7 @@
 				5A9506FC8DAB858289E0EF89 /* IntegrationServerAddressTests.swift in Sources */,
 				3F058A74415A3AF6C17DA8F4 /* IntegrationHostResolverTests.swift in Sources */,
 				CB3844DD8C695EAD32A4A811 /* SyncQueueTests.swift in Sources */,
+				6C5741E68D44175ECF900294 /* UploadContinuationTests.swift in Sources */,
 				50EEEAE96509B6867FC9180B /* BackgroundSessionWakeTests.swift in Sources */,
 				B2B1B1BF822F47AA40EE1B71 /* MultipartUploadEngineTests.swift in Sources */,
 				3F42C29BC62913D44C22CBC0 /* SyncPauseReportingTests.swift in Sources */,

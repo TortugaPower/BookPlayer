@@ -1313,3 +1313,112 @@ extension SyncQueueTests {
     service.setServerLanesEnabled(false)
   }
 }
+
+// MARK: - Books waiting to upload (the continued task's view)
+
+extension SyncQueueTests {
+  func testPendingBookUploads_listsBothLanes_skippingFoldersAndParkedTasks() async throws {
+    let service = makeGatedEngine()
+    let link = FileManager.default.temporaryDirectory.appendingPathComponent("pending-\(UUID().uuidString).m4b")
+    try Data("0123456789".utf8).write(to: link)
+    defer { try? FileManager.default.removeItem(at: link) }
+
+    var upload = uploadFileParams(id: "file")
+    upload["filePath"] = link.absoluteString
+    upload["uuid"] = "u-file"
+    upload["relativePath"] = "Uploading.m4b"
+    try await repository.storeTask(parameters: upload)
+    var parkedUpload = uploadFileParams(id: "parked")
+    parkedUpload["uuid"] = "u-parked"
+    try await repository.storeTask(parameters: parkedUpload)
+    await repository.park(
+      taskId: "parked",
+      pause: TaskPause(scope: .task, errorCode: "invalid_parts", message: "m", httpStatus: 422, pausedAt: Date())
+    )
+    let scheduler = SyncJobScheduler(tasksRepository: repository)
+    let book = try JSONDecoder().decode(SyncableItem.self, from: Data(
+      #"{"relativePath":"Next.m4b","originalFileName":"Next.m4b","title":"Next","isFinished":false,"type":2,"uuid":"u-book"}"#.utf8
+    ))
+    let folder = try JSONDecoder().decode(SyncableItem.self, from: Data(
+      #"{"relativePath":"Folder","originalFileName":"Folder","title":"Folder","isFinished":false,"type":0,"uuid":"u-folder"}"#.utf8
+    ))
+    // A media-server book: its metadata upload carries `provider` and no file follows
+    let streamed = try syncableItem(uuid: "u-streamed", mediaServer: true)
+    await scheduler.scheduleLibraryItemUploadJob(for: book)
+    await scheduler.scheduleLibraryItemUploadJob(for: folder)
+    await scheduler.scheduleLibraryItemUploadJob(for: streamed)
+
+    let pending = await service.pendingBookUploads()
+
+    // The sync lane first, then the upload lane
+    XCTAssertEqual(pending.books.map(\.uuid), ["u-book", "u-file"])
+    XCTAssertEqual(pending.books.map(\.queueKey), [TaskQueueKey.sync, TaskQueueKey.uploadFile])
+    XCTAssertEqual(pending.books.last?.fileSize, 10)
+    XCTAssertEqual(pending.books.last?.fileName, "Uploading.m4b")
+    XCTAssertEqual(pending.parkedCount, 1)
+  }
+}
+
+// MARK: - The sync-to-upload hand-off
+
+/// Answers the metadata upload with a URL (the server needs the bytes) and fails everything
+/// else, so the upload lane just retries
+private final class NeedsBytesNetworkClient: NetworkClientMock, @unchecked Sendable {
+  init() { super.init(mockedResponse: Empty()) }
+
+  override func request<T: Decodable>(
+    path: String,
+    method: HTTPMethod,
+    parameters: [String: Any]?
+  ) async throws -> T {
+    guard path == "/v1/library", method == .put else { throw URLError(.timedOut) }
+    let json = #"{"content":{"url":"https://s3.test/book"}}"#
+    return try JSONDecoder().decode(T.self, from: Data(json.utf8))
+  }
+}
+
+extension SyncQueueTests {
+  /// The upload task is stored before the sync `.upload` is popped: at no point is the book
+  /// in neither lane (a kill there would lose the upload; the continued task would count it
+  /// done)
+  func testMetadataUploadNeedingBytes_neverLeavesTheBookInNeitherLane() async throws {
+    let service = makeGatedEngine()
+    service.networkClient = NeedsBytesNetworkClient()
+    let name = "handoff-\(UUID().uuidString).m4b"
+    let bookURL = DataManager.getProcessedFolderURL().appendingPathComponent(name)
+    try FileManager.default.createDirectory(at: DataManager.getProcessedFolderURL(), withIntermediateDirectories: true)
+    try Data("0123456789".utf8).write(to: bookURL)
+    defer {
+      try? FileManager.default.removeItem(at: bookURL)
+      try? FileManager.default.removeItem(at: SyncJobScheduler.hardLinkURL(for: name))
+    }
+    let book = try JSONDecoder().decode(SyncableItem.self, from: Data(
+      #"{"relativePath":"\#(name)","originalFileName":"\#(name)","title":"Book","isFinished":false,"type":2,"uuid":"\#(UUID().uuidString)"}"#.utf8
+    ))
+    // Appended on main (the counts are delivered there), read there too
+    nonisolated(unsafe) var snapshots = [QueueCounts]()
+    let recording = tasksDataManager.observeQueueCounts().sink { snapshots.append($0) }
+    defer { recording.cancel() }
+    await SyncJobScheduler(tasksRepository: repository).scheduleLibraryItemUploadJob(for: book)
+
+    service.setServerLanesEnabled(true)
+
+    let deadline = Date().addingTimeInterval(3)
+    while Date() < deadline {
+      let tasks = await repository.getAllTasks()
+      if tasks.map(\.jobType) == [.uploadFile] { break }
+      try await Task.sleep(for: .milliseconds(20))
+    }
+    service.setServerLanesEnabled(false)
+    try await Task.sleep(for: .milliseconds(50))
+    let recorded = await MainActor.run { snapshots }
+
+    XCTAssertEqual(recorded.last?.count(in: TaskQueueKey.uploadFile), 1)
+    XCTAssertEqual(recorded.last?.count(in: TaskQueueKey.sync), 0)
+    let firstQueued = recorded.firstIndex { $0.total > 0 } ?? 0
+    XCTAssertFalse(
+      recorded[firstQueued...].contains { $0.total == 0 },
+      "the book was briefly in neither lane"
+    )
+  }
+}

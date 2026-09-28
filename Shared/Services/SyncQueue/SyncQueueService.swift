@@ -71,6 +71,42 @@ public protocol SyncQueueServiceProtocol {
   /// queued its next parts, or right away when no upload will run (sync off, nothing
   /// runnable). A background wake awaits this before telling iOS it's finished.
   func settleUploads() async
+
+  /// Books whose file still has to reach S3, in queue order — the sync lane's book
+  /// `.upload`s (not media-server ones: they carry no file) and media-server file jobs, then
+  /// the upload lane — with the parked ones counted apart (they wait for the user)
+  func pendingBookUploads() async -> PendingBookUploads
+}
+
+/// A book still to upload, as the continued task counts it
+public struct PendingBookUpload: Equatable {
+  public let uuid: String
+  public let relativePath: String
+  /// On disk now (0 when the file can't be read)
+  public let fileSize: Int64
+  /// The lane it's waiting in: a blocked lane can't bring it any closer
+  public let queueKey: String
+
+  public init(uuid: String, relativePath: String, fileSize: Int64, queueKey: String = TaskQueueKey.uploadFile) {
+    self.uuid = uuid
+    self.relativePath = relativePath
+    self.fileSize = fileSize
+    self.queueKey = queueKey
+  }
+
+  public var fileName: String { (relativePath as NSString).lastPathComponent }
+}
+
+public struct PendingBookUploads: Equatable {
+  /// Not parked, in queue order
+  public let books: [PendingBookUpload]
+  /// Parked book uploads (either lane)
+  public let parkedCount: Int
+
+  public init(books: [PendingBookUpload], parkedCount: Int) {
+    self.books = books
+    self.parkedCount = parkedCount
+  }
 }
 
 public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
@@ -539,6 +575,39 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
     }
   }
 
+  public func pendingBookUploads() async -> PendingBookUploads {
+    // One actor call: both lanes read at the same instant
+    let candidates = await taskContainer.getUploadCandidates().filter { candidate in
+      switch candidate.task.jobType {
+      case .upload:
+        let type = (candidate.task.parameters["type"] as? Int16).flatMap(SimpleItemType.init(rawValue:))
+        // A media-server book's metadata upload schedules no file
+        return type == .book && candidate.task.parameters["provider"] == nil
+      case .externalResourceToDownload, .uploadFile:
+        return true
+      default:
+        return false
+      }
+    }
+
+    var seen = Set<String>()
+    var parkedCount = 0
+    let books = candidates.compactMap { candidate -> PendingBookUpload? in
+      let job = candidate.task
+      guard seen.insert(job.uuid).inserted else { return nil }
+      guard !candidate.isParked else {
+        parkedCount += 1
+        return nil
+      }
+      let temporaryLink = (job.parameters["filePath"] as? String).flatMap(URL.init(string:))
+        ?? SyncJobScheduler.hardLinkURL(for: job.relativePath)
+      let files = [temporaryLink, DataManager.getProcessedFolderURL().appendingPathComponent(job.relativePath)]
+      let size = files.lazy.compactMap { try? FileUploadOperation.fileSize(of: $0) }.first ?? 0
+      return PendingBookUpload(uuid: job.uuid, relativePath: job.relativePath, fileSize: size, queueKey: candidate.queueKey)
+    }
+    return PendingBookUploads(books: books, parkedCount: parkedCount)
+  }
+
   public func dismissPausedTask(id: String) {
     Task {
       guard
@@ -660,7 +729,9 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
       /// up once downloaded, through the `externalResourceToDownload` job (which carries no
       /// `provider`, so its result schedules the upload here)
       if task.parameters["provider"] as? String == nil {
-        handleUploadResult(result)
+        // Stored before the caller pops this task: the book is never in neither lane (a kill
+        // in between would lose the upload, and the continued task would count it done)
+        await handleUploadResult(result)
       } else {
         SyncJobScheduler.removeHardLink(at: URL(string: result.filePath))
       }
@@ -710,7 +781,7 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
   }
 
   /// The server answered the metadata upload with a URL: it needs the file's bytes
-  private func handleUploadResult(_ result: UploadResponse) {
+  private func handleUploadResult(_ result: UploadResponse) async {
     var params: [String: Any] = [
       "filePath": result.filePath,
       "uuid": result.uuid,
@@ -719,7 +790,7 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
     if let relativePath = result.relativePath {
       params["relativePath"] = relativePath
     }
-    scheduleFileUpload(params: params)
+    await storeFileUpload(params: params)
   }
 
   public func cancelServerQueueOperations() {
@@ -802,17 +873,24 @@ extension SyncQueueService {
       return
     }
 
-    Task {
-      var params = params
-      params["id"] = UUID().uuidString
-      params["jobType"] = SyncJobType.uploadFile.rawValue
-      params["queueKey"] = TaskQueueKey.uploadFile
+    Task { await storeFileUpload(params: params) }
+  }
 
-      do {
-        try await taskContainer.storeTask(parameters: params)
-      } catch {
-        Self.logger.error("Failed to schedule upload file task: \(error)")
-      }
+  /// `scheduleFileUpload`, awaited: returns once the task is stored
+  private func storeFileUpload(params: [String: Any]) async {
+    guard accessPolicy[.uploadFile] == true else {
+      SyncJobScheduler.removeHardLink(at: (params["filePath"] as? String).flatMap(URL.init(string:)))
+      return
+    }
+    var params = params
+    params["id"] = UUID().uuidString
+    params["jobType"] = SyncJobType.uploadFile.rawValue
+    params["queueKey"] = TaskQueueKey.uploadFile
+
+    do {
+      try await taskContainer.storeTask(parameters: params)
+    } catch {
+      Self.logger.error("Failed to schedule upload file task: \(error)")
     }
   }
 }

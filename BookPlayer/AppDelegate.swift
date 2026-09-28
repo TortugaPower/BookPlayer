@@ -445,6 +445,9 @@ extension AppDelegate {
       self.handleAppRefresh(task: refreshTask)
     }
 
+    // At launch, so a task iOS runs for an earlier submit finds its handler
+    UploadContinuationController.register { AppServices.shared.uploadContinuation }
+
     BGTaskScheduler.shared.register(
       forTaskWithIdentifier: databaseBackupTaskIdentifier,
       using: nil
@@ -462,16 +465,19 @@ extension AppDelegate {
     let request = BGAppRefreshTaskRequest(identifier: refreshTaskIdentifier)
     request.earliestBeginDate = Date(timeIntervalSinceNow: 15 * 60)
 
-    submitBackgroundTask(request)
+    Self.submitBackgroundTask(request)
   }
 
   /// `submit(_:)` is deprecated from iOS 27 in favor of `submitTaskRequest`.
-  func submitBackgroundTask(
+  static func submitBackgroundTask(
     _ request: BGTaskRequest,
     completion: @escaping @Sendable ((any Error)?) -> Void = { _ in }
   ) {
     if #available(iOS 27, *) {
-      BGTaskScheduler.shared.submitTaskRequest(request, completionHandler: completion)
+      // Its header: not from the main thread
+      DispatchQueue.global(qos: .utility).async {
+        BGTaskScheduler.shared.submitTaskRequest(request, completionHandler: completion)
+      }
     } else {
       do {
         try BGTaskScheduler.shared.submit(request)
@@ -549,7 +555,7 @@ extension AppDelegate {
     }
 
     let scheduledFor = request.earliestBeginDate?.description ?? "unknown"
-    submitBackgroundTask(request) { error in
+    Self.submitBackgroundTask(request) { error in
       if let error {
         Self.logger.error("Failed to schedule database backup: \(error.localizedDescription)")
       } else {

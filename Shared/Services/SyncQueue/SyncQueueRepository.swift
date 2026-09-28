@@ -38,6 +38,11 @@ public protocol SyncQueueRepositoryProtocol: ModelActor {
 
   func getAllTasksWithParams(in queueKey: String) -> [SyncTask]
 
+  /// The tasks that can lead to a book file upload, read in one go (the sync lane's
+  /// `.upload`s and media-server file jobs first, then the upload lane): only their payloads
+  /// are fetched, not every bookmark or move job's
+  func getUploadCandidates() -> [UploadCandidate]
+
   func hasUploadTask(for relativePath: String) -> Bool
 
   func applyMatchUuidConflicts(_ conflicts: [ItemConflict]) throws
@@ -517,6 +522,47 @@ public actor SyncQueueRepository: SyncQueueRepositoryProtocol, BPLogger {
     return tasksContainer.tasks.filter { $0.queueKey == queueKey }.count
   }
 
+  public func getUploadCandidates() -> [UploadCandidate] {
+    guard let tasksContainer = fetchGlobalQueueModel() else { return [] }
+
+    let syncCandidates = tasksContainer.orderedTasks(for: TaskQueueKey.sync).filter {
+      $0.jobType == .upload || $0.jobType == .externalResourceToDownload
+    }
+    let uploads = tasksContainer.orderedTasks(for: TaskQueueKey.uploadFile)
+    // One fetch per payload type, not per task: this runs on every queue change during a
+    // continued run, on the actor the workers need
+    var payloads = [String: any DictionaryConvertible]()
+    do {
+      for model in try modelContext.fetch(FetchDescriptor<UploadTaskModel>()) {
+        payloads[model.id] = model
+      }
+      for model in try modelContext.fetch(FetchDescriptor<ExternalResourceToDownloadTaskModel>()) {
+        payloads[model.id] = model
+      }
+      for model in try modelContext.fetch(FetchDescriptor<UploadFileTaskModel>()) {
+        payloads[model.id] = model
+      }
+    } catch {
+      // Read as "nothing waiting", which can end a continued run early: make it traceable
+      Self.logger.error("Failed to read the upload candidates: \(error)")
+    }
+    return (syncCandidates + uploads).compactMap { taskRef in
+      guard let storedObject = payloads[taskRef.taskID] else { return nil }
+
+      return UploadCandidate(
+        task: SyncTask(
+          id: taskRef.taskID,
+          uuid: taskRef.uuid,
+          relativePath: taskRef.relativePath,
+          jobType: taskRef.jobType,
+          parameters: storedObject.toDictionaryPayload()
+        ),
+        queueKey: taskRef.queueKey,
+        isParked: taskRef.pauseScope != nil
+      )
+    }
+  }
+
   public func getAllTasksWithParams(in queueKey: String) -> [SyncTask] {
     guard let tasksContainer = fetchGlobalQueueModel() else { return [] }
 
@@ -680,4 +726,11 @@ extension QueuedTaskReferenceModel {
     httpStatus = nil
     pausedAt = nil
   }
+}
+
+/// A task that can lead to a book file upload
+public struct UploadCandidate {
+  public let task: SyncTask
+  public let queueKey: String
+  public let isParked: Bool
 }

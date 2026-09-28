@@ -566,3 +566,5 @@ Keep in mind that upload tasks can take some time, and the progress will be peri
 "upload_file_too_large_message" = "Larger than 10 GB, so it stays on this device and isn't backed up.";
 "sync_task_dismiss_button" = "Dismiss";
 "sync_tasks_need_attention_voiceover" = "Needs attention";
+"continued_upload_title" = "Uploading files";
+"continued_upload_subtitle" = "(%1$d / %2$d) %3$@";
