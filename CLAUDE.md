@@ -362,6 +362,16 @@ lines). It is the highest-risk file in the app.
   `.background.cellular`) chosen by the `allowCellularData` default; downloads via `BPDownloadURLSession`.
   They carry multipart upload PARTS, one upload task each, described `<uuid>#<partNumber>@<uploadId>`
   (`BackgroundPartUploadTransport`); `progressPublisher` emits `(task, bytesSent)`.
+  **Background wakes:** `AppDelegate.application(_:handleEventsForBackgroundURLSession:)` hands iOS's completion
+  handler to `BackgroundSessionWakeCoordinator` (names in `BackgroundTransferSessions`). For the upload sessions it
+  recreates them and answers only after `SyncQueueService.settleUploads()` — the running upload has handled the
+  delivered parts and queued the next ones (`FileUploadOperation.settle()`) — under `beginBackgroundTask`, with a
+  25 s cap; calling the handler earlier suspends the app mid-request. The downloads session waits the same way
+  for `SyncService.settleDownloads()` (each finished download's follow-up: chapters, verification, scheduling —
+  Core Data in the App Group container); any other session (single-file media-server downloads) is answered right
+  away. Both delegates post `.backgroundSessionFinishedEvents` from SERIAL delegate queues (so it follows the last
+  completion); either order of handler and events works. The coordinator is created in `didFinishLaunching`, before
+  anything can wake a session. These session names are NOT `BGTaskSchedulerPermittedIdentifiers`.
 - **Book uploads are S3 multipart** (`FileUploadOperation`, the `uploadFile` lane; contract in
   bookplayer-api `docs/multipart-uploads.md`). A non-nil `url` from `PUT /v1/library` only means "the server
   needs the bytes" — the client never PUTs to it. **The server sets `synced` at `/upload/complete`; the client

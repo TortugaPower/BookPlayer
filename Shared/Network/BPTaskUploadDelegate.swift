@@ -28,4 +28,11 @@ class BPTaskUploadDelegate: NSObject, URLSessionTaskDelegate {
   func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
     didFinishTask?(task, error)
   }
+
+  func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
+    NotificationCenter.default.post(
+      name: .backgroundSessionFinishedEvents,
+      object: session.configuration.identifier
+    )
+  }
 }

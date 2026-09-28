@@ -94,6 +94,9 @@ public protocol SyncServiceProtocol {
   func getLastSyncError() -> SyncErrorInfo?
   /// Cancel all scheduled jobs
   func cancelAllJobs()
+  /// Returns once every finished download's follow-up (chapters, verification, media-server
+  /// upload scheduling) is done: a background wake awaits it before letting iOS suspend
+  func settleDownloads() async
   /// Cancel all scheduled jobs and wait for completion
   func resetAllJobs() async
 
@@ -153,6 +156,9 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   public var downloadErrorPublisher = PassthroughSubject<(String, Error), Never>()
   /// Background URL session to handle downloading synced items
   private var downloadURLSession: BPDownloadURLSession!
+  /// Finished downloads still being finalized, so a background wake can wait for them
+  private let finalizeLock = NSLock()
+  private var finalizeTasks = [UUID: Task<Void, Never>]()
 
   private var provider: NetworkProvider<LibraryAPI>!
 
@@ -858,13 +864,25 @@ extension SyncService {
     /// download that already finished: nothing to move, nothing to announce.
     guard let movedFileURL else { return }
 
-    Task {
-      await self.finalizeDownloadedFile(
-        relativePath: relativePath,
-        fileURL: movedFileURL,
-        startingItemPath: startingItemPath,
-        parentFolderPath: parentFolderPath
-      )
+    let id = UUID()
+    // Stored under the lock it removes itself with, so an instant finish can't beat the insert
+    finalizeLock.withLock {
+      finalizeTasks[id] = Task {
+        await self.finalizeDownloadedFile(
+          relativePath: relativePath,
+          fileURL: movedFileURL,
+          startingItemPath: startingItemPath,
+          parentFolderPath: parentFolderPath
+        )
+        _ = self.finalizeLock.withLock { self.finalizeTasks.removeValue(forKey: id) }
+      }
+    }
+  }
+
+  public func settleDownloads() async {
+    let tasks = finalizeLock.withLock { Array(finalizeTasks.values) }
+    for task in tasks {
+      await task.value
     }
   }
 

@@ -115,6 +115,12 @@ class FileUploadOperation: AsyncOperation, BPLogger, @unchecked Sendable {
     set { lock.withLock { _uploadCompleted = newValue } }
   }
   private var runTask: Task<Void, Never>?
+  /// Callers of `settle()` waiting for the engine to finish its current top-up. Guarded by
+  /// `lock`, with the engine's event stream and whether the operation is done.
+  private var settleWaiters = [(sequence: Int, waiter: CheckedContinuation<Bool, Never>)]()
+  private var settleSequence = 0
+  private var eventContinuation: AsyncStream<EngineEvent>.Continuation?
+  private var isDone = false
 
   init(
     taskId: String,
@@ -211,6 +217,54 @@ class FileUploadOperation: AsyncOperation, BPLogger, @unchecked Sendable {
     }
     didSucceed = error == nil
     finish()
+  }
+
+  override func finish() {
+    lock.withLock { isDone = true }
+    // Finished first: a waiter told "done" must see the operation as done, so the queue
+    // waits for the lane's next upload instead
+    super.finish()
+    resumeSettleWaiters(upTo: nil, stillRunning: false)
+  }
+
+  /// Returns once the engine has handled every part event delivered so far and handed the
+  /// session the next parts — `true`, still uploading — or once the operation is done
+  /// (`false`). A background wake calls this before telling iOS the app is finished: iOS
+  /// suspends the app right after, and a top-up still in flight would freeze until the next
+  /// wake.
+  func settle() async -> Bool {
+    await withCheckedContinuation { (waiter: CheckedContinuation<Bool, Never>) in
+      let (done, stream, sequence) = lock.withLock { () -> (Bool, AsyncStream<EngineEvent>.Continuation?, Int) in
+        if isDone { return (true, nil, 0) }
+        settleSequence += 1
+        settleWaiters.append((settleSequence, waiter))
+        return (false, eventContinuation, settleSequence)
+      }
+      if done {
+        waiter.resume(returning: false)
+        return
+      }
+      // Queued behind every event already delivered: by the time the loop reaches it, those
+      // are handled and the window topped up. Outside the loop (a server call), the next
+      // pass picks it up once its first top-up is done.
+      stream?.yield(.settle(sequence))
+    }
+  }
+
+  /// Waiters up to `sequence` (all when nil): a later waiter's events may still be queued
+  private func resumeSettleWaiters(upTo sequence: Int?, stillRunning: Bool) {
+    let waiters = lock.withLock { () -> [CheckedContinuation<Bool, Never>] in
+      let (ready, waiting) = settleWaiters.reduce(into: ([CheckedContinuation<Bool, Never>](), [(sequence: Int, waiter: CheckedContinuation<Bool, Never>)]())) { result, entry in
+        if sequence.map({ entry.sequence <= $0 }) ?? true {
+          result.0.append(entry.waiter)
+        } else {
+          result.1.append(entry)
+        }
+      }
+      settleWaiters = waiting
+      return ready
+    }
+    waiters.forEach { $0.resume(returning: stillRunning) }
   }
 
   private func removeParts() async {
@@ -328,7 +382,15 @@ class FileUploadOperation: AsyncOperation, BPLogger, @unchecked Sendable {
     let cellularObserver = UserDefaults.standard.observe(\.userSettingsAllowCellularData, options: [.new]) { _, _ in
       continuation.yield(.cellularSettingChanged)
     }
+    let pendingSettle = lock.withLock { () -> Int? in
+      eventContinuation = continuation
+      return settleWaiters.map(\.sequence).max()
+    }
+    if let pendingSettle {
+      continuation.yield(.settle(pendingSettle))
+    }
     defer {
+      lock.withLock { eventContinuation = nil }
       subscription.cancel()
       ticker.cancel()
       cellularObserver.invalidate()
@@ -380,9 +442,14 @@ class FileUploadOperation: AsyncOperation, BPLogger, @unchecked Sendable {
       case .cellularSettingChanged:
         // Their cancellations come back as `.resend`
         await transport.cancelParts(for: uuid)
+      case .settle(let sequence):
+        // Every earlier event is handled and the window was topped up at the start of
+        // this pass
+        resumeSettleWaiters(upTo: sequence, stillRunning: true)
       case .part(.progress(let partNumber, let bytesSent)):
         sawEventSinceTick = true
-        // A late progress callback (the delegate queue is concurrent) for a finished part
+        // A part this pass's session read (at its start or a tick) no longer held: its
+        // task had already completed, with progress still queued
         guard active.contains(partNumber) else { continue }
         bytesInFlight[partNumber] = bytesSent
       case .part(.finished(let partNumber, let statusCode, let error)):
@@ -490,6 +557,9 @@ class FileUploadOperation: AsyncOperation, BPLogger, @unchecked Sendable {
     case part(PartUploadEvent)
     case tick
     case cellularSettingChanged
+    /// A background wake waits for the current top-up (`settle()`); numbered so a wake
+    /// isn't released by an earlier one's marker
+    case settle(Int)
   }
 
   enum PartOutcome: Equatable {

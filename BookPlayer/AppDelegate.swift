@@ -48,6 +48,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
   /// Database backup task identifier
   private lazy var databaseBackupTaskIdentifier =
     "\(Bundle.main.configurationString(for: .bundleIdentifier)).background.database.backup"
+  /// Answers iOS's relaunches and wakes for the background transfer sessions
+  private lazy var backgroundSessionWakes = BackgroundSessionWakeCoordinator()
 
   func application(
     _ application: UIApplication,
@@ -78,6 +80,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
       object: nil
     )
 
+    // Before anything can wake a session: a session's "finished events" may arrive before
+    // iOS hands over its handler, and must not find no one listening
+    _ = backgroundSessionWakes
     // register background refresh tasks
     self.setupBackgroundRefreshTasks()
     // register for remote events
@@ -100,6 +105,16 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
     }
 
     return true
+  }
+
+  /// Stays on the app delegate with scenes (TN3187). The handler is called once the
+  /// session's events are handled — for uploads, once the next parts are queued.
+  func application(
+    _ application: UIApplication,
+    handleEventsForBackgroundURLSession identifier: String,
+    completionHandler: @escaping () -> Void
+  ) {
+    backgroundSessionWakes.handleEvents(forSession: identifier, completionHandler: completionHandler)
   }
 
   func application(

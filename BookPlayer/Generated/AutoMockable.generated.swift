@@ -2237,6 +2237,17 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
         cancelAllJobsCallsCount += 1
         cancelAllJobsClosure?()
     }
+    //MARK: - settleDownloads
+
+    var settleDownloadsCallsCount = 0
+    var settleDownloadsCalled: Bool {
+        return settleDownloadsCallsCount > 0
+    }
+    var settleDownloadsClosure: (() async -> Void)?
+    func settleDownloads() async {
+        settleDownloadsCallsCount += 1
+        await settleDownloadsClosure?()
+    }
     //MARK: - resetAllJobs
 
     var resetAllJobsCallsCount = 0

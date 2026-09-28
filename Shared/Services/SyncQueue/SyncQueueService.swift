@@ -66,6 +66,11 @@ public protocol SyncQueueServiceProtocol {
   /// Removes an upload the app refuses (a book over the size limit): the book stays on this
   /// device only. The one dismissible pause — server-refused tasks only Retry or Report.
   func dismissPausedTask(id: String)
+
+  /// Returns once the running upload has handled the part events delivered so far and
+  /// queued its next parts, or right away when no upload will run (sync off, nothing
+  /// runnable). A background wake awaits this before telling iOS it's finished.
+  func settleUploads() async
 }
 
 public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
@@ -512,6 +517,25 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
     Task {
       await taskContainer.resume(taskId: id)
       wakeUpWorkers()
+    }
+  }
+
+  public func settleUploads() async {
+    // Bounded: the caller also times out, but a lane that never starts mustn't spin here
+    for _ in 0..<100 {
+      guard serverLanesEnabled else { return }
+      let running = operationQueue.operations.first {
+        $0 is FileUploadOperation && $0.isExecuting && !$0.isCancelled
+      } as? FileUploadOperation
+      if let running {
+        // Settled while still uploading; if the book finished instead, the lane's next
+        // upload starts and tops up in turn
+        if await running.settle() { return }
+        continue
+      }
+      guard await taskContainer.hasRunnableTask(for: TaskQueueKey.uploadFile) else { return }
+      // A worker is about to start one (the lane was just woken)
+      try? await Task.sleep(for: .milliseconds(200))
     }
   }
 

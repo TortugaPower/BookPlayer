@@ -1294,3 +1294,22 @@ extension SyncQueueTests {
     XCTAssertEqual(tasks.map(\.id), ["refused"])
   }
 }
+
+// MARK: - Settling uploads for a background wake
+
+extension SyncQueueTests {
+  /// Nothing will upload: the wake is answered right away
+  func testSettleUploads_returnsAtOnceWhenNothingWillRun() async throws {
+    let service = makeGatedEngine()
+
+    let gatedStart = Date()
+    await service.settleUploads()
+    XCTAssertLessThan(Date().timeIntervalSince(gatedStart), 1, "sync off")
+
+    service.setServerLanesEnabled(true)
+    let emptyStart = Date()
+    await service.settleUploads()
+    XCTAssertLessThan(Date().timeIntervalSince(emptyStart), 1, "nothing queued")
+    service.setServerLanesEnabled(false)
+  }
+}

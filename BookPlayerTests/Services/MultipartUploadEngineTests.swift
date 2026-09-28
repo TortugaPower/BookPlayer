@@ -349,6 +349,68 @@ final class MultipartUploadEngineTests: XCTestCase {
     XCTAssertFalse(FileManager.default.fileExists(atPath: fileURL.path))
   }
 
+  // MARK: - Settle (background wakes)
+
+  /// Settles once the parts delivered so far are handled and the window refilled
+  func testSettle_returnsAfterTheTopUp() async throws {
+    try await storeTask()
+    transport.holdParts = true
+    let operation = makeOperation()
+    operation.start()
+    try await transport.waitForStartedParts(3)
+
+    let stillRunning = await operation.settle()
+
+    XCTAssertTrue(stillRunning)
+    XCTAssertEqual(transport.startedParts, [1, 2, 3])
+    XCTAssertFalse(operation.isFinished)
+    operation.cancel()
+  }
+
+  /// Asked before the engine's loop exists (it's still starting the upload): it settles
+  /// after the first top-up
+  func testSettle_beforeTheLoopStarts_waitsForTheFirstTopUp() async throws {
+    try await storeTask()
+    transport.holdParts = true
+    let operation = makeOperation()
+    let settled = Task { await operation.settle() }
+    try await Task.sleep(for: .milliseconds(50))
+
+    operation.start()
+    let stillRunning = await settled.value
+
+    XCTAssertTrue(stillRunning)
+    XCTAssertEqual(transport.startedParts, [1, 2, 3])
+    operation.cancel()
+  }
+
+  /// The upload ends while a wake waits: it reports done (so the queue waits for the lane's
+  /// next upload), and the operation already reads as finished
+  func testSettle_whenTheUploadEndsFirst_reportsItDone() async throws {
+    try await storeTask()
+    server.startStatus = "exists"
+    let operation = makeOperation()
+    let settled = Task { await operation.settle() }
+    try await Task.sleep(for: .milliseconds(50))
+
+    operation.start()
+    let stillRunning = await settled.value
+
+    XCTAssertFalse(stillRunning)
+    XCTAssertTrue(operation.isFinished)
+  }
+
+  func testSettle_afterTheUploadFinished_returnsRightAway() async throws {
+    try await storeTask()
+    let operation = makeOperation()
+    await run(operation)
+
+    let stillRunning = await operation.settle()
+
+    XCTAssertFalse(stillRunning)
+    XCTAssertTrue(operation.uploadCompleted)
+  }
+
   private func coded(_ code: String, status: Int) -> BookPlayerError {
     .networkErrorWithCode(message: code, code: code, status: status)
   }

@@ -9,6 +9,25 @@
 import Combine
 import Foundation
 
+/// The app's background transfer sessions, as iOS names them when it relaunches or wakes
+/// the app for their events
+public enum BackgroundTransferSessions {
+  private static var bundleIdentifier: String {
+    Bundle.main.configurationValue(for: .bundleIdentifier)
+  }
+
+  public static var uploadIdentifier: String { "\(bundleIdentifier).background" }
+  public static var cellularUploadIdentifier: String { "\(bundleIdentifier).background.cellular" }
+  public static var downloadIdentifier: String { "\(bundleIdentifier).background.download" }
+
+  public static var uploadIdentifiers: Set<String> { [uploadIdentifier, cellularUploadIdentifier] }
+
+  /// Recreates the upload sessions, which is what lets iOS deliver the events it held for them
+  public static func activateUploadSessions() {
+    _ = BPURLSession.shared
+  }
+}
+
 /// URL session meant for upload tasks
 class BPURLSession {
   static let shared = BPURLSession()
@@ -23,8 +42,6 @@ class BPURLSession {
   private init() {
     let progressPublisher = PassthroughSubject<(URLSessionTask, Int64), Never>()
     let completionPublisher = PassthroughSubject<(URLSessionTask, Error?), Never>()
-    let bundleIdentifier: String = Bundle.main.configurationValue(for: .bundleIdentifier)
-
     let delegate = BPTaskUploadDelegate()
     delegate.uploadProgressUpdated = { [progressPublisher] task, bytesSent in
       progressPublisher.send((task, bytesSent))
@@ -37,25 +54,33 @@ class BPURLSession {
     self.completionPublisher = completionPublisher
 
     let configuration = URLSessionConfiguration.background(
-      withIdentifier: "\(bundleIdentifier).background"
+      withIdentifier: BackgroundTransferSessions.uploadIdentifier
     )
     configuration.allowsCellularAccess = false
 
     self.backgroundSession = URLSession(
       configuration: configuration,
       delegate: delegate,
-      delegateQueue: OperationQueue()
+      delegateQueue: Self.serialDelegateQueue()
     )
 
     let configurationForCellular = URLSessionConfiguration.background(
-      withIdentifier: "\(bundleIdentifier).background.cellular"
+      withIdentifier: BackgroundTransferSessions.cellularUploadIdentifier
     )
     configurationForCellular.allowsCellularAccess = true
 
     self.backgroundCellularSession = URLSession(
       configuration: configurationForCellular,
       delegate: delegate,
-      delegateQueue: OperationQueue()
+      delegateQueue: Self.serialDelegateQueue()
     )
+  }
+
+  /// Serial, so callbacks arrive in order: "finished events" follows the last completion,
+  /// and a part's progress never lands after its completion
+  static func serialDelegateQueue() -> OperationQueue {
+    let queue = OperationQueue()
+    queue.maxConcurrentOperationCount = 1
+    return queue
   }
 }

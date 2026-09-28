@@ -48,6 +48,13 @@ public class BPTaskDownloadDelegate: NSObject, URLSessionDownloadDelegate {
     )
   }
 
+  public func urlSessionDidFinishEvents(forBackgroundURLSession session: URLSession) {
+    NotificationCenter.default.post(
+      name: .backgroundSessionFinishedEvents,
+      object: session.configuration.identifier
+    )
+  }
+
   /// Note: this gets called even if there's no error
   public func urlSession(
     _ session: URLSession,
