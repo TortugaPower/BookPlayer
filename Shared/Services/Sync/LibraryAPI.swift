@@ -9,7 +9,9 @@
 import Foundation
 
 public enum LibraryAPI {
-  case syncedIdentifiers
+  /// The missing-items pass (bookplayer-api docs/multipart-uploads.md): of every uuid in the
+  /// local library, which the server has never seen and which are books without a file in S3
+  case itemsStatus(uuids: [String])
   case contents(path: String)
   case upload(params: [String: Any])
   case externalResource(params: [String: Any])
@@ -42,8 +44,8 @@ public enum LibraryAPI {
 extension LibraryAPI: Endpoint {
   public var path: String {
     switch self {
-    case .syncedIdentifiers:
-      return "/v1/library/keys"
+    case .itemsStatus:
+      return "/v1/library/status"
     case .contents:
       return "/v1/library"
     case .upload:
@@ -87,8 +89,8 @@ extension LibraryAPI: Endpoint {
 
   public var method: HTTPMethod {
     switch self {
-    case .syncedIdentifiers:
-      return .get
+    case .itemsStatus:
+      return .post
     case .contents:
       return .get
     case .upload:
@@ -128,8 +130,8 @@ extension LibraryAPI: Endpoint {
 
   public var parameters: [String: Any]? {
     switch self {
-    case .syncedIdentifiers:
-      return nil
+    case .itemsStatus(let uuids):
+      return ["uuids": uuids]
     case .contents(let path):
       return [
         "relativePath": path,

@@ -301,7 +301,8 @@ final class AppServices: BPLogger {
       isActive: accountService.hasSyncEnabled(),
       libraryService: libraryService,
       accountService: accountService,
-      syncQueueService: syncQueueService
+      syncQueueService: syncQueueService,
+      runsMissingItemsPass: true
     )
     return service
   }

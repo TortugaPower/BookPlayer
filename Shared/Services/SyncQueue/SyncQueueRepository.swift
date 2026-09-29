@@ -45,6 +45,10 @@ public protocol SyncQueueRepositoryProtocol: ModelActor {
 
   func hasUploadTask(for relativePath: String) -> Bool
 
+  /// Stores each upload-lane task unless its book already has an upload queued in either
+  /// lane, parked ones included. Returns how many were stored.
+  func storeFileUploadsIfAbsent(_ parameterList: [[String: Any]]) async throws -> Int
+
   func applyMatchUuidConflicts(_ conflicts: [ItemConflict]) throws
 
   func clearAll(in queueKey: String) throws
@@ -585,6 +589,53 @@ public actor SyncQueueRepository: SyncQueueRepositoryProtocol, BPLogger {
         parameters: storedObject.toDictionaryPayload()
       )
     }
+  }
+
+  /// Checked and stored in one actor turn, so an upload queued meanwhile can't be doubled.
+  /// One save and one change notice for the whole batch: a LITE → PRO backlog can be
+  /// thousands of books, and a store per task would hold the actor for each of them
+  public func storeFileUploadsIfAbsent(_ parameterList: [[String: Any]]) async throws -> Int {
+    var queued = Set(getUploadCandidates().map(\.task.uuid))
+    let context = modelContext
+    let containers = try context.fetch(FetchDescriptor<SyncQueueContainer>())
+    let tasksContainer = containers.first ?? SyncQueueContainer()
+    if containers.isEmpty {
+      context.insert(tasksContainer)
+    }
+    var nextPosition = (tasksContainer.tasks.map(\.position).max() ?? -1) + 1
+    var stored = 0
+    for parameters in parameterList {
+      guard
+        let taskId = parameters["id"] as? String,
+        let uuid = parameters["uuid"] as? String,
+        !queued.contains(uuid)
+      else { continue }
+      // Upload-lane tasks never coalesce: each is its book's one upload
+      tasksDataManager.createTaskModel(for: .uploadFile, with: parameters, in: context)
+      let taskReference = QueuedTaskReferenceModel(
+        queueKey: TaskQueueKey.uploadFile,
+        taskID: taskId,
+        jobType: .uploadFile,
+        position: nextPosition,
+        uuid: uuid,
+        relativePath: parameters["relativePath"] as? String ?? ""
+      )
+      tasksContainer.tasks.append(taskReference)
+      taskReference.container = tasksContainer
+      nextPosition += 1
+      queued.insert(uuid)
+      stored += 1
+    }
+    guard stored > 0 else { return 0 }
+
+    try context.save()
+    tasksDataManager.notifyTasksChanged(context: context)
+    NotificationCenter.default.post(
+      name: .newTaskInQueue,
+      object: nil,
+      userInfo: ["queueKey": TaskQueueKey.uploadFile]
+    )
+    return stored
   }
 
   /// Check if there's an upload task queued for the item

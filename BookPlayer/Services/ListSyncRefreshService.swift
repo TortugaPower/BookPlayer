@@ -46,10 +46,16 @@ final class ListSyncRefreshService: BPLogger, ObservableObject {
     // sync doesn't skip the pref refresh.
     async let prefPull: Void = { await preferencesService.pullFromServer(force: false) }()
 
+    let hasRunFirstSync = syncService.hasRunFirstSync
     do {
       if let relativePath {
-        try await syncService.syncListContents(at: relativePath)
-      } else if UserDefaults.standard.bool(forKey: Constants.UserDefaults.hasScheduledLibraryContents) == true {
+        // Until the first sync has registered this device's items (after signing in, or on
+        // coming back from a lapse), a folder's listing would delete the ones the server
+        // hasn't seen yet, such as books imported while sync was off
+        if hasRunFirstSync {
+          try await syncService.syncListContents(at: relativePath)
+        }
+      } else if hasRunFirstSync {
         try await syncService.syncListContents(at: nil)
       } else {
         try await syncService.syncLibraryContents()
@@ -69,6 +75,13 @@ final class ListSyncRefreshService: BPLogger, ObservableObject {
     await externalProgressService.refreshItems(at: relativePath)
 
     _ = await prefPull
+
+    // The weekly / became-PRO missing-items pass, off the refresh's path: a pull-to-refresh
+    // spinner shouldn't wait on it (it returns at once when nothing is due)
+    if relativePath == nil {
+      let syncService = syncService
+      Task { await syncService.scheduleMissingItemsIfNeeded() }
+    }
   }
 
   @MainActor

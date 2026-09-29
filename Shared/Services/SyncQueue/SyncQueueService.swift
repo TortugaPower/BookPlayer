@@ -10,6 +10,20 @@ import Foundation
 import Combine
 import CoreData
 
+/// A book the server holds without its file, for the upload lane
+public struct MissingFileUpload: Sendable, Equatable {
+  public let uuid: String
+  public let relativePath: String
+  /// The book's current Processed file
+  public let fileURL: URL
+
+  public init(uuid: String, relativePath: String, fileURL: URL) {
+    self.uuid = uuid
+    self.relativePath = relativePath
+    self.fileURL = fileURL
+  }
+}
+
 public protocol SyncQueueServiceProtocol {
   var accessPolicy: [SyncJobType: Bool] { get set }
 
@@ -42,6 +56,13 @@ public protocol SyncQueueServiceProtocol {
 
   func scheduleFileUpload(params: [String: Any])
 
+  /// Queues the files of books the server holds without one (the missing-items pass), by
+  /// uuid, skipping any book with an upload already queued. Returns how many were queued.
+  func scheduleMissingFileUploads(_ uploads: [MissingFileUpload]) async -> Int
+
+  /// Adopts the server's uuids for items it holds under another one (a `matchUuid` answer):
+  /// in the library, then in every queued task
+  func applyUuidConflicts(_ conflicts: [ItemConflict]) async throws
 
   /// Cancels in-flight BookPlayer-server operations (serial sync + S3 uploads) on a
   /// subscription lapse, leaving the tier-independent externalUpdate operations running.
@@ -743,11 +764,19 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
     }
   }
 
+  public func applyUuidConflicts(_ conflicts: [ItemConflict]) async throws {
+    // The same local uuid can come back twice (two rows sharing it): adopt the first answer
+    var seen = Set<String>()
+    let conflicts = conflicts.filter { seen.insert($0.key).inserted }
+    guard !conflicts.isEmpty else { return }
+    try await applyCoreDataConflicts(conflicts)
+    try await taskContainer.applyMatchUuidConflicts(conflicts)
+  }
+
   private func handleMatchUuidsResponse(_ results: MatchUuidsResponse) async {
     guard !results.conflicts.isEmpty else { return }
     do {
-      try await applyCoreDataConflicts(results.conflicts)
-      try await taskContainer.applyMatchUuidConflicts(results.conflicts)
+      try await applyUuidConflicts(results.conflicts)
     } catch {
       Self.logger.error("Failed to apply matchUuid conflicts: \(error.localizedDescription)")
       await MainActor.run {
@@ -879,6 +908,28 @@ extension SyncQueueService {
     }
 
     Task { await storeFileUpload(params: params) }
+  }
+
+  public func scheduleMissingFileUploads(_ uploads: [MissingFileUpload]) async -> Int {
+    guard accessPolicy[.uploadFile] == true, !uploads.isEmpty else { return 0 }
+    // The Processed file itself, not a temp hard link: the engine never deletes a source
+    // outside tmp, and finds the book again by uuid if it moves
+    let parameterList: [[String: Any]] = uploads.map { upload in
+      [
+        "id": UUID().uuidString,
+        "jobType": SyncJobType.uploadFile.rawValue,
+        "queueKey": TaskQueueKey.uploadFile,
+        "uuid": upload.uuid,
+        "relativePath": upload.relativePath,
+        "filePath": upload.fileURL.absoluteString,
+      ]
+    }
+    do {
+      return try await taskContainer.storeFileUploadsIfAbsent(parameterList)
+    } catch {
+      Self.logger.error("Failed to queue the missing file uploads: \(error)")
+      return 0
+    }
   }
 
   /// `scheduleFileUpload`, awaited: returns once the task is stored

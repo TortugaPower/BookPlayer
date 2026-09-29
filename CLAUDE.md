@@ -139,6 +139,9 @@ first. Reordering boot risks a launch crash.
   `JellyfinConnectionService`, `AudiobookShelfConnectionService`).
   `ListSyncRefreshService.syncList(at:)` is the ONE list-refresh entry point (list appear, pull-to-refresh, sync
   activation, CarPlay): cloud contents for the level → the level's media-server progress pull → preferences pull.
+  A folder's cloud step is skipped until the first sync has run (`SyncService.hasRunFirstSync`, backed by
+  `hasScheduledLibraryContents`): its listing would delete local items the server hasn't seen yet. The root refresh then asks, without waiting, for
+  `SyncService.scheduleMissingItemsIfNeeded()` (the weekly / became-PRO missing-items pass).
   The pull runs strictly AFTER the cloud step and never alongside it (cloud writes on the background context, the
   progress ingest on the view context; no merge policy), whatever the cloud outcome. It is resource-first:
   `LibraryService.findMediaServerResources(at:)` fetches only the level's media-server `ExternalResource` rows
@@ -375,8 +378,9 @@ lines). It is the highest-risk file in the app.
   **Continued task:** `UploadContinuationController` (app target, owned by `AppServices`, registered at launch as
   `<bundle>.uploads.continued`) runs ONE `BGContinuedProcessingTask` for the whole upload queue, so uploads keep
   full speed in the background (Live Activity "Uploading files", "(x / n) <file name>", progress in bytes). It is
-  submitted whenever books are queued for upload — `SyncService.handleItemsToUpload` posts `.bookUploadsQueued`
-  (an import, or the first sync after signing in or subscribing; decided: always, no size threshold), on a parked
+  submitted whenever books are queued for upload — `.bookUploadsQueued` (posted by `SyncService.handleItemsToUpload`
+  for an import, and by the missing-items pass for the first sync and on becoming PRO, never its weekly run;
+  decided: always, no size threshold), on a parked
   task's Retry, and from the "Continue in background" buttons (the Queued Tasks File Uploads header, a
   borderless button under Profile's Queued Tasks link; shown only when `isOfferAvailable`) — only from
   the foreground, with S3 access, when the Wi-Fi-only setting allows the current network, and when some waiting
@@ -396,8 +400,8 @@ lines). It is the highest-risk file in the app.
   never confirms a book upload it made** (folders and bound books are confirmed after their presigned PUT). A nil `url` is confirmed with `synced:true` for folders and bound books on
   every tier, but for a book only when the tier has S3 access (`LibraryItemSyncOperation.canUploadFiles`, from
   `accessPolicy[.uploadFile]` when `createOperation` builds it): there it means the file is already in S3, while on
-  LITE it only means the tier stores no file, so LITE books stay `synced=false` and their files can go up after an
-  upgrade. S3 is the source of truth: every run rebuilds from `GET /upload/parts` plus
+  LITE it only means the tier stores no file, so LITE books stay `synced=false` and the missing-items pass (below)
+  queues their files on becoming PRO. S3 is the source of truth: every run rebuilds from `GET /upload/parts` plus
   the session's tasks for the current `uploadId`, so a relaunch or a lost event resumes without re-sending. The
   resumable state (`uploadId`, `partSize`, `fileSize`, `restartCount`) lives on `UploadFileTaskModel`; parts are
   sliced to `tmp/uploads/<uuid>/`; 64 MiB parts, 8 in flight (fewer on low disk), fresh part URLs every top-up
@@ -416,6 +420,33 @@ lines). It is the highest-risk file in the app.
   `.upload` as provider-backed (its answer then schedules no file); such a book's file goes up once downloaded
   through the sync-lane `externalResourceToDownload` job, which just schedules the upload (the old `external_set`
   route is gone; `complete` marks the resources downloaded).
+- **Missing-items pass** (`SyncService.runMissingItemsPass`; contract in bookplayer-api `docs/multipart-uploads.md`):
+  sends every local uuid in ONE `POST /v1/library/status` and gets `{ unknown, unsynced }` back. Unknown items
+  (no server row, active or deleted) are first matched by path INLINE (`POST /uuids`, conflicts adopted in the
+  library and the queue via `applyUuidConflicts`, items re-read) — `PUT /` at a path the server holds under no uuid
+  or another one would never store ours, and a queued match job could rewrite uuids while the registrations were
+  still being stored — then registered like an import (`handleItemsToUpload`, parents first). Unsynced books (PRO only: `accessPolicy[.uploadFile]`) go straight to the upload lane BY UUID
+  (`scheduleMissingFileUploads`, the Processed file as source), never re-PUT: a stale path would move them back.
+  It skips media-server books (no backfill), books without a local file or over 10 GiB, and any book with an upload
+  already queued, parked included (`storeFileUploadsIfAbsent`: checked and stored in one actor turn, one save). It IS
+  the first sync's registration step (`syncLibraryContents`: the pass, then a root pull that never deletes); `/keys`
+  is deprecated and no longer called. The first sync never clears queued work: it waits until the sync lane is
+  empty (the flag stays off, the next root refresh retries), and every run of the pass is single-flight. A run
+  remembers the sync session it began in: sync going off (`logout`, a lapse) bumps it and clears the flag in one
+  locked step, so a logout+sign-in during a pass can't let the old run mark the first sync done after its teardown
+  wiped what it queued. Registration reads bookmarks in batches on a background context (`getUserBookmarks`). A lapse (`updateSyncEnabled(false)`, or `setup` finding a signed-in account —
+  `getAccountId() != nil` — that isn't syncing: the entitlement expired while the app was closed, or a stale cached
+  read, which is harmless) clears `hasScheduledLibraryContents`, so coming back runs a first sync: books imported meanwhile aren't on the server, and a plain listing would delete
+  them. `scheduleMissingItemsIfNeeded()` runs it again on LITE → PRO (the `.accountUpdate` sink's `noteProAccess`
+  sets `missingItemsPassPending` on a change of `lastKnownProAccess` — its first reading, e.g. after an app update,
+  only seeds it — cleared only by a run that could queue files, i.e. once the queue had its PRO policy) and weekly
+  (`missingItemsPassLastRun`), only once the first sync ran, while sync is on and with an empty sync lane; a tier
+  change arriving during a weekly run runs right after it; only a pending (tier-change) run posts
+  `.bookUploadsQueued`. Its state lives in the `UserDefaults` given to `setup` (`.standard`; tests inject a suite). Phone only: `setup(runsMissingItemsPass:)` is true in
+  `AppServices` alone (the watch has downloaded files of its own); without it the first sync throws and the other
+  entry points return. Accepted: a pre-March-2026 item that another
+  device deleted under its own uuid, or none, reads as unknown and comes back. The Settings › Debug export is
+  local only (tree with uuids, no server call).
 - `SyncService.swift` is `@Observable`. **`isActive` is `public private(set)` and must be mutated only via
   `updateSyncEnabled(_:)` / `logout()`** (both hop to `@MainActor`). It is driven by `.logout` (→ teardown, clears
   scheduled-contents flag, resets jobs) and `.accountUpdate` (→ `updateSyncEnabled(hasSyncEnabled())`)

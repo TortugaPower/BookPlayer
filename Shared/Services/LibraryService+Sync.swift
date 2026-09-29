@@ -15,8 +15,6 @@ public protocol LibrarySyncProtocol {
   var metadataUpdatePublisher: AnyPublisher<[String: Any], Never> { get }
   var progressUpdatePublisher: AnyPublisher<[String: Any], Never> { get }
 
-  /// Fetch all the stored items in the library that are not in the remote identifiers array
-  func getItemsToSync(remoteIdentifiers: [String]) async -> [SyncableItem]?
   /// Update local items with synced info
   func updateInfo(for itemsDict: [String: SyncableItem], parentFolder: String?) async
   /// Update single local item with synced info
@@ -62,6 +60,18 @@ public protocol LibrarySyncProtocol {
   /// upload the server no longer recognizes is re-registered from the book's CURRENT state
   /// (a stale path would make the server move another item into place)
   func fetchSyncableItem(forUuid uuid: String) async -> SyncableItem?
+
+  /// Every real uuid in the library, read on a background context: the missing-items pass
+  /// asks the server about all of them. nil when the read failed (never "an empty library")
+  func fetchAllUuids() async -> [String]?
+
+  /// The items with these uuids as the server would register them, parents before children,
+  /// read on a background context. nil when a read failed (never "fewer items")
+  func getSyncableItems(forUuids uuids: [String]) async -> [SyncableItem]?
+
+  /// Every user bookmark of the items at these paths, grouped by path, read on a background
+  /// context in batches: a first sync registers the whole library
+  func getUserBookmarks(forItemsAt relativePaths: [String]) async -> [String: [SimpleBookmark]]
 }
 
 extension LibraryService: LibrarySyncProtocol {
@@ -131,6 +141,89 @@ extension LibraryService: LibrarySyncProtocol {
 
         let results = try? context.fetch(fetchRequest) as? [[String: Any]]
         continuation.resume(returning: parseSyncableItems(from: results, context: context)?.first)
+      }
+    }
+  }
+
+  public func fetchAllUuids() async -> [String]? {
+    return await withCheckedContinuation { continuation in
+      let context = dataManager.getBackgroundContext()
+      context.perform { [context] in
+        let fetchRequest = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
+        fetchRequest.propertiesToFetch = [#keyPath(LibraryItem.uuid)]
+        fetchRequest.resultType = .dictionaryResultType
+
+        do {
+          let uuids = try context.fetch(fetchRequest).compactMap { $0[#keyPath(LibraryItem.uuid)] as? String }
+          continuation.resume(returning: uuids.filter(Constants.isRealUuid))
+        } catch {
+          Self.logger.error("Failed to read the library's uuids: \(error)")
+          continuation.resume(returning: nil)
+        }
+      }
+    }
+  }
+
+  public func getSyncableItems(forUuids uuids: [String]) async -> [SyncableItem]? {
+    guard !uuids.isEmpty else { return [] }
+    return await withCheckedContinuation { continuation in
+      let context = dataManager.getBackgroundContext()
+      context.perform { [unowned self, context] in
+        var items = [SyncableItem]()
+        // A few hundred per IN list keeps each fetch well under SQLite's bound-variable limit
+        for start in stride(from: 0, to: uuids.count, by: 500) {
+          let fetchRequest = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
+          fetchRequest.propertiesToFetch = SyncableItem.fetchRequestProperties
+          fetchRequest.resultType = .dictionaryResultType
+          fetchRequest.predicate = NSPredicate(
+            format: "%K IN %@",
+            #keyPath(LibraryItem.uuid),
+            Array(uuids[start..<min(start + 500, uuids.count)])
+          )
+          do {
+            let results = try context.fetch(fetchRequest) as? [[String: Any]]
+            items += parseSyncableItems(from: results, context: context) ?? []
+          } catch {
+            Self.logger.error("Failed to read items by uuid: \(error)")
+            continuation.resume(returning: nil)
+            return
+          }
+        }
+        // A folder's path sorts before its contents', so it's registered first
+        items.sort { $0.relativePath.localizedStandardCompare($1.relativePath) == .orderedAscending }
+        continuation.resume(returning: items)
+      }
+    }
+  }
+
+  public func getUserBookmarks(forItemsAt relativePaths: [String]) async -> [String: [SimpleBookmark]] {
+    guard !relativePaths.isEmpty else { return [:] }
+    return await withCheckedContinuation { continuation in
+      let context = dataManager.getBackgroundContext()
+      context.perform { [unowned self, context] in
+        var bookmarks = [String: [SimpleBookmark]]()
+        for start in stride(from: 0, to: relativePaths.count, by: 500) {
+          let fetchRequest = NSFetchRequest<NSDictionary>(entityName: "Bookmark")
+          fetchRequest.propertiesToFetch = SimpleBookmark.fetchRequestProperties
+          fetchRequest.resultType = .dictionaryResultType
+          fetchRequest.predicate = NSPredicate(
+            format: "%K IN %@ && type == %d",
+            #keyPath(Bookmark.item.relativePath),
+            Array(relativePaths[start..<min(start + 500, relativePaths.count)]),
+            BookmarkType.user.rawValue
+          )
+          fetchRequest.sortDescriptors = [NSSortDescriptor(key: #keyPath(Bookmark.time), ascending: true)]
+          do {
+            let results = try context.fetch(fetchRequest) as? [[String: Any]]
+            for bookmark in parseFetchedBookmarks(from: results) ?? [] {
+              bookmarks[bookmark.relativePath, default: []].append(bookmark)
+            }
+          } catch {
+            // Registration goes on without these bookmarks: make the loss traceable
+            Self.logger.error("Failed to read bookmarks for registration: \(error)")
+          }
+        }
+        continuation.resume(returning: bookmarks)
       }
     }
   }
@@ -413,32 +506,6 @@ extension LibraryService: LibrarySyncProtocol {
 
         dataManager.saveSyncContext(context)
         continuation.resume()
-      }
-    }
-  }
-
-  public func getItemsToSync(remoteIdentifiers: [String]) async -> [SyncableItem]? {
-    return await withCheckedContinuation { continuation in
-      let context = dataManager.getBackgroundContext()
-      context.perform { [unowned self, context] in
-        let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
-        fetchRequest.propertiesToFetch = SyncableItem.fetchRequestProperties
-        fetchRequest.resultType = .dictionaryResultType
-        fetchRequest.predicate = NSPredicate(
-          format: "NOT (%K IN %@)",
-          #keyPath(LibraryItem.relativePath),
-          remoteIdentifiers
-        )
-        let sort = NSSortDescriptor(
-          key: #keyPath(LibraryItem.relativePath),
-          ascending: true,
-          selector: #selector(NSString.localizedStandardCompare(_:))
-        )
-        fetchRequest.sortDescriptors = [sort]
-
-        let results = try? context.fetch(fetchRequest) as? [[String: Any]]
-
-        continuation.resume(returning: parseSyncableItems(from: results, context: context))
       }
     }
   }

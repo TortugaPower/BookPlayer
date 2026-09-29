@@ -1337,18 +1337,27 @@ class ModifyLibraryTests: LibraryServiceTests {
     XCTAssert(fetchedChapters?.last?.index == 2)
   }
 
-  func testGetItemsNotIncluded() async throws {
-    let emptyResult = await self.sut.getItemsToSync(remoteIdentifiers: [])
-    XCTAssert(emptyResult?.isEmpty == true)
+  /// The missing-items pass reads every uuid, then the items the server asked about
+  func testUuidFetches_readTheWholeLibraryAndRegisterParentsFirst() async throws {
+    let emptyUuids = await self.sut.fetchAllUuids()
+    XCTAssertEqual(emptyUuids, [])
 
-    _ = try! self.sut.createFolder(with: "test-folder", inside: nil)
-    _ = try! self.sut.createFolder(with: "test-folder2", inside: nil)
+    let folder = try self.sut.createFolder(with: "test-folder", inside: nil)
+    let nested = try self.sut.createFolder(with: "nested", inside: folder.relativePath)
+    let other = try self.sut.createFolder(with: "test-folder2", inside: nil)
 
-    let secondResult = await self.sut.getItemsToSync(remoteIdentifiers: [])
-    XCTAssert(secondResult?.count == 2)
+    let uuids = await self.sut.fetchAllUuids()
+    XCTAssertEqual(Set(uuids ?? []), [folder.uuid, nested.uuid, other.uuid])
 
-    let thirdResult = await self.sut.getItemsToSync(remoteIdentifiers: ["test-folder"])
-    XCTAssert(thirdResult?.count == 1)
+    let items = await self.sut.getSyncableItems(forUuids: [nested.uuid, folder.uuid])
+    XCTAssertEqual(items?.map(\.relativePath), ["test-folder", "test-folder/nested"])
+    let none = await self.sut.getSyncableItems(forUuids: [])
+    XCTAssertEqual(none?.isEmpty, true)
+
+    // Read 500 uuids per fetch: items in different chunks all come back
+    let spread = [folder.uuid] + (0..<600).map { _ in UUID().uuidString } + [other.uuid]
+    let found = await self.sut.getSyncableItems(forUuids: spread)
+    XCTAssertEqual(found?.map(\.relativePath), ["test-folder", "test-folder2"])
   }
 
   func testGetItemProperty() {

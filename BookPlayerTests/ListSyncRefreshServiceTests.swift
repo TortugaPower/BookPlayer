@@ -54,6 +54,8 @@ final class ListSyncRefreshServiceTests: XCTestCase {
     super.setUp()
     recorder = Recorder()
     syncService = SyncServiceProtocolMock()
+    // The first sync already ran: folder levels pull normally
+    syncService.hasRunFirstSync = true
     syncService.syncListContentsAtClosure = { [recorder] path in
       recorder?.record("cloud:\(path ?? "root")")
     }
@@ -83,5 +85,37 @@ final class ListSyncRefreshServiceTests: XCTestCase {
 
     XCTAssertEqual(recorder.events, ["pull:Author/Series"], "the closure never ran; the pull did")
     XCTAssertEqual(preferencesService.pullFromServerForceCallsCount, 1)
+  }
+
+  /// Until the first sync has registered this device's items, a folder's listing would delete
+  /// the ones the server hasn't seen (books imported while sync was off): its cloud step waits
+  func testFolderCloudSync_waitsForTheFirstSync() async throws {
+    syncService.hasRunFirstSync = false
+
+    try await sut.syncList(at: "Author/Series")
+
+    XCTAssertEqual(recorder.events, ["pull:Author/Series"])
+    XCTAssertEqual(preferencesService.pullFromServerForceCallsCount, 1)
+  }
+
+  /// The root refresh asks for the weekly / became-PRO pass, without waiting on it
+  func testRootRefresh_asksForTheMissingItemsPass() async throws {
+    let asked = expectation(description: "pass asked")
+    syncService.scheduleMissingItemsIfNeededClosure = { asked.fulfill() }
+
+    try await sut.syncList(at: nil)
+
+    await fulfillment(of: [asked], timeout: 1)
+    XCTAssertEqual(recorder.events.first, "cloud:root")
+  }
+
+  func testFolderRefresh_neverAsksForThePass() async throws {
+    let asked = expectation(description: "pass asked")
+    asked.isInverted = true
+    syncService.scheduleMissingItemsIfNeededClosure = { asked.fulfill() }
+
+    try await sut.syncList(at: "Author")
+
+    await fulfillment(of: [asked], timeout: 0.3)
   }
 }

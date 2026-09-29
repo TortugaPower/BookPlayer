@@ -1876,6 +1876,11 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
         set(value) { underlyingDownloadErrorPublisher = value }
     }
     var underlyingDownloadErrorPublisher: PassthroughSubject<(String, Error), Never>!
+    var hasRunFirstSync: Bool {
+        get { return underlyingHasRunFirstSync }
+        set(value) { underlyingHasRunFirstSync = value }
+    }
+    var underlyingHasRunFirstSync: Bool!
     //MARK: - updateSyncEnabled
 
     var updateSyncEnabledCallsCount = 0
@@ -1996,25 +2001,16 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
             return syncBookmarksListRelativePathReturnValue
         }
     }
-    //MARK: - fetchSyncedIdentifiers
+    //MARK: - scheduleMissingItemsIfNeeded
 
-    var fetchSyncedIdentifiersThrowableError: Error?
-    var fetchSyncedIdentifiersCallsCount = 0
-    var fetchSyncedIdentifiersCalled: Bool {
-        return fetchSyncedIdentifiersCallsCount > 0
+    var scheduleMissingItemsIfNeededCallsCount = 0
+    var scheduleMissingItemsIfNeededCalled: Bool {
+        return scheduleMissingItemsIfNeededCallsCount > 0
     }
-    var fetchSyncedIdentifiersReturnValue: [String]!
-    var fetchSyncedIdentifiersClosure: (() async throws -> [String])?
-    func fetchSyncedIdentifiers() async throws -> [String] {
-        if let error = fetchSyncedIdentifiersThrowableError {
-            throw error
-        }
-        fetchSyncedIdentifiersCallsCount += 1
-        if let fetchSyncedIdentifiersClosure = fetchSyncedIdentifiersClosure {
-            return try await fetchSyncedIdentifiersClosure()
-        } else {
-            return fetchSyncedIdentifiersReturnValue
-        }
+    var scheduleMissingItemsIfNeededClosure: (() async -> Void)?
+    func scheduleMissingItemsIfNeeded() async {
+        scheduleMissingItemsIfNeededCallsCount += 1
+        await scheduleMissingItemsIfNeededClosure?()
     }
     //MARK: - getRemoteFileURLs
 
