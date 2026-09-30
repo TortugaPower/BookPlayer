@@ -575,6 +575,13 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
   }
 
   public func retryPausedTask(id: String) async {
+    // An explicit Retry of an upload asks for the book again: it gets another
+    // re-registration even if it already had one this session
+    if let task = await taskContainer.getAllTasks().first(where: { $0.id == id }),
+       task.jobType == .uploadFile,
+       task.pause != nil {
+      stateLock.withLock { _ = handedBackUuids.remove(task.uuid) }
+    }
     await taskContainer.resume(taskId: id)
     wakeUpWorkers()
   }

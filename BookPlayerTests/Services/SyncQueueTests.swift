@@ -1178,6 +1178,48 @@ extension SyncQueueTests {
     XCTAssertEqual(tasks.first?.pause?.scope, .task)
   }
 
+  /// A Retry asks for the upload again: the book is handed back once more although it
+  /// already was this session (gone locally here, so dropped) instead of parking again
+  func testRetry_ofALostUploadThatParked_registersItAgain() async throws {
+    let service = makeGatedEngine()
+    let lost = BookPlayerError.networkErrorWithCode(message: "gone", code: "item_not_found", status: 404)
+    service.networkClient = FailingNetworkClient(
+      errors: [lost, lost, lost] + Array(repeating: URLError(.timedOut), count: 50)
+    )
+    let uuid = UUID().uuidString
+    service.findSyncableItem = { _ in nil }
+    for id in ["first", "second"] {
+      let link = FileManager.default.temporaryDirectory.appendingPathComponent("retry-\(id)-\(UUID().uuidString).m4b")
+      try Data("0123456789".utf8).write(to: link)
+      var params = uploadFileParams(id: id)
+      params["filePath"] = link.absoluteString
+      params["uuid"] = uuid
+      try await repository.storeTask(parameters: params)
+    }
+
+    service.setServerLanesEnabled(true)
+
+    var deadline = Date().addingTimeInterval(10)
+    var tasks = [QueuedSyncTask]()
+    while Date() < deadline {
+      tasks = await repository.getAllTasks()
+      if tasks.map(\.id) == ["second"], tasks.first?.pause != nil { break }
+      try await Task.sleep(for: .milliseconds(50))
+    }
+    XCTAssertEqual(tasks.first?.pause?.errorCode, "item_not_found", "parked before the Retry")
+
+    await service.retryPausedTask(id: "second")
+
+    deadline = Date().addingTimeInterval(10)
+    while Date() < deadline {
+      tasks = await repository.getAllTasks()
+      if tasks.isEmpty || tasks.first?.pause != nil { break }
+      try await Task.sleep(for: .milliseconds(50))
+    }
+    service.setServerLanesEnabled(false)
+    XCTAssertTrue(tasks.isEmpty, "handed back again (dropped: gone locally), not parked again")
+  }
+
   /// Only a media-server link marks a book as streamed: a Hardcover link has no file and
   /// must not stop the book's own file from uploading
   func testUploadJob_flagsOnlyMediaServerBooksAsProviderBacked() async throws {

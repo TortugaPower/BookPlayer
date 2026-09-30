@@ -416,7 +416,8 @@ lines). It is the highest-risk file in the app.
   bookmarks, like `SyncService.handleItemsToUpload` — before the task is popped, or dropped when it's gone locally
   too. Always re-register (decided): a book deleted on another device mid-upload can come back. A SECOND
   `item_not_found` for the same uuid in a session parks it (re-registering didn't help: e.g. another uuid holds
-  its key on the server). Only a MEDIA-SERVER link (`SyncableItem.mediaServerProviderName`, never Hardcover) marks an
+  its key on the server). A Retry of that parked upload clears the mark (decided: the user asked for the upload),
+  so the book is registered once more instead of parking again. Only a MEDIA-SERVER link (`SyncableItem.mediaServerProviderName`, never Hardcover) marks an
   `.upload` as provider-backed (its answer then schedules no file); such a book's file goes up once downloaded
   through the sync-lane `externalResourceToDownload` job, which just schedules the upload (the old `external_set`
   route is gone; `complete` marks the resources downloaded).
