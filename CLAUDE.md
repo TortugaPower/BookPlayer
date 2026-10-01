@@ -293,7 +293,7 @@ CarPlay event bus. Declared in `Shared/Extensions/Notification+BookPlayerKit.swi
   can put a resumed task ahead of it) are never coalescing targets. Retry = one automatic resume at
   launch (`setup`) plus `retryPausedTask(id:)`; there is deliberately no Skip. A first park posts
   `.syncTaskPaused`, skipped when the row already carries a `sentryEventId` (recorded via `recordPauseReport`;
-  it survives resumes). The app-target `SyncPauseReporter` (owned by `AppServices`) turns it into ONE Sentry
+  it survives resumes) and for a too-large book (decided: an expected limit, nothing to act on). The app-target `SyncPauseReporter` (owned by `AppServices`) turns it into ONE Sentry
   warning per task, fingerprint `["sync-paused", jobType, errorCode]`, with a minimal payload (job type, code,
   status, lane, scope, item uuid) — **never the server message or a path: both embed file names**. The Queued
   Tasks row of a parked task shows the server's message with Retry and Report; Report mails (or, without Mail,

@@ -476,7 +476,15 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
       Self.logger.error("Dropping \(task.jobType.rawValue) task \(task.id): the server answered \(code)")
       await taskContainer.pop(task)
     case .park(let scope):
-      await park(task, scope: scope, code: code, message: message, status: status)
+      // A too-large book is the app's own limit, not a failure: nothing to report
+      await park(
+        task,
+        scope: scope,
+        code: code,
+        message: message,
+        status: status,
+        report: code != UploadFileError.fileTooLarge.code
+      )
     case .verifyAccount:
       // Every server lane holds from here: the rejection is about the account, so the
       // next task would get the same answer

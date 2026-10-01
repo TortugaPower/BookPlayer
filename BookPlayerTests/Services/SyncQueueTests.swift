@@ -1054,9 +1054,14 @@ extension SyncQueueTests {
 
 extension SyncQueueTests {
   /// End to end through the engine: the upload task's operation runs, its local refusal
-  /// reaches the parking policy, and the task parks alone with the app's own reason
+  /// reaches the parking policy, and the task parks alone with the app's own reason,
+  /// unreported (an expected limit, not a failure)
   func testTooLargeUpload_parksTheTaskWithItsLocalReason() async throws {
     let service = makeGatedEngine()
+    let reported = expectation(forNotification: .syncTaskPaused, object: nil) { note in
+      (note.object as? QueuedSyncTask)?.id == "huge"
+    }
+    reported.isInverted = true
     let link = FileManager.default.temporaryDirectory.appendingPathComponent("huge-\(UUID().uuidString).m4b")
     FileManager.default.createFile(atPath: link.path, contents: nil)
     let handle = try FileHandle(forWritingTo: link)
@@ -1080,6 +1085,7 @@ extension SyncQueueTests {
     XCTAssertEqual(pause?.errorCode, "file_too_large")
     XCTAssertNil(pause?.httpStatus)
     XCTAssertTrue(FileManager.default.fileExists(atPath: link.path), "the link stays for a Retry")
+    await fulfillment(of: [reported], timeout: 0.5)
   }
 }
 
