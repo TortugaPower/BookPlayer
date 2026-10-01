@@ -400,7 +400,6 @@
 "settings_seekprogressbar_description" = "Enable seeking on the lock screen";
 "donate_title" = "Lahjoittaa";
 "bookmark_automatic_sleep_title" = "Last position when the sleep timer was turned on";
-"download_folder_confirmation_title" = "Lataa kansio";
 "download_folder_confirmation_message" = "Ladataanko kaikki %d tiedostoa tästä kansiosta?";
 "hardcover_searching_books" = "Etsitään kirjoja...";
 "hardcover_unlink_button" = "Poista linkki";
@@ -504,3 +503,16 @@
 "jellyfin_quick_connect_error_no_code" = "Your Jellyfin server didn't return a Quick Connect code. Make sure Quick Connect is enabled in the server's dashboard.";
 "jellyfin_quick_connect_error_generic" = "Quick Connect couldn't complete. Check that Quick Connect is enabled on your server and try again.";
 "jellyfin_quick_connect_error_timeout" = "Timed out waiting for the code to be entered. Please try again.";
+"sync_tasks_concurrent_count_title" = "Samanaikaiset tehtävät (%d)";
+"sync_tasks_running_empty_title" = "Ei käynnissä olevia tehtäviä";
+"sync_tasks_empty_title" = "Ei jonossa olevia tehtäviä";
+"sync_tasks_empty_description" = "Kaikki synkronointitehtäväsi ovat ajan tasalla.";
+"sync_task_update_progress_label" = "Päivitetään edistymistä kohteelle %@";
+"sync_task_upload_file_label" = "Ladataan tiedostoa";
+"audiobook_details_narrator_label" = "Lukija: %@";
+"stream_button" = "Suoratoista";
+"passkey_title" = "Pääsyavain";
+"create_profile_title" = "Luo profiilisi";
+"create_profile_description" = "Ota pilvisynkronointi käyttöön kirjautumalla profiiliisi. Voit tehdä tämän myöhemmin Profiili-välilehdeltä.";
+"not_now_button" = "Ei nyt";
+"quick_action_label" = "Pikatoiminto %d";

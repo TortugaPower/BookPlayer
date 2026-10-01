@@ -13,14 +13,12 @@ import XCTest
 @testable import BookPlayer
 @testable import BookPlayerKit
 
-final class SyncTasksStorageTests: XCTestCase {
+final class SyncTasksRepositoryTests: XCTestCase {
   private var tasksDataManager: TasksDataManager!
-  private var storage: SyncTasksStorage!
+  private var repository: SyncQueueRepository!
 
   override func setUpWithError() throws {
     let schema = Schema([
-      SyncTasksContainer.self,
-      SyncTaskReferenceModel.self,
       UploadTaskModel.self,
       UpdateTaskModel.self,
       MoveTaskModel.self,
@@ -29,46 +27,42 @@ final class SyncTasksStorageTests: XCTestCase {
       SetBookmarkTaskModel.self,
       RenameFolderTaskModel.self,
       ArtworkUploadTaskModel.self,
-      MatchUuidsTaskModel.self
+      MatchUuidsTaskModel.self,
+      UploadExternalResourceTaskModel.self,
+      ExternalResourceToDownloadTaskModel.self,
+      DeleteExternalResourceTaskModel.self,
+      SyncQueueContainer.self,
+      QueuedTaskReferenceModel.self,
+      ExternalUpdateTaskModel.self,
+      UploadFileTaskModel.self,
     ])
     let config = ModelConfiguration(isStoredInMemoryOnly: true, cloudKitDatabase: .none)
     let container = try ModelContainer(for: schema, configurations: config)
     tasksDataManager = TasksDataManager(container: container)
-    storage = try SyncTasksStorage(tasksDataManager: tasksDataManager)
+    repository = SyncQueueRepository(tasksDataManager: tasksDataManager)
   }
 
   override func tearDown() {
-    storage = nil
+    repository = nil
     tasksDataManager = nil
     super.tearDown()
   }
 
-  /// Progress lookup must key on `uuid`, so a progress dictionary indexed by uuid
-  /// surfaces correctly on the returned SyncTaskReference.
-  func testGetAllTasks_progressKeyedByUuid_returnsProgressForTask() async throws {
-    let uuid = "item-uuid-1"
+  /// A stored task surfaces the uuid and path the row keys its progress on; with a real
+  /// uuid the key IS the uuid (a path-keyed progress update must not match it).
+  func testGetAllTasks_realUuid_progressKeyIsTheUuid() async throws {
+    let uuid = UUID().uuidString
     let relativePath = "Folder/Book.mp3"
     try await appendUploadTask(uuid: uuid, relativePath: relativePath)
 
-    let references = await storage.getAllTasks(progress: [uuid: 0.42])
+    let tasks = await repository.getAllTasks()
 
-    XCTAssertEqual(references.count, 1)
-    let reference = try XCTUnwrap(references.first)
-    XCTAssertEqual(reference.uuid, uuid)
-    XCTAssertEqual(reference.progress, 0.42, accuracy: 0.0001)
-  }
-
-  /// Regression guard: with a real uuid, a progress dict keyed by relativePath must NOT resolve.
-  func testGetAllTasks_progressKeyedByRelativePath_returnsZero() async throws {
-    let uuid = "item-uuid-2"
-    let relativePath = "Folder/Other.mp3"
-    try await appendUploadTask(uuid: uuid, relativePath: relativePath)
-
-    let references = await storage.getAllTasks(progress: [relativePath: 0.75])
-
-    XCTAssertEqual(references.count, 1)
-    let reference = try XCTUnwrap(references.first)
-    XCTAssertEqual(reference.progress, 0.0)
+    XCTAssertEqual(tasks.count, 1)
+    let task = try XCTUnwrap(tasks.first)
+    XCTAssertEqual(task.uuid, uuid)
+    XCTAssertEqual(task.relativePath, relativePath)
+    XCTAssertEqual(task.progressKey, uuid)
+    XCTAssertNotEqual(task.progressKey, relativePath)
   }
 
   /// Legacy-migrated task references share the same placeholder uuid; the progress key
@@ -77,11 +71,10 @@ final class SyncTasksStorageTests: XCTestCase {
     let relativePath = "Folder/Legacy.mp3"
     try await appendUploadTask(uuid: Constants.legacyUuidPlaceholder, relativePath: relativePath)
 
-    let references = await storage.getAllTasks(progress: [relativePath: 0.6])
+    let tasks = await repository.getAllTasks()
 
-    XCTAssertEqual(references.count, 1)
-    let reference = try XCTUnwrap(references.first)
-    XCTAssertEqual(reference.progress, 0.6, accuracy: 0.0001)
+    XCTAssertEqual(tasks.count, 1)
+    XCTAssertEqual(tasks.first?.progressKey, relativePath)
   }
 
   /// Same fallback applies to the local placeholder used as the schema default.
@@ -89,11 +82,10 @@ final class SyncTasksStorageTests: XCTestCase {
     let relativePath = "Folder/Local.mp3"
     try await appendUploadTask(uuid: Constants.uuidPlaceholder, relativePath: relativePath)
 
-    let references = await storage.getAllTasks(progress: [relativePath: 0.33])
+    let tasks = await repository.getAllTasks()
 
-    XCTAssertEqual(references.count, 1)
-    let reference = try XCTUnwrap(references.first)
-    XCTAssertEqual(reference.progress, 0.33, accuracy: 0.0001)
+    XCTAssertEqual(tasks.count, 1)
+    XCTAssertEqual(tasks.first?.progressKey, relativePath)
   }
 
   /// `matchUuid` conflicts must rewrite both the task reference and the underlying task
@@ -104,13 +96,13 @@ final class SyncTasksStorageTests: XCTestCase {
     let relativePath = "Folder/Swap.mp3"
     try await appendUploadTask(uuid: oldUuid, relativePath: relativePath)
 
-    try await storage.applyMatchUuidConflicts([ItemConflict(key: oldUuid, uuid: newUuid)])
+    try await repository.applyMatchUuidConflicts([ItemConflict(key: oldUuid, uuid: newUuid)])
 
-    let refs = await storage.getAllTasks(progress: [:])
+    let refs = await repository.getAllTasks()
     XCTAssertEqual(refs.count, 1)
     XCTAssertEqual(refs.first?.uuid, newUuid)
 
-    let tasks = await storage.getAllTasksWithParams()
+    let tasks = await repository.getAllTasksWithParams(in: TaskQueueKey.sync)
     XCTAssertEqual(tasks.count, 1)
     XCTAssertEqual(tasks.first?.uuid, newUuid)
   }
@@ -120,9 +112,9 @@ final class SyncTasksStorageTests: XCTestCase {
     let uuid = "existing-uuid"
     try await appendUploadTask(uuid: uuid, relativePath: "Folder/Other.mp3")
 
-    try await storage.applyMatchUuidConflicts([ItemConflict(key: "ghost-uuid", uuid: "never")])
+    try await repository.applyMatchUuidConflicts([ItemConflict(key: "ghost-uuid", uuid: "never")])
 
-    let refs = await storage.getAllTasks(progress: [:])
+    let refs = await repository.getAllTasks()
     XCTAssertEqual(refs.first?.uuid, uuid)
   }
 
@@ -136,10 +128,10 @@ final class SyncTasksStorageTests: XCTestCase {
     // and introduces a new key (should be added).
     try await appendMatchUuidTask(uuids: ["folder/A.mp3": "uuid-A-prime", "folder/C.mp3": "uuid-C"])
 
-    let refs = await storage.getAllTasks(progress: [:])
+    let refs = await repository.getAllTasks()
     XCTAssertEqual(refs.filter { $0.jobType == .matchUuid }.count, 1)
 
-    let tasks = await storage.getAllTasksWithParams()
+    let tasks = await repository.getAllTasksWithParams(in: TaskQueueKey.sync)
     let matchTask = try XCTUnwrap(tasks.first(where: { $0.jobType == .matchUuid }))
     let mergedUuids = try XCTUnwrap(matchTask.parameters["uuids"] as? [String: String])
     XCTAssertEqual(mergedUuids["folder/A.mp3"], "uuid-A")           // existing preserved
@@ -148,11 +140,69 @@ final class SyncTasksStorageTests: XCTestCase {
     XCTAssertEqual(mergedUuids.count, 3)
   }
 
+  /// The server rejects a /uuids request over its per-request limit forever, so the
+  /// scheduler splits a large listing into limit-sized tasks.
+  func testScheduleMatchUuids_overTheLimit_splitsIntoServerSizedTasks() async throws {
+    let scheduler = SyncJobScheduler(tasksRepository: repository)
+    let limit = SyncJobScheduler.matchUuidsBatchLimit
+    let uuids = Dictionary(uniqueKeysWithValues: (0..<(limit * 2 + limit / 2)).map { ("folder/\($0).mp3", "uuid-\($0)") })
+
+    await scheduler.scheduleMatchUuidsJob(uuidsDict: uuids)
+
+    let tasks = await repository.getAllTasksWithParams(in: TaskQueueKey.sync)
+      .filter { $0.jobType == .matchUuid }
+    let sizes = tasks.compactMap { ($0.parameters["uuids"] as? [String: String])?.count }
+    XCTAssertEqual(sizes, [limit, limit, limit / 2])
+    let all = tasks.compactMap { $0.parameters["uuids"] as? [String: String] }
+      .reduce(into: [String: String]()) { $0.merge($1) { first, _ in first } }
+    XCTAssertEqual(all, uuids)
+  }
+
+  /// Merging into a queued matchUuid task must not grow it past the server's limit.
+  func testAppendMatchUuidTask_mergeWouldExceedTheLimit_queuesASeparateTask() async throws {
+    let limit = SyncJobScheduler.matchUuidsBatchLimit
+    try await appendUploadTask(uuid: "upload-uuid", relativePath: "folder/Head.mp3")
+    try await appendMatchUuidTask(uuids: Dictionary(uniqueKeysWithValues: (0..<(limit - 10)).map { ("a/\($0).mp3", "a-\($0)") }))
+    try await appendMatchUuidTask(uuids: Dictionary(uniqueKeysWithValues: (0..<20).map { ("b/\($0).mp3", "b-\($0)") }))
+
+    let tasks = await repository.getAllTasksWithParams(in: TaskQueueKey.sync)
+      .filter { $0.jobType == .matchUuid }
+    XCTAssertEqual(tasks.compactMap { ($0.parameters["uuids"] as? [String: String])?.count }, [limit - 10, 20])
+  }
+
+  /// Only temp-directory files are ever removed as upload hard links.
+  func testRemoveHardLink_deletesOnlyInsideTheTempDirectory() throws {
+    let tempFile = FileManager.default.temporaryDirectory.appendingPathComponent("link-\(UUID().uuidString).mp3")
+    let outside = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
+      .appendingPathComponent("real-\(UUID().uuidString).mp3")
+    try Data("x".utf8).write(to: tempFile)
+    try Data("x".utf8).write(to: outside)
+    defer { try? FileManager.default.removeItem(at: outside) }
+
+    // A folder item's link mirrors its tree; its children's uploads still read inside it.
+    let tempFolder = FileManager.default.temporaryDirectory.appendingPathComponent("folder-\(UUID().uuidString)")
+    try FileManager.default.createDirectory(at: tempFolder, withIntermediateDirectories: true)
+    let child = tempFolder.appendingPathComponent("Book.mp3")
+    try Data("x".utf8).write(to: child)
+    defer { try? FileManager.default.removeItem(at: tempFolder) }
+
+    SyncJobScheduler.removeHardLink(at: tempFile)
+    SyncJobScheduler.removeHardLink(at: outside)
+    SyncJobScheduler.removeHardLink(at: nil)
+    SyncJobScheduler.removeHardLink(at: tempFolder)
+    SyncJobScheduler.removeHardLink(at: FileManager.default.temporaryDirectory)
+
+    XCTAssertFalse(FileManager.default.fileExists(atPath: tempFile.path))
+    XCTAssertTrue(FileManager.default.fileExists(atPath: outside.path))
+    XCTAssertTrue(FileManager.default.fileExists(atPath: child.path))
+    XCTAssertTrue(FileManager.default.fileExists(atPath: FileManager.default.temporaryDirectory.path))
+  }
+
   /// With no prior matchUuid task, the first call should create one normally.
   func testAppendMatchUuidTask_noExisting_createsNewTask() async throws {
     try await appendMatchUuidTask(uuids: ["folder/A.mp3": "uuid-A"])
 
-    let refs = await storage.getAllTasks(progress: [:])
+    let refs = await repository.getAllTasks()
     XCTAssertEqual(refs.count, 1)
     XCTAssertEqual(refs.first?.jobType, .matchUuid)
   }
@@ -163,15 +213,15 @@ final class SyncTasksStorageTests: XCTestCase {
   func testAppendMatchUuidTask_firstInFlight_queuesSecondAndMergesIntoIt() async throws {
     try await appendMatchUuidTask(uuids: ["folder/A.mp3": "uuid-A"])
 
-    // Simulate the first task being in flight — the scheduler calls getNextTask()
+    // Simulate the first task being in flight — the worker calls getNextTask(for:)
     // to hand the snapshot to the operation queue; the task stays in the store.
-    let inFlight = try await storage.getNextTask()
+    let inFlight = await repository.getNextTask(for: TaskQueueKey.sync)
     XCTAssertEqual(inFlight?.jobType, .matchUuid)
 
     // A second schedule must bypass the in-flight task and create a fresh one.
     try await appendMatchUuidTask(uuids: ["folder/B.mp3": "uuid-B"])
 
-    let refsAfterSecond = await storage.getAllTasks(progress: [:])
+    let refsAfterSecond = await repository.getAllTasks()
     let matchRefsAfterSecond = refsAfterSecond.filter { $0.jobType == .matchUuid }
     XCTAssertEqual(matchRefsAfterSecond.count, 2)
 
@@ -179,7 +229,7 @@ final class SyncTasksStorageTests: XCTestCase {
     // leaving the in-flight task's dict unchanged.
     try await appendMatchUuidTask(uuids: ["folder/C.mp3": "uuid-C"])
 
-    let tasksAfterThird = await storage.getAllTasksWithParams()
+    let tasksAfterThird = await repository.getAllTasksWithParams(in: TaskQueueKey.sync)
     let matchTasks = tasksAfterThird.filter { $0.jobType == .matchUuid }
     XCTAssertEqual(matchTasks.count, 2)
 
@@ -192,15 +242,80 @@ final class SyncTasksStorageTests: XCTestCase {
     XCTAssertEqual(queuedUuids, ["folder/B.mp3": "uuid-B", "folder/C.mp3": "uuid-C"])
   }
 
+  /// Sync tasks and concurrent (provider) tasks share the container: the display list spans
+  /// every lane in stored order, while counts and getNextTask stay per queue key.
+  func testQueueIsolation_syncAndProviderQueues() async throws {
+    try await appendUploadTask(uuid: "sync-uuid", relativePath: "Folder/Book.mp3")
+    try await repository.storeTask(parameters: [
+      "id": UUID().uuidString,
+      "jobType": SyncJobType.externalUpdate.rawValue,
+      "queueKey": "jellyfin",
+      "providerName": "jellyfin",
+      "providerId": "provider-item-1",
+      "currentTime": 10.0,
+      "percentCompleted": 5.0
+    ])
+
+    let syncCount = await repository.getTasksCount(in: TaskQueueKey.sync)
+    XCTAssertEqual(syncCount, 1)
+    let providerCount = await repository.getTasksCount(in: "jellyfin")
+    XCTAssertEqual(providerCount, 1)
+
+    let allTasks = await repository.getAllTasks()
+    XCTAssertEqual(allTasks.map(\.jobType), [.upload, .externalUpdate])
+    XCTAssertEqual(allTasks.map(\.queueKey), [TaskQueueKey.sync, "jellyfin"])
+
+    let nextProviderTask = await repository.getNextTask(for: "jellyfin")
+    XCTAssertEqual(nextProviderTask?.jobType, .externalUpdate)
+    let nextSyncTask = await repository.getNextTask(for: TaskQueueKey.sync)
+    XCTAssertEqual(nextSyncTask?.jobType, .upload)
+  }
+
+  /// Popping a task must delete both the reference and its payload model.
+  func testPop_removesReferenceAndPayload() async throws {
+    try await appendUploadTask(uuid: "pop-uuid", relativePath: "Folder/Pop.mp3")
+
+    let nextTask = await repository.getNextTask(for: TaskQueueKey.sync)
+    let task = try XCTUnwrap(nextTask)
+    await repository.pop(task)
+
+    let count = await repository.getTasksCount(in: TaskQueueKey.sync)
+    XCTAssertEqual(count, 0)
+    let hasUpload = await repository.hasUploadTask(for: "Folder/Pop.mp3")
+    XCTAssertFalse(hasUpload)
+  }
+
+  /// Clearing one queue must not touch the others.
+  func testClearAll_inQueue_leavesOtherQueuesUntouched() async throws {
+    try await appendUploadTask(uuid: "sync-uuid", relativePath: "Folder/Book.mp3")
+    try await repository.storeTask(parameters: [
+      "id": UUID().uuidString,
+      "jobType": SyncJobType.externalUpdate.rawValue,
+      "queueKey": "jellyfin",
+      "providerName": "jellyfin",
+      "providerId": "provider-item-1",
+      "currentTime": 10.0,
+      "percentCompleted": 5.0
+    ])
+
+    try await repository.clearAll(in: TaskQueueKey.sync)
+
+    let syncCount = await repository.getTasksCount(in: TaskQueueKey.sync)
+    XCTAssertEqual(syncCount, 0)
+    let providerCount = await repository.getTasksCount(in: "jellyfin")
+    XCTAssertEqual(providerCount, 1)
+  }
+
   private func appendMatchUuidTask(uuids: [String: String]) async throws {
     let parameters: [String: Any] = [
       "id": UUID().uuidString,
       "jobType": SyncJobType.matchUuid.rawValue,
+      "queueKey": TaskQueueKey.sync,
       "relativePath": "",
       "uuid": "",
       "uuids": uuids
     ]
-    try await storage.appendTask(parameters: parameters)
+    try await repository.storeTask(parameters: parameters)
   }
 
   private func appendUploadTask(uuid: String, relativePath: String) async throws {
@@ -217,8 +332,9 @@ final class SyncTasksStorageTests: XCTestCase {
       "isFinished": false,
       "orderRank": 0,
       "type": SimpleItemType.book.rawValue,
-      "jobType": SyncJobType.upload.rawValue
+      "jobType": SyncJobType.upload.rawValue,
+      "queueKey": TaskQueueKey.sync
     ]
-    try await storage.appendTask(parameters: parameters)
+    try await repository.storeTask(parameters: parameters)
   }
 }

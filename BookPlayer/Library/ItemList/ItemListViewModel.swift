@@ -10,7 +10,7 @@ import BookPlayerKit
 import SwiftUI
 
 @MainActor
-final class ItemListViewModel: ObservableObject {
+final class ItemListViewModel: ObservableObject, BPLogger {
   let libraryNode: LibraryNode
   private let libraryService: LibraryService
   private let playbackService: PlaybackService
@@ -20,10 +20,9 @@ final class ItemListViewModel: ObservableObject {
   private let loadingState: LoadingOverlayState
   private let listState: ListStateManager
   let singleFileDownloadService: SingleFileDownloadService
-
   /// Reference to ongoing library fetch task
   var contentsFetchTask: Task<(), Error>?
-
+  
   @Published var items: [SimpleLibraryItem] = []
   @Published var isLoading: Bool = false
   @Published var canLoadMore: Bool = true
@@ -371,6 +370,7 @@ final class ItemListViewModel: ObservableObject {
       isUnfinished: true
     )
 
+    // loadPlayer's contract is a RELATIVE PATH — a uuid silently no-ops the lookup.
     return nextPlayableItem?.relativePath
   }
 }
@@ -750,7 +750,7 @@ extension ItemListViewModel {
         if item.type == .folder || item.type == .bound {
           try DataManager.createBackingFolderIfNeeded(fileURL)
         }
-
+        
         try await syncService.downloadRemoteFiles(for: item)
         loadingState.show = false
       } catch {

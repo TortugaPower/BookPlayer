@@ -15,8 +15,6 @@ public protocol LibrarySyncProtocol {
   var metadataUpdatePublisher: AnyPublisher<[String: Any], Never> { get }
   var progressUpdatePublisher: AnyPublisher<[String: Any], Never> { get }
 
-  /// Fetch all the stored items in the library that are not in the remote identifiers array
-  func getItemsToSync(remoteIdentifiers: [String]) async -> [SyncableItem]?
   /// Update local items with synced info
   func updateInfo(for itemsDict: [String: SyncableItem], parentFolder: String?) async
   /// Update single local item with synced info
@@ -48,6 +46,32 @@ public protocol LibrarySyncProtocol {
   func getBookmarks(of type: BookmarkType, relativePath: String) -> [SimpleBookmark]?
   /// Store new synced bookmark
   func addBookmark(from bookmark: SimpleBookmark) async
+    
+  /// Item uuid + external resources as lightweight values, fetched on the context's queue
+  func getItemResourcesSnapshot(for relativePath: String) -> (uuid: String, resources: [SyncableExternalResource])?
+
+  func updateExternalResource(for item: SyncableExternalResource) async
+
+  /// The item's current path, read on a background context (an upload in the background
+  /// finds its book's file by uuid after the user moved it)
+  func fetchRelativePath(forUuid uuid: String) async -> String?
+
+  /// The item as the server would register it, found by uuid on a background context: an
+  /// upload the server no longer recognizes is re-registered from the book's CURRENT state
+  /// (a stale path would make the server move another item into place)
+  func fetchSyncableItem(forUuid uuid: String) async -> SyncableItem?
+
+  /// Every real uuid in the library, read on a background context: the missing-items pass
+  /// asks the server about all of them. nil when the read failed (never "an empty library")
+  func fetchAllUuids() async -> [String]?
+
+  /// The items with these uuids as the server would register them, parents before children,
+  /// read on a background context. nil when a read failed (never "fewer items")
+  func getSyncableItems(forUuids uuids: [String]) async -> [SyncableItem]?
+
+  /// Every user bookmark of the items at these paths, grouped by path, read on a background
+  /// context in batches: a first sync registers the whole library
+  func getUserBookmarks(forItemsAt relativePaths: [String]) async -> [String: [SimpleBookmark]]
 }
 
 extension LibraryService: LibrarySyncProtocol {
@@ -78,6 +102,128 @@ extension LibraryService: LibrarySyncProtocol {
         let storedItem = getItemReference(with: relativePath, context: context)
 
         continuation.resume(returning: storedItem != nil)
+      }
+    }
+  }
+
+  public func fetchRelativePath(forUuid uuid: String) async -> String? {
+    guard Constants.isRealUuid(uuid) else { return nil }
+    return await withCheckedContinuation { continuation in
+      let context = dataManager.getBackgroundContext()
+      context.perform { [context] in
+        let fetchRequest = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
+        fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.uuid), uuid)
+        fetchRequest.propertiesToFetch = [#keyPath(LibraryItem.relativePath)]
+        fetchRequest.resultType = .dictionaryResultType
+        fetchRequest.fetchLimit = 1
+
+        do {
+          let relativePath = try context.fetch(fetchRequest).first?[#keyPath(LibraryItem.relativePath)] as? String
+          continuation.resume(returning: relativePath)
+        } catch {
+          Self.logger.error("Failed to look up the item \(uuid): \(error)")
+          continuation.resume(returning: nil)
+        }
+      }
+    }
+  }
+
+  public func fetchSyncableItem(forUuid uuid: String) async -> SyncableItem? {
+    guard Constants.isRealUuid(uuid) else { return nil }
+    return await withCheckedContinuation { continuation in
+      let context = dataManager.getBackgroundContext()
+      context.perform { [unowned self, context] in
+        let fetchRequest = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
+        fetchRequest.propertiesToFetch = SyncableItem.fetchRequestProperties
+        fetchRequest.resultType = .dictionaryResultType
+        fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.uuid), uuid)
+        fetchRequest.fetchLimit = 1
+
+        let results = try? context.fetch(fetchRequest) as? [[String: Any]]
+        continuation.resume(returning: parseSyncableItems(from: results, context: context)?.first)
+      }
+    }
+  }
+
+  public func fetchAllUuids() async -> [String]? {
+    return await withCheckedContinuation { continuation in
+      let context = dataManager.getBackgroundContext()
+      context.perform { [context] in
+        let fetchRequest = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
+        fetchRequest.propertiesToFetch = [#keyPath(LibraryItem.uuid)]
+        fetchRequest.resultType = .dictionaryResultType
+
+        do {
+          let uuids = try context.fetch(fetchRequest).compactMap { $0[#keyPath(LibraryItem.uuid)] as? String }
+          continuation.resume(returning: uuids.filter(Constants.isRealUuid))
+        } catch {
+          Self.logger.error("Failed to read the library's uuids: \(error)")
+          continuation.resume(returning: nil)
+        }
+      }
+    }
+  }
+
+  public func getSyncableItems(forUuids uuids: [String]) async -> [SyncableItem]? {
+    guard !uuids.isEmpty else { return [] }
+    return await withCheckedContinuation { continuation in
+      let context = dataManager.getBackgroundContext()
+      context.perform { [unowned self, context] in
+        var items = [SyncableItem]()
+        // A few hundred per IN list keeps each fetch well under SQLite's bound-variable limit
+        for start in stride(from: 0, to: uuids.count, by: 500) {
+          let fetchRequest = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
+          fetchRequest.propertiesToFetch = SyncableItem.fetchRequestProperties
+          fetchRequest.resultType = .dictionaryResultType
+          fetchRequest.predicate = NSPredicate(
+            format: "%K IN %@",
+            #keyPath(LibraryItem.uuid),
+            Array(uuids[start..<min(start + 500, uuids.count)])
+          )
+          do {
+            let results = try context.fetch(fetchRequest) as? [[String: Any]]
+            items += parseSyncableItems(from: results, context: context) ?? []
+          } catch {
+            Self.logger.error("Failed to read items by uuid: \(error)")
+            continuation.resume(returning: nil)
+            return
+          }
+        }
+        // A folder's path sorts before its contents', so it's registered first
+        items.sort { $0.relativePath.localizedStandardCompare($1.relativePath) == .orderedAscending }
+        continuation.resume(returning: items)
+      }
+    }
+  }
+
+  public func getUserBookmarks(forItemsAt relativePaths: [String]) async -> [String: [SimpleBookmark]] {
+    guard !relativePaths.isEmpty else { return [:] }
+    return await withCheckedContinuation { continuation in
+      let context = dataManager.getBackgroundContext()
+      context.perform { [unowned self, context] in
+        var bookmarks = [String: [SimpleBookmark]]()
+        for start in stride(from: 0, to: relativePaths.count, by: 500) {
+          let fetchRequest = NSFetchRequest<NSDictionary>(entityName: "Bookmark")
+          fetchRequest.propertiesToFetch = SimpleBookmark.fetchRequestProperties
+          fetchRequest.resultType = .dictionaryResultType
+          fetchRequest.predicate = NSPredicate(
+            format: "%K IN %@ && type == %d",
+            #keyPath(Bookmark.item.relativePath),
+            Array(relativePaths[start..<min(start + 500, relativePaths.count)]),
+            BookmarkType.user.rawValue
+          )
+          fetchRequest.sortDescriptors = [NSSortDescriptor(key: #keyPath(Bookmark.time), ascending: true)]
+          do {
+            let results = try context.fetch(fetchRequest) as? [[String: Any]]
+            for bookmark in parseFetchedBookmarks(from: results) ?? [] {
+              bookmarks[bookmark.relativePath, default: []].append(bookmark)
+            }
+          } catch {
+            // Registration goes on without these bookmarks: make the loss traceable
+            Self.logger.error("Failed to read bookmarks for registration: \(error)")
+          }
+        }
+        continuation.resume(returning: bookmarks)
       }
     }
   }
@@ -169,9 +315,98 @@ extension LibraryService: LibrarySyncProtocol {
     if !item.uuid.isEmpty {
       storedItem.uuid = item.uuid
     }
+    
+    if let remoteExternalResources = item.externalResources {
+      // Resource identity is the (providerName, providerId) PAIR — the contract
+      // everywhere else in this feature (setExternalResource dedup, findResource
+      // scoping): the same providerId can legitimately exist under BOTH providers,
+      // so diffing on providerId alone mis-reconciles cross-provider collisions.
+      struct ResourceKey: Hashable {
+        let providerName: String
+        let providerId: String
+      }
+      let remoteByKey = Dictionary(
+        remoteExternalResources.map {
+          (ResourceKey(providerName: $0.providerName, providerId: $0.providerId), $0)
+        },
+        uniquingKeysWith: { first, _ in first }
+      )
+      let localKeys = Set(storedItem.resourcesArray.map {
+        ResourceKey(providerName: $0.providerName, providerId: $0.providerId)
+      })
+      let keysToAdd = Set(remoteByKey.keys).subtracting(localKeys)
+
+      for localResource in storedItem.resourcesArray {
+        let key = ResourceKey(
+          providerName: localResource.providerName,
+          providerId: localResource.providerId
+        )
+        if let remoteData = remoteByKey[key] {
+          if remoteData.syncStatus != localResource.syncStatus {
+            localResource.syncStatus = remoteData.syncStatus
+          }
+        } else if localResource.syncStatus != ExternalResource.SyncStatus.notSynced.rawValue {
+          // Only reconcile-away resources the server has SEEN: a locally-created link
+          // whose upload task hasn't run yet is legitimately absent from the server
+          // payload, and deleting it here loses the link before it ever syncs.
+          storedItem.removeFromExternalResources(localResource)
+          context.delete(localResource)
+        }
+      }
+
+      for keyToAdd in keysToAdd {
+        guard let remoteData = remoteByKey[keyToAdd] else {
+          continue
+        }
+        
+        let resourceEntity = NSEntityDescription.entity(forEntityName: "ExternalResource", in: context)!
+        let external = ExternalResource(entity: resourceEntity, insertInto: context)
+        
+        external.providerId = remoteData.providerId
+        external.providerName = remoteData.providerName
+        external.syncStatus = remoteData.syncStatus
+        external.lastSyncedAt = remoteData.lastSyncedAt
+        external.processedFile = remoteData.processedFile
+        // The cross-device server identity — without it IntegrationHostResolver returns nil
+        // and a synced-down resource can never resolve to a saved connection on this device.
+        external.hostId = remoteData.hostId
+        
+        external.libraryItem = storedItem
+        storedItem.addToExternalResources(external)
+      }
+    }
+    
+    if let allExternalItems = self.findResourceEntities(for: storedItem.uuid, context: context),
+       allExternalItems.count > storedItem.resourcesArray.count {
+      let allSet = Set(allExternalItems)
+      let keepSet = Set(storedItem.resourcesArray)
+      
+      // 2. Find the difference (things in 'all' but NOT in 'keep')
+      let toDelete = allSet.subtracting(keepSet)
+      
+      // 3. Delete them from the context
+      toDelete.forEach { resource in
+        context.delete(resource)
+      }
+    }
 
     if shouldSaveContext {
       dataManager.saveSyncContext(context)
+    }
+  }
+  
+  public func updateExternalResource(for item: SyncableExternalResource) async {
+    return await withCheckedContinuation { continuation in
+      let context = dataManager.getBackgroundContext()
+      context.perform { [unowned self, context] in
+        let externalResource = self.findResourceEntity(for: item.providerId, providerName: item.providerName, context: context)
+        if let externalResource {
+          externalResource.syncStatus = item.syncStatus
+          externalResource.processedFile = item.processedFile
+          dataManager.saveSyncContext(context)
+        }
+        continuation.resume()
+      }
     }
   }
 
@@ -209,6 +444,23 @@ extension LibraryService: LibrarySyncProtocol {
       syncItem: item,
       context: context
     )
+    
+    if let externalResources = item.externalResources, externalResources.count > 0 {
+      for externalResource in externalResources {
+        let resourceEntity = NSEntityDescription.entity(forEntityName: "ExternalResource", in: context)!
+        let external = ExternalResource(entity: resourceEntity, insertInto: context)
+        
+        external.providerId = externalResource.providerId
+        external.providerName = externalResource.providerName
+        external.syncStatus = externalResource.syncStatus
+        external.lastSyncedAt = externalResource.lastSyncedAt
+        external.processedFile = externalResource.processedFile
+        external.hostId = externalResource.hostId
+        
+        external.libraryItem = newBook
+        newBook.addToExternalResources(external)
+      }
+    }
 
     if let relativePath = parentFolder,
       let folder = getItem(with: relativePath, context: context) as? Folder
@@ -258,32 +510,6 @@ extension LibraryService: LibrarySyncProtocol {
     }
   }
 
-  public func getItemsToSync(remoteIdentifiers: [String]) async -> [SyncableItem]? {
-    return await withCheckedContinuation { continuation in
-      let context = dataManager.getBackgroundContext()
-      context.perform { [unowned self, context] in
-        let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
-        fetchRequest.propertiesToFetch = SyncableItem.fetchRequestProperties
-        fetchRequest.resultType = .dictionaryResultType
-        fetchRequest.predicate = NSPredicate(
-          format: "NOT (%K IN %@)",
-          #keyPath(LibraryItem.relativePath),
-          remoteIdentifiers
-        )
-        let sort = NSSortDescriptor(
-          key: #keyPath(LibraryItem.relativePath),
-          ascending: true,
-          selector: #selector(NSString.localizedStandardCompare(_:))
-        )
-        fetchRequest.sortDescriptors = [sort]
-
-        let results = try? context.fetch(fetchRequest) as? [[String: Any]]
-
-        continuation.resume(returning: parseSyncableItems(from: results))
-      }
-    }
-  }
-
   public func getAllNestedItems(inside relativePath: String) -> [SyncableItem]? {
     let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
     fetchRequest.propertiesToFetch = SyncableItem.fetchRequestProperties
@@ -294,12 +520,22 @@ extension LibraryService: LibrarySyncProtocol {
       relativePath
     )
 
-    let results = try? self.dataManager.getBackgroundContext().fetch(fetchRequest) as? [[String: Any]]
+    let context = self.dataManager.getBackgroundContext()
+    var items: [SyncableItem]?
+    context.performAndWait {
+      let results = try? context.fetch(fetchRequest) as? [[String: Any]]
+      items = parseSyncableItems(from: results, context: context)
+    }
 
-    return parseSyncableItems(from: results)
+    return items
   }
 
-  func parseSyncableItems(from results: [[String: Any]]?) -> [SyncableItem]? {
+  func parseSyncableItems(from results: [[String: Any]]?, context: NSManagedObjectContext) -> [SyncableItem]? {
+    // One grouped fetch for all rows — a per-item fetch here is an N+1 on the sync path.
+    let resourcesByUuid = findResourcesGrouped(
+      forUuids: results?.compactMap { $0["uuid"] as? String } ?? [],
+      context: context
+    )
     return results?.compactMap({ dictionary -> SyncableItem? in
       guard
         let uuid = dictionary["uuid"] as? String,
@@ -322,6 +558,8 @@ extension LibraryService: LibrarySyncProtocol {
       if let lastPlayDate = dictionary["lastPlayDate"] as? Date {
         lastPlayDateTimestamp = lastPlayDate.timeIntervalSince1970
       }
+      
+      let externalResources = resourcesByUuid[uuid]
 
       return SyncableItem(
         relativePath: relativePath,
@@ -338,7 +576,17 @@ extension LibraryService: LibrarySyncProtocol {
         orderRank: orderRank,
         lastPlayDateTimestamp: lastPlayDateTimestamp,
         type: type,
-        uuid: uuid
+        uuid: uuid,
+        externalResources: externalResources?.map({
+          SyncableExternalResource(
+            providerName: $0.providerName,
+            providerId: $0.providerId,
+            syncStatus: $0.syncStatus,
+            lastSyncedAt: $0.lastSyncedAt,
+            processedFile: $0.processedFile,
+            hostId: $0.hostId
+          )
+        })
       )
     })
   }
@@ -371,6 +619,46 @@ extension LibraryService: LibrarySyncProtocol {
         continuation.resume()
       }
     }
+  }
+  
+  public func getItemResourcesSnapshot(for relativePath: String) -> (uuid: String, resources: [SyncableExternalResource])? {
+    let context = self.dataManager.getBackgroundContext()
+
+    var snapshot: (uuid: String, resources: [SyncableExternalResource])?
+    context.performAndWait {
+      let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
+      fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.relativePath), relativePath)
+      fetchRequest.fetchLimit = 1
+
+      guard let item = try? context.fetch(fetchRequest).first else { return }
+
+      let resources = item.resourcesArray.map {
+        SyncableExternalResource(
+          providerName: $0.providerName,
+          providerId: $0.providerId,
+          syncStatus: $0.syncStatus,
+          lastSyncedAt: $0.lastSyncedAt,
+          processedFile: $0.processedFile,
+          hostId: $0.hostId
+        )
+      }
+
+      snapshot = (uuid: item.uuid, resources: resources)
+    }
+
+    return snapshot
+  }
+  
+  func getItemReference(with relativePath: String, context: NSManagedObjectContext) -> LibraryItem? {
+    let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
+    fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.relativePath), relativePath)
+    fetchRequest.fetchLimit = 1
+    fetchRequest.propertiesToFetch = [
+      #keyPath(LibraryItem.relativePath),
+      #keyPath(LibraryItem.originalFileName),
+    ]
+
+    return try? context.fetch(fetchRequest).first
   }
 
   private func createBackup(

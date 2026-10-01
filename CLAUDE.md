@@ -48,6 +48,10 @@ Nine native targets in `BookPlayer.xcodeproj` (no `Package.swift`, no app `.xcwo
 | `BookPlayerShareExtension` | app-extension | Share-sheet import | `BookPlayerShareExtension/` |
 | `BookPlayerTests` | "Audiobook PlayerTests" · unit-test | Unit + perf tests | `BookPlayerTests/` |
 
+**Deployment targets:** iOS **26.0** for every iOS target, watchOS **10.0** for the watch app, `BookPlayerWatchKit`
+and the watch widgets. An `#available(iOS 18…26)` check is dead code on iOS, but `Shared/` and the shared widget
+files also compile for watchOS 10, so an iOS-only API there still needs its `#if os(iOS)` / availability guard.
+
 **Dependency rule:** app → `BookPlayerKit` (`import BookPlayerKit`). `Shared/` must **not** import app-layer
 types — that breaks the framework boundary and is a 🔴 finding. Watch/shared code selects the framework with:
 
@@ -65,8 +69,8 @@ App Intents in the top-level `BookPlayer/BookPlayer/AppIntents/` folder — don'
 
 ### Dependencies (SPM, declared inside `project.pbxproj`)
 
-RevenueCat (`purchases-ios`, ~5.33), Sentry (`sentry-cocoa`, **exact 8.36.0**), Kingfisher (~7.9),
-JellyfinAPI (`jellyfin-sdk-swift`, ~0.4), MarqueeLabel (~4.0.5), DeviceKit (~5.1),
+RevenueCat (`purchases-ios`, ~5.78), Sentry (`sentry-cocoa`, **exact 8.36.0**), Kingfisher (~8.10),
+JellyfinAPI (`jellyfin-sdk-swift`, ~0.4), Get (~2.2), MarqueeLabel (~4.0.5), DeviceKit (~5.1),
 IDZSwiftCommonCrypto (~0.13.1), Themeable (~3.0), ZipArchive (~2.3), DirectoryWatcher (~2.8.6).
 `BlurHashDecode.swift` is vendored (SwiftLint-excluded). RevenueCat + Kingfisher link into the **frameworks**;
 most others link into the **app**. SwiftLint runs as a build-phase run-script; **Sourcery is run manually** (not
@@ -76,10 +80,13 @@ a build phase) and its output is committed.
 
 ## Build, CI & tooling (what the tools own — don't hand-police it)
 
-- **CI** (`.github/workflows/ci.yml`): runner `macos-26`, **Xcode 26.4**, `build-for-testing` then
+- **CI** (`.github/workflows/ci.yml`): runner `xcode-27` (GitHub's preview image), **Xcode 27.0**
+  (`/Applications/Xcode_27.0.app`, set with `xcode-select`). Xcode 27 is required: the upload code calls iOS 27
+  SDK APIs behind `#available` (`BGTaskScheduler.submitTaskRequest`), which Xcode 26 can't compile. It copies
+  `Debug.template.xcconfig` → `Debug.xcconfig`, resolves SPM, resets the simulators, then `build-for-testing` and
   `test-without-building` with the **`Unit Tests`** test plan, `-only-testing:BookPlayerTests`, simulator
-  `iPhone 17`. It first copies `Debug.template.xcconfig` → `Debug.xcconfig`. Triggers on push to `main`/`develop`
-  and PRs to `develop`.
+  `iPhone 17`. Triggers on push to `main`/`develop` and PRs to `develop`. Release builds come from Xcode Cloud
+  (`ci_scripts/`), whose Xcode version is set in App Store Connect and must be 27 too.
 - **Lint/format is enforced by tools — do NOT flag style they own.** `.swiftlint.yml` **disables**: `line_length`,
   `identifier_name`, `type_name`, `type_body_length`, `file_length`, `nesting`, `force_try`, `trailing_comma`,
   `trailing_newline`, `trailing_whitespace`, `switch_case_alignment`, `private_over_fileprivate`, `opening_brace`,
@@ -109,7 +116,7 @@ a build phase) and its output is committed.
    `MainCoordinator`, retains it, and calls `start()`.
 5. `MainCoordinator.start()` hosts SwiftUI `MainView` inside `AppHostingViewController` (a `UIHostingController`
    subclass that only overrides orientation) and **modally presents it full-screen** over the loading nav
-   controller. `MainView` is a `TabView` (Library / Profile / Settings [+ iOS 26 Search]) with a mini-player
+   controller. `MainView` is a `TabView` (Library / Profile / Settings [+ Search on iPhone]) with a mini-player
    overlay and a `.fullScreenCover` for the player.
 
 **Invariant:** the strong chain `SceneDelegate → LoadingCoordinator.mainCoordinator → MainCoordinator` is the
@@ -121,7 +128,10 @@ first. Reordering boot risks a launch crash.
 
 - `@MainActor final class AppServices` with `static let shared` + `private init()`. Owns the async
   `setupCoreServicesTask`, the `DatabaseInitializer`, and a shared `PlayerState`.
-- `CoreServices` (`BookPlayer/Utils/CoreServices.swift`) is a struct of exactly **10 services**: `accountService`,
+- `CoreServices` (`BookPlayer/Utils/CoreServices.swift`) is a struct of exactly **12 services**: `accountService`,
+  `syncQueueService`, `externalProgressService` (pulls media-server playback positions for lite/pro accounts;
+  self-subscribes to `.bookPlayed` for the on-play prompt, and `ListSyncRefreshService.syncList` drives the
+  per-level list pull through the one-method `ExternalProgressRefreshing` seam),
   `dataManager`, `hardcoverService`, `libraryService`, `playbackService`, `playerLoaderService`, `playerManager`,
   `preferencesService` (`PreferencesSyncService`), `syncService`, `watchService` (`PhoneWatchConnectivityService`).
 - **Two-step `init()` + `setup(...)` DI pattern:** services are created empty then configured, e.g.
@@ -134,11 +144,32 @@ first. Reordering boot risks a launch crash.
 - **Services → coordinators:** `CoreServices` is passed whole into `MainCoordinator.init(...)`, which also builds
   coordinator-scoped services (`ImportManager`, `ListSyncRefreshService`, `SingleFileDownloadService`,
   `JellyfinConnectionService`, `AudiobookShelfConnectionService`).
+  `ListSyncRefreshService.syncList(at:)` is the ONE list-refresh entry point (list appear, pull-to-refresh, sync
+  activation, CarPlay): cloud contents for the level → the level's media-server progress pull → preferences pull.
+  A folder's cloud step is skipped until the first sync has run (`SyncService.hasRunFirstSync`, backed by
+  `hasScheduledLibraryContents`): its listing would delete local items the server hasn't seen yet. The root refresh then asks, without waiting, for
+  `SyncService.scheduleMissingItemsIfNeeded()` (the weekly / became-PRO missing-items pass).
+  The pull runs strictly AFTER the cloud step and never alongside it (cloud writes on the background context, the
+  progress ingest on the view context; no merge policy), whatever the cloud outcome. It is resource-first:
+  `LibraryService.findMediaServerResources(at:)` fetches only the level's media-server `ExternalResource` rows
+  (direct children, providers filtered in SQL from `ProviderName.mediaServerRawValues`) on the background context,
+  so the main thread does nothing but the ingest. `ExternalResource.ProviderName.mediaServer` — which maps a
+  provider onto the `ExternalResource.MediaServerProvider` sub-enum (`jellyfin`, `audiobookshelf`) — is the single
+  exhaustive "is this a media server" switch; `isMediaServer`, `SimpleExternalResource.mediaServer`, the SQL filter,
+  and every server-only switch (stream source, host display, progress push, the library-row glyph) derive from it.
 - **Services → SwiftUI:** `ObservableObject`s (`playerManager`, `importManager`, `singleFileDownloadService`,
-  `listSyncRefreshService`) via `.environmentObject`; the rest via `.environment(\.key, …)`. The environment keys
+  `listSyncRefreshService`) via `.environmentObject`, plus `externalImportEvents`, which `MainView` owns as a
+  `@StateObject` and injects itself — the coordinator builds services, not SwiftUI-internal wires; the rest via `.environment(\.key, …)`.
+  `ExternalImportEvents` is a stateless wire (integrations send confirmed virtual-import batches; `LibraryRootView`
+  consumes and inserts) that conforms to `ObservableObject` solely for the loud-injection contract — `ImportManager`
+  itself carries no external-import state or publishers. The environment keys
   live in `BookPlayer/Utils/Extensions/Environment+BookPlayer.swift` (`@Entry`). **Each `@Entry` default is a
   throwaway placeholder (an un-`setup()` service).** A view that reads the environment default instead of the
-  injected instance silently gets a non-functional service — verify real injection by `MainCoordinator`.
+  injected instance gets a non-functional service: stored-property reads return inert defaults, but METHODS that
+  touch un-`setup()` dependencies trap on their implicitly-unwrapped optionals
+  (`SyncQueueService.observeQueueCounts` and siblings all behave this way — it is the pattern, not a
+  defect). Verify real injection by `MainCoordinator`; previews that exercise such views must construct and
+  inject set-up services (see `ProfileSyncTasksSectionView`'s preview), never rely on the defaults.
 - **App Intents DI:** only `playerLoaderService` and `libraryService` are registered via
   `AppDependencyManager.shared.add(...)` in `setupCoreServices()`. The **extension** targets consume them with
   `@Dependency` (under `#if !MAIN_APP`); the **main app** instead resolves via
@@ -173,7 +204,7 @@ Custom `Notification.Name`s (namespaced with the bundle id at runtime) are the a
 CarPlay event bus. Declared in `Shared/Extensions/Notification+BookPlayerKit.swift` (framework-wide):
 `.chapterChange`, `.bookReady`, `.bookPlayed`, `.bookPaused`, `.bookEnd`, `.bookPlaying`, `.accountUpdate`,
 `.logout`, `.messageReceived`, `.folderProgressUpdated`, `.uploadProgressUpdated`, `.uploadCompleted`,
-`.listeningProgressChanged`; and app-internal ones in `BookPlayer/Utils/Extensions/Notification+BookPlayer.swift`.
+`.listeningProgressChanged`, `.syncTaskPaused`, `.backgroundSessionFinishedEvents`, `.bookUploadsQueued`; and app-internal ones in `BookPlayer/Utils/Extensions/Notification+BookPlayer.swift`.
 
 - **`PlayerManager` is the dominant publisher** of playback events; `PhoneWatchConnectivityService` and
   `CarPlayManager` are the dominant cross-target subscribers; `AccountService` is the auth/account hub.
@@ -207,8 +238,9 @@ CarPlay event bus. Declared in `Shared/Extensions/Notification+BookPlayerKit.swi
   concrete subclasses `Book`/`Folder` must be used), plus `Library`, `Bookmark`, `Chapter`, `Account`, `Theme`,
   `PlaybackRecord`, `HardcoverBook`. `ItemType: Int16 { folder, bound, book }`.
 - **Migration is manual and staged** (`Shared/CoreData/Migrations/DataMigrationManager.swift` + `DBVersion.swift`,
-  currently `v1…v11`, current model `Audiobook Player 11`). It migrates **one version at a time** using explicit
-  `.xcmappingmodel`s where present (`v1→v2 … v3→v4`, `v7→v8 … v10→v11`; the v4–v7 hops rely on inference). A model
+  currently `v1…v12`, current model `Audiobook Player 12` — v12 adds the `ExternalResource` entity + the
+  `LibraryItem.externalResources` relationship for media-server items). It migrates **one version at a time** using explicit
+  `.xcmappingmodel`s where present (`v1→v2 … v3→v4`, `v7→v8 … v11→v12`; the v4–v7 hops rely on inference). A model
   change requires: **(1)** new `.xcdatamodel` version + bump `.xccurrentversion`; **(2)** new `DBVersion` case +
   `model()`; **(3)** a mapping model registered in `mappingModelName()` (inference is OFF, so anything
   non-trivial fails without one); **(4)** any custom data population added to the post-migration step; **(5)**
@@ -219,16 +251,65 @@ CarPlay event bus. Declared in `Shared/Extensions/Notification+BookPlayerKit.swi
 
 - `TasksDataManager.swift` owns the `ModelContainer`. **Store is `applicationSupportDirectory/bp-synctasks.sqlite`
   — the app-support dir, NOT the App Group**, separate from the CoreData store. CloudKit disabled.
-  `container = try! ModelContainer(...)` — **`try!` crashes on any container/migration failure.**
-- Versioned schema: `SchemaV1` (10 models) → `SchemaV2` (11 models, adds `MatchUuidsTaskModel` + a `uuid` field).
-  App code always uses the V2 typealiases. `@Model` types: `SyncTasksContainer`, `SyncTaskReferenceModel`
-  (`@Attribute(.unique) id`), and per-job payload models.
+  Before the container is built, `storeIsUnknownToMigrationPlan(at:)` checks the store's own metadata against
+  every `MigrationPlan.schemas` model; a store none of them can open (dev builds between schema edits, an older
+  build over a newer store) is MOVED aside (`.incompatible` suffix, never deleted) and a fresh one is created.
+  Don't match Cocoa codes (134504/134100) on the thrown error instead — SwiftData wraps them opaquely, so that
+  guard never fired. Any load failure that remains — a custom-migration-stage bug, a corrupt file, a fresh store
+  that won't open — still crashes (`fatalError`).
+- Versioned schema: `SchemaV1` (10 models) → `SchemaV2` (11 models, adds `MatchUuidsTaskModel` + a `uuid` field)
+  → `SchemaV3` (unified concurrent-task container: `QueuedTaskReferenceModel` with per-queue keys, plus
+  `ExternalUpdateTaskModel`/`UploadFileTaskModel` payloads). App code always uses the V3 typealiases.
 - `MigrationPlan.swift` (`SchemaMigrationPlan`) has a **custom `v1ToV2` stage that reads UUIDs out of the CoreData
   `LibraryItem` table** — it requires `MigrationPlan.injectedCoreDataContext` to be set first, else
-  **`fatalError`**. This is the one coupling between the two stores; set it before the `ModelContainer` is built.
+  **`fatalError`** (the `v2ToV3` stage also uses the injected context, but degrades gracefully when absent).
+  This is the coupling between the two stores; set it before the `ModelContainer` is built.
 - **`ModelContext` is per-actor and not `Sendable`.** All task-queue reads/writes go through
-  `public actor SyncTasksStorage: ModelActor` (`Shared/Services/Sync/SyncTasksStorage.swift`) with a single
-  confined `ModelContext`. Do not share/pass a `ModelContext` across actors or threads.
+  `public actor SyncQueueRepository: ModelActor` (`Shared/Services/SyncQueue/`) with a single
+  confined `ModelContext` (it replaced the old `SyncTasksStorage` actor). Do not share/pass a `ModelContext`
+  across actors or threads. Execution lives in `SyncQueueService` (OperationQueue): the `sync` queue key runs
+  BookPlayer-server jobs serially; provider-named keys (externalUpdate pushes) and `uploadFile` run concurrently.
+  **The engine is the single owner of queue counts:** `observeQueueCounts()` publishes one per-lane `QueueCounts`
+  snapshot (the Profile row shows its `total`; the single Queued Tasks screen — one `DisclosureGroup` per lane,
+  sync first — reads `count(in:)` for its headers and lists every lane through `getOrderedQueuedJobs`).
+  `SyncService.canSyncListContents` gates list refresh on the `sync` lane only (repository `getTasksCount(in:)`),
+  and `AppDelegate.handleAppRefresh` waits on `laneDrained(TaskQueueKey.sync)` — S3 uploads and provider pushes
+  never block a refresh or hold a background window open (pushes retry forever against an unreachable server).
+  **Server-lane gate:** the BookPlayer-server lanes (`sync`, `uploadFile`) run only while
+  `SyncQueueService.serverLanesEnabled` is on. It starts off (workers wake in `setup`, before `SyncService` is
+  set up) and mirrors `SyncService.isActive` — `SyncService` is the ONLY writer: `setup` in the same synchronous
+  call as `isActive`, `updateSyncEnabled` and `logout` inside the main-actor block that writes `isActive` (so a
+  fast re-login can't be overwritten by a late logout write). Workers check it before every pop, so a lapse stops
+  a running lane after its current task. Gated tasks are **held, never cleared**: RevenueCat's cached info is nil
+  before the first fetch, so a paying subscriber can read inactive at launch. Provider lanes ignore the gate, and
+  `handleAppRefresh` completes immediately while it's off (a gated lane never drains).
+  **Parking:** a failed task parks ONLY on a coded failure — `SyncFailurePolicy.codedFailure` returns a
+  `CodedFailure` for the server's coded 4xx (`BookPlayerError.networkErrorWithCode`, its `error` key) and for the
+  app's own `UploadFileError.fileTooLarge` (`file_too_large`, no HTTP status); anything uncoded (network, 5xx,
+  the engine's retry-later) keeps the 5 s retry. Errors from both `LibraryItemSyncOperation` and
+  `FileUploadOperation` reach it. `SyncFailurePolicy` owns the rules: leaf tasks (`update`,
+  `uploadArtwork`, `uploadFile`) park alone (`TaskPauseScope.task`, the lane keeps running); every other
+  sync-lane task is structural and stops its lane (`.lane`); `not_subscribed`/`tier_required` park `.account`
+  (holds every server lane) and trigger a fresh RevenueCat read — inactive runs the normal lapse path, active or
+  failed keeps the tasks held and reports; `externalUpdate` keeps its own handling. The watch sets
+  `parkingEnabled = false` (no UI there), so task-level coded failures drop. The pause lives on
+  `QueuedTaskReferenceModel` (`pauseScope`, code, message, status, `pausedAt`, `sentryEventId`);
+  `SyncQueueRepository.getNextTask` skips `.task` rows and stops at a `.lane`/`.account` head, and
+  `TasksDataManager.queueCounts` mirrors those rules (paused counts, blocked lanes; `laneDrained` counts a lane
+  with nothing runnable as drained). Parked tasks and the running task (tracked by id in the repository — a Retry
+  can put a resumed task ahead of it) are never coalescing targets. Retry = one automatic resume at
+  launch (`setup`) plus `retryPausedTask(id:)`; there is deliberately no Skip. A first park posts
+  `.syncTaskPaused`, skipped when the row already carries a `sentryEventId` (recorded via `recordPauseReport`;
+  it survives resumes) and for a too-large book (decided: an expected limit, nothing to act on). The app-target `SyncPauseReporter` (owned by `AppServices`) turns it into ONE Sentry
+  warning per task, fingerprint `["sync-paused", jobType, errorCode]`, with a minimal payload (job type, code,
+  status, lane, scope, item uuid) — **never the server message or a path: both embed file names**. The Queued
+  Tasks row of a parked task shows the server's message with Retry and Report; Report mails (or, without Mail,
+  shares) `SyncPauseReport`: the paused task, every queued task with its state, and the local library tree with
+  uuids. A too-large book (`file_too_large`) instead shows the app's own message and a **Dismiss** action — the
+  only dismissible pause (`dismissPausedTask(id:)` refuses anything else; server-refused tasks never get a Skip).
+  A blocked lane's header turns red, Profile's "Queued sync tasks" title turns red with a warning icon while
+  anything is parked (its caption keeps showing last sync / progress), and a blocked pull-to-refresh says sync
+  is paused.
 - **Realm is gone** (Realm → SwiftData migration is complete). Only inert remnants remain
   (`DataManager.getSyncTasksRealmURL()` is dead; a stale comment in `LibraryService`). Don't reintroduce it.
 
@@ -282,19 +363,114 @@ lines). It is the highest-risk file in the app.
   to `BookPlayerError` (`4xx` decode `ErrorResponse` → `.networkError`/`.networkErrorWithCode`, `5xx` →
   `.networkError`). Decoder is `.iso8601`.
 - **The bearer token must never be attached to S3/presigned or third-party (Jellyfin/ABS/Hardcover) URLs.**
-  Uploads to S3 presigned PUTs use `useKeychain: false` (the URL carries its own auth); media-server calls use
+  S3 presigned PUTs through `NetworkClient` (folders and bound books in `handleUploadJob`, artwork) use
+  `useKeychain: false` (the URL carries its own auth); book files never go through `NetworkClient` — their parts
+  are header-less background upload tasks (below). Media-server calls use
   their own connection tokens. Any new `request(url:...)` must set `useKeychain` deliberately — the default
   `true` attaches the JWT to whatever host is passed.
 - **Background `URLSession`s** (`Shared/Network/BPURLSession.swift`): two sessions (`.background` and
   `.background.cellular`) chosen by the `allowCellularData` default; downloads via `BPDownloadURLSession`.
+  They carry multipart upload PARTS, one upload task each, described `<uuid>#<partNumber>@<uploadId>`
+  (`BackgroundPartUploadTransport`); `progressPublisher` emits `(task, bytesSent)`.
+  **Background wakes:** `AppDelegate.application(_:handleEventsForBackgroundURLSession:)` hands iOS's completion
+  handler to `BackgroundSessionWakeCoordinator` (names in `BackgroundTransferSessions`). For the upload sessions it
+  recreates them and answers only after `SyncQueueService.settleUploads()` — the running upload has handled the
+  delivered parts and queued the next ones (`FileUploadOperation.settle()`) — under `beginBackgroundTask`, with a
+  25 s cap; calling the handler earlier suspends the app mid-request. The downloads session waits the same way
+  for `SyncService.settleDownloads()` (each finished download's follow-up: chapters, verification, scheduling —
+  Core Data in the App Group container); any other session (single-file media-server downloads) is answered right
+  away. Both delegates post `.backgroundSessionFinishedEvents` from SERIAL delegate queues (so it follows the last
+  completion); either order of handler and events works. The coordinator is created in `didFinishLaunching`, before
+  anything can wake a session. These session names are NOT `BGTaskSchedulerPermittedIdentifiers`.
+  **Continued task:** `UploadContinuationController` (app target, owned by `AppServices`, registered at launch as
+  `<bundle>.uploads.continued`) runs ONE `BGContinuedProcessingTask` for the whole upload queue, so uploads keep
+  full speed in the background (Live Activity "Uploading files", "(x / n) <file name>", progress in bytes). It is
+  submitted whenever books are queued for upload — `.bookUploadsQueued` (posted by `SyncService.handleItemsToUpload`
+  for an import, and by the missing-items pass for the first sync and on becoming PRO, never its weekly run;
+  decided: always, no size threshold), on a parked
+  task's Retry, and from the "Continue in background" buttons (the Queued Tasks File Uploads header, a
+  borderless button under Profile's Queued Tasks link; shown only when `isOfferAvailable`) — only from
+  the foreground, with S3 access, when the Wi-Fi-only setting allows the current network, and when some waiting
+  book sits in a lane that can run (not all behind a blocked lane). Its books come from
+  `SyncQueueService.pendingBookUploads()` (one repository read of both lanes: the sync lane's book `.upload`s —
+  not media-server ones, which carry no file — and pipe jobs, then the upload lane; parked ones counted apart);
+  refreshes are coalesced (one in flight). It ends when the queue stays empty for a moment (a book between
+  lanes can look absent; the upload task is stored BEFORE the sync `.upload` is popped), unsuccessfully if only
+  parked uploads remain or nothing can move (no S3 access, every waiting book behind a blocked lane). On expiry
+  or a Live Activity cancel it answers `setTaskCompleted(false)` in the handler and the parts carry on in the
+  background sessions. A task iOS launches before the services exist is held, not failed; a request iOS dropped
+  (`pendingTaskRequests`) no longer blocks the next submit. While a task runs, Profile's caption reads "Uploading in background · N%"
+  (`runningPercent`); Profile stays two lines (no Wi-Fi caption there — the banner is Queued Tasks only).
+- **Book uploads are S3 multipart** (`FileUploadOperation`, the `uploadFile` lane; contract in
+  bookplayer-api `docs/multipart-uploads.md`). A non-nil `url` from `PUT /v1/library` only means "the server
+  needs the bytes" — the client never PUTs to it. **The server sets `synced` at `/upload/complete`; the client
+  never confirms a book upload it made** (folders and bound books are confirmed after their presigned PUT). A nil `url` is confirmed with `synced:true` for folders and bound books on
+  every tier, but for a book only when the tier has S3 access (`LibraryItemSyncOperation.canUploadFiles`, from
+  `accessPolicy[.uploadFile]` when `createOperation` builds it): there it means the file is already in S3, while on
+  LITE it only means the tier stores no file, so LITE books stay `synced=false` and the missing-items pass (below)
+  queues their files on becoming PRO. S3 is the source of truth: every run rebuilds from `GET /upload/parts` plus
+  the session's tasks for the current `uploadId`, so a relaunch or a lost event resumes without re-sending. The
+  resumable state (`uploadId`, `partSize`, `fileSize`, `restartCount`) lives on `UploadFileTaskModel`; parts are
+  sliced to `tmp/uploads/<uuid>/`; 64 MiB parts, 8 in flight (fewer on low disk), fresh part URLs every top-up
+  (403 = expired), up to 3 restarts (`upload_not_found`/`invalid_parts`/NoSuchUpload, or `complete` answering
+  `parts_missing` 5 rounds running while S3 lists every part) before the task parks with the server's code — the
+  dead upload is forgotten and the budget reset first, so a Retry starts fresh; books over 10 GiB park as
+  `file_too_large`. The source is the temp hard link, else the book's
+  current Processed file found by uuid (`LibrarySyncProtocol.fetchRelativePath(forUuid:)`) — never deleted. A
+  cellular-setting change cancels the parts in flight so they resend through the session that now applies.
+  `item_not_found` from the upload routes is not parked the first time: the book is re-registered through the sync
+  lane from its CURRENT state (`LibrarySyncProtocol.fetchSyncableItem(forUuid:)`) — item, external resources,
+  bookmarks, like `SyncService.handleItemsToUpload` — before the task is popped, or dropped when it's gone locally
+  too. Always re-register (decided): a book deleted on another device mid-upload can come back. A SECOND
+  `item_not_found` for the same uuid in a session parks it (re-registering didn't help: e.g. another uuid holds
+  its key on the server). A Retry of that parked upload clears the mark (decided: the user asked for the upload),
+  so the book is registered once more instead of parking again. Only a MEDIA-SERVER link (`SyncableItem.mediaServerProviderName`, never Hardcover) marks an
+  `.upload` as provider-backed (its answer then schedules no file); such a book's file goes up once downloaded
+  through the sync-lane `externalResourceToDownload` job, which just schedules the upload (the old `external_set`
+  route is gone; `complete` marks the resources downloaded).
+- **Missing-items pass** (`SyncService.runMissingItemsPass`; contract in bookplayer-api `docs/multipart-uploads.md`):
+  sends every local uuid in ONE `POST /v1/library/status` and gets `{ unknown, unsynced }` back. Unknown items
+  (no server row, active or deleted) are first matched by path INLINE (`POST /uuids`, conflicts adopted in the
+  library and the queue via `applyUuidConflicts`, items re-read) — `PUT /` at a path the server holds under no uuid
+  or another one would never store ours, and a queued match job could rewrite uuids while the registrations were
+  still being stored — then registered like an import (`handleItemsToUpload`, parents first). Unsynced books (PRO only: `accessPolicy[.uploadFile]`) go straight to the upload lane BY UUID
+  (`scheduleMissingFileUploads`, the Processed file as source), never re-PUT: a stale path would move them back.
+  It skips media-server books (no backfill), books without a local file or over 10 GiB, and any book with an upload
+  already queued, parked included (`storeFileUploadsIfAbsent`: checked and stored in one actor turn, one save). It IS
+  the first sync's registration step (`syncLibraryContents`: the pass, then a root pull that never deletes); `/keys`
+  is deprecated and no longer called. The first sync never clears queued work: it waits until the sync lane is
+  empty (the flag stays off, the next root refresh retries), and every run of the pass is single-flight. A run
+  remembers the sync session it began in: sync going off (`logout`, a lapse) bumps it and clears the flag in one
+  locked step, so a logout+sign-in during a pass can't let the old run mark the first sync done after its teardown
+  wiped what it queued. Registration reads bookmarks in batches on a background context (`getUserBookmarks`). A lapse (`updateSyncEnabled(false)`, or `setup` finding a signed-in account —
+  `getAccountId() != nil` — that isn't syncing: the entitlement expired while the app was closed, or a stale cached
+  read, which is harmless) clears `hasScheduledLibraryContents`, so coming back runs a first sync: books imported meanwhile aren't on the server, and a plain listing would delete
+  them. `scheduleMissingItemsIfNeeded()` runs it again on LITE → PRO (the `.accountUpdate` sink's `noteProAccess`
+  sets `missingItemsPassPending` on a change of `lastKnownProAccess` — its first reading, e.g. after an app update,
+  only seeds it — cleared only by a run that could queue files, i.e. once the queue had its PRO policy) and weekly
+  (`missingItemsPassLastRun`), only once the first sync ran, while sync is on and with an empty sync lane; a tier
+  change arriving during a weekly run runs right after it; only a pending (tier-change) run posts
+  `.bookUploadsQueued`. Its state lives in the `UserDefaults` given to `setup` (`.standard`; tests inject a suite). Phone only: `setup(runsMissingItemsPass:)` is true in
+  `AppServices` alone (the watch has downloaded files of its own); without it the first sync throws and the other
+  entry points return. Accepted: a pre-March-2026 item that another
+  device deleted under its own uuid, or none, reads as unknown and comes back. The Settings › Debug export is
+  local only (tree with uuids, no server call).
 - `SyncService.swift` is `@Observable`. **`isActive` is `public private(set)` and must be mutated only via
   `updateSyncEnabled(_:)` / `logout()`** (both hop to `@MainActor`). It is driven by `.logout` (→ teardown, clears
   scheduled-contents flag, resets jobs) and `.accountUpdate` (→ `updateSyncEnabled(hasSyncEnabled())`)
   notifications. A `teardownTask` is **awaited** at the top of the sync-contents entry points so a fast
   logout→login can't let a late `resetAllJobs()` wipe freshly-scheduled jobs — preserve this ordering. Every
   `schedule*` method short-circuits on `guard isActive`.
-- **Sync = the `pro` entitlement only** (see below). Job types (`SyncJobType`): `upload, update, move,
-  renameFolder, delete, shallowDelete, setBookmark, deleteBookmark, uploadArtwork, matchUuid`.
+- **Sync = the `pro` OR `lite` entitlement** (`hasSyncEnabled()`); `lite` gets DB-backed sync only —
+  S3 file uploads are gated per-job via `SyncQueueService.accessPolicy` (`.uploadFile` is pro-only,
+  `.externalUpdate` — progress pushes to the USER'S OWN media server — is available on every tier,
+  matching the Android app). **The media-server progress PULL is the opposite:** `ExternalProgressService`
+  gates both the on-play resume prompt and the list refresh on `accountService.hasSyncEnabled()` (lite/pro),
+  read live on every pull, and cancels an in-flight pull on an `.accountUpdate` that drops the entitlement —
+  free/plus users push to their own server but never see other devices' positions. Android must mirror this.
+  Job types (`SyncJobType`): `upload, update, move, renameFolder, delete, shallowDelete, setBookmark,
+  deleteBookmark, uploadArtwork, matchUuid, externalResource, externalResourceToDownload, deleteExternalResource`
+  (sync lane), `uploadFile` (upload lane), `externalUpdate` (provider lanes).
 - **Download verification:** `verifyDownloadedFile` rejects truncated files by comparing `AVURLAsset` duration to
   the stored duration (tolerance `max(2, expected*0.02)`); completion is broadcast only after verification.
   Don't skip it — it prevents promoting a truncated book.
@@ -333,8 +509,9 @@ lines). It is the highest-risk file in the app.
 
 ### Subscriptions & entitlements — `Shared/Services/Account/AccountService.swift`
 
-- RevenueCat entitlements `AccessLevel { free, plus, pro }`. `hasSyncEnabled()` = `pro` entitlement active;
-  `hasPlusAccess()` = `plus` OR `pro` (with a local `donationMade` fallback when cached info is nil).
+- RevenueCat entitlements `AccessLevel { free, plus, lite, pro }`. `hasSyncEnabled()` = `pro` OR `lite` active
+  (pro wins when both are held);
+  `hasPlusAccess()` = `plus` OR `pro` OR `lite` (all paid tiers unlock plus perks; local `donationMade` fallback when cached info is nil).
 - **These are client-side cached RevenueCat reads — UX gating only.** Never let `hasSyncEnabled()`/`isActive`
   become the sole gate for a server-billed resource; the server validates the entitlement. Purchases are guarded
   by `AppEnvironment.isPurchaseEnabled` (disabled on TestFlight).
@@ -452,8 +629,9 @@ The crash surfaces and invariants most likely to be broken by a change. (The ful
    so conflicts crash.
 2. **CoreData model change without the full 5-step manual-migration ritual** (auto-inference is OFF) → crashes
    existing installs.
-3. **SwiftData:** don't share a `ModelContext` across actors; the sync-queue lives behind the `SyncTasksStorage`
-   actor; `MigrationPlan.injectedCoreDataContext` must be set before the container is built.
+3. **SwiftData:** don't share a `ModelContext` across actors; the sync-queue lives behind the
+   `SyncQueueRepository` actor; `MigrationPlan.injectedCoreDataContext` must be set before the container
+   is built.
 4. **Retain cycles / Combine leaks:** missing `[weak self]` in a sink; an `AnyCancellable` not stored; a named
    subscription not `.cancel()`'d before rebind (`PlayerManager` depends on this).
 5. **UI/state mutated off the main actor** without a `@MainActor` hop / `.receive(on: .main)`.

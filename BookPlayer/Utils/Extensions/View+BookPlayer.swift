@@ -104,7 +104,7 @@ struct ItemListSearchableModifier: ViewModifier {
   @Binding var selectedScope: ItemListSearchScope
 
   func body(content: Content) -> some View {
-    if #available(iOS 26.0, *), UIDevice.current.userInterfaceIdiom == .phone {
+    if UIDevice.current.userInterfaceIdiom == .phone {
       /// New tab bar role handles searches
       content
     } else {
@@ -159,16 +159,11 @@ struct MiniPlayerSafeAreaInsetModifier: ViewModifier {
         .safeAreaInset(edge: .bottom) {
           Spacer().frame(height: spacerHeight)
         }
-    } else if #available(iOS 26.0, *) {
+    } else {
       /// New accessory view already insets the entire view
       content
         .safeAreaInset(edge: .bottom) {
           Spacer().frame(height: keyboardObserver.isKeyboardVisible ? 0 : Spacing.M)
-        }
-    } else {
-      content
-        .safeAreaInset(edge: .bottom) {
-          Spacer().frame(height: spacerHeight)
         }
     }
   }
@@ -252,12 +247,10 @@ struct MiniPlayerModifier<Regular: View, Accessory: View>: ViewModifier {
   private func iOSBody(_ content: Content) -> some View {
     if #available(iOS 26.1, *) {
       defaultBody(content)
-    } else if #available(iOS 26.0, *) {
+    } else {
       content
         .tabBarMinimizeBehavior(.onScrollDown)
         .tabViewBottomAccessory(content: accessory)
-    } else {
-      defaultBody(content)
     }
   }
 
@@ -333,12 +326,13 @@ extension View {
 }
 
 extension View {
-  @ViewBuilder
+  /// Glass in an explicit rounded rect rather than the default capsule, for panels that span
+  /// a width instead of floating as a pill.
+  func glassCard(cornerRadius: CGFloat = 16) -> some View {
+    glassEffect(in: .rect(cornerRadius: cornerRadius))
+  }
+
   func liquidGlassBackground() -> some View {
-    if #available(iOS 26.0, *) {
-      glassEffect()
-    } else {
-      background(.ultraThinMaterial)
-    }
+    glassEffect()
   }
 }

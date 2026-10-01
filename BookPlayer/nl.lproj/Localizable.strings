@@ -400,7 +400,6 @@
 "settings_seekprogressbar_description" = "Enable seeking on the lock screen";
 "donate_title" = "Doneren";
 "bookmark_automatic_sleep_title" = "Last position when the sleep timer was turned on";
-"download_folder_confirmation_title" = "Map downloaden";
 "download_folder_confirmation_message" = "Alle %d bestanden uit deze map downloaden?";
 "hardcover_searching_books" = "Zoeken naar boeken...";
 "hardcover_unlink_button" = "Ontkoppelen";
@@ -504,3 +503,16 @@
 "jellyfin_quick_connect_error_no_code" = "Your Jellyfin server didn't return a Quick Connect code. Make sure Quick Connect is enabled in the server's dashboard.";
 "jellyfin_quick_connect_error_generic" = "Quick Connect couldn't complete. Check that Quick Connect is enabled on your server and try again.";
 "jellyfin_quick_connect_error_timeout" = "Timed out waiting for the code to be entered. Please try again.";
+"sync_tasks_concurrent_count_title" = "Gelijktijdige taken (%d)";
+"sync_tasks_running_empty_title" = "Geen lopende taken";
+"sync_tasks_empty_title" = "Geen taken in de wachtrij";
+"sync_tasks_empty_description" = "Al je synchronisatietaken zijn up-to-date.";
+"sync_task_update_progress_label" = "Voortgang bijwerken voor %@";
+"sync_task_upload_file_label" = "Bestand uploaden";
+"audiobook_details_narrator_label" = "Verteld door %@";
+"stream_button" = "Streamen";
+"passkey_title" = "Toegangssleutel";
+"create_profile_title" = "Maak je profiel aan";
+"create_profile_description" = "Log in op je profiel om cloudsynchronisatie in te schakelen. Je kunt dit later altijd doen via het tabblad Profiel.";
+"not_now_button" = "Niet nu";
+"quick_action_label" = "Snelle actie %d";

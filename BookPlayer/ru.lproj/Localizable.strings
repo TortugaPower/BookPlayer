@@ -400,7 +400,6 @@
 "settings_seekprogressbar_description" = "Включить возможность перемотки на экране блокировки";
 "donate_title" = "Пожертвовать";
 "bookmark_automatic_sleep_title" = "Последняя позиция, когда был включен таймер сна";
-"download_folder_confirmation_title" = "Скачать папку";
 "download_folder_confirmation_message" = "Скачать все %d файлов из этой папки?";
 "hardcover_searching_books" = "Поиск книг...";
 "hardcover_unlink_button" = "Отвязать";
@@ -504,3 +503,16 @@
 "jellyfin_quick_connect_error_no_code" = "Your Jellyfin server didn't return a Quick Connect code. Make sure Quick Connect is enabled in the server's dashboard.";
 "jellyfin_quick_connect_error_generic" = "Quick Connect couldn't complete. Check that Quick Connect is enabled on your server and try again.";
 "jellyfin_quick_connect_error_timeout" = "Timed out waiting for the code to be entered. Please try again.";
+"sync_tasks_concurrent_count_title" = "Параллельные задачи (%d)";
+"sync_tasks_running_empty_title" = "Нет запущенных задач";
+"sync_tasks_empty_title" = "В очереди нет задач";
+"sync_tasks_empty_description" = "Все задачи синхронизации выполнены.";
+"sync_task_update_progress_label" = "Обновление прогресса для %@";
+"sync_task_upload_file_label" = "Загрузка файла";
+"audiobook_details_narrator_label" = "Текст читает %@";
+"stream_button" = "Транслировать";
+"passkey_title" = "Ключ доступа";
+"create_profile_title" = "Создайте свой профиль";
+"create_profile_description" = "Чтобы включить облачную синхронизацию, войдите в свой профиль. Вы всегда можете сделать это позже во вкладке «Профиль».";
+"not_now_button" = "Не сейчас";
+"quick_action_label" = "Быстрое действие %d";

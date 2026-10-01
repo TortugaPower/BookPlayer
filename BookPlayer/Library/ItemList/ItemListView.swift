@@ -30,10 +30,9 @@ struct ItemListView: View {
   @Environment(\.libraryService) var libraryService
   @Environment(\.accountService) private var accountService
   @Environment(\.syncService) var syncService
+  @Environment(\.syncQueueService) private var syncQueueService
   @Environment(\.hardcoverService) var hardcoverService
   @Environment(\.playerLoaderService) private var playerLoaderService
-  @Environment(\.jellyfinService) var jellyfinService
-  @Environment(\.audiobookshelfService) var audiobookshelfService
   @Environment(\.preferencesService) var preferencesService
   @Environment(\.listState) var listState
   @Environment(\.playerState) private var playerState
@@ -42,6 +41,9 @@ struct ItemListView: View {
   @Environment(\.scenePhase) private var scenePhase
   @EnvironmentObject private var importManager: ImportManager
   @EnvironmentObject private var theme: ThemeViewModel
+
+  /// A parked task in the sync lane: the blocked-refresh alert says sync is paused
+  @State private var syncLanePaused = false
 
   init(initModel: @escaping () -> ItemListViewModel) {
     self._model = .init(wrappedValue: initModel())
@@ -193,13 +195,16 @@ struct ItemListView: View {
             do {
               try await model.refreshListState()
             } catch {
-              self.activeAlert = .queuedTasks
+              self.activeAlert = .queuedTasks(paused: syncLanePaused)
             }
           }
           .environment(\.playingItemParentPath, playingItemParentPath)
           .environment(\.libraryNode, model.libraryNode)
         }
       }
+    }
+    .onReceive(syncQueueService.observeQueueCounts()) { counts in
+      syncLanePaused = counts.pausedCount(in: TaskQueueKey.sync) > 0
     }
     .onReceive(
       model.singleFileDownloadService.eventsPublisher
@@ -383,7 +388,7 @@ struct ItemListView: View {
 
   @ViewBuilder
   func addFilesOptions() -> some View {
-    Button("import_button", systemImage: "waveform") {
+    Button("import_button", systemImage: "square.and.arrow.down") {
       showDocumentPicker = true
     }
     Button("download_from_url_title", systemImage: "link") {
@@ -435,35 +440,24 @@ struct ItemListView: View {
   /// `ToolbarSpacer(.fixed, ...)` render as one shared capsule. Without the
   /// fixed spacer (or with `.flexible`), each item gets its own pill — which is
   /// what the cascading `.tint(theme.linkColor)` from `LibraryRootView` was
-  /// producing previously. On iOS 18 we fall back to the legacy
-  /// `ToolbarItemGroup` layout since `ToolbarSpacer` isn't available.
+  /// producing previously.
   @ToolbarContentBuilder
   private func regularToolbarItems() -> some ToolbarContent {
-    if #available(iOS 26.0, *) {
-      if importOperationState.isOperationActive {
-        ToolbarItem(placement: .topBarTrailing) {
-          importOperationButton
-        }
-        ToolbarSpacer(.fixed, placement: .topBarTrailing)
-      }
-
+    if importOperationState.isOperationActive {
       ToolbarItem(placement: .topBarTrailing) {
-        libraryOptionsButton
+        importOperationButton
       }
-
       ToolbarSpacer(.fixed, placement: .topBarTrailing)
+    }
 
-      ToolbarItem(placement: .topBarTrailing) {
-        ellipsisMenu
-      }
-    } else {
-      ToolbarItemGroup(placement: .confirmationAction) {
-        if importOperationState.isOperationActive {
-          importOperationButton
-        }
-        libraryOptionsButton
-        ellipsisMenu
-      }
+    ToolbarItem(placement: .topBarTrailing) {
+      libraryOptionsButton
+    }
+
+    ToolbarSpacer(.fixed, placement: .topBarTrailing)
+
+    ToolbarItem(placement: .topBarTrailing) {
+      ellipsisMenu
     }
   }
 

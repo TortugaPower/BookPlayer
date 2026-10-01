@@ -26,10 +26,9 @@
 	</array>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
-		<string>$(BP_BUNDLE_IDENTIFIER).background</string>
-		<string>$(BP_BUNDLE_IDENTIFIER).background.cellular</string>
 		<string>$(BP_BUNDLE_IDENTIFIER).background.refresh</string>
 		<string>$(BP_BUNDLE_IDENTIFIER).background.database.backup</string>
+		<string>$(BP_BUNDLE_IDENTIFIER).uploads.continued</string>
 	</array>
 	<key>BP_API_DOMAIN</key>
 	<string>$(BP_API_DOMAIN)</string>

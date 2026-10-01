@@ -400,7 +400,6 @@ Estem treballant dur per oferir una experiència perfecta; si és possible, pose
 "settings_seekprogressbar_description" = "Activa la cerca a la pantalla de bloqueig";
 "donate_title" = "Donar";
 "bookmark_automatic_sleep_title" = "Last position when the sleep timer was turned on";
-"download_folder_confirmation_title" = "Baixar carpeta";
 "download_folder_confirmation_message" = "Baixar tots els %d fitxers d'aquesta carpeta?";
 "hardcover_searching_books" = "Cercant llibres...";
 "hardcover_unlink_button" = "Desvinculat";
@@ -504,3 +503,16 @@ Estem treballant dur per oferir una experiència perfecta; si és possible, pose
 "jellyfin_quick_connect_error_no_code" = "Your Jellyfin server didn't return a Quick Connect code. Make sure Quick Connect is enabled in the server's dashboard.";
 "jellyfin_quick_connect_error_generic" = "Quick Connect couldn't complete. Check that Quick Connect is enabled on your server and try again.";
 "jellyfin_quick_connect_error_timeout" = "Timed out waiting for the code to be entered. Please try again.";
+"sync_tasks_concurrent_count_title" = "Tasques simultànies (%d)";
+"sync_tasks_running_empty_title" = "No hi ha tasques en curs";
+"sync_tasks_empty_title" = "No hi ha tasques a la cua";
+"sync_tasks_empty_description" = "Totes les tasques de sincronització estan al dia.";
+"sync_task_update_progress_label" = "S'està actualitzant el progrés de %@";
+"sync_task_upload_file_label" = "S'està pujant el fitxer";
+"audiobook_details_narrator_label" = "Narrat per %@";
+"stream_button" = "Reprodueix";
+"passkey_title" = "Clau d'accés";
+"create_profile_title" = "Crea el teu perfil";
+"create_profile_description" = "Per habilitar la sincronització al núvol, inicia sessió al teu perfil. Pots fer-ho més tard des de la pestanya Perfil.";
+"not_now_button" = "Ara no";
+"quick_action_label" = "Acció ràpida %d";

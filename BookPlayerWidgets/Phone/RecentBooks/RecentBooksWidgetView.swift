@@ -103,18 +103,7 @@ struct RecentBooksWidgetView: View {
       .widgetAccentable()
       HStack {
         ForEach(items, id: \.relativePath) { item in
-          if #available(iOSApplicationExtension 17.0, iOS 17.0, *) {
-            Button(intent: BookPlaybackToggleIntent(relativePath: item.relativePath)) {
-              BookView(
-                item: item,
-                titleColor: widgetColors.primaryColor,
-                theme: entry.theme,
-                isPlaying: item.relativePath == entry.currentlyPlaying
-              )
-              .frame(minWidth: 0, maxWidth: .infinity)
-            }
-            .buttonStyle(.plain)
-          } else {
+          Button(intent: BookPlaybackToggleIntent(relativePath: item.relativePath)) {
             BookView(
               item: item,
               titleColor: widgetColors.primaryColor,
@@ -123,6 +112,7 @@ struct RecentBooksWidgetView: View {
             )
             .frame(minWidth: 0, maxWidth: .infinity)
           }
+          .buttonStyle(.plain)
         }
       }
       .padding([.leading, .trailing])
@@ -148,7 +138,7 @@ struct RecentBooksWidget: Widget {
     .configurationDisplayName("Recent Books")
     .description("See the recent played books")
     .supportedFamilies([.systemMedium])
-    .contentMarginsDisabledIfAvailable()
+    .contentMarginsDisabled()
   }
 }
 

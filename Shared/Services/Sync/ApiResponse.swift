@@ -8,6 +8,7 @@
 
 public enum ApiResponse {
   case matchUuid(MatchUuidsResponse)
+  case uploadMetadata(UploadResponse)                                                           
 }
 
 public struct MatchUuidsResponse: Decodable {
@@ -32,4 +33,12 @@ public struct ItemConflict: Decodable {
         self.key = key
         self.uuid = uuid
     }
+}
+
+public struct UploadResponse: Decodable {
+  let uuid: String
+  let filePath: String
+  /// The library key of the item being uploaded: it names the upload's Queued Tasks row,
+  /// and can't be derived from the (absolute, possibly temp) filePath
+  var relativePath: String?
 }

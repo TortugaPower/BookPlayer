@@ -139,10 +139,20 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
     var request = URLRequest(url: remoteURL)
     request.cachePolicy = .reloadIgnoringLocalCacheData
     request.httpMethod = HTTPMethod.put.rawValue
-
+    
+    // .path only: presigned URLs carry AWS credentials in the query string.
     Self.logger.trace("[Request] PUT \(remoteURL.path)")
-
-    _ = try await URLSession.shared.upload(for: request, from: data)
+    
+    let (responseData, response) = try await URLSession.shared.upload(for: request, from: data)
+    
+    // Cast the response to HTTPURLResponse to check the status code
+    if let httpResponse = response as? HTTPURLResponse {
+      if !(200...299).contains(httpResponse.statusCode) {
+        let errorMessage = String(data: responseData, encoding: .utf8) ?? "No error body"
+        // Typed like the rest of the client, so upload failures surface consistently
+        throw BookPlayerError.networkError("Upload failed (HTTP \(httpResponse.statusCode)): \(errorMessage)")
+      }
+    }
   }
 
   public func uploadTask(
@@ -193,7 +203,11 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
     case 400...499:
       let error = try self.decoder.decode(ErrorResponse.self, from: data)
       if let code = error.error {
-        throw BookPlayerError.networkErrorWithCode(message: error.message, code: code)
+        throw BookPlayerError.networkErrorWithCode(
+          message: error.message,
+          code: code,
+          status: httpURLResponse.statusCode
+        )
       } else {
         throw BookPlayerError.networkError(error.message)
       }
@@ -265,13 +279,19 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
 
     if case .get = method,
        let parameters = parameters {
-      let queryItems = parameters.map({
-        URLQueryItem(
-          name: $0.0,
-          value: "\($0.1)"
-        )
-      })
-      components.queryItems = queryItems
+      // Optionals stored as `Any` interpolate as `Optional("…")`, which is what the
+      // API had been receiving for every GET `uuid` (it silently failed the server's
+      // UUID check and fell back to a path lookup). Unwrap them, and drop absent
+      // values instead of sending the literal string "nil".
+      components.queryItems = parameters.compactMap { key, value in
+        guard let unwrapped = Self.unwrapOptional(value) else { return nil }
+        return URLQueryItem(name: key, value: "\(unwrapped)")
+      }
+      // URLComponents leaves `+` as is, and the API (Express/qs) decodes a literal `+` in
+      // a query value as a space: "A+B.mp3" arrived as "A B.mp3", and an S3 upload id
+      // carrying `+` would be reported as not found
+      components.percentEncodedQuery = components.percentEncodedQuery?
+        .replacingOccurrences(of: "+", with: "%2B")
     }
 
     guard let url = components.url else {
@@ -280,10 +300,41 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
 
     return try buildURLRequest(url: url, method: method, parameters: parameters)
   }
+
+  /// `nil` for a nil optional, the wrapped value for a non-nil one, the value itself otherwise.
+  private static func unwrapOptional(_ value: Any) -> Any? {
+    if case Optional<Any>.none = value { return nil }
+    if case Optional<Any>.some(let inner) = value { return inner }
+    return value
+  }
 }
 
 /// Default error message structure
 struct ErrorResponse: Decodable {
   let message: String
   let error: String?
+}
+
+
+extension NetworkClientProtocol {
+  /// PUT a file streaming FROM DISK — for payloads (audiobooks) that must never be
+  /// materialized as one in-memory Data. Same error contract as `upload(_:remoteURL:)`.
+  /// A protocol extension (not a requirement) so the Sourcery mocks don't need regeneration.
+  public func upload(
+    fileURL: URL,
+    remoteURL: URL
+  ) async throws {
+    var request = URLRequest(url: remoteURL)
+    request.cachePolicy = .reloadIgnoringLocalCacheData
+    request.httpMethod = HTTPMethod.put.rawValue
+
+    let (responseData, response) = try await URLSession.shared.upload(for: request, fromFile: fileURL)
+
+    if let httpResponse = response as? HTTPURLResponse,
+       !(200...299).contains(httpResponse.statusCode) {
+      let errorMessage = String(data: responseData, encoding: .utf8) ?? "No error body"
+      // Typed like the rest of the client, so upload failures surface consistently
+      throw BookPlayerError.networkError("Upload failed (HTTP \(httpResponse.statusCode)): \(errorMessage)")
+    }
+  }
 }
