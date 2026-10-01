@@ -48,6 +48,10 @@ Nine native targets in `BookPlayer.xcodeproj` (no `Package.swift`, no app `.xcwo
 | `BookPlayerShareExtension` | app-extension | Share-sheet import | `BookPlayerShareExtension/` |
 | `BookPlayerTests` | "Audiobook PlayerTests" · unit-test | Unit + perf tests | `BookPlayerTests/` |
 
+**Deployment targets:** iOS **26.0** for every iOS target, watchOS **10.0** for the watch app, `BookPlayerWatchKit`
+and the watch widgets. An `#available(iOS 18…26)` check is dead code on iOS, but `Shared/` and the shared widget
+files also compile for watchOS 10, so an iOS-only API there still needs its `#if os(iOS)` / availability guard.
+
 **Dependency rule:** app → `BookPlayerKit` (`import BookPlayerKit`). `Shared/` must **not** import app-layer
 types — that breaks the framework boundary and is a 🔴 finding. Watch/shared code selects the framework with:
 
@@ -65,8 +69,8 @@ App Intents in the top-level `BookPlayer/BookPlayer/AppIntents/` folder — don'
 
 ### Dependencies (SPM, declared inside `project.pbxproj`)
 
-RevenueCat (`purchases-ios`, ~5.33), Sentry (`sentry-cocoa`, **exact 8.36.0**), Kingfisher (~7.9),
-JellyfinAPI (`jellyfin-sdk-swift`, ~0.4), MarqueeLabel (~4.0.5), DeviceKit (~5.1),
+RevenueCat (`purchases-ios`, ~5.78), Sentry (`sentry-cocoa`, **exact 8.36.0**), Kingfisher (~8.10),
+JellyfinAPI (`jellyfin-sdk-swift`, ~0.4), Get (~2.2), MarqueeLabel (~4.0.5), DeviceKit (~5.1),
 IDZSwiftCommonCrypto (~0.13.1), Themeable (~3.0), ZipArchive (~2.3), DirectoryWatcher (~2.8.6).
 `BlurHashDecode.swift` is vendored (SwiftLint-excluded). RevenueCat + Kingfisher link into the **frameworks**;
 most others link into the **app**. SwiftLint runs as a build-phase run-script; **Sourcery is run manually** (not
@@ -76,10 +80,13 @@ a build phase) and its output is committed.
 
 ## Build, CI & tooling (what the tools own — don't hand-police it)
 
-- **CI** (`.github/workflows/ci.yml`): runner `macos-26`, **Xcode 26.4**, `build-for-testing` then
+- **CI** (`.github/workflows/ci.yml`): runner `xcode-27` (GitHub's preview image), **Xcode 27.0**
+  (`/Applications/Xcode_27.0.app`, set with `xcode-select`). Xcode 27 is required: the upload code calls iOS 27
+  SDK APIs behind `#available` (`BGTaskScheduler.submitTaskRequest`), which Xcode 26 can't compile. It copies
+  `Debug.template.xcconfig` → `Debug.xcconfig`, resolves SPM, resets the simulators, then `build-for-testing` and
   `test-without-building` with the **`Unit Tests`** test plan, `-only-testing:BookPlayerTests`, simulator
-  `iPhone 17`. It first copies `Debug.template.xcconfig` → `Debug.xcconfig`. Triggers on push to `main`/`develop`
-  and PRs to `develop`.
+  `iPhone 17`. Triggers on push to `main`/`develop` and PRs to `develop`. Release builds come from Xcode Cloud
+  (`ci_scripts/`), whose Xcode version is set in App Store Connect and must be 27 too.
 - **Lint/format is enforced by tools — do NOT flag style they own.** `.swiftlint.yml` **disables**: `line_length`,
   `identifier_name`, `type_name`, `type_body_length`, `file_length`, `nesting`, `force_try`, `trailing_comma`,
   `trailing_newline`, `trailing_whitespace`, `switch_case_alignment`, `private_over_fileprivate`, `opening_brace`,
