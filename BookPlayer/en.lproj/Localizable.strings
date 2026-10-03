@@ -553,6 +553,13 @@
 "queued_tasks_title" = "Queued Tasks";
 "integration_error_missing_connection" = "This book streams from your media server. Connect it in Settings to download or play it.";
 "integration_error_missing_connection_address" = "This book streams from your %1$@ server at %2$@. Add that server on this device to play the book.";
+"download_error_no_server_file" = "Your media server no longer has this book's file.";
+"download_error_session_expired" = "Download failed: your media server session expired. Sign in again from Media Servers.";
+"download_error_server_unreachable" = "Download failed: your media server couldn't be reached. Try again when it's available.";
+"download_error_server_refused" = "Download failed: your media server didn't allow it.";
+"playback_error_session_expired" = "Playback failed: your media server session expired. Sign in again from Media Servers.";
+"playback_error_server_unavailable" = "Playback failed: your media server couldn't be reached, or no longer has this book.";
+"carplay_session_expired_message" = "Your media server session expired. Open BookPlayer on your phone to sign in again.";
 "carplay_playback_failed_message" = "Can't play this book. Open BookPlayer on your phone for details.";
 "carplay_missing_connection_message" = "This book streams from a media server that isn't set up on this device. Open BookPlayer on your phone to connect it.";
 "sync_paused_lane_title" = "Paused: a task needs your attention";

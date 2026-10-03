@@ -1360,7 +1360,7 @@ final class ExternalStreamResolverTests: XCTestCase {
 
     let source = sut.streamSource(for: makeResource(provider: "jellyfin", id: "item-1", hostId: "guid-jelly"))
 
-    XCTAssertEqual(source?.url.host, "jelly.example.com")
+    XCTAssertEqual(source?.url?.host, "jelly.example.com")
     XCTAssertEqual(
       source?.headers["Authorization"],
       "MediaBrowser Token=\"jelly-token\"",

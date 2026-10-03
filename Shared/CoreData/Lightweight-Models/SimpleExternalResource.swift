@@ -23,6 +23,9 @@ public struct SimpleExternalResource: Identifiable, Equatable, Hashable {
   /// consumed by `createExternalBook`. Import-only — `init(from: ExternalResource)` leaves it
   /// empty, because the entity has no chapter column; the rows live on the Book.
   public var chapters: [ChapterMetadata] = []
+  /// The item's audio files when it has several, for a virtual import: it's imported as a volume
+  /// of them. Import-only, like `chapters`.
+  public var files: [ExternalStreamFile] = []
   /// Whether this item's book still has no chapters, so a refresh knows to ask its server
   /// for them. Set only by `findMediaServerResources(at:)`; `false` everywhere else, which
   /// is the safe default — it costs a book its chapters, never a wrong write.
@@ -39,6 +42,7 @@ public struct SimpleExternalResource: Identifiable, Equatable, Hashable {
     libraryItemName: String? = nil,
     libraryItem: SimpleLibraryItem? = nil,
     chapters: [ChapterMetadata] = [],
+    files: [ExternalStreamFile] = [],
     needsChapters: Bool = false
   ) {
     self.id = id
@@ -51,6 +55,7 @@ public struct SimpleExternalResource: Identifiable, Equatable, Hashable {
     self.libraryItemName = libraryItemName
     self.libraryItem = libraryItem
     self.chapters = chapters
+    self.files = files
     self.needsChapters = needsChapters
   }
 }

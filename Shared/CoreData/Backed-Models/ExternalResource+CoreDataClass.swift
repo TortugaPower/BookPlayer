@@ -28,6 +28,14 @@ extension ExternalResource {
   public enum MediaServerProvider {
     case jellyfin
     case audiobookshelf
+
+    /// The product's name, as the app writes it everywhere. A brand: never localized.
+    public var displayName: String {
+      switch self {
+      case .jellyfin: "Jellyfin"
+      case .audiobookshelf: "AudiobookShelf"
+      }
+    }
   }
 
   public enum ProviderName: String, Codable, CaseIterable {

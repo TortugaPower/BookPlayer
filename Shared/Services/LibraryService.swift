@@ -1380,18 +1380,10 @@ extension LibraryService {
         )
         continue
       }
-      // Belt-and-suspenders: an unrelated row occupying the synthesized path (e.g. a
-      // file literally named "<providerId>-<name>") must not gain a twin either.
-      let plannedRelativePath = "\(resource.providerId)-\(simpleItem.originalFileName)"
-      guard getItemReference(with: plannedRelativePath, context: dataManager.getContext()) == nil else {
-        Self.logger.warning(
-          "Virtual import skipped: a row already exists at \(plannedRelativePath)"
-        )
-        continue
-      }
-      let libraryItem: LibraryItem
-      let book = await createExternalBook(simpleItem: simpleItem, externalResource: resource)
-      libraryItem = book
+      // An item made of several files is a volume of them; Jellyfin serves one file per item
+      let libraryItem: LibraryItem = resource.files.count > 1
+        ? createExternalVolume(simpleItem: simpleItem, externalResource: resource)
+        : await createExternalBook(simpleItem: simpleItem, externalResource: resource)
       libraryItem.orderRank = nextOrderRank
       nextOrderRank += 1
 
@@ -1928,9 +1920,14 @@ extension LibraryService {
     
     let entity = NSEntityDescription.entity(forEntityName: "Book", in: context)!
     let book = Book(entity: entity, insertInto: context)
-    // relativePath is the primary key of the library — two external books sharing a title
-    // (originalFileName is title-derived) must not collide, so scope by provider item id.
-    book.relativePath = "\(externalResource.providerId)-\(simpleItem.originalFileName)"
+    book.uuid = UUID().uuidString
+    // `<title>.<ext>`, as Android names it (`MediaServerFileNames.importFileName`). relativePath is
+    // the library's primary key, and an offloaded book is restored by its file name, so a name
+    // another book already has anywhere in the library gets part of this one's uuid.
+    let fileName = simpleItem.originalFileName
+    book.relativePath = bookExists(withFileName: fileName, context: context)
+      ? Self.disambiguated(fileName, uuid: book.uuid)
+      : fileName
     book.remoteURL = nil
     book.artworkURL = simpleItem.artworkURL
     let title = simpleItem.title
@@ -1947,22 +1944,10 @@ extension LibraryService {
     book.originalFileName = simpleItem.originalFileName
     book.isFinished = simpleItem.isFinished
     book.type = .book
-    book.uuid = UUID().uuidString
-    
+
     self.dataManager.saveSyncContext(context)
-    
-    let resourceEntity = NSEntityDescription.entity(forEntityName: "ExternalResource", in: context)!
-    let external = ExternalResource(entity: resourceEntity, insertInto: context)
-    
-    external.providerId = externalResource.providerId
-    external.providerName = externalResource.providerName
-    external.syncStatus = externalResource.syncStatus
-    external.lastSyncedAt = externalResource.lastSyncedAt
-    external.processedFile = externalResource.processedFile
-    external.hostId = externalResource.hostId
-    
-    external.libraryItem = book
-    book.addToExternalResources(external)
+
+    attachExternalResource(externalResource, to: book, context: context)
 
     // The server's chapters, if the hydration carried any. Written here rather than left
     // to the progress pull so the FIRST play already has chapter navigation — nothing
@@ -1971,6 +1956,104 @@ extension LibraryService {
 
     self.dataManager.saveSyncContext(context)
     return book
+  }
+
+  /// A media-server item made of several audio files, as a volume: a bound folder named after
+  /// the title, holding the media-server link, with one book per file in the server's order,
+  /// named by its flattened path (`MediaServerFileNames.volumeChildFileNames`). The books have
+  /// no link of their own: each plays its file through the volume's (`PlaybackService`).
+  /// Mirrors Android's `VirtualImportManager.importStreamVolume`.
+  ///
+  /// Internal for the same reason as `createExternalBook`: it returns a managed object.
+  @MainActor
+  func createExternalVolume(simpleItem: SimpleLibraryItem, externalResource: SimpleExternalResource) -> LibraryItem {
+    let context = dataManager.getContext()
+
+    let folderName = MediaServerFileNames.sanitize(simpleItem.title)
+    // The volume's path is its books' parent; an item may already own it (and a streamed volume
+    // has no folder on disk to collide with, so the library is what's checked)
+    let isTaken = getItemReference(with: folderName, context: context) != nil
+    let volume = Folder(title: folderName, context: context)
+    if isTaken {
+      volume.relativePath = "\(folderName)-\(volume.uuid.prefix(8))"
+    }
+    volume.title = simpleItem.title
+    volume.originalFileName = volume.relativePath
+    volume.type = .bound
+    volume.artworkURL = simpleItem.artworkURL
+    volume.currentTime = simpleItem.currentTime
+    volume.percentCompleted = simpleItem.percentCompleted
+    volume.isFinished = simpleItem.isFinished
+
+    let author = simpleItem.details.isEmpty ? "voiceover_unknown_author".localized : simpleItem.details
+    let bookEntity = NSEntityDescription.entity(forEntityName: "Book", in: context)!
+    let names = MediaServerFileNames.volumeChildFileNames(externalResource.files.map(\.name))
+    for (index, file) in externalResource.files.enumerated() {
+      let book = Book(entity: bookEntity, insertInto: context)
+      book.uuid = UUID().uuidString
+      book.relativePath = "\(volume.relativePath!)/\(names[index])"
+      book.originalFileName = names[index]
+      book.title = MediaServerFileNames.splitExtension(names[index]).stem
+      book.details = author
+      book.duration = file.duration
+      book.orderRank = Int16(index)
+      book.type = .book
+      volume.addToItems(book)
+    }
+
+    // What `rebuildFolderDetails` would compute, set directly: that one also publishes a metadata
+    // update, which must not reach the sync queue ahead of the volume's registration
+    volume.details = String.localizedStringWithFormat("files_title".localized, externalResource.files.count)
+    volume.duration = externalResource.files.reduce(0) { $0 + $1.duration }
+
+    attachExternalResource(externalResource, to: volume, context: context)
+    dataManager.saveSyncContext(context)
+
+    return volume
+  }
+
+  private func attachExternalResource(
+    _ externalResource: SimpleExternalResource,
+    to item: LibraryItem,
+    context: NSManagedObjectContext
+  ) {
+    let resourceEntity = NSEntityDescription.entity(forEntityName: "ExternalResource", in: context)!
+    let external = ExternalResource(entity: resourceEntity, insertInto: context)
+
+    external.providerId = externalResource.providerId
+    external.providerName = externalResource.providerName
+    external.syncStatus = externalResource.syncStatus
+    external.lastSyncedAt = externalResource.lastSyncedAt
+    external.processedFile = externalResource.processedFile
+    external.hostId = externalResource.hostId
+
+    external.libraryItem = item
+    item.addToExternalResources(external)
+  }
+
+  /// Whether a book anywhere in the library already has `fileName` as its file name. Android's
+  /// `LibraryDao.existsWithFileName`.
+  private func bookExists(withFileName fileName: String, context: NSManagedObjectContext) -> Bool {
+    let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
+    // Case-insensitive, as the restore-by-name lookup (`findBooks(containing:)`) is: a book
+    // differing only in case would be filled by the other's file. (Android's equality check is
+    // case-sensitive; only its suffix match isn't.)
+    fetchRequest.predicate = NSPredicate(
+      format: "%K == %d AND (%K ==[c] %@ OR %K ENDSWITH[c] %@)",
+      #keyPath(LibraryItem.type), ItemType.book.rawValue,
+      #keyPath(LibraryItem.relativePath), fileName,
+      #keyPath(LibraryItem.relativePath), "/\(fileName)"
+    )
+    fetchRequest.fetchLimit = 1
+
+    return ((try? context.count(for: fetchRequest)) ?? 0) > 0
+  }
+
+  /// `<stem>-<first 8 of uuid>.<ext>`: Android's suffix for a taken name.
+  static func disambiguated(_ fileName: String, uuid: String) -> String {
+    let (stem, fileExtension) = MediaServerFileNames.splitExtension(fileName)
+
+    return fileExtension.isEmpty ? "\(stem)-\(uuid.prefix(8))" : "\(stem)-\(uuid.prefix(8)).\(fileExtension)"
   }
 
   public func loadChaptersIfNeeded(relativePath: String, asset: AVAsset) async {
@@ -2360,10 +2443,18 @@ extension LibraryService {
       newRelativePath = newTitle
     }
 
-    try FileManager.default.moveItem(
-      at: sourceUrl,
-      to: destinationUrl
-    )
+    // Another item there would share its path (and its books theirs). Moving the folder on disk
+    // used to be the only guard, and a streamed volume has no folder on disk until its books
+    // are downloaded
+    if let existing = getItemReference(with: newRelativePath), existing != folder {
+      throw CocoaError(.fileWriteFileExists, userInfo: [NSFilePathErrorKey: destinationUrl.path])
+    }
+    if FileManager.default.fileExists(atPath: sourceUrl.path) {
+      try FileManager.default.moveItem(
+        at: sourceUrl,
+        to: destinationUrl
+      )
+    }
 
     folder.originalFileName = newTitle
     folder.relativePath = newRelativePath

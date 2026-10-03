@@ -240,7 +240,7 @@ extension JellyfinLibraryItem {
       artworkURL: try? connectionService.createItemImageURL(self, size: artworkSize),
       orderRank: 0,
       parentFolder: nil,
-      originalFileName: "\(name).\(fileExtension)",
+      originalFileName: MediaServerFileNames.importFileName(title: name, fileExtension: fileExtension),
       lastPlayDate: lastPlayedDate,
       type: .book,
       uuid: UUID().uuidString

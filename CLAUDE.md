@@ -554,6 +554,24 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
   URLs keep the token in the header (Kingfisher `requestModifier`), not the URL, so a rotated token can't poison
   the disk cache. **URL-encoding footgun:** the `filter` param is manually percent-encoded (`+`→`%2B`, `/`→`%2F`)
   because ABS/Express corrupts `+` in a query value — don't route it through `URLQueryItem`.
+  - **Has no instance id:** sign-in stores `serverId: nil` (its login's `serverSettings.id` is the constant
+    `"server-settings"`), so an ABS book's `hostId` is the server's canonical address (`URL.canonicalDedupKey`,
+    which must equal what Android phones store: AOSP's `java.net.URI` allows `_` in hosts).
+  - **Streams per file** (a contract shared with the Android app): the item
+    download is a zip for any book in a folder, and a file's id is its inode, which changes when the file is
+    replaced. So a chapter carries `PlayableChapter.StreamLookup` and `PlayerManager.streamURL` asks
+    `GET api/items/{id}?expanded=1` (`AudiobookShelfStreamLookup`) when the chapter loads, once per item (a
+    volume's books share it), never ahead of time. It plays `api/items/{id}/file/{ino}` relative to the saved
+    URL, token in the header. Time limits: 5 s on playback (an unreachable server falls through to the cloud
+    copy), 30 s for downloads. Only a 401 is an expired session (its own `PlaybackFailure.Reason`, said only for
+    a play the user started and when no cloud copy plays the book); a 403 means this user can't open that item.
+  - **Multi-file items import as volumes** (`LibraryService.createExternalVolume`): a bound folder named after
+    the title holding the link, one book per file named by its flattened path
+    (`MediaServerFileNames.volumeChildFileNames`). The books have no link of their own: playback
+    (`PlaybackService.VolumeStream`), downloads (`MediaServerDownloadPlanner`, one more lookup after a 404), sync
+    registration (`SyncableItem.volumeMediaServerProviderName`, so no file is asked for) and the post-download
+    upload all go through the volume's. Single books are named `<title>.<ext>` (no provider prefix), with
+    `-<uuid prefix>` when a book anywhere already has that name.
 - **Hardcover** (`Hardcover/`, `@Observable HardcoverService`, GraphQL): two-way **reading-progress** sync, not a
   media server. Status `HardcoverBook.Status { local=0, library=1, reading=2, read=3 }`; **only 1/2/3 are ever
   POSTed** (`.local` is a local-only marker). Monotonic guards prevent backwards writes; auto-match on import has

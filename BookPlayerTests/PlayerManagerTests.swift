@@ -17,9 +17,7 @@ import XCTest
 class PlayerManagerTests: XCTestCase {
   var playbackServiceMock: PlaybackServiceProtocolMock!
   var syncServiceMock: SyncServiceProtocolMock!
-  /// Read live by `sut`'s entitlement closure. A test flips this rather than building a second
-  /// `PlayerManager`: two of them means two AVPlayers, and the one going out of scope takes its
-  /// still-registered periodic time observer with it, which aborts the process.
+  /// Read live by `sut`'s entitlement closure, so a test can flip the entitlement on `sut`.
   var streamingEnabled = true
   var sut: PlayerManager!
 
@@ -282,6 +280,168 @@ class PlayerManagerTests: XCTestCase {
       unentitled.offersMediaServers(for: makeUnplayableExternalChapter()),
       "a tier that can't stream has nothing to gain from the shortcut"
     )
+  }
+
+  // MARK: - AudiobookShelf file lookups
+
+  private let absServer = URL(string: "https://abs.example.com")!
+
+  private func makeStreamingManager(
+    lookup: ExternalStreamLooking,
+    presentFailure: @escaping (PlaybackFailure) -> Void = { _ in }
+  ) -> PlayerManager {
+    // No cloud copy to fall back on
+    let syncService = SyncServiceProtocolMock()
+    syncService.isActive = false
+
+    return PlayerManager(
+      libraryService: LibraryServiceProtocolMock(),
+      playbackService: playbackServiceMock,
+      syncService: syncService,
+      speedService: SpeedServiceProtocolMock(),
+      shakeMotionService: ShakeMotionServiceProtocolMock(),
+      widgetReloadService: WidgetReloadService(),
+      hasStreamingEnabled: { true },
+      presentFailure: presentFailure,
+      streamLookup: lookup
+    )
+  }
+
+  /// End to end through the load: nothing serves the chapter (its server is away, and there's
+  /// no cloud copy), and the play the user started says so in the app's words.
+  @MainActor
+  func testAChapterNothingServesSaysItsServerDidnt() async {
+    let presented = expectation(description: "the failure is presented")
+    var failure: PlaybackFailure?
+    let manager = makeStreamingManager(lookup: LookupStub(answer: .unreachable)) {
+      failure = $0
+      presented.fulfill()
+    }
+
+    manager.loadChapterMetadata(streamedChapter(.item), autoplay: true)
+    await fulfillment(of: [presented], timeout: 5)
+
+    XCTAssertEqual(failure?.reason, .streamUnavailable)
+    XCTAssertEqual(failure?.phoneMessage, "playback_error_server_unavailable".localized)
+  }
+
+  /// The last book, preloaded at launch: its failure waits for a tap to be said.
+  @MainActor
+  func testASilentLoadThatFailsStaysQuiet() async {
+    let presented = expectation(description: "no alert")
+    presented.isInverted = true
+    let lookup = LookupStub(answer: .sessionExpired)
+    let manager = makeStreamingManager(lookup: lookup) { _ in presented.fulfill() }
+
+    manager.loadChapterMetadata(streamedChapter(.item), autoplay: false)
+    await fulfillment(of: [presented], timeout: 0.5)
+
+    XCTAssertEqual(lookup.calls, 1, "the load ran")
+  }
+
+  private func streamedChapter(_ member: PlayableChapter.StreamLookup.Member, externalURL: URL? = nil) -> PlayableChapter {
+    PlayableChapter(
+      title: "test chapter",
+      author: "test author",
+      start: 0,
+      duration: 50,
+      relativePath: "no-such-file.mp3",
+      remoteURL: nil,
+      externalURL: externalURL,
+      index: 0,
+      externalHeaders: ["Authorization": "Bearer t"],
+      streamLookup: externalURL == nil
+        ? PlayableChapter.StreamLookup(serverURL: absServer, itemId: "li_1", member: member)
+        : nil
+    )
+  }
+
+  private let twoFiles = [
+    ExternalStreamFile(path: "api/items/li_1/file/1", name: "01.mp3", duration: 25),
+    ExternalStreamFile(path: "api/items/li_1/file/2", name: "02.mp3", duration: 25),
+  ]
+
+  /// One lookup per item, not per book; a forced refresh (the retry after a failed stream)
+  /// asks again, since the file may have been replaced.
+  @MainActor
+  func testAVolumesBooksShareOneLookup() async throws {
+    let lookup = LookupStub(answer: .answered(twoFiles))
+    let manager = makeStreamingManager(lookup: lookup)
+
+    let first = try await manager.streamURL(for: streamedChapter(.volumeBook(fileName: "01.mp3", position: 0, bookCount: 2)), forceRefresh: false)
+    let second = try await manager.streamURL(for: streamedChapter(.volumeBook(fileName: "02.mp3", position: 1, bookCount: 2)), forceRefresh: false)
+
+    XCTAssertEqual(first, .success(URL(string: "https://abs.example.com/api/items/li_1/file/1")!))
+    XCTAssertEqual(second, .success(URL(string: "https://abs.example.com/api/items/li_1/file/2")!))
+    XCTAssertEqual(lookup.calls, 1)
+    XCTAssertEqual(lookup.timeouts, [ExternalStreamLookupTimeout.playback])
+
+    _ = try await manager.streamURL(for: streamedChapter(.volumeBook(fileName: "01.mp3", position: 0, bookCount: 2)), forceRefresh: true)
+    XCTAssertEqual(lookup.calls, 2)
+  }
+
+  /// A volume played away from home: its next files go straight to the cloud copy instead of
+  /// waiting out the timeout again, for a while.
+  @MainActor
+  func testAFailedLookupIsReusedForTheItemsOtherFiles() async throws {
+    let lookup = LookupStub(answer: .unreachable)
+    let manager = makeStreamingManager(lookup: lookup)
+
+    _ = try await manager.streamURL(for: streamedChapter(.volumeBook(fileName: "01.mp3", position: 0, bookCount: 2)), forceRefresh: false)
+    let second = try await manager.streamURL(for: streamedChapter(.volumeBook(fileName: "02.mp3", position: 1, bookCount: 2)), forceRefresh: false)
+
+    XCTAssertEqual(second, .failure(.unavailable))
+    XCTAssertEqual(lookup.calls, 1)
+  }
+
+  /// Jellyfin's URL is known up front: nothing to ask.
+  @MainActor
+  func testAJellyfinURLNeedsNoLookup() async throws {
+    let lookup = LookupStub(answer: .answered([]))
+    let url = URL(string: "https://jelly.example.com/stream")!
+
+    let result = try await makeStreamingManager(lookup: lookup).streamURL(for: streamedChapter(.item, externalURL: url), forceRefresh: false)
+
+    XCTAssertEqual(result, .success(url))
+    XCTAssertEqual(lookup.calls, 0)
+  }
+
+  @MainActor
+  func testALookupThatDoesntServeTheBookSaysWhy() async throws {
+    let cases: [(ExternalStreamFiles, Result<URL, PlayerManager.StreamFailure>)] = [
+      (.sessionExpired, .failure(.sessionExpired)),
+      (.unreachable, .failure(.unavailable)),
+      (.failed, .failure(.unavailable)),
+      // A multi-file item imported as one book: no file of its own
+      (.answered(twoFiles), .failure(.unavailable)),
+      (.answered([]), .failure(.unavailable)),
+    ]
+
+    for (answer, expected) in cases {
+      let result = try await makeStreamingManager(lookup: LookupStub(answer: answer))
+        .streamURL(for: streamedChapter(.item), forceRefresh: false)
+      XCTAssertEqual(result, expected, "\(answer)")
+    }
+  }
+
+  /// A rejected token is its own failure: signing in again in Media Servers fixes it.
+  func testAnExpiredSessionSaysToSignInAgain() {
+    let failure = sut.playbackFailure(for: streamedChapter(.item), title: "t", message: nil, streamFailure: .sessionExpired)
+
+    XCTAssertEqual(failure.reason, .sessionExpired)
+    XCTAssertEqual(failure.phoneMessage, "playback_error_session_expired".localized)
+    XCTAssertTrue(failure.canOfferMediaServers)
+    XCTAssertEqual(failure.carPlayMessage, "carplay_session_expired_message".localized)
+  }
+
+  /// Its server was asked and didn't serve it, and nothing else could: there's no AVFoundation
+  /// error to show, so the phone says what happened.
+  func testAServerThatDidntServeTheBookSaysSo() {
+    let failure = sut.playbackFailure(for: streamedChapter(.item), title: "t", message: nil, streamFailure: .unavailable)
+
+    XCTAssertEqual(failure.reason, .streamUnavailable)
+    XCTAssertEqual(failure.phoneMessage, "playback_error_server_unavailable".localized)
+    XCTAssertTrue(failure.canOfferMediaServers)
   }
 
   /// Naming the server is advice to add it, and a tier that can't stream gains nothing from

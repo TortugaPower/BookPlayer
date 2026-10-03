@@ -271,7 +271,8 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
             $0[$1.id] = HydratedItem(
               fileExtension: $1.fileExtension,
               duration: $1.duration,
-              chapters: $1.chapters
+              chapters: $1.chapters,
+              files: $1.streamFiles
             )
           }
         },
@@ -280,6 +281,7 @@ final class AudiobookShelfLibraryViewModel: IntegrationLibraryViewModelProtocol,
             fileExtension: hydrated.fileExtension,
             duration: hydrated.duration,
             chapters: hydrated.chapters,
+            files: hydrated.files,
             connectionService: self.connectionService,
             artworkSize: CGSize(width: 300, height: 300)
           )

@@ -115,10 +115,17 @@ struct HydratedItem {
   /// Whatever chapter list the same payload carried. Optional to an import — an item with
   /// none is still perfectly playable as a single chapter.
   let chapters: [ChapterMetadata]
+  /// The item's audio files (AudiobookShelf). Several make the import a volume.
+  let files: [ExternalStreamFile]
 
   /// Both pieces or nothing: a nil result leaves the id out of the hydration map, which
   /// is the pipeline's existing skip contract.
-  init?(fileExtension: String?, duration: TimeInterval?, chapters: [ChapterMetadata] = []) {
+  init?(
+    fileExtension: String?,
+    duration: TimeInterval?,
+    chapters: [ChapterMetadata] = [],
+    files: [ExternalStreamFile] = []
+  ) {
     guard
       let fileExtension,
       !fileExtension.isEmpty,
@@ -129,6 +136,7 @@ struct HydratedItem {
     self.fileExtension = fileExtension
     self.duration = duration
     self.chapters = chapters
+    self.files = files
   }
 }
 

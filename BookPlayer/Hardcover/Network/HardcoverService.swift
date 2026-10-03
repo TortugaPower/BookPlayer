@@ -554,10 +554,22 @@ extension HardcoverService {
         return buildSearchString(title: metadata.title, author: metadata.artist)
       }
     } catch {
-      Self.logger.error("Failed to read folder contents for \(item.title): \(error)")
+      Self.logger.info("No folder contents to read for \(item.title): \(error)")
     }
 
-    return buildSearchString(title: item.title, author: item.details)
+    // Nothing on disk to read (a streamed volume, an offloaded folder): its first book carries the
+    // author it was imported with. Found by uuid, since the import may have moved it into the
+    // folder being browsed; read on the view context's queue, as this runs off main. A folder's
+    // own `details` is its file count, never an author.
+    let author = await MainActor.run(body: { [libraryService] () -> String? in
+      guard let current = libraryService?.getSimpleItem(for: item.uuid) else { return nil }
+
+      return libraryService?.fetchContents(at: current.relativePath, limit: nil, offset: nil)?
+        .first { $0.type == .book }?
+        .details
+    })
+
+    return buildSearchString(title: item.title, author: author ?? "")
   }
 
   private func buildSearchString(title: String, author: String) -> String {

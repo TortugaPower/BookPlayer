@@ -2426,9 +2426,8 @@ class LibraryServiceExternalResourceTests: XCTestCase {
     XCTAssertEqual(inserted.first?.title, "remote-book")
 
     // createExternalBook deliberately mints a fresh local uuid (matchUuid reconciles
-    // against the server later) and provider-scopes relativePath so same-named books
-    // from different servers can't collide
-    XCTAssertEqual(inserted.first?.relativePath, "insert-1-remote-book.m4b")
+    // against the server later) and names the book `<title>.<ext>`, as Android does
+    XCTAssertEqual(inserted.first?.relativePath, "remote-book.m4b")
     let stored = sut.findResource(for: "insert-1", providerName: "jellyfin")
     XCTAssertEqual(stored?.libraryItemUuid, inserted.first?.uuid)
     XCTAssertNil(sut.findResource(for: "insert-orphan", providerName: "jellyfin"))
@@ -2471,8 +2470,175 @@ class LibraryServiceExternalResourceTests: XCTestCase {
     let second = await sut.insertItems(fromResources: [resource])
     XCTAssertTrue(second.isEmpty, "re-import must be skipped, not create a twin row")
 
-    let rowsAtPath = sut.fetchIdentifiers().filter { $0 == "twin-1-twin-book.m4b" }
+    let rowsAtPath = sut.fetchIdentifiers().filter { $0 == "twin-book.m4b" }
     XCTAssertEqual(rowsAtPath.count, 1, "exactly one row may exist at the synthesized relativePath")
+  }
+
+  // MARK: - Stream imports: names and volumes (Android's VirtualImportManagerTest)
+
+  private func streamResource(
+    providerId: String,
+    title: String,
+    fileName: String,
+    files: [ExternalStreamFile] = []
+  ) -> SimpleExternalResource {
+    SimpleExternalResource(
+      providerName: "audiobookshelf",
+      providerId: providerId,
+      syncStatus: ExternalResource.SyncStatus.stream.rawValue,
+      lastSyncedAt: nil,
+      hostId: "https://abs.example.com",
+      libraryItem: SimpleLibraryItem(
+        title: title,
+        details: "The Author",
+        speed: 1,
+        currentTime: 0,
+        duration: 300,
+        percentCompleted: 0,
+        isFinished: false,
+        relativePath: "",
+        remoteURL: nil,
+        artworkURL: nil,
+        orderRank: 0,
+        parentFolder: nil,
+        originalFileName: fileName,
+        lastPlayDate: nil,
+        type: .book,
+        uuid: UUID().uuidString
+      ),
+      files: files
+    )
+  }
+
+  /// relativePath is the library's key, and an offloaded book is restored by its file name, so
+  /// a name a book already has anywhere gets part of the new book's uuid.
+  @MainActor
+  func testAStreamedBookWhoseNameIsTakenGetsPartOfItsUuid() async throws {
+    let folder = try sut.createFolder(with: "Shelf", inside: nil)
+    let first = await sut.insertItems(fromResources: [streamResource(providerId: "li_1", title: "Dune", fileName: "Dune.m4b")])
+    try sut.moveItems([LibraryItemRef(relativePath: "Dune.m4b", uuid: first[0].uuid)], inside: folder.relativePath)
+
+    let second = await sut.insertItems(fromResources: [streamResource(providerId: "li_2", title: "Dune", fileName: "Dune.m4b")])
+
+    let path = try XCTUnwrap(second.first?.relativePath)
+    XCTAssertEqual(path, "Dune-\(second[0].uuid.prefix(8)).m4b")
+    XCTAssertEqual(second.first?.originalFileName, "Dune.m4b")
+  }
+
+  /// Android compares names ignoring case, and so does the restore-by-name lookup
+  @MainActor
+  func testANameTakenInAnotherCaseIsTaken() async throws {
+    _ = await sut.insertItems(fromResources: [streamResource(providerId: "li_a", title: "dune", fileName: "dune.m4b")])
+
+    let second = await sut.insertItems(fromResources: [streamResource(providerId: "li_b", title: "Dune", fileName: "Dune.m4b")])
+
+    XCTAssertEqual(second.first?.relativePath, "Dune-\(second[0].uuid.prefix(8)).m4b")
+  }
+
+  /// A streamed volume has no folder on disk: renaming it must still move its books' paths.
+  @MainActor
+  func testAStreamedVolumeCanBeRenamed() async throws {
+    let files = [
+      ExternalStreamFile(path: "api/items/li_r/file/1", name: "01.mp3", duration: 10),
+      ExternalStreamFile(path: "api/items/li_r/file/2", name: "02.mp3", duration: 10),
+    ]
+    let inserted = await sut.insertItems(
+      fromResources: [streamResource(providerId: "li_r", title: "Old", fileName: "Old.mp3", files: files)]
+    )
+    let volume = try XCTUnwrap(inserted.first)
+
+    let newPath = try sut.renameFolder(at: volume.relativePath, with: "New")
+
+    XCTAssertEqual(newPath, "New")
+    XCTAssertEqual(
+      sut.fetchContents(at: "New", limit: nil, offset: nil)?.map(\.relativePath),
+      ["New/01.mp3", "New/02.mp3"]
+    )
+
+    // Without a folder on disk to clash with, the library is what stops a twin path
+    _ = try sut.createFolder(with: "Taken", inside: nil)
+    XCTAssertThrowsError(try sut.renameFolder(at: "New", with: "Taken"))
+    XCTAssertEqual(sut.fetchContents(at: "New", limit: nil, offset: nil)?.count, 2)
+  }
+
+  /// An item made of several files is a volume: a bound folder named after the title holding
+  /// the link, one book per file in the server's order, named by its flattened path.
+  @MainActor
+  func testAnItemWithSeveralFilesImportsAsAVolume() async throws {
+    let files = [
+      ExternalStreamFile(path: "api/items/li_v/file/1", name: "Disc 1/01.mp3", duration: 10),
+      ExternalStreamFile(path: "api/items/li_v/file/2", name: "Disc 2/01.mp3", duration: 20),
+      ExternalStreamFile(path: "api/items/li_v/file/3", name: "Disc 1 - 01.mp3", duration: 5),
+    ]
+
+    let inserted = await sut.insertItems(
+      fromResources: [streamResource(providerId: "li_v", title: "Big: Book", fileName: "Big: Book.mp3", files: files)]
+    )
+
+    let volume = try XCTUnwrap(inserted.first)
+    XCTAssertEqual(volume.type, .bound)
+    XCTAssertEqual(volume.relativePath, "Big_ Book")
+    XCTAssertEqual(volume.title, "Big: Book")
+    XCTAssertEqual(volume.duration, 35, accuracy: 0.01)
+    XCTAssertEqual(sut.findResource(for: "li_v", providerName: "audiobookshelf")?.libraryItemUuid, volume.uuid)
+
+    let books = try XCTUnwrap(sut.fetchContents(at: volume.relativePath, limit: nil, offset: nil))
+    XCTAssertEqual(books.map(\.relativePath), [
+      "Big_ Book/Disc 1 - 01.mp3",
+      "Big_ Book/Disc 2 - 01.mp3",
+      "Big_ Book/Disc 1 - 01-2.mp3",
+    ])
+    XCTAssertEqual(books.map(\.title), ["Disc 1 - 01", "Disc 2 - 01", "Disc 1 - 01-2"])
+    XCTAssertEqual(books.map(\.duration), [10, 20, 5])
+    XCTAssertEqual(books.map(\.details), ["The Author", "The Author", "The Author"])
+    XCTAssertTrue(books.allSatisfy { $0.externalResources?.isEmpty ?? true }, "the link is on the volume only")
+  }
+
+  @MainActor
+  func testAVolumeWhosePathIsTakenGetsPartOfItsUuid() async throws {
+    _ = try sut.createFolder(with: "Golf", inside: nil)
+    let files = [
+      ExternalStreamFile(path: "api/items/li_g/file/1", name: "01.mp3", duration: 10),
+      ExternalStreamFile(path: "api/items/li_g/file/2", name: "02.mp3", duration: 10),
+    ]
+
+    let inserted = await sut.insertItems(
+      fromResources: [streamResource(providerId: "li_g", title: "Golf", fileName: "Golf.mp3", files: files)]
+    )
+
+    let volume = try XCTUnwrap(inserted.first)
+    XCTAssertEqual(volume.relativePath, "Golf-\(volume.uuid.prefix(8))")
+    XCTAssertEqual(sut.fetchContents(at: volume.relativePath, limit: nil, offset: nil)?.count, 2)
+  }
+
+  /// A volume's books have no link of their own, but their files come from its media server:
+  /// their registration must not ask for a file, as a linked book's doesn't.
+  @MainActor
+  func testAVolumesBooksAreMediaServerBooksForSync() async throws {
+    let files = [
+      ExternalStreamFile(path: "api/items/li_s/file/1", name: "01.mp3", duration: 10),
+      ExternalStreamFile(path: "api/items/li_s/file/2", name: "02.mp3", duration: 10),
+    ]
+    let insertedVolume = await sut.insertItems(
+      fromResources: [streamResource(providerId: "li_s", title: "Sync", fileName: "Sync.mp3", files: files)]
+    )
+    let volume = try XCTUnwrap(insertedVolume.first)
+    let plainFolder = try sut.createFolder(with: "Plain", inside: nil)
+    let plainBook = await sut.insertItems(fromResources: [streamResource(providerId: "li_p", title: "Plain Book", fileName: "Plain Book.mp3")])
+    try sut.moveItems([LibraryItemRef(relativePath: plainBook[0].relativePath, uuid: plainBook[0].uuid)], inside: plainFolder.relativePath)
+    let localBook = StubFactory.book(dataManager: sut.dataManager, title: "Local", duration: 10)
+    sut.dataManager.saveContext()
+    try sut.moveItems([LibraryItemRef(relativePath: localBook.relativePath, uuid: localBook.uuid)], inside: plainFolder.relativePath)
+    // The sync records are read on the background context
+    sut.dataManager.saveContext()
+
+    let volumeBooks = try XCTUnwrap(sut.getAllNestedItems(inside: volume.relativePath))
+    XCTAssertEqual(volumeBooks.map(\.mediaServerProviderName), ["audiobookshelf", "audiobookshelf"])
+
+    // A plain folder lends nothing: its streamed book has its own link, its local book none
+    let folderBooks = try XCTUnwrap(sut.getAllNestedItems(inside: plainFolder.relativePath))
+    XCTAssertEqual(folderBooks.first { $0.title == "Plain Book" }?.mediaServerProviderName, "audiobookshelf")
+    XCTAssertNil(folderBooks.first { $0.title == "Local" }?.mediaServerProviderName)
   }
 
   // MARK: - findMediaServerResources(at:) — the level query behind the list refresh

@@ -20,17 +20,22 @@ struct PlaybackFailure: Equatable {
     /// here, or it was removed. Adding it in Media Servers is the fix.
     case missingConnection
     /// A stream URL resolved and playback still failed — server unreachable, network gone, or
-    /// a token that no longer works.
+    /// a token that no longer works — or the server had no file for it.
     case streamUnavailable
+    /// The server rejected the saved token when asked for the item's files, and no cloud copy
+    /// could play it instead. Signing in again in Media Servers is the fix.
+    case sessionExpired
     /// Everything else: a local file that won't open, an unrecognized AVFoundation error.
     case other
   }
 
   let reason: Reason
   /// Title and body exactly as the phone has always shown them, error code and `NSError` dump
-  /// included — they are worth keeping for support threads. The one exception is a missing
-  /// connection whose address is known, on a tier that can stream (`canOfferMediaServers`): the
-  /// body then names the server to add. Neither reaches
+  /// included — they are worth keeping for support threads. The exceptions say what to do
+  /// instead: a missing connection whose address is known, on a tier that can stream
+  /// (`canOfferMediaServers`), names the server to add; an expired session says to sign in
+  /// again; and a server that was asked and didn't serve the book says so, there being no
+  /// AVFoundation error to show. Neither reaches
   /// the car, which words its own single line: a domain and a `userInfo` dump is not dashboard
   /// copy.
   let phoneTitle: String
@@ -49,7 +54,10 @@ struct PlaybackFailure: Equatable {
     switch reason {
     case .missingConnection where canOfferMediaServers:
       return "carplay_missing_connection_message".localized
-    case .missingConnection, .streamUnavailable, .other:
+    // A one-step fix, and the car shows the failure in place of the phone
+    case .sessionExpired where canOfferMediaServers:
+      return "carplay_session_expired_message".localized
+    case .missingConnection, .streamUnavailable, .sessionExpired, .other:
       return "carplay_playback_failed_message".localized
     }
   }

@@ -536,6 +536,12 @@ extension LibraryService: LibrarySyncProtocol {
       forUuids: results?.compactMap { $0["uuid"] as? String } ?? [],
       context: context
     )
+    let volumeProviders = mediaServerVolumeProviders(
+      forBooksAt: results?.compactMap { row in
+        (row["type"] as? Int16) == ItemType.book.rawValue ? row["relativePath"] as? String : nil
+      } ?? [],
+      context: context
+    )
     return results?.compactMap({ dictionary -> SyncableItem? in
       guard
         let uuid = dictionary["uuid"] as? String,
@@ -586,9 +592,41 @@ extension LibraryService: LibrarySyncProtocol {
             processedFile: $0.processedFile,
             hostId: $0.hostId
           )
-        })
+        }),
+        volumeMediaServerProviderName: type == .book ? Self.parentPath(of: relativePath).flatMap { volumeProviders[$0] } : nil
       )
     })
+  }
+
+  /// The media server each streamed volume among the books' parents streams from, keyed by the
+  /// volume's path. One fetch for all of them.
+  func mediaServerVolumeProviders(forBooksAt relativePaths: [String], context: NSManagedObjectContext) -> [String: String] {
+    let parentPaths = Set(relativePaths.compactMap(Self.parentPath(of:)))
+    guard !parentPaths.isEmpty else { return [:] }
+
+    let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
+    fetchRequest.predicate = NSPredicate(
+      format: "%K == %d AND %K IN %@",
+      #keyPath(LibraryItem.type), ItemType.bound.rawValue,
+      #keyPath(LibraryItem.relativePath), Array(parentPaths)
+    )
+
+    return ((try? context.fetch(fetchRequest)) ?? []).reduce(into: [:]) { providers, volume in
+      let provider = volume.resourcesArray
+        .map(\.providerName)
+        .filter { ExternalResource.ProviderName(rawValue: $0)?.mediaServer != nil }
+        .sorted()
+        .first
+      if let provider, let path = volume.relativePath {
+        providers[path] = provider
+      }
+    }
+  }
+
+  static func parentPath(of relativePath: String) -> String? {
+    guard let slash = relativePath.lastIndex(of: "/") else { return nil }
+
+    return String(relativePath[..<slash])
   }
 
   public func removeItems(notIn identifiers: [String], parentFolder: String?) async {

@@ -9,14 +9,33 @@ import Foundation
 
 /// Where a media-server item streams from, and what authorises the request.
 public struct ExternalStreamSource: Equatable, Sendable {
-  public let url: URL
+  public enum Location: Equatable, Sendable {
+    /// One URL serves the whole item (Jellyfin).
+    case url(URL)
+    /// The item's files have to be asked for when it plays or downloads (AudiobookShelf, whose
+    /// file ids change when a file is replaced): `ExternalStreamLooking`.
+    case audiobookshelfItem(serverURL: URL, itemId: String)
+  }
+
+  public let location: Location
   /// Custom headers first (reverse-proxy gates like Cloudflare Access), then the integration's
   /// own Authorization, which always wins on conflict.
   public let headers: [String: String]
 
-  public init(url: URL, headers: [String: String]) {
-    self.url = url
+  public init(location: Location, headers: [String: String]) {
+    self.location = location
     self.headers = headers
+  }
+
+  public init(url: URL, headers: [String: String]) {
+    self.init(location: .url(url), headers: headers)
+  }
+
+  /// The URL that serves the whole item, when one does.
+  public var url: URL? {
+    guard case .url(let url) = location else { return nil }
+
+    return url
   }
 }
 
@@ -65,13 +84,10 @@ public struct ExternalStreamResolver: ExternalStreamResolving, BPLogger {
       guard
         let connection: AudiobookShelfConnectionData = connection(for: resource, key: .audiobookshelfConnection)
       else { return nil }
-      guard let url = URL(string: connection.buildAudiobookshelfDownloadUrl(providerId: resource.providerId)) else {
-        Self.logger.error("AudiobookShelf connection resolved but no stream URL could be built for \(resource.providerId)")
-        return nil
-      }
 
+      // Its item download is a zip for any book stored in a folder: files stream one by one
       return ExternalStreamSource(
-        url: url,
+        location: .audiobookshelfItem(serverURL: connection.url, itemId: resource.providerId),
         headers: authorizing(connection.customHeaders, with: "Bearer \(connection.apiToken)")
       )
 

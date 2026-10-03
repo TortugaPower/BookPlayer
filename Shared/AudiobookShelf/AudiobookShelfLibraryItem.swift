@@ -56,6 +56,9 @@ public struct AudiobookShelfLibraryItem: IntegrationLibraryItemProtocol, Codable
   /// From the progress payload's lastUpdate (ms epoch) — drives the resume-playback
   /// prompt's date comparison, same as Jellyfin's lastPlayedDate
   public let lastPlayedDate: Date?
+  /// The item's audio files, empty unless this item came from an EXPANDED payload. An item with
+  /// several imports as a volume of them.
+  public let streamFiles: [ExternalStreamFile]
 
   // Browse metadata
   public let browseCategory: AudiobookShelfBrowseCategory?
@@ -82,6 +85,7 @@ public struct AudiobookShelfLibraryItem: IntegrationLibraryItemProtocol, Codable
     isFinished: Bool? = nil,
     lastPlayedDate: Date? = nil,
     chapters: [ChapterMetadata] = [],
+    streamFiles: [ExternalStreamFile] = [],
     browseCategory: AudiobookShelfBrowseCategory? = nil,
     filter: AudiobookShelfItemFilter? = nil
   ) {
@@ -105,6 +109,7 @@ public struct AudiobookShelfLibraryItem: IntegrationLibraryItemProtocol, Codable
     self.isFinished = isFinished
     self.lastPlayedDate = lastPlayedDate
     self.chapters = chapters
+    self.streamFiles = streamFiles
     self.browseCategory = browseCategory
     self.filter = filter
   }
@@ -232,7 +237,8 @@ extension AudiobookShelfLibraryItem {
       progress: apiItem.userMediaProgress?.progress,
       currentTime: apiItem.userMediaProgress?.currentTime,
       isFinished: apiItem.userMediaProgress?.isFinished,
-      chapters: Self.chapterMetadata(from: apiItem.media.chapters, duration: apiItem.media.duration)
+      chapters: Self.chapterMetadata(from: apiItem.media.chapters, duration: apiItem.media.duration),
+      streamFiles: AudiobookShelfAPIItem.Media.Track.streamFiles(itemId: apiItem.id, tracks: apiItem.media.tracks)
     )
   }
 
@@ -316,6 +322,9 @@ public struct AudiobookShelfAPIItem: Codable {
     public let coverPath: String?
     public let duration: TimeInterval?
     public let audioFiles: [AudioFile]?
+    /// The item's audio files in play order, on EXPANDED media only (`GET api/items/{id}?expanded=1`,
+    /// `POST api/items/batch/get`). Excluded files aren't tracks.
+    public let tracks: [Track]?
     /// Present on EXPANDED media only, alongside `audioFiles` — which is exactly what
     /// `POST /api/items/batch/get` returns. These are the server's chapters, which the
     /// user may have edited in ABS and which a multi-file book has instead of embedded
@@ -379,6 +388,57 @@ public struct AudiobookShelfAPIItem: Codable {
       public let name: String
     }
     
+    /// Only the fields a lookup reads, all optional, so one odd track can't fail the payload.
+    public struct Track: Codable {
+      public let index: Int?
+      /// The file's inode: its id in `api/items/{id}/file/{ino}`. On tracks since ABS 2.18.
+      public let ino: String?
+      public let duration: TimeInterval?
+      /// `/api/items/{id}/file/{ino}`, absolute from the server root (and carrying the router base
+      /// path in older versions), so it's read only for the `ino` of a pre-2.18 track.
+      public let contentUrl: String?
+      public let metadata: Metadata?
+
+      public struct Metadata: Codable {
+        public let filename: String?
+        public let relPath: String?
+      }
+
+      /// The files `tracks` stream, in play order. Each path is built from the file's `ino`,
+      /// relative to the saved server URL like every other ABS call: joining `contentUrl` to a
+      /// URL with a reverse-proxy subpath breaks. A track whose `ino` can't be found is left out.
+      public static func streamFiles(itemId: String, tracks: [Track]?) -> [ExternalStreamFile] {
+        (tracks ?? [])
+          .sorted { ($0.index ?? 0) < ($1.index ?? 0) }
+          .compactMap { track in
+            guard let ino = track.fileId else { return nil }
+
+            return ExternalStreamFile(
+              path: "api/items/\(itemId)/file/\(ino)",
+              name: track.metadata?.relPath.flatMap { $0.isBlank ? nil : $0 } ?? track.metadata?.filename ?? "",
+              duration: track.duration ?? 0
+            )
+          }
+      }
+
+      /// `ino`, else the end of the `contentUrl` (`…/file/{ino}`, query stripped): ABS 2.3–2.17
+      /// tracks don't carry `ino`. Before 2.3 there was no per-file route at all.
+      private var fileId: String? {
+        if let ino, !ino.isBlank {
+          return ino
+        }
+
+        guard
+          let contentUrl,
+          let range = contentUrl.range(of: "/file/", options: .backwards)
+        else { return nil }
+
+        let fileId = contentUrl[range.upperBound...].split(separator: "?", maxSplits: 1, omittingEmptySubsequences: false).first.map(String.init)
+
+        return fileId?.isBlank == false ? fileId : nil
+      }
+    }
+
     public struct AudioFile: Codable {
       // ABS nests file fields under metadata (AudioFile.toJSON in the server:
       // { index, ino, metadata: { filename, ext, path, ... }, ... }) — a top-level
@@ -472,6 +532,7 @@ extension AudiobookShelfLibraryItem {
     fileExtension: String,
     duration: TimeInterval,
     chapters: [ChapterMetadata] = [],
+    files: [ExternalStreamFile] = [],
     connectionService: AudiobookShelfConnectionService,
     artworkSize: CGSize
   ) -> SimpleExternalResource {
@@ -490,7 +551,7 @@ extension AudiobookShelfLibraryItem {
       artworkURL: connectionService.createItemImageURL(self, size: artworkSize),
       orderRank: 0,
       parentFolder: nil,
-      originalFileName: "\(title).\(fileExtension)",
+      originalFileName: MediaServerFileNames.importFileName(title: title, fileExtension: fileExtension),
       lastPlayDate: nil,
       type: .book,
       uuid: UUID().uuidString
@@ -504,8 +565,16 @@ extension AudiobookShelfLibraryItem {
       lastSyncedAt: nil,
       hostId: connectionService.connection?.stableHostId,
       libraryItem: libraryItem,
-      chapters: chapters
+      chapters: chapters,
+      files: files
     )
+  }
+}
+
+private extension String {
+  /// Kotlin's `isBlank()`: empty, or only whitespace. Android tests the same fields with it.
+  var isBlank: Bool {
+    trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
   }
 }
 

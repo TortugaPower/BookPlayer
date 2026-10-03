@@ -36,6 +36,60 @@ public struct PlayableChapter: Codable, Identifiable {
     }
   }
 
+  /// What to ask an AudiobookShelf server for to play a chapter: its file can't be named until
+  /// asked, so `PlayerManager` looks it up when the chapter loads.
+  public struct StreamLookup: Equatable, Sendable {
+    public enum Member: Equatable, Sendable {
+      /// The linked book itself, which plays the item's only file. An item with several files
+      /// that was imported as one book (before volumes) has none to play.
+      case item
+      /// A book of a streamed volume: the file its name was made from, else the one at its
+      /// position when the volume holds as many books as the item has files.
+      case volumeBook(fileName: String, position: Int, bookCount: Int)
+
+      /// A volume's book: named `originalFileName` at import (else its path's last component),
+      /// at its place among the volume's books in play order, `bookUuids`.
+      public static func volumeBook(
+        originalFileName: String,
+        relativePath: String,
+        uuid: String,
+        bookUuids: [String]
+      ) -> Member {
+        .volumeBook(
+          fileName: originalFileName.isEmpty ? (relativePath as NSString).lastPathComponent : originalFileName,
+          position: bookUuids.firstIndex(of: uuid) ?? -1,
+          bookCount: bookUuids.count
+        )
+      }
+    }
+
+    public let serverURL: URL
+    public let itemId: String
+    public let member: Member
+
+    public init(serverURL: URL, itemId: String, member: Member) {
+      self.serverURL = serverURL
+      self.itemId = itemId
+      self.member = member
+    }
+
+    /// The file this chapter plays among the item's `files`, or nil when there's none for it.
+    public func file(in files: [ExternalStreamFile]) -> ExternalStreamFile? {
+      switch member {
+      case .item:
+        return files.count == 1 ? files.first : nil
+      case .volumeBook(let fileName, let position, let bookCount):
+        // The names its books were imported under, rebuilt from the server's current files
+        let names = MediaServerFileNames.volumeChildFileNames(files.map(\.name))
+        if let index = names.firstIndex(of: fileName) {
+          return files[index]
+        }
+
+        return bookCount == files.count && files.indices.contains(position) ? files[position] : nil
+      }
+    }
+  }
+
   public var id: String {
     return "\(index)"
   }
@@ -49,6 +103,9 @@ public struct PlayableChapter: Codable, Identifiable {
   public let index: Int16
   public let chapterOffset: TimeInterval
   public let externalHeaders: [String: String]
+  /// Set for an AudiobookShelf chapter whose server is saved here, sent with `externalHeaders`.
+  /// Jellyfin's single URL is `externalUrl`.
+  public let streamLookup: StreamLookup?
   /// Set when the item carries a media-server resource but no saved connection on THIS
   /// device matches its host, so there is no external URL to stream and nothing to download.
   public let unresolvedHost: UnresolvedHost?
@@ -82,7 +139,12 @@ public struct PlayableChapter: Codable, Identifiable {
   public func needsMediaServer() -> Bool {
     guard !FileManager.default.fileExists(atPath: fileURL.path) else { return false }
 
-    return externalUrl != nil || hasUnresolvedExternalHost
+    return isStreamed || hasUnresolvedExternalHost
+  }
+
+  /// A saved media server can serve the chapter: by its URL, or by asking for its file.
+  public var isStreamed: Bool {
+    externalUrl != nil || streamLookup != nil
   }
 
   public init(
@@ -96,6 +158,7 @@ public struct PlayableChapter: Codable, Identifiable {
     index: Int16,
     chapterOffset: TimeInterval = 0,
     externalHeaders: [String: String] = [:],
+    streamLookup: StreamLookup? = nil,
     unresolvedHost: UnresolvedHost? = nil
   ) {
     self.title = title
@@ -108,10 +171,11 @@ public struct PlayableChapter: Codable, Identifiable {
     self.index = index
     self.chapterOffset = chapterOffset
     self.externalHeaders = externalHeaders
+    self.streamLookup = streamLookup
     self.unresolvedHost = unresolvedHost
   }
 
-  /// `externalUrl`/`externalHeaders`/`unresolvedHost` are deliberately EXCLUDED from Codable: the headers carry
+  /// `externalUrl`/`externalHeaders`/`streamLookup`/`unresolvedHost` are deliberately EXCLUDED from Codable: the headers carry
   /// the media server's live `Authorization` token, and encoded `PlayableItem`s travel through
   /// the WatchConnectivity application context, which the system PERSISTS TO DISK on both
   /// devices. Both values are per-device, resolved from the local connection at load time
@@ -133,6 +197,7 @@ public struct PlayableChapter: Codable, Identifiable {
     self.chapterOffset = (try? container.decodeIfPresent(TimeInterval.self, forKey: .chapterOffset)) ?? 0
     self.externalUrl = nil
     self.externalHeaders = [:]
+    self.streamLookup = nil
     self.unresolvedHost = nil
   }
 }

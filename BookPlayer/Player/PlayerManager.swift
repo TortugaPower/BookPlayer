@@ -57,6 +57,16 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   /// successful activation can tell whether recovery required an app relaunch.
   private var audioSessionFailedThisSession = false
   private var canFetchExternalURL = true
+  /// Asks an AudiobookShelf server for an item's files when one of its chapters loads.
+  private let streamLookup: ExternalStreamLooking
+  /// How the server item the current item streams from answered, asked once per item: a
+  /// volume's books share one lookup, and after a failed one go straight to the cloud copy
+  /// instead of waiting out the timeout at every file. Dropped on a forced refresh (a file
+  /// replaced since) and when a failed item is loaded again.
+  private var cachedStreamFiles: (key: String, answer: ExternalStreamFiles, date: Date)?
+  /// How long a failed lookup is reused: long enough for a volume's next files, short enough
+  /// that a server back from an outage serves them again.
+  private static let failedStreamLookupLifetime: TimeInterval = 120
   private var hasObserverRegistered = false
   /// How far we trust the player's clock: the baseline for spotting moves the player makes on its own
   private var clockState: ClockState = .unknown
@@ -78,6 +88,10 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   /// Reference to the ongoing play task
   private var playTask: Task<(), Error>?
   private var playerItem: AVPlayerItem?
+  /// The chapter file `playerItem` plays. A chapter change moves `currentItem.currentChapter`
+  /// before its file loads, so a load cancelled midway (a pause) leaves the previous file's item
+  /// behind; `prepareForPlayback` reloads instead of playing it.
+  private var playerItemRelativePath: String?
   private var loadChapterTask: Task<(), Never>?
   @Published var currentItem: PlayableItem?
   @Published var currentSpeed: Float = 1.0
@@ -94,7 +108,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     shakeMotionService: ShakeMotionServiceProtocol,
     widgetReloadService: WidgetReloadServiceProtocol,
     hasStreamingEnabled: @escaping () -> Bool,
-    presentFailure: @escaping (PlaybackFailure) -> Void
+    presentFailure: @escaping (PlaybackFailure) -> Void,
+    streamLookup: ExternalStreamLooking = AudiobookShelfStreamLookup()
   ) {
     self.libraryService = libraryService
     self.playbackService = playbackService
@@ -105,6 +120,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     self.widgetReloadService = widgetReloadService
     self.hasStreamingEnabled = hasStreamingEnabled
     self.presentFailure = presentFailure
+    self.streamLookup = streamLookup
     super.init()
 
     setupPlayerInstance()
@@ -218,6 +234,10 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
       fileURL =
         try await syncService
         .getRemoteFileURLs(of: chapter.relativePath, for: itemUUID, type: .book)[0].url
+      /// Cancelled by a newer load or a pause, which own the flag now
+      guard !Task.isCancelled else {
+        throw BookPlayerError.cancelledTask
+      }
       isFetchingRemoteURL = false
     }
 
@@ -278,26 +298,43 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
 
     let asset: AVURLAsset
 
-    if isMissingLocally, hasStreamingEnabled(), let externalUrl = chapter.externalUrl {
-      // Media-server chapters ALWAYS stream from their external URL — a forced refresh
-      // must not reroute them to the cloud/S3 presign path. The entitlement is checked HERE
-      // rather than only at import: the rows outlive the subscription that created them, and
-      // the stream reaches the user's own server, so nothing server-side can gate it.
-      // No metadata is loaded here:
-      // the length comes from the server at import time (`VirtualImportPipeline` refuses
-      // an item without one), so there is nothing a round trip to the stream could add.
-      // `AVURLAssetHTTPHeaderFieldsKey` is undocumented, but it is the only way to attach
-      // the server's auth header short of an AVAssetResourceLoaderDelegate.
-      asset = AVURLAsset(url: externalUrl, options: [
-        AVURLAssetPreferPreciseDurationAndTimingKey: false,
-        "AVURLAssetHTTPHeaderFieldsKey": chapter.externalHeaders
-      ])
+    if isMissingLocally, hasStreamingEnabled(), chapter.isStreamed {
+      // Media-server chapters stream from their server first — a forced refresh must not
+      // reroute them to the cloud/S3 presign path while the server serves them. The
+      // entitlement is checked HERE rather than only at import: the rows outlive the
+      // subscription that created them, and the stream reaches the user's own server, so
+      // nothing server-side can gate it.
+      switch try await streamURL(for: chapter, forceRefresh: forceRefreshURL) {
+      case .success(let streamURL):
+        // No metadata is loaded here: the length comes from the server at import time
+        // (`VirtualImportPipeline` refuses an item without one), so there is nothing a round
+        // trip to the stream could add. `AVURLAssetHTTPHeaderFieldsKey` is undocumented, but it
+        // is the only way to attach the server's auth header short of an
+        // AVAssetResourceLoaderDelegate.
+        asset = AVURLAsset(url: streamURL, options: [
+          AVURLAssetPreferPreciseDurationAndTimingKey: false,
+          "AVURLAssetHTTPHeaderFieldsKey": chapter.externalHeaders
+        ])
+      case .failure(let failure):
+        // The server didn't serve it (unreachable away from home, or gone): the cloud copy
+        // may, once a download uploaded one. Nothing serves it otherwise, and the alert
+        // says why (`loadChapterMetadata`)
+        guard let cloudAsset = try await cloudAssetIfAvailable(for: chapter, forceRefresh: forceRefreshURL) else {
+          throw failure
+        }
+        asset = cloudAsset
+      }
     } else if isMissingLocally, syncService.isActive {
       asset = try await loadRemoteURLAsset(for: chapter, forceRefresh: forceRefreshURL)
     } else {
       /// The file is on disk — or it is missing with no remote source, and AVFoundation
       /// surfaces that as a player-item failure.
       asset = AVURLAsset(url: fileURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
+    }
+
+    // A load that started after this one owns the player item now
+    guard !Task.isCancelled else {
+      throw BookPlayerError.cancelledTask
     }
 
     // Clean just in case
@@ -307,9 +344,94 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     }
 
     self.playerItem = AVPlayerItem(asset: asset)
+    self.playerItemRelativePath = chapter.relativePath
     self.playerItem?.audioTimePitchAlgorithm = .timeDomain
 
     return self.currentItem?.currentChapter ?? chapter
+  }
+
+  /// Why a media server didn't serve a chapter.
+  enum StreamFailure: Error, Equatable {
+    /// The server rejected the saved token (401): the user has to sign in again.
+    case sessionExpired
+    /// It didn't answer in time, can't be reached, answered with an error, or has no file
+    /// for the chapter.
+    case unavailable
+  }
+
+  /// Where the media server serves `chapter`: Jellyfin's URL as it is, or the AudiobookShelf
+  /// file its server lists right now. Only looked up when a chapter loads, never ahead of it.
+  @MainActor
+  func streamURL(for chapter: PlayableChapter, forceRefresh: Bool) async throws -> Result<URL, StreamFailure> {
+    if let externalUrl = chapter.externalUrl {
+      return .success(externalUrl)
+    }
+    guard let lookup = chapter.streamLookup else { return .failure(.unavailable) }
+
+    let key = "\(currentItem?.uuid ?? "")|\(lookup.serverURL.absoluteString)|\(lookup.itemId)"
+    let answer: ExternalStreamFiles
+    if !forceRefresh, let cached = cachedStreamFiles, cached.key == key, Self.isReusable(cached.answer, since: cached.date) {
+      answer = cached.answer
+    } else {
+      cachedStreamFiles = nil
+      isFetchingRemoteURL = true
+      answer = await streamLookup.files(
+        ofItem: lookup.itemId,
+        on: lookup.serverURL,
+        headers: chapter.externalHeaders,
+        timeout: ExternalStreamLookupTimeout.playback
+      )
+
+      /// Cancelled by a newer load (which owns the flags now) or by a pause (which reset them)
+      guard !Task.isCancelled else {
+        throw BookPlayerError.cancelledTask
+      }
+
+      isFetchingRemoteURL = false
+      cachedStreamFiles = (key, answer, Date())
+    }
+
+    switch answer {
+    case .answered(let files):
+      // None when the item is gone, or several files were imported as one book (before
+      // volumes): playing only the first of them would be worse than saying it can't play
+      guard let file = lookup.file(in: files) else { return .failure(.unavailable) }
+
+      return .success(file.url(on: lookup.serverURL))
+    case .sessionExpired:
+      return .failure(.sessionExpired)
+    case .unreachable, .failed:
+      return .failure(.unavailable)
+    }
+  }
+
+  private static func isReusable(_ answer: ExternalStreamFiles, since date: Date) -> Bool {
+    guard case .answered = answer else {
+      return Date().timeIntervalSince(date) < failedStreamLookupLifetime
+    }
+
+    return true
+  }
+
+  /// The cloud copy of a streamed chapter its server didn't serve, if the account syncs and
+  /// the cloud has one.
+  @MainActor
+  private func cloudAssetIfAvailable(for chapter: PlayableChapter, forceRefresh: Bool) async throws -> AVURLAsset? {
+    guard syncService.isActive else { return nil }
+
+    do {
+      return try await loadRemoteURLAsset(for: chapter, forceRefresh: forceRefresh)
+    } catch BookPlayerError.cancelledTask {
+      throw BookPlayerError.cancelledTask
+    } catch {
+      // A cancelled request fails as URLError(.cancelled): still a cancellation, and the flags
+      // belong to whatever cancelled it
+      if Task.isCancelled {
+        throw BookPlayerError.cancelledTask
+      }
+      isFetchingRemoteURL = false
+      return nil
+    }
   }
 
   func load(_ item: PlayableItem, autoplay: Bool) {
@@ -425,7 +547,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   func playbackFailure(
     for chapter: PlayableChapter?,
     title: String,
-    message: String?
+    message: String?,
+    streamFailure: StreamFailure? = nil
   ) -> PlaybackFailure {
     /// `needsMediaServer()` gates BOTH media-server reasons, because it is the only one of the
     /// two predicates that checks the filesystem: `hasUnresolvedExternalHost` is a stored flag
@@ -435,21 +558,31 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     let reason: PlaybackFailure.Reason
 
     if let chapter, chapter.needsMediaServer() {
-      reason = chapter.hasUnresolvedExternalHost ? .missingConnection : .streamUnavailable
+      if streamFailure == .sessionExpired {
+        reason = .sessionExpired
+      } else {
+        reason = chapter.hasUnresolvedExternalHost ? .missingConnection : .streamUnavailable
+      }
     } else {
       reason = .other
     }
 
     let canOfferMediaServers = chapter.map(offersMediaServers(for:)) ?? false
+    let phoneMessage: String?
+    switch (reason, streamFailure) {
+    case (.sessionExpired, _):
+      phoneMessage = "playback_error_session_expired".localized
+    // Its server was asked and didn't serve it: there's no AVFoundation error to show
+    case (.streamUnavailable, .unavailable):
+      phoneMessage = "playback_error_server_unavailable".localized
+    default:
+      phoneMessage = missingServerMessage(reason: reason, host: chapter?.unresolvedHost, canOfferMediaServers: canOfferMediaServers)
+    }
 
     return PlaybackFailure(
       reason: reason,
       phoneTitle: title,
-      phoneMessage: missingServerMessage(
-        reason: reason,
-        host: chapter?.unresolvedHost,
-        canOfferMediaServers: canOfferMediaServers
-      ) ?? message,
+      phoneMessage: phoneMessage ?? message,
       canOfferMediaServers: canOfferMediaServers
     )
   }
@@ -470,13 +603,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
       let provider = host?.provider
     else { return nil }
 
-    let providerName =
-      switch provider {
-      case .jellyfin: "Jellyfin"
-      case .audiobookshelf: "AudiobookShelf"
-      }
-
-    return String(format: "integration_error_missing_connection_address".localized, providerName, address)
+    return String(format: "integration_error_missing_connection_address".localized, provider.displayName, address)
   }
 
   /// The one way a failure leaves this class. Hops to main unconditionally, as the UIKit
@@ -491,10 +618,15 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   /// — a fetch on the VIEW context. Constructing at the call site would run that fetch on
   /// whatever thread KVO happened to use. The caller still resolves `chapter` itself, so the
   /// snapshot is taken when the failure occurs rather than a turn later.
-  private func presentOnMain(for chapter: PlayableChapter?, title: String, message: String?) {
+  private func presentOnMain(
+    for chapter: PlayableChapter?,
+    title: String,
+    message: String?,
+    streamFailure: StreamFailure? = nil
+  ) {
     Task { @MainActor in
       self.presentFailure(
-        self.playbackFailure(for: chapter, title: title, message: message)
+        self.playbackFailure(for: chapter, title: title, message: message, streamFailure: streamFailure)
       )
     }
   }
@@ -504,16 +636,37 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
       playbackQueued = autoplay
     }
 
+    /// A media-server chapter's load waits on its server: one still in flight for another
+    /// chapter must not land after this one
+    loadChapterTask?.cancel()
     loadChapterTask = Task { @MainActor [unowned self] in
       do {
         let updatedChapter = try await self.loadPlayerItem(for: chapter, forceRefreshURL: forceRefreshURL)
         self.loadChapterOperation(updatedChapter)
       } catch BookPlayerError.cancelledTask {
         /// Do nothing, as it was cancelled to load another item
-      } catch {
+      } catch _ where Task.isCancelled {
+        /// Superseded by a newer load or a pause, whichever failed: the flags and the player
+        /// belong to it now
+      } catch let failure as StreamFailure {
+        /// Said only for a play the user started or one under way (a chapter skip while
+        /// playing): a silent load (the last book, at launch) stays quiet, and the next tap
+        /// loads it again (`reloadable`)
+        let userInitiated = self.playbackQueued == true || self.audioPlayer.rate != 0
+        let wasQueued = self.playbackQueued == true
         self.playbackQueued = nil
         self.isFetchingRemoteURL = nil
         self.observeStatus = false
+        self.unloadPlayerItem(wasQueued: wasQueued)
+        if userInitiated {
+          self.presentOnMain(for: chapter, title: "error_title".localized, message: nil, streamFailure: failure)
+        }
+      } catch {
+        let wasQueued = self.playbackQueued == true
+        self.playbackQueued = nil
+        self.isFetchingRemoteURL = nil
+        self.observeStatus = false
+        self.unloadPlayerItem(wasQueued: wasQueued)
         self.presentOnMain(
           for: chapter,
           title: "\("error_title".localized) Metadata",
@@ -522,6 +675,23 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
         return
       }
     }
+  }
+
+  /// Drops the player item after a chapter failed to load: on a chapter change inside a volume
+  /// the previous file's item is still loaded and ready, and the next tap would play it (and
+  /// save its time against the new chapter) instead of loading the chapter again. Called after
+  /// `observeStatus = false`, which removes the observer from this item.
+  ///
+  /// Pauses first if it was playing (a chapter skip mid-playback) or about to (the next file of a
+  /// volume, after the last one ended): the player keeps its rate with no item, and the session,
+  /// Now Playing and the interruption observer would go on as if it played.
+  private func unloadPlayerItem(wasQueued: Bool) {
+    if audioPlayer.rate != 0 || wasQueued {
+      pause()
+    }
+    audioPlayer.replaceCurrentItem(with: nil)
+    playerItem = nil
+    playerItemRelativePath = nil
   }
 
   func loadChapterOperation(_ chapter: PlayableChapter) {
@@ -1071,8 +1241,20 @@ extension PlayerManager {
         if isFetchingRemoteURL == true {
           playbackQueued = true
         } else {
-          load(currentItem, autoplay: true)
+          load(reloadable(currentItem), autoplay: true)
         }
+      }
+      return false
+    }
+
+    /// A chapter change into another file whose load was cancelled (a pause): the item is the
+    /// previous file's, and playing it would save its time against the new chapter
+    if let playerItemRelativePath, playerItemRelativePath != currentItem.currentChapter.relativePath {
+      // Still loading it: play when it's ready, rather than starting over
+      if isFetchingRemoteURL == true {
+        playbackQueued = true
+      } else {
+        loadChapterMetadata(currentItem.currentChapter, autoplay: true)
       }
       return false
     }
@@ -1080,7 +1262,7 @@ extension PlayerManager {
     guard playerItem.status == .readyToPlay && playerItem.error == nil else {
       /// Try to reload the item if it failed to load previously
       if playerItem.status == .failed || playerItem.error != nil {
-        load(currentItem, autoplay: true)
+        load(reloadable(currentItem), autoplay: true)
       } else {
         // queue playback
         self.playbackQueued = true
@@ -1095,6 +1277,21 @@ extension PlayerManager {
     await syncProgressDelegate?.waitForSyncInProgress()
 
     return true
+  }
+
+  /// `item` rebuilt from the library when it plays from a media server: loading it again after
+  /// a failure must use the connection as it's saved now (signed in again, or the missing
+  /// server added since the alert said so), not the token and host it was built with.
+  @MainActor
+  private func reloadable(_ item: PlayableItem) -> PlayableItem {
+    guard
+      item.chapters.contains(where: { $0.isStreamed || $0.hasUnresolvedExternalHost }),
+      let libraryItem = libraryService.getSimpleItem(with: item.relativePath),
+      let rebuilt = try? playbackService.getPlayableItem(from: libraryItem)
+    else { return item }
+
+    cachedStreamFiles = nil
+    return rebuilt
   }
 
   func play() {
@@ -1379,14 +1576,13 @@ extension PlayerManager {
         loadAndRefreshURL(item: currentItem)
         canFetchRemoteURL = false
       } else if let currentItem,
-                currentItem.currentChapter.externalUrl != nil,
+                currentItem.currentChapter.isStreamed,
                 canFetchExternalURL {
         /// One retry for a transient stream failure. The reload replays the SAME item, so
-        /// the URL and auth headers are identical — this recovers a blip, never a rotated
-        /// token. Re-authenticating and tapping the SAME book does not recover either:
-        /// `currentItem` survives the failure, so `PlayerLoaderService.loadPlayer`
-        /// short-circuits on the matching uuid straight to `play()`, and the item is never
-        /// rebuilt from the saved connection. That needs another book, or a relaunch.
+        /// the auth headers are identical — this recovers a blip or an AudiobookShelf file
+        /// replaced since its lookup (the retry asks for its files again), never a rotated
+        /// token. Signing in again and tapping the same book does: `play()` finds no
+        /// playable item and reloads it rebuilt from the library (`reloadable`).
         loadAndRefreshURL(item: currentItem)
         canFetchExternalURL = false
       } else {
@@ -1451,6 +1647,9 @@ extension PlayerManager {
     playbackQueued = nil
     playTask?.cancel()
     loadChapterTask?.cancel()
+    /// A cancelled load leaves its flags alone (they could belong to a newer one): nothing is
+    /// fetching once this cancels it
+    isFetchingRemoteURL = nil
     nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = 0.0
     MPNowPlayingInfoCenter.default().playbackState = .paused
     setNowPlayingBookTime()
@@ -1499,6 +1698,7 @@ extension PlayerManager {
     audioPlayer.pause()
     playTask?.cancel()
     loadChapterTask?.cancel()
+    isFetchingRemoteURL = nil
 
     userActivityManager.stopPlaybackActivity()
     NotificationCenter.default.removeObserver(

@@ -128,7 +128,8 @@ class AudiobookShelfAudiobookDetailsViewModel: IntegrationDetailsViewModelProtoc
           hydratedByID[item.id] = HydratedItem(
             fileExtension: hydrated.first?.fileExtension ?? item.fileExtension,
             duration: hydrated.first?.duration ?? item.duration,
-            chapters: hydrated.first?.chapters ?? []
+            chapters: hydrated.first?.chapters ?? [],
+            files: hydrated.first?.streamFiles ?? []
           )
           return hydratedByID
         },
@@ -137,6 +138,7 @@ class AudiobookShelfAudiobookDetailsViewModel: IntegrationDetailsViewModelProtoc
             fileExtension: hydrated.fileExtension,
             duration: hydrated.duration,
             chapters: hydrated.chapters,
+            files: hydrated.files,
             connectionService: self.connectionService,
             artworkSize: CGSize(width: 300, height: 300)
           )

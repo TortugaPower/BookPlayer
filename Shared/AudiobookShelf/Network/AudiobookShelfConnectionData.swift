@@ -71,11 +71,4 @@ extension AudiobookShelfConnectionData: CustomDebugStringConvertible {
     let serverIdDesc = serverId ?? "<none>"
     return "AudiobookShelfConnectionData(\(url), serverId: \(serverIdDesc), \(serverName), \(userID), \(userName), \(apiTokenDebugDesc))"
   }
-  
-  public func buildAudiobookshelfDownloadUrl(providerId: String) -> String {
-    // appendingPathComponent normalizes the trailing slash a user may have typed in
-    // the server URL — string concatenation yields "host//api/…", which some reverse
-    // proxies (nginx/Cloudflare) 404
-    return self.url.appendingPathComponent("api/items/\(providerId)/download").absoluteString
-  }
 }

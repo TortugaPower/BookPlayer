@@ -25,6 +25,9 @@ public struct SyncableItem {
   let type: SimpleItemType
   let uuid: String
   var externalResources: [SyncableExternalResource]?
+  /// For a book inside a streamed volume: the media server the volume streams from. The book
+  /// has no link of its own, and plays and downloads through the volume's. Never on the wire.
+  var volumeMediaServerProviderName: String? = nil
 
   static var fetchRequestProperties = [
     "relativePath",
@@ -159,17 +162,20 @@ extension SyncableItem {
       uuid: uuid ?? self.uuid,
       // Every field must survive a copy: the synthesized default silently dropped the
       // external resources for items whose uuid gets minted in processContentsResponse.
-      externalResources: self.externalResources
+      externalResources: self.externalResources,
+      volumeMediaServerProviderName: self.volumeMediaServerProviderName
     )
   }
 }
 
 extension SyncableItem {
-  /// The media server this book streams from, if any. A Hardcover link is not one: it has
-  /// no file, so it must never keep the book's own file from uploading.
+  /// The media server this book streams from, if any: its own link's, or its streamed volume's.
+  /// A Hardcover link is not one: it has no file, so it must never keep the book's own file
+  /// from uploading.
   public var mediaServerProviderName: String? {
     externalResources?
       .first { ExternalResource.ProviderName(rawValue: $0.providerName)?.mediaServer != nil }?
       .providerName
+      ?? volumeMediaServerProviderName
   }
 }

@@ -166,6 +166,20 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   /// Finished downloads still being finalized, so a background wake can wait for them
   private let finalizeLock = NSLock()
   private var finalizeTasks = [UUID: Task<Void, Never>]()
+  /// How each AudiobookShelf download in flight finds its file again, by the file's path: a file
+  /// replaced since its lookup answers 404 (its id is its inode), and gets one more lookup. A
+  /// download can wait a long time to start (Wi-Fi only). In memory: a download restored after a
+  /// relaunch just fails, and downloading again looks it up afresh.
+  private struct MediaServerDownload {
+    let lookup: PlayableChapter.StreamLookup
+    let headers: [String: String]
+  }
+  private let mediaServerDownloadsLock = NSLock()
+  private var mediaServerDownloads = [String: MediaServerDownload]()
+  /// Tasks whose 404 was retried under a new task, kept so their late delegate callbacks stay
+  /// ignored. Only a retry whose lookup finds no file removes its task, to fail the download
+  /// through it.
+  private var retriedDownloadTasks = Set<Int>()
 
   private var provider: NetworkProvider<LibraryAPI>!
 
@@ -192,6 +206,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   /// Where an external item downloads from — the same resolution PlaybackService uses to
   /// stream it, so the two paths cannot disagree about server, URL or auth headers.
   private var streamResolver: ExternalStreamResolving!
+  private var streamLookup: ExternalStreamLooking!
 
   public func setup(
     isActive: Bool,
@@ -200,6 +215,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     syncQueueService: SyncQueueServiceProtocol,
     client: NetworkClientProtocol = NetworkClient(),
     streamResolver: ExternalStreamResolving = ExternalStreamResolver(),
+    streamLookup: ExternalStreamLooking = AudiobookShelfStreamLookup(),
     runsMissingItemsPass: Bool = false,
     userDefaults: UserDefaults = .standard
   ) {
@@ -207,6 +223,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     self.runsMissingItemsPass = runsMissingItemsPass
     self.defaults = userDefaults
     self.streamResolver = streamResolver
+    self.streamLookup = streamLookup
     self.libraryService = libraryService
     self.accountService = accountService
     // Signed in but not syncing is a lapse too, usually one that happened while the app was
@@ -527,20 +544,11 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     // The API's markExternalSourceUploaded marks EVERY provider row 'downloaded' for an
     // item, so a dual-linked book's Hardcover row can pass a syncStatus check — and Hardcover
     // has no files. Picking it here threw integration_error_missing_connection on a book
-    // whose Jellyfin connection was fine.
-    if item.type == .book, let external = item.externalResources?.streamingResource {
+    // whose Jellyfin connection was fine. A streamed volume's books have no link of their own:
+    // they download through the volume's.
+    if item.type == .book || item.type == .bound, let external = item.externalResources?.streamingResource {
       isExternalItem = true
-
-      if let source = streamResolver.streamSource(for: external) {
-        remoteURLs = [
-          RemoteFileURL(
-            url: source.url,
-            relativePath: item.relativePath,
-            type: .book,
-            headers: source.headers
-          )
-        ]
-      }
+      remoteURLs = try await mediaServerFileURLs(for: item, resource: external)
     } else {
       remoteURLs = try await getRemoteFileURLs(of: item.relativePath, for: item.uuid, type: item.type)
     }
@@ -571,8 +579,11 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
       let localURL = processedFolderURL.appendingPathComponent(remoteURL.relativePath)
       let downloadUrl = remoteURL.url
 
-      guard !FileManager.default.fileExists(atPath: localURL.path) else { continue }
-      
+      guard !FileManager.default.fileExists(atPath: localURL.path) else {
+        mediaServerDownloadsLock.withLock { mediaServerDownloads[remoteURL.relativePath] = nil }
+        continue
+      }
+
       if let headers = remoteURL.headers, !headers.isEmpty {
         var request = URLRequest(url: downloadUrl)
         // Forward EVERY header — the dict deliberately includes the connection's custom
@@ -608,6 +619,38 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     )
     ongoingTasksParentReference.keys
       .forEach({ initiatingFolderReference[$0] = item.parentFolder })
+  }
+
+  /// The files a streamed book or volume downloads from its media server, remembering how to
+  /// find each AudiobookShelf file again (`mediaServerDownloads`). Empty when no saved server
+  /// matches the link (the caller says so).
+  private func mediaServerFileURLs(
+    for item: SimpleLibraryItem,
+    resource: SimpleExternalResource
+  ) async throws -> [RemoteFileURL] {
+    // A volume made on another device has no books here until its level is pulled
+    if item.type == .bound, isActive, (libraryService.getAllNestedItems(inside: item.relativePath) ?? []).isEmpty {
+      try await syncListContents(at: item.relativePath)
+    }
+
+    let planner = MediaServerDownloadPlanner(
+      streamResolver: streamResolver,
+      streamLookup: streamLookup,
+      volumeBooks: { [libraryService] path in libraryService?.getAllNestedItems(inside: path) ?? [] }
+    )
+    let downloads = try await planner.downloads(for: item, resource: resource)
+    mediaServerDownloadsLock.withLock {
+      for download in downloads {
+        if let lookup = download.lookup {
+          mediaServerDownloads[download.remoteURL.relativePath] = MediaServerDownload(
+            lookup: lookup,
+            headers: download.remoteURL.headers ?? [:]
+          )
+        }
+      }
+    }
+
+    return downloads.map(\.remoteURL)
   }
 
   public func scheduleUploadArtwork(relativePath: String, uuid: String) {
@@ -868,6 +911,47 @@ extension SyncService {
   ) {
     guard let relativePath = task.taskDescription else { return }
 
+    // A media-server file replaced since its lookup: asked for once more under a new task
+    enum Retry {
+      /// The task's second callback, its 404 already being retried
+      case ignore
+      case start(MediaServerDownload)
+      case none
+    }
+    let retry: Retry = mediaServerDownloadsLock.withLock {
+      if retriedDownloadTasks.contains(task.taskIdentifier) {
+        return .ignore
+      }
+      // `parseErrorFromTask` turns the HTTP status into the code
+      guard
+        (error as? URLError)?.code.rawValue == 404,
+        let download = mediaServerDownloads.removeValue(forKey: relativePath)
+      else {
+        if error != nil || location != nil {
+          mediaServerDownloads[relativePath] = nil
+        }
+        return .none
+      }
+      retriedDownloadTasks.insert(task.taskIdentifier)
+      return .start(download)
+    }
+    switch retry {
+    case .ignore:
+      return
+    case .start(let download):
+      // Held like a finalize, so a background wake waits for it (`settleDownloads`)
+      let id = UUID()
+      finalizeLock.withLock {
+        finalizeTasks[id] = Task {
+          await self.retryMediaServerDownload(download, relativePath: relativePath, failedTask: task)
+          _ = self.finalizeLock.withLock { self.finalizeTasks.removeValue(forKey: id) }
+        }
+      }
+      return
+    case .none:
+      break
+    }
+
     var finalError = error
     var movedFileURL: URL?
 
@@ -895,10 +979,13 @@ extension SyncService {
     /// file is verified — see `finalizeDownloadedFile`.
     let startingItemPath = ongoingTasksParentReference[relativePath]
     let parentFolderPath = initiatingFolderReference[relativePath]
+    // A media-server file being looked up again after its 404 is still to come, though its
+    // first task completed
+    let retrying = mediaServerDownloadsLock.withLock { retriedDownloadTasks }
     if let startingItemPath,
       downloadTasksDictionary[startingItemPath]?
         .filter({ $0 != task })
-        .allSatisfy({ $0.state == .completed }) == true
+        .allSatisfy({ $0.state == .completed && !retrying.contains($0.taskIdentifier) }) == true
     {
       downloadTasksDictionary[startingItemPath] = nil
     }
@@ -929,6 +1016,86 @@ extension SyncService {
           parentFolderPath: parentFolderPath
         )
         _ = self.finalizeLock.withLock { self.finalizeTasks.removeValue(forKey: id) }
+      }
+    }
+  }
+
+  /// Looks a media-server file up again after its download's 404 and downloads it once more,
+  /// in the failed task's place. Fails the download as usual when the lookup finds no file.
+  private func retryMediaServerDownload(
+    _ download: MediaServerDownload,
+    relativePath: String,
+    failedTask: URLSessionTask
+  ) async {
+    let answer = await streamLookup.files(
+      ofItem: download.lookup.itemId,
+      on: download.lookup.serverURL,
+      headers: download.headers,
+      timeout: ExternalStreamLookupTimeout.download
+    )
+    guard case .answered(let files) = answer, let file = download.lookup.file(in: files) else {
+      await failRetriedDownload(
+        relativePath: relativePath,
+        failedTask: failedTask,
+        error: MediaServerDownloadError(lookup: answer) ?? .noFile
+      )
+      return
+    }
+
+    // Cancelled while it was looked up (`cancelDownload`): don't start it again
+    guard await onDownloadDelegateQueue({ self.isStillDownloading(failedTask, relativePath: relativePath) }) else { return }
+
+    var request = URLRequest(url: file.url(on: download.lookup.serverURL))
+    for (field, value) in download.headers {
+      request.setValue(value, forHTTPHeaderField: field)
+    }
+    let task = await provider.client.download(
+      request: request,
+      taskDescription: relativePath,
+      session: downloadURLSession.backgroundSession
+    )
+    // No third try: this one's outcome is final. On the delegate queue, where the bookkeeping
+    // lives; a download that already finished (or was cancelled) has cleared its entry
+    await onDownloadDelegateQueue {
+      guard
+        self.isStillDownloading(failedTask, relativePath: relativePath),
+        let startingItemPath = self.ongoingTasksParentReference[relativePath]
+      else {
+        task.cancel()
+        return
+      }
+      self.downloadTasksDictionary[startingItemPath] = (self.downloadTasksDictionary[startingItemPath] ?? [])
+        .filter { $0 != failedTask } + [task]
+    }
+  }
+
+  /// Whether the download `failedTask` belonged to is still going: not cancelled, and not
+  /// replaced by a new download of the same item (whose entries share its path). On the delegate
+  /// queue.
+  private func isStillDownloading(_ failedTask: URLSessionTask, relativePath: String) -> Bool {
+    guard let startingItemPath = ongoingTasksParentReference[relativePath] else { return false }
+
+    return downloadTasksDictionary[startingItemPath]?.contains(failedTask) == true
+  }
+
+  /// The retried download's failure, reported the way any failed download is, unless it was
+  /// cancelled meanwhile. On the delegate queue, behind the failed task's own callbacks: it
+  /// stops being ignored only once they're done.
+  private func failRetriedDownload(relativePath: String, failedTask: URLSessionTask, error: Error) async {
+    await onDownloadDelegateQueue {
+      self.mediaServerDownloadsLock.withLock { _ = self.retriedDownloadTasks.remove(failedTask.taskIdentifier) }
+      guard self.isStillDownloading(failedTask, relativePath: relativePath) else { return }
+
+      self.handleFinishedDownload(task: failedTask, location: nil, error: error)
+    }
+  }
+
+  /// Runs `work` on the download session's serial delegate queue, where `handleFinishedDownload`
+  /// and the download bookkeeping it reads run.
+  private func onDownloadDelegateQueue<T>(_ work: @escaping () -> T) async -> T {
+    await withCheckedContinuation { continuation in
+      downloadURLSession.backgroundSession.delegateQueue.addOperation {
+        continuation.resume(returning: work())
       }
     }
   }
@@ -974,12 +1141,22 @@ extension SyncService {
       self.downloadCompletedPublisher.send((relativePath, startingItemPath, parentFolderPath))
     }
 
+    guard let snapshot = libraryService.getItemResourcesSnapshot(for: relativePath) else { return }
+
     guard
-      let snapshot = libraryService.getItemResourcesSnapshot(for: relativePath),
       let externalResource = snapshot.resources.first(where: {
         $0.syncStatus == ExternalResource.SyncStatus.stream.rawValue
       })
-    else { return }
+    else {
+      // A streamed volume's book has no link of its own: its file goes up like a linked book's
+      if let volumePath = LibraryService.parentPath(of: relativePath),
+        let volume = libraryService.getItemResourcesSnapshot(for: volumePath),
+        volume.resources.contains(where: { ExternalResource.ProviderName(rawValue: $0.providerName)?.mediaServer != nil })
+      {
+        await jobManager.scheduleResourceToDownload(with: relativePath, for: snapshot.uuid)
+      }
+      return
+    }
 
     let externalSyncItem = SyncableExternalResource(
       providerName: externalResource.providerName,
@@ -1050,6 +1227,19 @@ extension SyncService {
     for task in tasks {
       guard task.state != .completed else {
         hasCompletedTasks = true
+        // A media-server file whose 404 is being retried: clearing its entry stops the retry
+        if mediaServerDownloadsLock.withLock({ retriedDownloadTasks.contains(task.taskIdentifier) }),
+          let relativePath = task.taskDescription
+        {
+          let startingItemPath = ongoingTasksParentReference[relativePath]
+          ongoingTasksParentReference[relativePath] = nil
+          let parentFolderPath = initiatingFolderReference[relativePath]
+          initiatingFolderReference[relativePath] = nil
+
+          if let startingItemPath {
+            events.append((relativePath, startingItemPath, parentFolderPath))
+          }
+        }
         continue
       }
 

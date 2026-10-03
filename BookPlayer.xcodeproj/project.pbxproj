@@ -288,6 +288,7 @@
 		41F1A20D254B0A0C0043FCF3 /* Sentry in Frameworks */ = {isa = PBXBuildFile; productRef = 41F1A20C254B0A0C0043FCF3 /* Sentry */; };
 		41F1A228254B0C6C0043FCF3 /* ZipArchive in Frameworks */ = {isa = PBXBuildFile; productRef = 41F1A227254B0C6C0043FCF3 /* ZipArchive */; };
 		45FE3490229249F95A3CF5FF /* IntegrationHostResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3451CA062919E03CEB975E92 /* IntegrationHostResolver.swift */; };
+		51BAE44A55BB5C9FA265DA1F /* MediaServerStreams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09CE0C5C0B0003FC174EA8CD /* MediaServerStreams.swift */; };
 		4DCB4D54E03F9CDA56865A89 /* ExternalStreamResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = A51357B087F7FB3CF6E08296 /* ExternalStreamResolver.swift */; };
 		F2083D16D6C22A37C49AC2B7 /* ExternalProgressProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97ADE40DF29059A5B97E37D6 /* ExternalProgressProviding.swift */; };
 		ED7E919E39E0454432171664 /* ExternalProgressService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C85605CDB6C6075AADBE2D15 /* ExternalProgressService.swift */; };
@@ -667,6 +668,7 @@
 		8322A3C6479B099448C63C47 /* IntegrationLibraryViewModelProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2E070421575334E1CD85C049 /* IntegrationLibraryViewModelProtocol.swift */; };
 		89058F6081ECE1258DE9607D /* AudiobookShelfOIDCFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75010F6AB433BBEEB7FA9376 /* AudiobookShelfOIDCFlow.swift */; };
 		8A0883CB5B4914B2DCB70A5E /* AudiobookShelfOIDCFlowTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC10E1E47E1F6982D8F6A552 /* AudiobookShelfOIDCFlowTests.swift */; };
+		6E2DBCE721E2F93FBE388179 /* MediaServerStreamsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25AFBDFDC4D27343527C98E6 /* MediaServerStreamsTests.swift */; };
 		8A2A22392CEFEB8E00E73A2D /* AdaptiveVGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A2A22382CEFEB8800E73A2D /* AdaptiveVGrid.swift */; };
 		8A495CC62CC85D27001B4244 /* JellyfinAPI in Frameworks */ = {isa = PBXBuildFile; productRef = 8A495CC52CC85D27001B4244 /* JellyfinAPI */; };
 		8A9D0D242CCED53C007A924D /* JellyfinLibraryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D232CCED53C007A924D /* JellyfinLibraryViewModel.swift */; };
@@ -955,6 +957,7 @@
 		B0B0F11E5EA1CA27D0000006 /* PlayerTimeSampleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0B0F11E5EA1CA27D0000005 /* PlayerTimeSampleTests.swift */; };
 		B14881000000000000000001 /* IntegrationCustomHeadersSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B14881000000000000000002 /* IntegrationCustomHeadersSectionView.swift */; };
 		B16A2A4FFFE86D46E799A773 /* IntegrationHostResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3451CA062919E03CEB975E92 /* IntegrationHostResolver.swift */; };
+		5FC0A45648150717B0674919 /* MediaServerStreams.swift in Sources */ = {isa = PBXBuildFile; fileRef = 09CE0C5C0B0003FC174EA8CD /* MediaServerStreams.swift */; };
 		09E50F19D8C014240BD8A1BF /* ExternalStreamResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = A51357B087F7FB3CF6E08296 /* ExternalStreamResolver.swift */; };
 		CF9C88BC3DDD1AE5833E2106 /* ExternalProgressProviding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97ADE40DF29059A5B97E37D6 /* ExternalProgressProviding.swift */; };
 		CDA937D56B8AFBA03402E979 /* ExternalProgressService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C85605CDB6C6075AADBE2D15 /* ExternalProgressService.swift */; };
@@ -1188,6 +1191,7 @@
 		2E070421575334E1CD85C049 /* IntegrationLibraryViewModelProtocol.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = IntegrationLibraryViewModelProtocol.swift; sourceTree = "<group>"; };
 		3373A34FC2536111E50BF868 /* PasskeyEmailInputView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PasskeyEmailInputView.swift; sourceTree = "<group>"; };
 		3451CA062919E03CEB975E92 /* IntegrationHostResolver.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = IntegrationHostResolver.swift; sourceTree = "<group>"; };
+		09CE0C5C0B0003FC174EA8CD /* MediaServerStreams.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MediaServerStreams.swift; sourceTree = "<group>"; };
 		A51357B087F7FB3CF6E08296 /* ExternalStreamResolver.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ExternalStreamResolver.swift; sourceTree = "<group>"; };
 		97ADE40DF29059A5B97E37D6 /* ExternalProgressProviding.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ExternalProgressProviding.swift; sourceTree = "<group>"; };
 		C85605CDB6C6075AADBE2D15 /* ExternalProgressService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ExternalProgressService.swift; sourceTree = "<group>"; };
@@ -2025,6 +2029,7 @@
 		E4D25EF2A5FFF30CF12F2C21 /* PreferencesSyncService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PreferencesSyncService.swift; sourceTree = "<group>"; };
 		E55F466D61AE62A69DE4D371 /* BPNavigation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPNavigation.swift; sourceTree = "<group>"; };
 		EC10E1E47E1F6982D8F6A552 /* AudiobookShelfOIDCFlowTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AudiobookShelfOIDCFlowTests.swift; sourceTree = "<group>"; };
+		25AFBDFDC4D27343527C98E6 /* MediaServerStreamsTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MediaServerStreamsTests.swift; sourceTree = "<group>"; };
 		EC40E520F644AFA46DAD76B0 /* AudioMetadataServiceTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AudioMetadataServiceTests.swift; sourceTree = "<group>"; };
 		F1E6918C51C370C2E89B24F9 /* PreferencesAPI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PreferencesAPI.swift; sourceTree = "<group>"; };
 		F4388D9707FA7C85F9D07E75 /* WebAuthenticatingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WebAuthenticatingTests.swift; sourceTree = "<group>"; };
@@ -2789,6 +2794,7 @@
 				F5A989BA90E16F60920A1DB0 /* PKCETests.swift */,
 				269BB56618B150DCAA2CA5FB /* IntegrationConnectionStoreTests.swift */,
 				EC10E1E47E1F6982D8F6A552 /* AudiobookShelfOIDCFlowTests.swift */,
+				25AFBDFDC4D27343527C98E6 /* MediaServerStreamsTests.swift */,
 				2BB8BD2F5EC900DC51D5D02D /* IntegrationConnectionDataDecodingTests.swift */,
 				638A9B40CE7EECEF80FA9935 /* AudiobookShelfConnectionViewModelTests.swift */,
 				F4388D9707FA7C85F9D07E75 /* WebAuthenticatingTests.swift */,
@@ -3616,6 +3622,7 @@
 				377C4C967D9AE1D471C2207C /* WebAuthenticating.swift */,
 				22E85F55E03D1981F097661C /* PKCE.swift */,
 				3451CA062919E03CEB975E92 /* IntegrationHostResolver.swift */,
+				09CE0C5C0B0003FC174EA8CD /* MediaServerStreams.swift */,
 				A51357B087F7FB3CF6E08296 /* ExternalStreamResolver.swift */,
 			);
 			path = Integrations;
@@ -4947,6 +4954,7 @@
 				EF5A25679D73F58A5D551D01 /* IntegrationConnectionStore.swift in Sources */,
 				8AC2579BAAAAFE0091DA9285 /* PKCE.swift in Sources */,
 				45FE3490229249F95A3CF5FF /* IntegrationHostResolver.swift in Sources */,
+				51BAE44A55BB5C9FA265DA1F /* MediaServerStreams.swift in Sources */,
 				4DCB4D54E03F9CDA56865A89 /* ExternalStreamResolver.swift in Sources */,
 				F2083D16D6C22A37C49AC2B7 /* ExternalProgressProviding.swift in Sources */,
 				ED7E919E39E0454432171664 /* ExternalProgressService.swift in Sources */,
@@ -5419,6 +5427,7 @@
 				5E20E8B93A65A58C51F1FF52 /* PKCETests.swift in Sources */,
 				02C668174D24A70B4CD6FCB1 /* IntegrationConnectionStoreTests.swift in Sources */,
 				8A0883CB5B4914B2DCB70A5E /* AudiobookShelfOIDCFlowTests.swift in Sources */,
+				6E2DBCE721E2F93FBE388179 /* MediaServerStreamsTests.swift in Sources */,
 				F6348C04290CD2CE7BE3F015 /* IntegrationConnectionDataDecodingTests.swift in Sources */,
 				F97E68221AB7CDFB93CC0AF7 /* AudiobookShelfConnectionViewModelTests.swift in Sources */,
 				ADBA6DD206F76CF92C0765A3 /* WebAuthenticatingTests.swift in Sources */,
@@ -5596,6 +5605,7 @@
 				F575EA7BBE6C619D27225281 /* IntegrationConnectionStore.swift in Sources */,
 				77980C5A9B7CF1A948FE7CF1 /* PKCE.swift in Sources */,
 				B16A2A4FFFE86D46E799A773 /* IntegrationHostResolver.swift in Sources */,
+				5FC0A45648150717B0674919 /* MediaServerStreams.swift in Sources */,
 				09E50F19D8C014240BD8A1BF /* ExternalStreamResolver.swift in Sources */,
 				CF9C88BC3DDD1AE5833E2106 /* ExternalProgressProviding.swift in Sources */,
 				CDA937D56B8AFBA03402E979 /* ExternalProgressService.swift in Sources */,
