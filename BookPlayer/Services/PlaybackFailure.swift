@@ -28,8 +28,11 @@ struct PlaybackFailure: Equatable {
 
   let reason: Reason
   /// Title and body exactly as the phone has always shown them, error code and `NSError` dump
-  /// included — they are worth keeping for support threads. Neither reaches the car, which
-  /// words its own single line: a domain and a `userInfo` dump is not dashboard copy.
+  /// included — they are worth keeping for support threads. The one exception is a missing
+  /// connection whose address is known, on a tier that can stream (`canOfferMediaServers`): the
+  /// body then names the server to add. Neither reaches
+  /// the car, which words its own single line: a domain and a `userInfo` dump is not dashboard
+  /// copy.
   let phoneTitle: String
   let phoneMessage: String?
   /// Whether the Media Servers shortcut can actually fix this one. False when the tier cannot

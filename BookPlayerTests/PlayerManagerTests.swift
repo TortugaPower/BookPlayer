@@ -128,7 +128,9 @@ class PlayerManagerTests: XCTestCase {
   /// The tier half of the Media Servers shortcut. The item half lives on PlayableChapter
   /// (MediaServersShortcutTests); this pins the wiring — that the entitlement closure is
   /// actually consulted — against a real PlayerManager.
-  private func makeUnplayableExternalChapter() -> PlayableChapter {
+  private func makeUnplayableExternalChapter(
+    host: PlayableChapter.UnresolvedHost = .init(provider: .jellyfin, address: nil)
+  ) -> PlayableChapter {
     PlayableChapter(
       title: "test chapter",
       author: "test author",
@@ -138,7 +140,7 @@ class PlayerManagerTests: XCTestCase {
       remoteURL: URL(string: "https://s3.example.com/presigned"),
       externalURL: nil,
       index: 0,
-      hasUnresolvedExternalHost: true
+      unresolvedHost: host
     )
   }
 
@@ -175,12 +177,13 @@ class PlayerManagerTests: XCTestCase {
       remoteURL: nil,
       externalURL: nil,
       index: 0,
-      hasUnresolvedExternalHost: true
+      unresolvedHost: .init(provider: .audiobookshelf, address: "https://abs.example.com")
     )
 
     let failure = sut.playbackFailure(for: chapter, title: "t", message: "m")
 
     XCTAssertEqual(failure.reason, .other, "the file is on disk — no server is involved")
+    XCTAssertEqual(failure.phoneMessage, "m", "only a missing connection names the server")
     XCTAssertFalse(
       failure.canOfferMediaServers,
       "reason and the shortcut must not disagree on the same failure"
@@ -196,8 +199,7 @@ class PlayerManagerTests: XCTestCase {
       relativePath: "no-such-file.m4b",
       remoteURL: nil,
       externalURL: URL(string: "https://jellyfin.example.com/stream"),
-      index: 0,
-      hasUnresolvedExternalHost: false
+      index: 0
     )
 
     XCTAssertEqual(
@@ -213,6 +215,42 @@ class PlayerManagerTests: XCTestCase {
 
     XCTAssertEqual(failure.reason, .other)
     XCTAssertFalse(failure.canOfferMediaServers)
+  }
+
+  /// A server the item names by address can be named back to the user, so they know which one
+  /// to add.
+  func testAMissingConnectionWithAnAddressNamesTheServer() {
+    let failure = sut.playbackFailure(
+      for: makeUnplayableExternalChapter(
+        host: .init(provider: .audiobookshelf, address: "https://abs.example.com")
+      ),
+      title: "t",
+      message: "m"
+    )
+
+    XCTAssertEqual(failure.reason, .missingConnection)
+    XCTAssertEqual(
+      failure.phoneMessage,
+      String(
+        format: "integration_error_missing_connection_address".localized,
+        "AudiobookShelf",
+        "https://abs.example.com"
+      )
+    )
+    XCTAssertTrue(failure.phoneMessage?.contains("https://abs.example.com") ?? false)
+  }
+
+  /// An id-shaped host (a Jellyfin GUID, a legacy `server-settings`) has no address to show,
+  /// so the phone keeps its usual copy.
+  func testAMissingConnectionWithoutAnAddressKeepsTheMessage() {
+    let failure = sut.playbackFailure(
+      for: makeUnplayableExternalChapter(host: .init(provider: .jellyfin, address: nil)),
+      title: "t",
+      message: "m"
+    )
+
+    XCTAssertEqual(failure.reason, .missingConnection)
+    XCTAssertEqual(failure.phoneMessage, "m")
   }
 
   /// The phone's copy is deliberately passed through untouched — the error code and NSError
@@ -244,6 +282,32 @@ class PlayerManagerTests: XCTestCase {
       unentitled.offersMediaServers(for: makeUnplayableExternalChapter()),
       "a tier that can't stream has nothing to gain from the shortcut"
     )
+  }
+
+  /// Naming the server is advice to add it, and a tier that can't stream gains nothing from
+  /// that: the phone keeps its usual copy, as the car does.
+  func testAMissingConnectionIsNotNamedWithoutStreaming() {
+    let unentitled = PlayerManager(
+      libraryService: LibraryServiceProtocolMock(),
+      playbackService: playbackServiceMock,
+      syncService: SyncServiceProtocolMock(),
+      speedService: SpeedServiceProtocolMock(),
+      shakeMotionService: ShakeMotionServiceProtocolMock(),
+      widgetReloadService: WidgetReloadService(),
+      hasStreamingEnabled: { false },
+      presentFailure: { _ in }
+    )
+
+    let failure = unentitled.playbackFailure(
+      for: makeUnplayableExternalChapter(
+        host: .init(provider: .audiobookshelf, address: "https://abs.example.com")
+      ),
+      title: "t",
+      message: "m"
+    )
+
+    XCTAssertEqual(failure.reason, .missingConnection)
+    XCTAssertEqual(failure.phoneMessage, "m")
   }
 
   /// The gate that makes the entitlement enforceable at all: before it, the external branch

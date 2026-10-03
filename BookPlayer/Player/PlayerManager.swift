@@ -440,12 +440,43 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
       reason = .other
     }
 
+    let canOfferMediaServers = chapter.map(offersMediaServers(for:)) ?? false
+
     return PlaybackFailure(
       reason: reason,
       phoneTitle: title,
-      phoneMessage: message,
-      canOfferMediaServers: chapter.map(offersMediaServers(for:)) ?? false
+      phoneMessage: missingServerMessage(
+        reason: reason,
+        host: chapter?.unresolvedHost,
+        canOfferMediaServers: canOfferMediaServers
+      ) ?? message,
+      canOfferMediaServers: canOfferMediaServers
     )
+  }
+
+  /// Names the server to add when the item says where it is. Without an address (a Jellyfin
+  /// server id, or a legacy `"server-settings"` hostId) the phone keeps its usual copy, and so
+  /// it does for a tier that can't stream: adding the server wouldn't play the book, which is
+  /// why the car and the Media Servers button stay quiet then too.
+  private func missingServerMessage(
+    reason: PlaybackFailure.Reason,
+    host: PlayableChapter.UnresolvedHost?,
+    canOfferMediaServers: Bool
+  ) -> String? {
+    guard
+      reason == .missingConnection,
+      canOfferMediaServers,
+      let address = host?.address,
+      let provider = host?.provider
+    else { return nil }
+
+    let providerName =
+      switch provider {
+      case .jellyfin: "Jellyfin"
+      case .audiobookshelf: "AudiobookShelf"
+      }
+
+    return String(format: "integration_error_missing_connection_address".localized, providerName, address)
   }
 
   /// The one way a failure leaves this class. Hops to main unconditionally, as the UIKit

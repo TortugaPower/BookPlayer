@@ -10,8 +10,9 @@ import Foundation
 /// A saved media-server connection that can be matched against a synced external resource's
 /// `hostId`. Both `JellyfinConnectionData` and `AudiobookShelfConnectionData` conform.
 public protocol IntegrationHostIdentifiable {
-  /// The server's own stable id (Jellyfin `System/Info.Id`, ABS login `server.id`), captured at
-  /// sign-in. Nil for connections saved before the server ever reported one.
+  /// The server's own stable id (Jellyfin `System/Info.Id`), captured at sign-in. Nil for a
+  /// Jellyfin connection saved before the server ever reported one, and always nil for
+  /// AudiobookShelf, which has no per-instance id: its address is its identity.
   var serverId: String? { get }
   var url: URL { get }
 }
@@ -21,16 +22,19 @@ extension IntegrationHostIdentifiable {
   /// cross-device server identity. Contract shared with the Android app (its
   /// `ExternalServiceUtils.stableHostId`): the server GUID when known, else the canonical
   /// URL key (never the raw absolute string, so trailing-slash/port/case variants of one
-  /// logical server produce the same identity on every device).
+  /// logical server produce the same identity on every device). AudiobookShelf books always
+  /// get the URL key.
   public var stableHostId: String {
     serverId ?? url.canonicalDedupKey
   }
 }
 
 /// Mirrors the Android app's `ExternalServiceUtils.serverForResource` resolution contract:
-///  1. stable server GUID, case-insensitive (Jellyfin reports lowercase hex, ABS uppercase UUIDs —
-///     casing must never break the match);
-///  2. else canonical URL key (covers GUID-less servers and URL-fallback hostIds);
+///  1. stable server GUID, case-insensitive (casing must never break the match). Only Jellyfin
+///     reports one;
+///  2. else canonical URL key (every AudiobookShelf server, and Jellyfin servers that never
+///     reported a GUID). A legacy `"server-settings"` hostId, which Android 1.1.3–1.2.x stored
+///     for every ABS server, matches neither and resolves to nil;
 ///  3. else **nil** — deliberately NO first-connection fallback. Guessing a server streams the
 ///     wrong file or pushes progress to the wrong server when ids collide across instances;
 ///     an unresolvable host must surface as "connect your server", not silently misroute.

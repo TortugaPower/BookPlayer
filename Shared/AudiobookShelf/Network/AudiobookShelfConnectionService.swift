@@ -234,15 +234,9 @@ public class AudiobookShelfConnectionService: BPLogger {
       throw IntegrationError.unexpectedResponse(code: nil)
     }
 
-    // The login response carries the instance's stable id in the "server" object — the
-    // cross-device host identity for synced external resources. Best-effort: absence must
-    // never fail the sign-in, and must not wipe a previously captured id.
-    let serverId = (json["server"] as? [String: Any])?["id"] as? String
-
     persist(
       url: url,
       serverName: serverName,
-      serverId: serverId,
       userID: userID,
       userName: username,
       apiToken: apiToken,
@@ -261,7 +255,6 @@ public class AudiobookShelfConnectionService: BPLogger {
   private func persist(
     url: URL,
     serverName: String,
-    serverId: String? = nil,
     userID: String,
     userName: String,
     apiToken: String,
@@ -271,7 +264,11 @@ public class AudiobookShelfConnectionService: BPLogger {
     let result = store.upsert(url: url, userID: userID, replacingID: replacingID) { existing in
       AudiobookShelfConnectionData(
         id: existing?.id ?? UUID().uuidString,
-        serverId: serverId ?? existing?.serverId,
+        // AudiobookShelf has no per-instance id, so the server's address is its identity
+        // (`stableHostId` falls back to the canonical URL key). Never read the login response's
+        // `serverSettings.id`: it's the constant "server-settings" on every server, and storing
+        // it made every book resolve to whichever ABS server was saved first.
+        serverId: nil,
         url: url,
         serverName: serverName,
         userID: userID,

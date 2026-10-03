@@ -614,7 +614,7 @@ final class MediaServersShortcutTests: XCTestCase {
       remoteURL: URL(string: "https://s3.example.com/presigned"),
       externalURL: externalUrl,
       index: 1,
-      hasUnresolvedExternalHost: hasUnresolvedExternalHost
+      unresolvedHost: hasUnresolvedExternalHost ? .init(provider: .jellyfin, address: nil) : nil
     )
   }
 
@@ -659,7 +659,7 @@ final class MediaServersShortcutTests: XCTestCase {
       remoteURL: nil,
       externalURL: nil,
       index: 1,
-      hasUnresolvedExternalHost: true
+      unresolvedHost: .init(provider: .jellyfin, address: nil)
     )
 
     XCTAssertFalse(chapter.needsMediaServer())
@@ -1455,13 +1455,16 @@ final class PlayableChapterExternalHostTests: XCTestCase {
     return sut
   }
 
-  private func mediaServerResource() -> SimpleExternalResource {
+  private func mediaServerResource(
+    providerName: String = "jellyfin",
+    hostId: String = "guid-jelly"
+  ) -> SimpleExternalResource {
     SimpleExternalResource(
-      providerName: "jellyfin",
+      providerName: providerName,
       providerId: "item-1",
       syncStatus: ExternalResource.SyncStatus.stream.rawValue,
       lastSyncedAt: nil,
-      hostId: "guid-jelly",
+      hostId: hostId,
       libraryItem: nil
     )
   }
@@ -1481,6 +1484,41 @@ final class PlayableChapterExternalHostTests: XCTestCase {
 
     XCTAssertNil(chapters.first?.externalUrl)
     XCTAssertTrue(chapters.first?.hasUnresolvedExternalHost ?? false)
+  }
+
+  /// The missing-server alert names the server when the item says where it is: an ABS hostId
+  /// is always its address, a Jellyfin one only when the server never reported an id.
+  func testAnAddressHostIdIsCarriedForTheAlert() throws {
+    let abs = try makeSUT(resolved: false).getPlayableChapters(
+      book: makeItem(resources: [
+        mediaServerResource(providerName: "audiobookshelf", hostId: "https://abs.example.com/sub")
+      ])
+    )
+    XCTAssertEqual(
+      abs.first?.unresolvedHost,
+      .init(provider: .audiobookshelf, address: "https://abs.example.com/sub")
+    )
+
+    let jellyfinByAddress = try makeSUT(resolved: false).getPlayableChapters(
+      book: makeItem(resources: [mediaServerResource(hostId: "HTTP://192.168.1.10:8096")])
+    )
+    XCTAssertEqual(jellyfinByAddress.first?.unresolvedHost?.address, "HTTP://192.168.1.10:8096")
+  }
+
+  /// An id says nothing the user could act on: a Jellyfin GUID, the constant older Android
+  /// builds stored for every ABS server, or a legacy numeric id.
+  func testAnIdShapedHostIdCarriesNoAddress() throws {
+    for (provider, hostId) in [
+      ("jellyfin", "guid-jelly"),
+      ("audiobookshelf", "server-settings"),
+      ("jellyfin", "1"),
+    ] {
+      let chapters = try makeSUT(resolved: false).getPlayableChapters(
+        book: makeItem(resources: [mediaServerResource(providerName: provider, hostId: hostId)])
+      )
+      XCTAssertTrue(chapters.first?.hasUnresolvedExternalHost ?? false, hostId)
+      XCTAssertNil(chapters.first?.unresolvedHost?.address, hostId)
+    }
   }
 
   /// A plain local book has no media server, so a missing file is not a server problem.

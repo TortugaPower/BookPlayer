@@ -238,7 +238,9 @@ public final class PlaybackService: PlaybackServiceProtocol {
     // The resource exists but no stream source could be built for it — in practice because
     // no saved connection matched its host; the resolver logs the one other way. Either way
     // the file can't be streamed or re-downloaded on this device until its server is added.
-    let hasUnresolvedExternalHost = externalResource != nil && externalUrl == nil
+    let unresolvedHost = externalUrl == nil
+      ? externalResource.map(PlayableChapter.UnresolvedHost.init(resource:))
+      : nil
 
     // If no chapters, create a single one using the book metadata
     guard !chapters.isEmpty else {
@@ -253,7 +255,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
           externalURL: externalUrl,
           index: 1,
           externalHeaders: externalHeaders,
-          hasUnresolvedExternalHost: hasUnresolvedExternalHost
+          unresolvedHost: unresolvedHost
         )
       ]
     }
@@ -271,7 +273,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
           externalURL: externalUrl,
           index: Int16(index + 1),
           externalHeaders: externalHeaders,
-          hasUnresolvedExternalHost: hasUnresolvedExternalHost
+          unresolvedHost: unresolvedHost
         )
       })
   }
@@ -358,7 +360,7 @@ public final class PlaybackService: PlaybackServiceProtocol {
           // Without the headers a streamed chapter inside a bound book hits the media
           // server unauthenticated and 401s.
           externalHeaders: nestedChapter.externalHeaders,
-          hasUnresolvedExternalHost: nestedChapter.hasUnresolvedExternalHost
+          unresolvedHost: nestedChapter.unresolvedHost
         )
         currentDuration = TimeParser.truncateTime(currentDuration + truncatedDuration)
         localCurrentDuration = TimeParser.truncateTime(localCurrentDuration + localDuration)

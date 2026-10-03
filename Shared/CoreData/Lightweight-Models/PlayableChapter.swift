@@ -10,6 +10,32 @@ import Foundation
 import UniformTypeIdentifiers
 
 public struct PlayableChapter: Codable, Identifiable {
+  /// The media server a chapter streams from, when no saved connection on this device matches
+  /// it: what the missing-server alert can tell the user about it.
+  public struct UnresolvedHost: Equatable {
+    public let provider: ExternalResource.MediaServerProvider?
+    /// The server's address, when the resource's `hostId` is one: every AudiobookShelf book a
+    /// current build imports (ABS has no instance id), and a Jellyfin book whose server never
+    /// reported its id. Nil for an id-shaped hostId (a Jellyfin GUID, or the
+    /// `"server-settings"` constant older Android builds stored for every ABS server), which
+    /// tells the user nothing.
+    public let address: String?
+
+    public init(provider: ExternalResource.MediaServerProvider?, address: String?) {
+      self.provider = provider
+      self.address = address
+    }
+
+    public init(resource: SimpleExternalResource) {
+      let hostId = resource.hostId ?? ""
+      let isAddress = ["http://", "https://"].contains {
+        hostId.range(of: $0, options: [.caseInsensitive, .anchored]) != nil
+      }
+
+      self.init(provider: resource.mediaServer, address: isAddress ? hostId : nil)
+    }
+  }
+
   public var id: String {
     return "\(index)"
   }
@@ -23,11 +49,15 @@ public struct PlayableChapter: Codable, Identifiable {
   public let index: Int16
   public let chapterOffset: TimeInterval
   public let externalHeaders: [String: String]
-  /// The item carries a media-server resource, but no saved connection on THIS device
-  /// matches its host — so there is no external URL to stream and nothing to download.
-  /// Distinct from `externalUrl == nil`, which is also true for items that never had a
-  /// media server at all.
-  public let hasUnresolvedExternalHost: Bool
+  /// Set when the item carries a media-server resource but no saved connection on THIS
+  /// device matches its host, so there is no external URL to stream and nothing to download.
+  public let unresolvedHost: UnresolvedHost?
+
+  /// Distinct from `externalUrl == nil`, which is also true for items that never had a media
+  /// server at all.
+  public var hasUnresolvedExternalHost: Bool {
+    unresolvedHost != nil
+  }
 
   public var end: TimeInterval {
     return start + duration
@@ -66,7 +96,7 @@ public struct PlayableChapter: Codable, Identifiable {
     index: Int16,
     chapterOffset: TimeInterval = 0,
     externalHeaders: [String: String] = [:],
-    hasUnresolvedExternalHost: Bool = false
+    unresolvedHost: UnresolvedHost? = nil
   ) {
     self.title = title
     self.author = author
@@ -78,10 +108,10 @@ public struct PlayableChapter: Codable, Identifiable {
     self.index = index
     self.chapterOffset = chapterOffset
     self.externalHeaders = externalHeaders
-    self.hasUnresolvedExternalHost = hasUnresolvedExternalHost
+    self.unresolvedHost = unresolvedHost
   }
 
-  /// `externalUrl`/`externalHeaders`/`hasUnresolvedExternalHost` are deliberately EXCLUDED from Codable: the headers carry
+  /// `externalUrl`/`externalHeaders`/`unresolvedHost` are deliberately EXCLUDED from Codable: the headers carry
   /// the media server's live `Authorization` token, and encoded `PlayableItem`s travel through
   /// the WatchConnectivity application context, which the system PERSISTS TO DISK on both
   /// devices. Both values are per-device, resolved from the local connection at load time
@@ -103,7 +133,7 @@ public struct PlayableChapter: Codable, Identifiable {
     self.chapterOffset = (try? container.decodeIfPresent(TimeInterval.self, forKey: .chapterOffset)) ?? 0
     self.externalUrl = nil
     self.externalHeaders = [:]
-    self.hasUnresolvedExternalHost = false
+    self.unresolvedHost = nil
   }
 }
 

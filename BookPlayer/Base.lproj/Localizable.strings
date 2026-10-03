@@ -551,6 +551,7 @@
 "external_sync_info_title" = "Stream & Sync";
 "queued_tasks_title" = "Queued Tasks";
 "integration_error_missing_connection" = "This book streams from your media server. Connect it in Settings to download or play it.";
+"integration_error_missing_connection_address" = "This book streams from your %1$@ server at %2$@. Add that server on this device to play the book.";
 "carplay_playback_failed_message" = "Can't play this book. Open BookPlayer on your phone for details.";
 "carplay_missing_connection_message" = "This book streams from a media server that isn't set up on this device. Open BookPlayer on your phone to connect it.";
 "sync_paused_lane_title" = "Paused: a task needs your attention";
