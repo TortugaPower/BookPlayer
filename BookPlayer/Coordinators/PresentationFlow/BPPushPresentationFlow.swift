@@ -44,10 +44,12 @@ public struct BPPushPresentationFlow: BPCoordinatorPresentationFlow {
     guard let completion else { return }
 
     // A pop has no completion of its own: an animated one finishes with its transition
-    if let transitionCoordinator = navigationController.transitionCoordinator {
-      transitionCoordinator.animate(alongsideTransition: nil) { _ in completion() }
-    } else {
+    guard
+      let transitionCoordinator = navigationController.transitionCoordinator,
+      transitionCoordinator.animate(alongsideTransition: nil, completion: { _ in completion() })
+    else {
       completion()
+      return
     }
   }
 }

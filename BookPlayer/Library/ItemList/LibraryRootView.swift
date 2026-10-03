@@ -204,6 +204,9 @@ struct LibraryRootView: View {
       return
     }
 
+    /// Where the import lands: the location browsed now, not after the network calls below
+    let importNode = path.last ?? .root
+
     Task { @MainActor in
       let processedItems = await libraryService.insertItems(from: files)
       var itemIdentifiers = processedItems.map({ $0.relativePath })
@@ -211,10 +214,9 @@ struct LibraryRootView: View {
       do {
         await syncService.scheduleUpload(items: processedItems)
         /// Move imported files to current selected folder so the user can see them
-        if let lastItem = path.last,
-           let folderRelativePath = lastItem.folderRelativePath {
+        if let folderRelativePath = importNode.folderRelativePath {
           try libraryService.moveItems(itemIdentifiersPairs, inside: folderRelativePath)
-          syncService.scheduleMove(items: itemIdentifiersPairs, to: LibraryItemRef(relativePath: folderRelativePath, uuid: lastItem.uuid ))
+          syncService.scheduleMove(items: itemIdentifiersPairs, to: LibraryItemRef(relativePath: folderRelativePath, uuid: importNode.uuid))
           /// Update identifiers after moving for the follow up action alert
           itemIdentifiers = itemIdentifiers.map({ "\(folderRelativePath)/\($0)" })
         }
@@ -231,7 +233,7 @@ struct LibraryRootView: View {
       let availableFolders =
         self.libraryService.getItems(
           notIn: itemIdentifiers,
-          parentFolder: path.last?.folderRelativePath
+          parentFolder: importNode.folderRelativePath
         )?.filter({ $0.type == .folder }) ?? []
 
       let singleFolder: SimpleLibraryItem? =
@@ -257,7 +259,7 @@ struct LibraryRootView: View {
         singleFolderUuid: singleFolder?.uuid,
         availableFolders: availableFolders,
         suggestedFolderName: firstTitle,
-        node: path.last ?? .root
+        node: importNode
       )
     }
   }

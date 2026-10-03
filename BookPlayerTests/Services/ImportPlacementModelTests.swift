@@ -106,6 +106,33 @@ final class ImportPlacementModelTests: XCTestCase {
     XCTAssertEqual(libraryService.fetchContents(at: "Shelf/Saga", limit: nil, offset: nil)?.count, 2)
   }
 
+  /// A folder a sync pull deleted while the prompt waited: nothing moves, rather than into a path
+  /// that no longer exists.
+  func testAnExistingFolderThatIsGoneMovesNothing() throws {
+    let uuids = try importIntoShelf(["Dune"])
+    let gone = SimpleLibraryItem(
+      title: "Gone", details: "", speed: 1, currentTime: 0, duration: 0, percentCompleted: 0,
+      isFinished: false, relativePath: "Shelf/Gone", remoteURL: nil, artworkURL: nil, orderRank: 0,
+      parentFolder: "Shelf", originalFileName: "Gone", lastPlayDate: nil, type: .folder, uuid: "gone"
+    )
+
+    try sut.move(placement(uuids, folders: [gone]), into: gone)
+
+    XCTAssertNotNil(libraryService.getSimpleItem(with: "Shelf/Dune.txt"))
+    XCTAssertFalse(syncService.scheduleMoveItemsToCalled)
+  }
+
+  /// The folder the import landed in, renamed while the prompt waited: the new one goes in it.
+  func testANewFolderGoesWhereTheLandingFolderIsNow() async throws {
+    let uuids = try importIntoShelf(["Dune"])
+    _ = try libraryService.renameFolder(at: shelf.relativePath, with: "Shelf 2")
+
+    try await sut.createFolder(titled: "Box", for: placement(uuids), type: .folder)
+
+    XCTAssertNotNil(libraryService.getSimpleItem(with: "Shelf 2/Box"))
+    XCTAssertNotNil(libraryService.getSimpleItem(with: "Shelf 2/Box/Dune.txt"))
+  }
+
   /// An imported folder, moved into Shelf: "Create a volume" turns that one into a volume.
   func testAnImportedFolderBecomesAVolumeWhereItIsNow() throws {
     let folder = try libraryService.createFolder(with: "Series", inside: nil)

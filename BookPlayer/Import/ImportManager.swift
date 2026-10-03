@@ -71,8 +71,17 @@ final class ImportManager: ObservableObject {
   }
 
   public func createOperation() {
+    guard let operation = prepareOperation() else { return }
+
+    self.operationPublisher.send(operation)
+  }
+
+  /// The import of the pending files, which it takes: files arriving afterwards wait for the next
+  /// import, and discarding the pending files no longer touches these. Start it by sending it on
+  /// `operationPublisher`.
+  public func prepareOperation() -> ImportOperation? {
     guard !self.files.value.isEmpty else {
-      return
+      return nil
     }
 
     let sortDescriptor = NSSortDescriptor(key: "path", ascending: true, selector: #selector(NSString.localizedStandardCompare(_:)))
@@ -86,7 +95,7 @@ final class ImportManager: ObservableObject {
 
     self.files.value = []
 
-    self.operationPublisher.send(operation)
+    return operation
   }
 
   public func start(_ operation: Operation) {

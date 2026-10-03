@@ -27,10 +27,15 @@ class ImportCoordinator: Coordinator {
       case .dismiss:
         self.flow.finishPresentation(animated: true)
       case .dismissAndImport:
-        // Captured apart from `self`: the coordinator can be released with its screen
+        // Taken now: the closing screen's Cancel can no longer discard these files, and files
+        // arriving while it closes wait for the next import. Captured apart from `self`: the
+        // coordinator can be released with its screen
+        let operation = self.importManager.prepareOperation()
         let importManager = self.importManager
         self.flow.finishPresentation(animated: true) {
-          importManager.createOperation()
+          if let operation {
+            importManager.operationPublisher.send(operation)
+          }
         }
       }
     }

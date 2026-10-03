@@ -1435,7 +1435,13 @@ extension LibraryService {
     fetchRequest.propertiesToFetch = [#keyPath(LibraryItem.relativePath), #keyPath(LibraryItem.uuid)]
     fetchRequest.resultType = .dictionaryResultType
 
-    let rows = (try? dataManager.getContext().fetch(fetchRequest)) ?? []
+    let rows: [NSDictionary]
+    do {
+      rows = try dataManager.getContext().fetch(fetchRequest)
+    } catch {
+      Self.logger.error("Failed to look up \(uuids.count) items by uuid: \(error.localizedDescription)")
+      return []
+    }
     let pathsByUuid = rows.reduce(into: [String: String]()) { paths, row in
       guard
         let uuid = row[#keyPath(LibraryItem.uuid)] as? String,
@@ -2839,3 +2845,5 @@ extension LibraryService {
   }
 }
 // swiftlint:enable force_cast
+
+extension LibraryService: BPLogger {}

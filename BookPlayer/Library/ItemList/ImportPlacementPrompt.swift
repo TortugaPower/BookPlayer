@@ -39,19 +39,28 @@ struct ImportPlacementModel {
     try organizer.move(items(of: placement), into: nil)
   }
 
-  /// "Existing folder"
+  /// "Existing folder". Nothing happens when the folder is gone (a sync pull deleted it while the
+  /// prompt waited): moving into its old path would leave the items' paths pointing nowhere.
   func move(_ placement: ImportPlacement, into folder: SimpleLibraryItem) throws {
-    let destination = libraryService.getItemRefs(forUuids: [folder.uuid]).first
-      ?? LibraryItemRef(relativePath: folder.relativePath, uuid: folder.uuid)
+    guard let destination = libraryService.getItemRefs(forUuids: [folder.uuid]).first else { return }
+
     try organizer.move(items(of: placement), into: destination)
   }
 
   /// "New folder", or "Create a volume" for an import of books: a new one holding them, in the
-  /// location they were imported into
+  /// folder they were imported into, wherever it is now. Nothing happens when that folder is gone.
   func createFolder(titled title: String, for placement: ImportPlacement, type: SimpleItemType) async throws {
+    let parentPath: String?
+    if placement.node.folderRelativePath != nil {
+      guard let parent = libraryService.getItemRefs(forUuids: [placement.node.uuid]).first else { return }
+      parentPath = parent.relativePath
+    } else {
+      parentPath = nil
+    }
+
     try await organizer.createFolder(
       titled: title,
-      inside: placement.node.folderRelativePath,
+      inside: parentPath,
       holding: items(of: placement),
       type: type
     )

@@ -50,6 +50,28 @@ final class ImportCoordinatorTests: XCTestCase {
     XCTAssertEqual(startedImports, 1)
   }
 
+  /// The import takes its files when Import is tapped: the closing screen's Cancel can no longer
+  /// discard them.
+  func testCancellingWhileTheScreenClosesKeepsTheConfirmedFiles() throws {
+    let importManager = ImportManager(libraryService: LibraryServiceProtocolMock())
+    importManager.process(file)
+    var imported = [URL]()
+    let subscription = importManager.operationPublisher.sink { imported.append(contentsOf: $0.files) }
+    defer { subscription.cancel() }
+
+    let flow = HeldDismissalFlow()
+    let coordinator = ImportCoordinator(flow: flow, importManager: importManager)
+    coordinator.start()
+    let screen = try XCTUnwrap(flow.presented as? ImportViewController)
+
+    screen.viewModel.createOperation()
+    try screen.viewModel.discardImportOperation()
+    flow.finishDismissal()
+
+    XCTAssertTrue(FileManager.default.fileExists(atPath: file.path))
+    XCTAssertEqual(imported, [file])
+  }
+
   /// Cancelling discards the files and never imports.
   func testCancellingNeverImports() throws {
     let importManager = ImportManager(libraryService: LibraryServiceProtocolMock())
