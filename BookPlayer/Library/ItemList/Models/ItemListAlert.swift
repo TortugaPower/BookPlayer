@@ -12,7 +12,6 @@ import Foundation
 /// Represents all possible alert types in ItemListView
 enum ItemListAlert: Identifiable, Equatable {
   case queuedTasks
-  case importCompletion(ImportOperationState.AlertParameters)
   case moveOptions
   case createFolder(type: SimpleItemType, placeholder: String)
   case delete
@@ -24,8 +23,6 @@ enum ItemListAlert: Identifiable, Equatable {
     switch self {
     case .queuedTasks:
       return "queuedTasks"
-    case .importCompletion:
-      return "importCompletion"
     case .moveOptions:
       return "moveOptions"
     case .createFolder:

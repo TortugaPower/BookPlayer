@@ -16,8 +16,6 @@ extension ItemListView {
     switch alert {
     case .queuedTasks:
       queuedTasksAlert()
-    case .importCompletion(let parameters):
-      importCompletionAlert(for: parameters)
     case .moveOptions:
       moveOptionsAlert()
     case .createFolder(let type, let placeholder):
@@ -41,53 +39,6 @@ extension ItemListView {
       activeSheet = .queuedTasks
     }
     Button("ok_button", role: .cancel) {}
-  }
-  
-  @ViewBuilder
-  func importCompletionAlert(for alertParameters: ImportOperationState.AlertParameters) -> some View {
-    let hasParentFolder = model.libraryNode.folderRelativePath != nil
-    let suggestedFolderName = ((alertParameters.suggestedFolderName ?? "") as NSString).deletingPathExtension
-    let canCreateBound = alertParameters.hasOnlyBooks || alertParameters.singleFolder != nil
-    
-    if hasParentFolder {
-      Button("current_playlist_title") {}
-    }
-    
-    Button("library_title") {
-      if hasParentFolder {
-        model.importIntoLibrary(alertParameters.itemIdentifiers)
-      }
-    }
-    
-    Button("new_playlist_button") {
-      folderInput.prepareForFolder(title: suggestedFolderName, placeholder: suggestedFolderName)
-      model.selectedSetItems = Set(alertParameters.itemIdentifiers.map({ $0.relativePath }))
-      activeAlert = nil
-      Task { @MainActor in
-        activeAlert = .createFolder(type: .folder, placeholder: suggestedFolderName)
-      }
-    }
-    
-    Button("existing_playlist_button") {
-      model.pendingMoveItemIdentifiers = alertParameters.itemIdentifiers
-      model.selectedSetItems = Set(alertParameters.itemIdentifiers.map({ $0.relativePath }))
-      activeSheet = .foldersSelection
-    }
-    .disabled(alertParameters.availableFolders.isEmpty)
-    
-    Button("bound_books_create_button") {
-      if alertParameters.hasOnlyBooks {
-        folderInput.prepareForBound(title: suggestedFolderName, placeholder: suggestedFolderName)
-        model.selectedSetItems = Set(alertParameters.itemIdentifiers.map({ $0.relativePath }))
-        activeAlert = nil
-        Task { @MainActor in
-          activeAlert = .createFolder(type: .bound, placeholder: suggestedFolderName)
-        }
-      } else if let singleFolder = alertParameters.singleFolder {
-        model.updateFolders([singleFolder], type: .bound)
-      }
-    }
-    .disabled(!canCreateBound)
   }
   
   @ViewBuilder
@@ -219,9 +170,6 @@ extension ItemListView {
     switch alert {
     case .queuedTasks:
       return "sync_tasks_inprogress_alert_title".localized
-    case .importCompletion(let parameters):
-      let filesCount = parameters.itemIdentifiers.count
-      return String.localizedStringWithFormat("import_alert_title".localized, filesCount)
     case .moveOptions:
       return "choose_destination_title".localized
     case .createFolder(let type, _):

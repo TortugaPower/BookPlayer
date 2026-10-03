@@ -318,6 +318,26 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
             return getSimpleItemWithReturnValue
         }
     }
+    //MARK: - getItemRefs
+
+    var getItemRefsForUuidsCallsCount = 0
+    var getItemRefsForUuidsCalled: Bool {
+        return getItemRefsForUuidsCallsCount > 0
+    }
+    var getItemRefsForUuidsReceivedUuids: [String]?
+    var getItemRefsForUuidsReceivedInvocations: [[String]] = []
+    var getItemRefsForUuidsReturnValue: [LibraryItemRef]!
+    var getItemRefsForUuidsClosure: (([String]) -> [LibraryItemRef])?
+    func getItemRefs(forUuids uuids: [String]) -> [LibraryItemRef] {
+        getItemRefsForUuidsCallsCount += 1
+        getItemRefsForUuidsReceivedUuids = uuids
+        getItemRefsForUuidsReceivedInvocations.append(uuids)
+        if let getItemRefsForUuidsClosure = getItemRefsForUuidsClosure {
+            return getItemRefsForUuidsClosure(uuids)
+        } else {
+            return getItemRefsForUuidsReturnValue
+        }
+    }
     //MARK: - getItems
 
     var getItemsNotInParentFolderCallsCount = 0

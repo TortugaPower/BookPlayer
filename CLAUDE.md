@@ -383,6 +383,15 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
   `SentrySDK.capture`s then `fatalError`s** — an intentional but real crash surface for bad imports. Book/folder
   records are created via `LibraryService.createBook/createFolder`; artwork is extracted lazily by
   `ArtworkService`, not inline. App-managed source files are removed after copy.
+  **The import's "where should these go?" prompt is `ImportPlacementPrompt`, owned by `LibraryRootView`, not
+  one of the list's alerts.** SwiftUI drops a presentation started while something covers the library or is
+  still leaving it, and a dropped value in the list's single `activeAlert` slot used to block every later list
+  alert until relaunch. So: the import screen starts the import only once it has closed
+  (`finishPresentation(animated:completion:)`); the prompt waits until `ListStateManager.coversOnScreen` is
+  empty (covers register in their content's `onAppear` and leave in the presentation's `onDismiss`: a new cover
+  over the library must do the same) and the Library tab is on screen; and it carries the imported items'
+  uuids, reading their current paths when an option is picked (`LibraryService.getItemRefs(forUuids:)`). Its
+  actions and the list's multi-select share `LibraryOrganizer`.
 - **Library** (`Library/ItemList/…`, backed by `Shared/Services/LibraryService.swift`): the main list, folders,
   and drag-drop reordering. **Ordering model (query-time sort):** `orderRank` means ONLY the user's custom
   arrangement (written by drag/reverse/Custom-freeze/one-shot sorts and by sync; never by an automatic sort).

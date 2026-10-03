@@ -270,24 +270,6 @@ struct ItemListView: View {
       let padding = listState.padding(for: model.reloadScope)
       model.reloadItems(with: padding)
     }
-    .onChange(of: activeAlert) {
-      /// Clean up after import completion
-      if case .importCompletion = activeAlert {
-        // Alert is showing
-      } else if importOperationState.alertParameters != nil {
-        importOperationState.alertParameters = nil
-      }
-    }
-    .onChange(of: importOperationState.alertParameters) {
-      guard
-        let alertParameters = importOperationState.alertParameters,
-        alertParameters.lastNode == model.libraryNode
-      else { return }
-
-      /// Register that at least one import operation has completed
-      BPSKANManager.updateConversionValue(.import)
-      activeAlert = .importCompletion(alertParameters)
-    }
   }
 
   @ViewBuilder

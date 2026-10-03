@@ -74,9 +74,6 @@ final class ItemListViewModel: ObservableObject {
     }
   }
   @Published var selectedItems = [SimpleLibraryItem]()
-  /// Stores item identifiers from import operations to avoid race condition
-  /// where items may not be loaded in the UI yet when moving to a folder
-  var pendingMoveItemIdentifiers: [LibraryItemRef]?
 
   /// Search
   @Published var scope: ItemListSearchScope = .all {
@@ -441,16 +438,6 @@ extension ItemListViewModel {
     editMode = .inactive
   }
 
-  func importIntoLibrary(_ items: [LibraryItemRef]) {
-    do {
-      try organizer.move(items, into: nil)
-    } catch {
-      loadingState.error = error
-    }
-
-    listState.reloadAll(padding: items.count)
-  }
-
   func createFolder(with title: String, items: [LibraryItemRef]? = nil, type: SimpleItemType) {
     Task { @MainActor in
       do {
@@ -472,15 +459,7 @@ extension ItemListViewModel {
   }
 
   func handleMoveIntoFolder(_ folder: SimpleLibraryItem) {
-    // Use pendingMoveItemIdentifiers if available (from import operations),
-    // otherwise fall back to selectedItems (from manual selection)
-    let fetchedItems: [LibraryItemRef]
-    if let pendingItems = pendingMoveItemIdentifiers {
-      fetchedItems = pendingItems
-      pendingMoveItemIdentifiers = nil
-    } else {
-      fetchedItems = selectedItems.compactMap({ LibraryItemRef(relativePath: $0.relativePath, uuid: $0.uuid) })
-    }
+    let fetchedItems = selectedItems.map { LibraryItemRef(relativePath: $0.relativePath, uuid: $0.uuid) }
 
     do {
       try organizer.move(fetchedItems, into: LibraryItemRef(relativePath: folder.relativePath, uuid: folder.uuid))
