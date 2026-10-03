@@ -83,44 +83,49 @@ struct ImportPlacementPrompt: ViewModifier {
 
   @Environment(\.listState) private var listState
 
-  /// One alert at a time: the options, then the folder name for "New folder" or "Create a volume"
-  enum Stage: Equatable {
-    case options(ImportPlacement)
-    case name(ImportPlacement, type: SimpleItemType)
+  /// The folder name asked for after "New folder" or "Create a volume"
+  struct NameRequest: Equatable {
+    let placement: ImportPlacement
+    let type: SimpleItemType
   }
 
-  @State private var stage: Stage?
-  /// Waiting for the options alert to close before the name alert shows
-  @State private var nextStage: Stage?
+  @State private var options: ImportPlacement?
+  @State private var nameRequest: NameRequest?
   @State private var folderPicker: ImportPlacement?
   @State private var folderName = ""
 
-  private var isStagePresented: Binding<Bool> {
-    Binding(
-      get: { stage != nil },
-      set: { if !$0 { stage = nil } }
-    )
+  /// Nothing of the prompt's is on screen
+  private var isIdle: Bool {
+    options == nil && nameRequest == nil && folderPicker == nil
   }
 
   func body(content: Content) -> some View {
     content
       .alert(
-        stage.map(title(for:)) ?? "",
-        isPresented: isStagePresented,
-        presenting: stage
-      ) { stage in
-        switch stage {
-        case .options(let placement):
-          optionButtons(for: placement)
-        case .name(let placement, let type):
-          nameField(for: placement, type: type)
-        }
-      } message: { stage in
-        if case .name(_, .bound) = stage {
-          Text("bound_books_create_alert_description")
-        }
+        options.map { String.localizedStringWithFormat("import_alert_title".localized, $0.itemUuids.count) } ?? "",
+        isPresented: Binding(get: { options != nil }, set: { if !$0 { options = nil } }),
+        presenting: options
+      ) { placement in
+        optionButtons(for: placement)
       }
-      .sheet(item: $folderPicker, onDismiss: presentIfPossible) { placement in
+      // The name alert is a separate presentation, on its own view: set from an option while the
+      // options alert closes, SwiftUI shows it once that one is gone. Switching one alert's
+      // contents instead (nil, then the next) was dropped mid-animation
+      .background {
+        Color.clear
+          .alert(
+            nameRequest.map { $0.type == .folder ? "create_playlist_title".localized : "bound_books_create_alert_title".localized } ?? "",
+            isPresented: Binding(get: { nameRequest != nil }, set: { if !$0 { nameRequest = nil } }),
+            presenting: nameRequest
+          ) { request in
+            nameField(for: request.placement, type: request.type)
+          } message: { request in
+            if request.type == .bound {
+              Text("bound_books_create_alert_description")
+            }
+          }
+      }
+      .sheet(item: $folderPicker) { placement in
         ItemListSelectionView(items: placement.availableFolders) { folder in
           perform(on: placement) { try model.move(placement, into: folder) }
         }
@@ -128,19 +133,13 @@ struct ImportPlacementPrompt: ViewModifier {
       .onChange(of: importOperationState.pendingPlacement) { presentIfPossible() }
       .onChange(of: listState.coversOnScreen) { presentIfPossible() }
       .onChange(of: isLibraryVisible) { presentIfPossible() }
-      .onChange(of: stage) {
-        // An import that finished while this prompt showed gets its own turn
-        if stage == nil, nextStage == nil {
-          presentIfPossible()
-        }
-      }
+      // An import that finished while this prompt showed gets its own turn
+      .onChange(of: isIdle) { presentIfPossible() }
   }
 
   private func presentIfPossible() {
     guard
-      stage == nil,
-      nextStage == nil,
-      folderPicker == nil,
+      isIdle,
       let placement = importOperationState.pendingPlacement,
       listState.coversOnScreen.isEmpty,
       isLibraryVisible
@@ -149,28 +148,7 @@ struct ImportPlacementPrompt: ViewModifier {
     importOperationState.pendingPlacement = nil
     /// Register that at least one import operation has completed
     BPSKANManager.updateConversionValue(.import)
-    stage = .options(placement)
-  }
-
-  /// The next alert, once this one has closed
-  private func show(_ next: Stage) {
-    nextStage = next
-    stage = nil
-    Task { @MainActor in
-      stage = nextStage
-      nextStage = nil
-    }
-  }
-
-  private func title(for stage: Stage) -> String {
-    switch stage {
-    case .options(let placement):
-      return String.localizedStringWithFormat("import_alert_title".localized, placement.itemUuids.count)
-    case .name(_, let type):
-      return type == .folder
-        ? "create_playlist_title".localized
-        : "bound_books_create_alert_title".localized
-    }
+    options = placement
   }
 
   @ViewBuilder
@@ -190,7 +168,7 @@ struct ImportPlacementPrompt: ViewModifier {
 
     Button("new_playlist_button") {
       folderName = suggestedFolderName
-      show(.name(placement, type: .folder))
+      nameRequest = NameRequest(placement: placement, type: .folder)
     }
 
     Button("existing_playlist_button") {
@@ -201,7 +179,7 @@ struct ImportPlacementPrompt: ViewModifier {
     Button("bound_books_create_button") {
       if placement.hasOnlyBooks {
         folderName = suggestedFolderName
-        show(.name(placement, type: .bound))
+        nameRequest = NameRequest(placement: placement, type: .bound)
       } else {
         perform(on: placement) { try model.makeVolume(of: placement) }
       }
