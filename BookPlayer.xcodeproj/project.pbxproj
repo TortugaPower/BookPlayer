@@ -80,6 +80,7 @@
 		41342D0C24435EF800F0905B /* SleepTimerHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41342D0B24435EF800F0905B /* SleepTimerHandler.swift */; };
 		4137BBCC272DAF2E009ED9FE /* MVVMControllerProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4137BBCB272DAF2E009ED9FE /* MVVMControllerProtocol.swift */; };
 		4137BBD0272DEBEC009ED9FE /* LoadingCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4137BBCF272DEBEC009ED9FE /* LoadingCoordinatorTests.swift */; };
+		4CB1DCF2664F023E6A0FBCF1 /* ImportCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 73E5B2E2D7C35C3FFE412840 /* ImportCoordinatorTests.swift */; };
 		4138CE1126E5542C0014F11E /* Bookmark+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4138CE0D26E5540E0014F11E /* Bookmark+CoreDataClass.swift */; };
 		4138CE1226E5542D0014F11E /* Bookmark+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4138CE0D26E5540E0014F11E /* Bookmark+CoreDataClass.swift */; };
 		4138CE1326E554320014F11E /* Bookmark+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4138CE0E26E5540E0014F11E /* Bookmark+CoreDataProperties.swift */; };
@@ -1128,6 +1129,7 @@
 		4136175C24019EEB00D2DDC1 /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = sv; path = sv.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		4137BBCB272DAF2E009ED9FE /* MVVMControllerProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MVVMControllerProtocol.swift; sourceTree = "<group>"; };
 		4137BBCF272DEBEC009ED9FE /* LoadingCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingCoordinatorTests.swift; sourceTree = "<group>"; };
+		73E5B2E2D7C35C3FFE412840 /* ImportCoordinatorTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ImportCoordinatorTests.swift; sourceTree = "<group>"; };
 		4138CE0D26E5540E0014F11E /* Bookmark+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bookmark+CoreDataClass.swift"; sourceTree = "<group>"; };
 		4138CE0E26E5540E0014F11E /* Bookmark+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bookmark+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		4138CE1526E584B60014F11E /* BookmarkType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookmarkType.swift; sourceTree = "<group>"; };
@@ -2682,6 +2684,7 @@
 			isa = PBXGroup;
 			children = (
 				4137BBCF272DEBEC009ED9FE /* LoadingCoordinatorTests.swift */,
+				73E5B2E2D7C35C3FFE412840 /* ImportCoordinatorTests.swift */,
 			);
 			path = Coordinators;
 			sourceTree = "<group>";
@@ -4999,6 +5002,7 @@
 				9FC1E4772815F97E00522FA8 /* KeychainServiceTests.swift in Sources */,
 				63432B592AC1E6F7002619D0 /* MockNavigationController.swift in Sources */,
 				4137BBD0272DEBEC009ED9FE /* LoadingCoordinatorTests.swift in Sources */,
+				4CB1DCF2664F023E6A0FBCF1 /* ImportCoordinatorTests.swift in Sources */,
 				41A1B13E226FEF8000EA0400 /* DataTestUtils.swift in Sources */,
 				63833DFA2AAC139700496246 /* PlaybackPerformanceTests.swift in Sources */,
 				9FC1E46928150ECC00522FA8 /* NetworkClientMock.swift in Sources */,

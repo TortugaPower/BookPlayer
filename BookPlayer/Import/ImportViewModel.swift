@@ -14,6 +14,9 @@ import Foundation
 final class ImportViewModel: NSObject, ObservableObject {
   enum Routes {
     case dismiss
+    /// Close the import screen, then start the import: a fast import finishing while the
+    /// screen is still leaving had its placement prompt dropped
+    case dismissAndImport
   }
 
   var onTransition: BPTransition<Routes>?
@@ -104,8 +107,7 @@ final class ImportViewModel: NSObject, ObservableObject {
   }
 
   public func createOperation() {
-    self.importManager.createOperation()
-    self.dismiss()
+    onTransition?(.dismissAndImport)
   }
 
   func dismiss() {

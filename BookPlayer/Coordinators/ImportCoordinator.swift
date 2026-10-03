@@ -26,6 +26,12 @@ class ImportCoordinator: Coordinator {
       switch routes {
       case .dismiss:
         self.flow.finishPresentation(animated: true)
+      case .dismissAndImport:
+        // Captured apart from `self`: the coordinator can be released with its screen
+        let importManager = self.importManager
+        self.flow.finishPresentation(animated: true) {
+          importManager.createOperation()
+        }
       }
     }
     let vc = ImportViewController.instantiate(from: .Main)
