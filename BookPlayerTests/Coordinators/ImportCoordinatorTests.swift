@@ -72,6 +72,27 @@ final class ImportCoordinatorTests: XCTestCase {
     XCTAssertEqual(imported, [file])
   }
 
+  /// The library's placement prompt waits for the import screen, however it closes: Import, Cancel,
+  /// swiped down, or taken down with what it was presented over.
+  func testTheScreenCountsAsShownUntilItHasDisappeared() throws {
+    let importManager = ImportManager(libraryService: LibraryServiceProtocolMock())
+    importManager.process(file)
+    let flow = HeldDismissalFlow()
+    let coordinator = ImportCoordinator(flow: flow, importManager: importManager)
+    coordinator.start()
+    let screen = try XCTUnwrap(flow.presented as? ImportViewController)
+
+    screen.beginAppearanceTransition(true, animated: false)
+    XCTAssertTrue(importManager.isImportScreenShown)
+    screen.endAppearanceTransition()
+
+    screen.beginAppearanceTransition(false, animated: false)
+    XCTAssertTrue(importManager.isImportScreenShown, "still leaving")
+    screen.endAppearanceTransition()
+
+    XCTAssertFalse(importManager.isImportScreenShown)
+  }
+
   /// Cancelling discards the files and never imports.
   func testCancellingNeverImports() throws {
     let importManager = ImportManager(libraryService: LibraryServiceProtocolMock())

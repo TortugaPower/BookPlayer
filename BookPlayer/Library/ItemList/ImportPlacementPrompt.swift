@@ -82,15 +82,18 @@ struct ImportPlacementModel {
 ///
 /// Apart from the list's alerts: a prompt SwiftUI drops must not leave the list's alert slot
 /// taken (the list's alerts all stopped showing until relaunch). It shows once nothing covers the
-/// library (`ListStateManager.coversOnScreen`, the media-server browser and the player) and the
-/// Library tab is on screen: a presentation started under either is dropped.
+/// library (the media-server browser, the player, the import screen) and the Library tab is on
+/// screen: a presentation started under either is dropped. What the list itself presents isn't
+/// waited for: a prompt dropped under it is lost, and cleared before the next import's.
 struct ImportPlacementPrompt: ViewModifier {
   let model: ImportPlacementModel
   let importOperationState: ImportOperationState
   let loadingState: LoadingOverlayState
   let isLibraryVisible: Bool
+  let isImportScreenShown: Bool
 
   @Environment(\.listState) private var listState
+  @Environment(\.playerState) private var playerState
 
   /// The folder name asked for after "New folder" or "Create a volume"
   struct NameRequest: Equatable {
@@ -103,9 +106,16 @@ struct ImportPlacementPrompt: ViewModifier {
   @State private var folderPicker: ImportPlacement?
   @State private var folderName = ""
 
-  /// Nothing of the prompt's is on screen
+  /// Nothing of the prompt's counts as on screen
   private var isIdle: Bool {
     options == nil && nameRequest == nil && folderPicker == nil
+  }
+
+  /// A cover is up or leaving, or requested: its content appears a moment after the request
+  private var isCovered: Bool {
+    !listState.coversOnScreen.isEmpty
+      || listState.activeIntegrationSheet != nil
+      || playerState.isShowingPlayer
   }
 
   func body(content: Content) -> some View {
@@ -140,23 +150,41 @@ struct ImportPlacementPrompt: ViewModifier {
         }
       }
       .onChange(of: importOperationState.pendingPlacement) { presentIfPossible() }
-      .onChange(of: listState.coversOnScreen) { presentIfPossible() }
+      .onChange(of: isCovered) { presentIfPossible() }
       .onChange(of: isLibraryVisible) { presentIfPossible() }
-      // An import that finished while this prompt showed gets its own turn
-      .onChange(of: isIdle) { presentIfPossible() }
+      .onChange(of: isImportScreenShown) {
+        if !isImportScreenShown {
+          clearBeforeTheNextImport()
+        }
+        presentIfPossible()
+      }
+  }
+
+  /// Every import is confirmed on the import screen, so this runs before each import's prompt
+  /// comes. An alert doesn't report appearing: one iOS dropped (presented under something the list
+  /// showed) still counts as on screen, and would block every later prompt. One that really is on
+  /// screen, with the import screen opened over it, closes.
+  private func clearBeforeTheNextImport() {
+    options = nil
+    nameRequest = nil
+    folderPicker = nil
   }
 
   private func presentIfPossible() {
     guard
-      isIdle,
       let placement = importOperationState.pendingPlacement,
-      listState.coversOnScreen.isEmpty,
+      !isCovered,
+      !isImportScreenShown,
       isLibraryVisible
     else { return }
 
     importOperationState.pendingPlacement = nil
     /// Register that at least one import operation has completed
     BPSKANManager.updateConversionValue(.import)
+
+    /// A second import finishing while this prompt shows: its prompt is dropped
+    guard isIdle else { return }
+
     options = placement
   }
 

@@ -137,7 +137,8 @@ struct LibraryRootView: View {
         ),
         importOperationState: importOperationState,
         loadingState: loadingState,
-        isLibraryVisible: isVisible
+        isLibraryVisible: isVisible,
+        isImportScreenShown: importManager.isImportScreenShown
       )
     )
     .onAppear { isVisible = true }

@@ -39,7 +39,8 @@ final class ListStateManager {
 
   /// The covers on screen, from the moment their content appears until their dismissal has
   /// finished. SwiftUI drops a presentation started from the library while one is up or still
-  /// leaving, so the import's placement prompt waits for this to be empty.
+  /// leaving, so the import's placement prompt waits for this to be empty. A cover that's requested
+  /// but hasn't appeared yet isn't in here.
   var coversOnScreen = Set<Cover>()
 
   func reloadAll(padding: Int = 0) {

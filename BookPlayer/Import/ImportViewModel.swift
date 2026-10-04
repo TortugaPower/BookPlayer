@@ -113,6 +113,15 @@ final class ImportViewModel: NSObject, ObservableObject {
   func dismiss() {
     onTransition?(.dismiss)
   }
+
+  func screenWillAppear() {
+    importManager.isImportScreenShown = true
+  }
+
+  /// Also when the screen goes away with whatever it was presented over
+  func screenDidDisappear() {
+    importManager.isImportScreenShown = false
+  }
 }
 
 extension ImportViewModel: UIAdaptivePresentationControllerDelegate {
