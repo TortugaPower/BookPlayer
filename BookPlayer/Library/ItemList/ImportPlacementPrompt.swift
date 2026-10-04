@@ -84,7 +84,8 @@ struct ImportPlacementModel {
 /// taken (the list's alerts all stopped showing until relaunch). It shows once nothing covers the
 /// library (the media-server browser, the player, the import screen) and the Library tab is on
 /// screen: a presentation started under either is dropped. What the list itself presents isn't
-/// waited for: a prompt dropped under it is lost, and cleared before the next import's.
+/// waited for: the prompt closes it (seen with a sheet), or is dropped under it, lost, and cleared
+/// before the next import's.
 struct ImportPlacementPrompt: ViewModifier {
   let model: ImportPlacementModel
   let importOperationState: ImportOperationState

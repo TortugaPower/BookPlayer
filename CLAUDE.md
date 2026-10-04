@@ -392,10 +392,10 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
   over the library must do the same), the import screen is gone (`ImportManager.isImportScreenShown`) and the
   Library tab is on screen; and it carries the imported items' uuids, reading their current paths when an
   option is picked (`LibraryService.getItemRefs(forUuids:)`). The list's own sheets and alerts aren't waited
-  for: a prompt dropped under one is lost, and cleared when the next import screen closes so it can't block
-  later prompts. Its actions and the list's multi-select share `LibraryOrganizer`. An alert that leads to
-  another (Move → the folder name) uses a separate alert, set from the first one's button: switching one
-  alert's contents (nil, then the next) can be dropped mid-animation.
+  for: the prompt closes one (seen with a sheet), or is dropped under it, lost, and cleared when the next
+  import screen closes so it can't block later prompts. Its actions and the list's multi-select share
+  `LibraryOrganizer`. An alert that leads to another (Move → the folder name) uses a separate alert, set from
+  the first one's button: switching one alert's contents (nil, then the next) can be dropped mid-animation.
 - **Library** (`Library/ItemList/…`, backed by `Shared/Services/LibraryService.swift`): the main list, folders,
   and drag-drop reordering. **Ordering model (query-time sort):** `orderRank` means ONLY the user's custom
   arrangement (written by drag/reverse/Custom-freeze/one-shot sorts and by sync; never by an automatic sort).
