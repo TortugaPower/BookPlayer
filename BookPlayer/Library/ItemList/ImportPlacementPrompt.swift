@@ -124,6 +124,8 @@ struct ImportPlacementPrompt: ViewModifier {
   private var gate: Gate {
     Gate(
       pendingPlacement: importOperationState.pendingPlacement?.id,
+      // Only covers that appeared: one requested but dropped by iOS never appears or dismisses,
+      // so counting requests would hold every later prompt. The request-to-appear window is a frame
       isCovered: !listState.coversOnScreen.isEmpty,
       isImportScreenShown: isImportScreenShown,
       isLibraryVisible: isLibraryVisible
