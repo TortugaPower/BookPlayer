@@ -13,7 +13,6 @@ import Foundation
 enum ItemListAlert: Identifiable, Equatable {
   case queuedTasks
   case moveOptions
-  case createFolder(type: SimpleItemType, placeholder: String)
   case delete
   case cancelDownload(SimpleLibraryItem)
   case warningOffload(SimpleLibraryItem)
@@ -25,8 +24,6 @@ enum ItemListAlert: Identifiable, Equatable {
       return "queuedTasks"
     case .moveOptions:
       return "moveOptions"
-    case .createFolder:
-      return "createFolder"
     case .delete:
       return "delete"
     case .cancelDownload(let item):

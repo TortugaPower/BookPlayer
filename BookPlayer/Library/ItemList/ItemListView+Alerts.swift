@@ -18,8 +18,6 @@ extension ItemListView {
       queuedTasksAlert()
     case .moveOptions:
       moveOptionsAlert()
-    case .createFolder(let type, let placeholder):
-      createFolderAlert(type: type, placeholder: placeholder)
     case .delete:
       deleteAlert()
     case .cancelDownload(let item):
@@ -53,10 +51,7 @@ extension ItemListView {
     
     Button("new_playlist_button") {
       folderInput.reset()
-      activeAlert = nil
-      Task { @MainActor in
-        activeAlert = .createFolder(type: .folder, placeholder: "")
-      }
+      folderNameRequest = FolderNameRequest(folderInput)
     }
     
     Button("existing_playlist_button") {
@@ -67,10 +62,7 @@ extension ItemListView {
     Button("bound_books_create_button") {
       let suggestedFolderName = ((model.selectedItems.first?.title ?? "") as NSString).deletingPathExtension
       folderInput.prepareForBound(title: suggestedFolderName, placeholder: suggestedFolderName)
-      activeAlert = nil
-      Task { @MainActor in
-        activeAlert = .createFolder(type: .bound, placeholder: suggestedFolderName)
-      }
+      folderNameRequest = FolderNameRequest(folderInput)
     }
     .disabled(!model.selectedItems.allSatisfy { $0.type == .book })
 
@@ -172,10 +164,6 @@ extension ItemListView {
       return "sync_tasks_inprogress_alert_title".localized
     case .moveOptions:
       return "choose_destination_title".localized
-    case .createFolder(let type, _):
-      return type == .folder
-        ? "create_playlist_title".localized
-        : "bound_books_create_alert_title".localized
     case .delete:
       return model.deleteActionDetails()?.title ?? ""
     case .cancelDownload:
@@ -191,10 +179,14 @@ extension ItemListView {
     switch alert {
     case .delete:
       return model.deleteActionDetails()?.message
-    case .createFolder(let type, _) where type == .bound:
-      return "bound_books_create_alert_description".localized
     default:
       return nil
     }
+  }
+
+  func folderNameTitle(for request: FolderNameRequest) -> String {
+    request.type == .folder
+      ? "create_playlist_title".localized
+      : "bound_books_create_alert_title".localized
   }
 }
