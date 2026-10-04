@@ -74,15 +74,10 @@ final class ImportManager: ObservableObject {
     }
   }
 
-  public func createOperation() {
-    guard let operation = prepareOperation() else { return }
-
-    self.operationPublisher.send(operation)
-  }
-
   /// The import of the pending files, which it takes: files arriving afterwards wait for the next
   /// import, and discarding the pending files no longer touches these. Start it by sending it on
-  /// `operationPublisher`.
+  /// `operationPublisher`, once the import screen has closed: the library's placement prompt
+  /// relies on every import being confirmed there.
   public func prepareOperation() -> ImportOperation? {
     guard !self.files.value.isEmpty else {
       return nil

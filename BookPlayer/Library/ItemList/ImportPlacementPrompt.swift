@@ -93,7 +93,6 @@ struct ImportPlacementPrompt: ViewModifier {
   let isImportScreenShown: Bool
 
   @Environment(\.listState) private var listState
-  @Environment(\.playerState) private var playerState
 
   /// The folder name asked for after "New folder" or "Create a volume"
   struct NameRequest: Equatable {
@@ -111,11 +110,24 @@ struct ImportPlacementPrompt: ViewModifier {
     options == nil && nameRequest == nil && folderPicker == nil
   }
 
-  /// A cover is up or leaving, or requested: its content appears a moment after the request
-  private var isCovered: Bool {
-    !listState.coversOnScreen.isEmpty
-      || listState.activeIntegrationSheet != nil
-      || playerState.isShowingPlayer
+  /// What decides when the prompt shows, watched as one value: with a single handler, the clear
+  /// when the import screen closes always runs before presenting
+  private struct Gate: Equatable {
+    let pendingPlacement: UUID?
+    let isCovered: Bool
+    let isImportScreenShown: Bool
+    let isLibraryVisible: Bool
+
+    var isOpen: Bool { !isCovered && !isImportScreenShown && isLibraryVisible }
+  }
+
+  private var gate: Gate {
+    Gate(
+      pendingPlacement: importOperationState.pendingPlacement?.id,
+      isCovered: !listState.coversOnScreen.isEmpty,
+      isImportScreenShown: isImportScreenShown,
+      isLibraryVisible: isLibraryVisible
+    )
   }
 
   func body(content: Content) -> some View {
@@ -149,11 +161,8 @@ struct ImportPlacementPrompt: ViewModifier {
           perform(on: placement) { try model.move(placement, into: folder) }
         }
       }
-      .onChange(of: importOperationState.pendingPlacement) { presentIfPossible() }
-      .onChange(of: isCovered) { presentIfPossible() }
-      .onChange(of: isLibraryVisible) { presentIfPossible() }
-      .onChange(of: isImportScreenShown) {
-        if !isImportScreenShown {
+      .onChange(of: gate) { old, new in
+        if old.isImportScreenShown, !new.isImportScreenShown {
           clearBeforeTheNextImport()
         }
         presentIfPossible()
@@ -164,6 +173,12 @@ struct ImportPlacementPrompt: ViewModifier {
   /// comes. An alert doesn't report appearing: one iOS dropped (presented under something the list
   /// showed) still counts as on screen, and would block every later prompt. One that really is on
   /// screen, with the import screen opened over it, closes.
+  ///
+  /// Rare, with two imports processing at once: an earlier import's prompt can be waiting when
+  /// this clears one. Set in the same update, SwiftUI takes it for the cleared one's contents
+  /// changing, so if that one was dropped this doesn't show either (and is cleared at the next
+  /// close). Set a pass later, it would be dropped instead whenever the cleared one really showed
+  /// and is still closing.
   private func clearBeforeTheNextImport() {
     options = nil
     nameRequest = nil
@@ -173,9 +188,7 @@ struct ImportPlacementPrompt: ViewModifier {
   private func presentIfPossible() {
     guard
       let placement = importOperationState.pendingPlacement,
-      !isCovered,
-      !isImportScreenShown,
-      isLibraryVisible
+      gate.isOpen
     else { return }
 
     importOperationState.pendingPlacement = nil
