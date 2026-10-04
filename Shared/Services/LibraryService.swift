@@ -56,6 +56,8 @@ public protocol LibraryServiceProtocol: AnyObject {
   func findBooks(containing fileURL: URL) -> [Book]?
   /// Fetch a single item with properties loaded
   func getSimpleItem(with relativePath: String) -> SimpleLibraryItem?
+  /// Where the items with these uuids are now, in the uuids' order; uuids no item has are left out
+  func getItemRefs(forUuids uuids: [String]) -> [LibraryItemRef]
   /// Get items not included in a specific set
   func getItems(notIn relativePaths: [String], parentFolder: String?) -> [SimpleLibraryItem]?
   /// Fetch a property from a stored library item
@@ -1423,6 +1425,34 @@ extension LibraryService {
     let results = try? context.fetch(fetchRequest) as? [[String: Any]]
 
     return parseFetchedItems(from: results, context: context)?.first
+  }
+
+  public func getItemRefs(forUuids uuids: [String]) -> [LibraryItemRef] {
+    guard !uuids.isEmpty else { return [] }
+
+    let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
+    fetchRequest.predicate = NSPredicate(format: "%K IN %@", #keyPath(LibraryItem.uuid), uuids)
+    fetchRequest.propertiesToFetch = [#keyPath(LibraryItem.relativePath), #keyPath(LibraryItem.uuid)]
+    fetchRequest.resultType = .dictionaryResultType
+
+    let rows: [NSDictionary]
+    do {
+      rows = try dataManager.getContext().fetch(fetchRequest)
+    } catch {
+      Self.logger.error("Failed to look up \(uuids.count) items by uuid: \(error.localizedDescription)")
+      return []
+    }
+    let pathsByUuid = rows.reduce(into: [String: String]()) { paths, row in
+      guard
+        let uuid = row[#keyPath(LibraryItem.uuid)] as? String,
+        let relativePath = row[#keyPath(LibraryItem.relativePath)] as? String
+      else { return }
+      paths[uuid] = relativePath
+    }
+
+    return uuids.compactMap { uuid in
+      pathsByUuid[uuid].map { LibraryItemRef(relativePath: $0, uuid: uuid) }
+    }
   }
 
   func getItem(with relativePath: String, context: NSManagedObjectContext) -> LibraryItem? {
@@ -2815,3 +2845,5 @@ extension LibraryService {
   }
 }
 // swiftlint:enable force_cast
+
+extension LibraryService: BPLogger {}

@@ -31,6 +31,17 @@ final class ListStateManager {
   }
   var activeIntegrationSheet: IntegrationSheet?
 
+  /// What can cover the library from the main view.
+  enum Cover: Hashable {
+    case mediaServers
+    case player
+  }
+
+  /// The covers on screen, from the moment their content appears until their dismissal has
+  /// finished. SwiftUI drops a presentation started from the library while one is up or still
+  /// leaving, so the import's placement prompt waits for this to be empty.
+  var coversOnScreen = Set<Cover>()
+
   func reloadAll(padding: Int = 0) {
     payloads[.all] = padding
     globalToken += 1

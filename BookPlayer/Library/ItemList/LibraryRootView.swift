@@ -18,6 +18,8 @@ struct LibraryRootView: View {
 
   @State private var newFolderName: String = ""
   @State private var isFirstLoad = true
+  /// The Library tab is on screen: an import's placement prompt can't be presented from a hidden tab
+  @State private var isVisible = false
 
   @State private var importOperationState = ImportOperationState()
   @State private var loadingState = LoadingOverlayState()
@@ -126,6 +128,21 @@ struct LibraryRootView: View {
         importManager.start(operation)
       }
     }
+    .modifier(
+      ImportPlacementPrompt(
+        model: ImportPlacementModel(
+          libraryService: libraryService,
+          syncService: syncService,
+          playerManager: playerManager
+        ),
+        importOperationState: importOperationState,
+        loadingState: loadingState,
+        isLibraryVisible: isVisible,
+        isImportScreenShown: importManager.isImportScreenShown
+      )
+    )
+    .onAppear { isVisible = true }
+    .onDisappear { isVisible = false }
     .tint(theme.linkColor)
     .environmentObject(theme)
     .environment(\.loadingState, loadingState)
@@ -188,17 +205,19 @@ struct LibraryRootView: View {
       return
     }
 
+    /// Where the import lands: the location browsed now, not after the network calls below
+    let importNode = path.last ?? .root
+
     Task { @MainActor in
       let processedItems = await libraryService.insertItems(from: files)
       var itemIdentifiers = processedItems.map({ $0.relativePath })
-      var itemIdentifiersPairs = processedItems.map({ LibraryItemRef(relativePath: $0.relativePath, uuid: $0.uuid) })
+      let itemIdentifiersPairs = processedItems.map({ LibraryItemRef(relativePath: $0.relativePath, uuid: $0.uuid) })
       do {
         await syncService.scheduleUpload(items: processedItems)
         /// Move imported files to current selected folder so the user can see them
-        if let lastItem = path.last,
-           let folderRelativePath = lastItem.folderRelativePath {
+        if let folderRelativePath = importNode.folderRelativePath {
           try libraryService.moveItems(itemIdentifiersPairs, inside: folderRelativePath)
-          syncService.scheduleMove(items: itemIdentifiersPairs, to: LibraryItemRef(relativePath: folderRelativePath, uuid: lastItem.uuid ))
+          syncService.scheduleMove(items: itemIdentifiersPairs, to: LibraryItemRef(relativePath: folderRelativePath, uuid: importNode.uuid))
           /// Update identifiers after moving for the follow up action alert
           itemIdentifiers = itemIdentifiers.map({ "\(folderRelativePath)/\($0)" })
         }
@@ -215,7 +234,7 @@ struct LibraryRootView: View {
       let availableFolders =
         self.libraryService.getItems(
           notIn: itemIdentifiers,
-          parentFolder: path.last?.folderRelativePath
+          parentFolder: importNode.folderRelativePath
         )?.filter({ $0.type == .folder }) ?? []
 
       let singleFolder: SimpleLibraryItem? =
@@ -235,13 +254,13 @@ struct LibraryRootView: View {
           ) as? String
       }
 
-      importOperationState.alertParameters = .init(
-        itemIdentifiers: itemIdentifiersPairs,
+      importOperationState.pendingPlacement = ImportPlacement(
+        itemUuids: processedItems.map(\.uuid),
         hasOnlyBooks: hasOnlyBooks,
-        singleFolder: singleFolder,
+        singleFolderUuid: singleFolder?.uuid,
         availableFolders: availableFolders,
         suggestedFolderName: firstTitle,
-        lastNode: path.last ?? .root
+        node: importNode
       )
     }
   }

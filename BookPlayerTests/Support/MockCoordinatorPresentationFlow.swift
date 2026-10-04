@@ -24,7 +24,8 @@ class MockCoordinatorPresentationFlow: BPCoordinatorPresentationFlow {
     mockNavigationController.pushViewController(viewController, animated: animated)
   }
   
-  func finishPresentation(animated: Bool) {
+  func finishPresentation(animated: Bool, completion: (() -> Void)?) {
     mockNavigationController = nil
+    completion?()
   }
 }

@@ -19,6 +19,7 @@ struct ItemListView: View {
   @State var activeSheet: ItemListSheet?
   @State var activeConfirmationDialog: ConfirmationDialogType?
   @State var folderInput = FolderCreationInput()
+  @State var folderNameRequest: FolderNameRequest?
 
   @State var showDocumentPicker = false
   @State var downloadURLInput = ""
@@ -52,6 +53,13 @@ struct ItemListView: View {
     Binding(
       get: { activeAlert != nil },
       set: { if !$0 { activeAlert = nil } }
+    )
+  }
+
+  private var isFolderNamePresented: Binding<Bool> {
+    Binding(
+      get: { folderNameRequest != nil },
+      set: { if !$0 { folderNameRequest = nil } }
     )
   }
 
@@ -115,6 +123,23 @@ struct ItemListView: View {
           }
         }
       )
+      // The folder name is its own alert, on its own view: asked for from the Move alert while that
+      // one closes, SwiftUI shows it once that one is gone. Switching the Move alert's contents
+      // instead (nil, then the name) can be dropped mid-animation, as on iOS 27
+      .background {
+        Color.clear
+          .alert(
+            folderNameRequest.map { folderNameTitle(for: $0) } ?? "",
+            isPresented: isFolderNamePresented,
+            presenting: folderNameRequest
+          ) { request in
+            createFolderAlert(type: request.type, placeholder: request.placeholder)
+          } message: { request in
+            if request.type == .bound {
+              Text("bound_books_create_alert_description")
+            }
+          }
+      }
       .fileImporter(
         isPresented: $showDocumentPicker,
         allowedContentTypes: [
@@ -270,24 +295,6 @@ struct ItemListView: View {
       let padding = listState.padding(for: model.reloadScope)
       model.reloadItems(with: padding)
     }
-    .onChange(of: activeAlert) {
-      /// Clean up after import completion
-      if case .importCompletion = activeAlert {
-        // Alert is showing
-      } else if importOperationState.alertParameters != nil {
-        importOperationState.alertParameters = nil
-      }
-    }
-    .onChange(of: importOperationState.alertParameters) {
-      guard
-        let alertParameters = importOperationState.alertParameters,
-        alertParameters.lastNode == model.libraryNode
-      else { return }
-
-      /// Register that at least one import operation has completed
-      BPSKANManager.updateConversionValue(.import)
-      activeAlert = .importCompletion(alertParameters)
-    }
   }
 
   @ViewBuilder
@@ -396,7 +403,7 @@ struct ItemListView: View {
       /// Clean up just in case due to how List(selection:) works under the hood
       model.selectedSetItems.removeAll()
       folderInput.prepareForFolder()
-      activeAlert = .createFolder(type: folderInput.type, placeholder: folderInput.placeholder)
+      folderNameRequest = FolderNameRequest(folderInput)
     }
   }
 
@@ -764,7 +771,7 @@ extension ItemListView {
           model.updateFolders(model.selectedItems, type: .bound)
         } else {
           folderInput.prepareForBound(title: item?.title)
-          activeAlert = .createFolder(type: folderInput.type, placeholder: folderInput.placeholder)
+          folderNameRequest = FolderNameRequest(folderInput)
         }
       } label: {
         Label("bound_books_create_button", systemImage: "books.vertical")

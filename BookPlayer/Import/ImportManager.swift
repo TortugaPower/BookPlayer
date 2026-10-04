@@ -24,6 +24,10 @@ final class ImportManager: ObservableObject {
   private var files = CurrentValueSubject<Set<URL>, Never>(Set())
 
   public var operationPublisher = PassthroughSubject<ImportOperation, Never>()
+  /// The import screen is up, from when it starts appearing until it has disappeared, however it
+  /// closes (set by the screen). The library's placement prompt waits for it: a presentation
+  /// started under it is dropped.
+  @Published var isImportScreenShown = false
 
   init(libraryService: LibraryServiceProtocol) {
     self.libraryService = libraryService
@@ -70,9 +74,13 @@ final class ImportManager: ObservableObject {
     }
   }
 
-  public func createOperation() {
+  /// The import of the pending files, which it takes: files arriving afterwards wait for the next
+  /// import, and discarding the pending files no longer touches these. Start it by sending it on
+  /// `operationPublisher`, once the import screen has closed: the library's placement prompt
+  /// relies on every import being confirmed there.
+  public func prepareOperation() -> ImportOperation? {
     guard !self.files.value.isEmpty else {
-      return
+      return nil
     }
 
     let sortDescriptor = NSSortDescriptor(key: "path", ascending: true, selector: #selector(NSString.localizedStandardCompare(_:)))
@@ -86,7 +94,7 @@ final class ImportManager: ObservableObject {
 
     self.files.value = []
 
-    self.operationPublisher.send(operation)
+    return operation
   }
 
   public func start(_ operation: Operation) {

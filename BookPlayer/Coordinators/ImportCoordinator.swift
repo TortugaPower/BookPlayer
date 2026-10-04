@@ -26,6 +26,17 @@ class ImportCoordinator: Coordinator {
       switch routes {
       case .dismiss:
         self.flow.finishPresentation(animated: true)
+      case .dismissAndImport:
+        // Taken now: the closing screen's Cancel can no longer discard these files, and files
+        // arriving while it closes wait for the next import. Captured apart from `self`: the
+        // coordinator can be released with its screen
+        let operation = self.importManager.prepareOperation()
+        let importManager = self.importManager
+        self.flow.finishPresentation(animated: true) {
+          if let operation {
+            importManager.operationPublisher.send(operation)
+          }
+        }
       }
     }
     let vc = ImportViewController.instantiate(from: .Main)

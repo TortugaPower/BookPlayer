@@ -31,12 +31,25 @@ public struct BPPushPresentationFlow: BPCoordinatorPresentationFlow {
   }
 
   /// Pops to the initiating UIViewController or to the root UIViewController if there wasn't an initiating controller
-  /// - Parameter animated: Specifies if we want the dismiss transition animated or not
-  public func finishPresentation(animated: Bool) {
+  /// - Parameters:
+  ///   - animated: Specifies if we want the dismiss transition animated or not
+  ///   - completion: Runs once the pop has finished
+  public func finishPresentation(animated: Bool, completion: (() -> Void)?) {
     if let initiatingController = initiatingController {
       navigationController.popToViewController(initiatingController, animated: animated)
     } else {
       navigationController.popToRootViewController(animated: animated)
+    }
+
+    guard let completion else { return }
+
+    // A pop has no completion of its own: an animated one finishes with its transition
+    guard
+      let transitionCoordinator = navigationController.transitionCoordinator,
+      transitionCoordinator.animate(alongsideTransition: nil, completion: { _ in completion() })
+    else {
+      completion()
+      return
     }
   }
 }
