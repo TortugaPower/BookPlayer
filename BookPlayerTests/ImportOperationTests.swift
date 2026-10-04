@@ -374,7 +374,9 @@ final class ExternalImportConfirmDestinationTests: XCTestCase {
     XCTAssertTrue(dismissed, "bulk confirm closes the browser — the batch lands in the library")
   }
 
-  func testDetailsConfirmSendsWithoutDismissing() {
+  /// Like the bulk confirm: the library can only show where to put the batch once the
+  /// browser is closed (an alert set beneath it is dropped and blocks every later one).
+  func testDetailsConfirmSendsBatchThenDismissesBrowser() {
     var sent: [SimpleExternalResource]?
     var dismissed = false
     let navigation = BPNavigation()
@@ -393,7 +395,7 @@ final class ExternalImportConfirmDestinationTests: XCTestCase {
     sut.confirmExternalImport(makeResources())
 
     XCTAssertEqual(sent?.map(\.providerId), ["confirm-1"])
-    XCTAssertFalse(dismissed, "details confirm keeps you in the browser for serial importing")
+    XCTAssertTrue(dismissed, "details confirm closes the browser, as the bulk one does")
   }
 }
 

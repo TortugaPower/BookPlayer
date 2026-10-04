@@ -26,9 +26,10 @@ class AudiobookShelfAudiobookDetailsViewModel: IntegrationDetailsViewModelProtoc
 
   @MainActor
   func confirmExternalImport(_ resources: [SimpleExternalResource]) {
-    // Details imports keep you in the browser (today's flow — import another book
-    // without re-navigating): send on the import bus, no dismissal
+    // Like the list's Stream: send the batch on the import bus, then close the browser, which
+    // is what lets the library show where to put it (and shows the import happened)
     onImportConfirmed(resources)
+    navigation.dismiss?()
   }
 
   @MainActor

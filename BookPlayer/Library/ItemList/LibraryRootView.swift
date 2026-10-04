@@ -222,25 +222,71 @@ struct LibraryRootView: View {
     /// Where the import lands: the location browsed now, not after the network calls below
     let importNode = path.last ?? .root
 
+    let isStream: Bool = {
+      if case .external = importSource { return true }
+      return false
+    }()
+    let streamTitle = String.localizedStringWithFormat("import_processing_description".localized, filesCount)
+    if isStream {
+      // A file import shows its copying; a stream import has none, so its insert and Hardcover's
+      // match get the same spinner
+      importOperationState.isOperationActive = true
+      importOperationState.processingTitle = streamTitle
+    }
+
     Task { @MainActor in
+      defer {
+        // Unless a file import or a download has taken the spinner over since
+        if isStream, importOperationState.processingTitle == streamTitle {
+          importOperationState.isOperationActive = false
+          importOperationState.processingTitle = ""
+        }
+      }
+
+      /// The browsed folder as it is now: a sync pull can rename it while it's open, or replace it
+      /// (the folder at its path then has another uuid, which the sync move must name), or delete
+      /// it, which lands the import at the root
+      func currentFolder(uuid: String, path: String) -> SimpleLibraryItem? {
+        let currentPath = libraryService.getItemRefs(forUuids: [uuid]).first?.relativePath ?? path
+        return libraryService.getSimpleItem(with: currentPath).flatMap { $0.type == .folder ? $0 : nil }
+      }
+      let landing = importNode.folderRelativePath.flatMap { currentFolder(uuid: importNode.uuid, path: $0) }
+      /// Where the import ends up: a stream is created there, a file import is moved there below
+      var landed = isStream ? landing : nil
+
       let processedItems: [SimpleLibraryItem]
       switch importSource {
       case .local(let files):
         processedItems = await libraryService.insertItems(from: files)
       case .external(let externals):
-        processedItems = await libraryService.insertItems(fromResources: externals)
+        // Created in the browsed folder; file imports are copied to the root and moved there below
+        processedItems = await libraryService.insertItems(
+          fromResources: externals,
+          inside: landing?.relativePath
+        )
       }
-      
+
+      /// Nothing created (no item in the batch could become a book): nothing to place
+      guard !processedItems.isEmpty else { return }
+
       var itemIdentifiers = processedItems.map({ $0.relativePath })
       let itemIdentifiersPairs = processedItems.map({ LibraryItemRef(relativePath: $0.relativePath, uuid: $0.uuid) })
       do {
         await syncService.scheduleUpload(items: processedItems)
-        /// Move imported files to current selected folder so the user can see them
-        if let folderRelativePath = importNode.folderRelativePath {
+        /// Move imported files to current selected folder so the user can see them. Found again
+        /// here, with nothing awaited before the moves: the copy and insert above can take seconds
+        if !isStream,
+          let landing,
+          let destination = currentFolder(uuid: landing.uuid, path: landing.relativePath) {
+          let folderRelativePath = destination.relativePath
           try libraryService.moveItems(itemIdentifiersPairs, inside: folderRelativePath)
-          syncService.scheduleMove(items: itemIdentifiersPairs, to: LibraryItemRef(relativePath: folderRelativePath, uuid: importNode.uuid))
+          syncService.scheduleMove(
+            items: itemIdentifiersPairs,
+            to: LibraryItemRef(relativePath: folderRelativePath, uuid: destination.uuid)
+          )
           /// Update identifiers after moving for the follow up action alert
           itemIdentifiers = itemIdentifiers.map({ "\(folderRelativePath)/\($0)" })
+          landed = destination
         }
       } catch {
         loadingState.error = error
@@ -255,7 +301,7 @@ struct LibraryRootView: View {
       let availableFolders =
         self.libraryService.getItems(
           notIn: itemIdentifiers,
-          parentFolder: importNode.folderRelativePath
+          parentFolder: landed?.relativePath
         )?.filter({ $0.type == .folder }) ?? []
 
       let singleFolder: SimpleLibraryItem? =
@@ -281,7 +327,7 @@ struct LibraryRootView: View {
         singleFolderUuid: singleFolder?.uuid,
         availableFolders: availableFolders,
         suggestedFolderName: firstTitle,
-        node: importNode
+        node: landed.map { .folder(title: $0.title, relativePath: $0.relativePath, uuid: $0.uuid) } ?? .root
       )
     }
   }

@@ -183,8 +183,8 @@ struct IntegrationAudiobookDetailsView<
           do {
             // No onDownloadTap() here: this stages pendingImportBatch for the
             // confirmation sheet below, and dismissing the browser would tear that
-            // sheet down before it could present. confirmExternalImport deliberately
-            // keeps you in the browser afterwards.
+            // sheet down before it could present. confirmExternalImport sends the
+            // batch, then closes the browser so the library's placement prompt shows.
             try await self.viewModel.handleImportAudiobook(viewModel.item)
           } catch {
             viewModel.error = error

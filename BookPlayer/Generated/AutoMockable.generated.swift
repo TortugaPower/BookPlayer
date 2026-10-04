@@ -1174,23 +1174,23 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     }
     //MARK: - insertItems
 
-    var insertItemsFromResourcesCallsCount = 0
-    var insertItemsFromResourcesCalled: Bool {
-        return insertItemsFromResourcesCallsCount > 0
+    var insertItemsFromResourcesInsideCallsCount = 0
+    var insertItemsFromResourcesInsideCalled: Bool {
+        return insertItemsFromResourcesInsideCallsCount > 0
     }
-    var insertItemsFromResourcesReceivedResources: [SimpleExternalResource]?
-    var insertItemsFromResourcesReceivedInvocations: [[SimpleExternalResource]] = []
-    var insertItemsFromResourcesReturnValue: [SimpleLibraryItem]!
-    var insertItemsFromResourcesClosure: (([SimpleExternalResource]) async -> [SimpleLibraryItem])?
+    var insertItemsFromResourcesInsideReceivedArguments: (resources: [SimpleExternalResource], parentPath: String?)?
+    var insertItemsFromResourcesInsideReceivedInvocations: [(resources: [SimpleExternalResource], parentPath: String?)] = []
+    var insertItemsFromResourcesInsideReturnValue: [SimpleLibraryItem]!
+    var insertItemsFromResourcesInsideClosure: (([SimpleExternalResource], String?) async -> [SimpleLibraryItem])?
     @MainActor
-    func insertItems(fromResources resources: [SimpleExternalResource]) async -> [SimpleLibraryItem] {
-        insertItemsFromResourcesCallsCount += 1
-        insertItemsFromResourcesReceivedResources = resources
-        insertItemsFromResourcesReceivedInvocations.append(resources)
-        if let insertItemsFromResourcesClosure = insertItemsFromResourcesClosure {
-            return await insertItemsFromResourcesClosure(resources)
+    func insertItems(fromResources resources: [SimpleExternalResource], inside parentPath: String?) async -> [SimpleLibraryItem] {
+        insertItemsFromResourcesInsideCallsCount += 1
+        insertItemsFromResourcesInsideReceivedArguments = (resources: resources, parentPath: parentPath)
+        insertItemsFromResourcesInsideReceivedInvocations.append((resources: resources, parentPath: parentPath))
+        if let insertItemsFromResourcesInsideClosure = insertItemsFromResourcesInsideClosure {
+            return await insertItemsFromResourcesInsideClosure(resources, parentPath)
         } else {
-            return insertItemsFromResourcesReturnValue
+            return insertItemsFromResourcesInsideReturnValue
         }
     }
     //MARK: - handleSyncFromExternalResource

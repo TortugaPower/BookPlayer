@@ -165,23 +165,39 @@ struct ImportPlacementPrompt: ViewModifier {
         }
       }
       .onChange(of: gate) { old, new in
-        if old.isImportScreenShown, !new.isImportScreenShown {
-          clearBeforeTheNextImport()
+        let importScreenClosed = old.isImportScreenShown && !new.isImportScreenShown
+        let coverClosed = old.isCovered && !new.isCovered
+        guard importScreenClosed || coverClosed, !isIdle else {
+          presentIfPossible()
+          return
         }
-        presentIfPossible()
+
+        clearBeforeTheNextImport()
+        if importScreenClosed {
+          presentIfPossible()
+        } else {
+          // What a cover's close clears never showed, so nothing is closing: the next prompt goes
+          // a pass later, or SwiftUI would take it for the cleared one's contents changing. A
+          // stream's prompt is usually waiting by then (it's ready before the browser has gone)
+          Task { @MainActor in presentIfPossible() }
+        }
       }
   }
 
-  /// Every import is confirmed on the import screen, so this runs before each import's prompt
-  /// comes. An alert doesn't report appearing: one iOS dropped (presented under something the list
-  /// showed) still counts as on screen, and would block every later prompt. One that really is on
-  /// screen, with the import screen opened over it, closes.
+  /// Every import is confirmed over the library, files on the import screen and streams in the
+  /// media-server browser, so this runs before each import's prompt comes: when the import
+  /// screen or anything covering the library closes. An alert doesn't report appearing: one iOS
+  /// dropped (presented under something the list showed) still counts as on screen, and would
+  /// block every later prompt. A cover never appears over one that really is on screen: UIKit
+  /// presents one thing at a time from the library's presenter, so a cover asked for meanwhile
+  /// (a watch or widget play action) is refused. The import screen can, from another app, and
+  /// that prompt closes.
   ///
-  /// Rare, with two imports processing at once: an earlier import's prompt can be waiting when
-  /// this clears one. Set in the same update, SwiftUI takes it for the cleared one's contents
-  /// changing, so if that one was dropped this doesn't show either (and is cleared at the next
-  /// close). Set a pass later, it would be dropped instead whenever the cleared one really showed
-  /// and is still closing.
+  /// Rare at the import screen's close, with two imports processing at once: an earlier import's
+  /// prompt can be waiting when this clears one. Set in the same update, SwiftUI takes it for the
+  /// cleared one's contents changing, so if that one was dropped this doesn't show either (and is
+  /// cleared at the next close). Set a pass later, it would be dropped instead whenever the
+  /// cleared one really showed and is still closing.
   private func clearBeforeTheNextImport() {
     options = nil
     nameRequest = nil

@@ -600,7 +600,8 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
   Library tab is on screen; and it carries the imported items' uuids, reading their current paths when an
   option is picked (`LibraryService.getItemRefs(forUuids:)`). The list's own sheets and alerts aren't waited
   for: the prompt closes one (seen with a sheet), or is dropped under it, lost, and cleared when the next
-  import screen closes so it can't block later prompts. Its actions and the list's multi-select share
+  import screen or cover closes (streams are confirmed in the media-server browser) so it can't block later
+  prompts. Its actions and the list's multi-select share
   `LibraryOrganizer`. An alert that leads to another (Move → the folder name) uses a separate alert, set from
   the first one's button: switching one alert's contents (nil, then the next) can be dropped mid-animation.
 - **Library** (`Library/ItemList/…`, backed by `Shared/Services/LibraryService.swift`): the main list, folders,

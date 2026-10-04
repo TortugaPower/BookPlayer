@@ -196,7 +196,12 @@ public protocol LibraryServiceProtocol: AnyObject {
 
   // fromResources (not from:): overloading insertItems(from: [URL]) collides in the
   // Sourcery-generated mock property names.
-  @MainActor func insertItems(fromResources resources: [SimpleExternalResource]) async -> [SimpleLibraryItem]
+  /// Creates the streamed items in the folder at `parentPath` (the one being browsed; the library
+  /// root when nil, or when that folder is gone), as Android's `basePath` does
+  @MainActor func insertItems(
+    fromResources resources: [SimpleExternalResource],
+    inside parentPath: String?
+  ) async -> [SimpleLibraryItem]
   
   /// Fold positions reported by a provider's servers into the local rows.
   @MainActor func handleSyncFromExternalResource(
@@ -1360,11 +1365,17 @@ extension LibraryService {
   
   @MainActor
   @discardableResult
-  public func insertItems(fromResources resources: [SimpleExternalResource]) async -> [SimpleLibraryItem] {
+  public func insertItems(
+    fromResources resources: [SimpleExternalResource],
+    inside parentPath: String?
+  ) async -> [SimpleLibraryItem] {
     // Phase 2: Create CoreData entities on the main thread using pre-extracted data
     let library = getLibraryReference()
+    // A folder a sync pull deleted since the import started: the root
+    let parentFolder = parentPath.flatMap { getItemReference(with: $0, context: dataManager.getContext()) as? Folder }
+    let parentPath = parentFolder?.relativePath
     var processedFiles = [SimpleLibraryItem]()
-    var nextOrderRank = getNextOrderRank(in: nil)
+    var nextOrderRank = getNextOrderRank(in: parentPath)
     for resource in resources {
       // libraryItem is optional by construction (ignoreLibraryItem paths) — a resource
       // without one cannot become a book row; skip it instead of crashing.
@@ -1382,16 +1393,24 @@ extension LibraryService {
       }
       // An item made of several files is a volume of them; Jellyfin serves one file per item
       let libraryItem: LibraryItem = resource.files.count > 1
-        ? createExternalVolume(simpleItem: simpleItem, externalResource: resource)
-        : await createExternalBook(simpleItem: simpleItem, externalResource: resource)
+        ? createExternalVolume(simpleItem: simpleItem, externalResource: resource, inside: parentPath)
+        : await createExternalBook(simpleItem: simpleItem, externalResource: resource, inside: parentPath)
       libraryItem.orderRank = nextOrderRank
       nextOrderRank += 1
 
-      library.addToItems(libraryItem)
+      if let parentFolder {
+        parentFolder.addToItems(libraryItem)
+      } else {
+        library.addToItems(libraryItem)
+      }
       processedFiles.append(SimpleLibraryItem(from: libraryItem))
     }
 
     dataManager.saveContext()
+
+    if let parentPath, !processedFiles.isEmpty {
+      rebuildFolderDetails(parentPath)
+    }
 
     return processedFiles
   }
@@ -1915,9 +1934,13 @@ extension LibraryService {
   /// Internal (not public, not on the protocol): returns a managed object, which must
   /// never cross the service boundary — the sole caller insertItems(fromResources:)
   /// snapshots it to SimpleLibraryItem on the same context.
-  func createExternalBook(simpleItem: SimpleLibraryItem, externalResource: SimpleExternalResource) async -> LibraryItem {
+  func createExternalBook(
+    simpleItem: SimpleLibraryItem,
+    externalResource: SimpleExternalResource,
+    inside parentPath: String?
+  ) async -> LibraryItem {
     let context = dataManager.getContext()
-    
+
     let entity = NSEntityDescription.entity(forEntityName: "Book", in: context)!
     let book = Book(entity: entity, insertInto: context)
     book.uuid = UUID().uuidString
@@ -1925,9 +1948,10 @@ extension LibraryService {
     // the library's primary key, and an offloaded book is restored by its file name, so a name
     // another book already has anywhere in the library gets part of this one's uuid.
     let fileName = simpleItem.originalFileName
-    book.relativePath = bookExists(withFileName: fileName, context: context)
+    let name = bookExists(withFileName: fileName, context: context)
       ? Self.disambiguated(fileName, uuid: book.uuid)
       : fileName
+    book.relativePath = parentPath.map { "\($0)/\(name)" } ?? name
     book.remoteURL = nil
     book.artworkURL = simpleItem.artworkURL
     let title = simpleItem.title
@@ -1966,19 +1990,23 @@ extension LibraryService {
   ///
   /// Internal for the same reason as `createExternalBook`: it returns a managed object.
   @MainActor
-  func createExternalVolume(simpleItem: SimpleLibraryItem, externalResource: SimpleExternalResource) -> LibraryItem {
+  func createExternalVolume(
+    simpleItem: SimpleLibraryItem,
+    externalResource: SimpleExternalResource,
+    inside parentPath: String?
+  ) -> LibraryItem {
     let context = dataManager.getContext()
 
     let folderName = MediaServerFileNames.sanitize(simpleItem.title)
     // The volume's path is its books' parent; an item may already own it (and a streamed volume
     // has no folder on disk to collide with, so the library is what's checked)
-    let isTaken = getItemReference(with: folderName, context: context) != nil
+    let path = { (name: String) in parentPath.map { "\($0)/\(name)" } ?? name }
+    let isTaken = getItemReference(with: path(folderName), context: context) != nil
     let volume = Folder(title: folderName, context: context)
-    if isTaken {
-      volume.relativePath = "\(folderName)-\(volume.uuid.prefix(8))"
-    }
+    let name = isTaken ? "\(folderName)-\(volume.uuid.prefix(8))" : folderName
+    volume.relativePath = path(name)
     volume.title = simpleItem.title
-    volume.originalFileName = volume.relativePath
+    volume.originalFileName = name
     volume.type = .bound
     volume.artworkURL = simpleItem.artworkURL
     volume.currentTime = simpleItem.currentTime
