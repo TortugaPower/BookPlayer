@@ -515,7 +515,9 @@ class JellyfinConnectionService: BPLogger {
     let response = try await send { try await $0.data(for: Paths.getItems(parameters: parameters)) }
     try Task.checkCancellation()
 
-    let narratorItems = try Self.narrators(fromItemsResponse: response.value)
+    // Off the main actor, like the SDK's own decode: this response covers the whole library
+    let data = response.value
+    let narratorItems = try await Task.detached { try Self.narrators(fromItemsResponse: data) }.value
 
     return (narratorItems, narratorItems.count)
   }
@@ -609,7 +611,9 @@ class JellyfinConnectionService: BPLogger {
     let response = try await send { try await $0.data(for: Paths.getItem(itemID: id)) }
     try Task.checkCancellation()
 
-    let itemInfo = try Self.decodeLeniently(BaseItemDto.self, from: response.value)
+    // Off the main actor, like the SDK's own decode
+    let data = response.value
+    let itemInfo = try await Task.detached { try Self.decodeLeniently(BaseItemDto.self, from: data) }.value
     let artist: String? = itemInfo.albumArtist
     let filePath: String? = itemInfo.mediaSources?.first?.path ?? itemInfo.path
     let fileSize: Int? = itemInfo.mediaSources?.first?.size
@@ -703,10 +707,12 @@ class JellyfinConnectionService: BPLogger {
     decoder.dateDecodingStrategy = .custom { decoder in
       let container = try decoder.singleValueContainer()
       let string = try container.decode(String.self)
-      guard let date = dateFormatters.lazy.compactMap({ $0.date(from: string) }).first else {
-        throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid date: \(string)")
+      for formatter in dateFormatters {
+        if let date = formatter.date(from: string) {
+          return date
+        }
       }
-      return date
+      throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid date: \(string)")
     }
 
     do {

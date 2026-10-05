@@ -166,6 +166,7 @@ final class JellyfinPeopleDecodingTests: XCTestCase {
       "Id": "26739ea1a8efd1683b08dc2f049d313e",
       "Type": "AudioBook",
       "DateCreated": "2026-09-01T10:20:30.1234567Z",
+      "PremiereDate": "2021-03-02T00:00:00Z",
       "RunTimeTicks": 360000000000,
       "People": [
         { "Name": "Andrew Fallaize", "Id": "5867df33b04096d4d1a57652cc56e961", "Role": "", "Type": "Narrator" },
@@ -179,7 +180,11 @@ final class JellyfinPeopleDecodingTests: XCTestCase {
 
     XCTAssertEqual(item.name, "A Trade of Blood")
     XCTAssertEqual(item.runTimeTicks, 360000000000)
-    XCTAssertNotNil(item.dateCreated, "the fallback decode must parse Jellyfin dates like the SDK does")
+    // Both of the SDK's date formats: with a fraction (Jellyfin sends 7 digits) and without one
+    let dateCreated = try XCTUnwrap(item.dateCreated, "the fallback decode must parse Jellyfin dates like the SDK does")
+    XCTAssertEqual(dateCreated.timeIntervalSince1970, 1788258030.123, accuracy: 0.001)
+    let premiereDate = try XCTUnwrap(item.premiereDate)
+    XCTAssertEqual(premiereDate.timeIntervalSince1970, 1614643200)
     let people = try XCTUnwrap(item.people)
     XCTAssertEqual(people.map(\.name), ["Andrew Fallaize", "Robert Jackson Bennett"])
     XCTAssertEqual(people.map(\.type), [.unknown, .author])
