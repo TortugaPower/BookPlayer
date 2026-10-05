@@ -1252,15 +1252,20 @@ extension LibraryService {
         propertiesToFetch: [
           #keyPath(LibraryItem.relativePath),
           #keyPath(LibraryItem.orderRank),
+          #keyPath(LibraryItem.uuid),
         ]
       )
     else { return }
 
-    for (index, item) in contents.enumerated() {
+    // Only the ranks that change, as a reorder sends them: each is a sync request
+    for (index, item) in contents.enumerated() where item.orderRank != Int16(index) {
       item.orderRank = Int16(index)
+      // With its uuid, which the update task needs: without one, the rest of a folder an item
+      // left never had its order synced (and the branch's task storage trapped on it)
       metadataPassthroughPublisher.send([
         #keyPath(LibraryItem.relativePath): item.relativePath!,
         #keyPath(LibraryItem.orderRank): item.orderRank,
+        #keyPath(LibraryItem.uuid): item.uuid,
       ])
     }
 

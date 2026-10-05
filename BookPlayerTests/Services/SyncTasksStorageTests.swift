@@ -318,6 +318,26 @@ final class SyncTasksRepositoryTests: XCTestCase {
     try await repository.storeTask(parameters: parameters)
   }
 
+  /// An update must name its item: one without a uuid (a rank published from a path alone) is
+  /// refused instead of trapping on the task model's cast
+  func testStoreTask_updateWithoutUuid_isRefused() async throws {
+    let parameters: [String: Any] = [
+      "id": UUID().uuidString,
+      "relativePath": "Folder/Book.mp3",
+      "orderRank": 2,
+      "jobType": SyncJobType.update.rawValue,
+      "queueKey": TaskQueueKey.sync
+    ]
+
+    do {
+      try await repository.storeTask(parameters: parameters)
+      XCTFail("an update without a uuid must be refused")
+    } catch {}
+
+    let tasks = await repository.getAllTasks()
+    XCTAssertTrue(tasks.isEmpty)
+  }
+
   private func appendUploadTask(uuid: String, relativePath: String) async throws {
     let parameters: [String: Any] = [
       "id": UUID().uuidString,

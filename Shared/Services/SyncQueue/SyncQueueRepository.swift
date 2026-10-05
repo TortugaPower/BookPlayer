@@ -349,6 +349,11 @@ public actor SyncQueueRepository: SyncQueueRepositoryProtocol, BPLogger {
     else {
       throw BookPlayerError.runtimeError("Missing id, job type or queue key when creating task")
     }
+    // An update names its item, as develop's storage required of every task: one without a uuid
+    // is refused here rather than trapping on createTaskModel's cast
+    if jobType == .update, !(parameters["uuid"] is String) {
+      throw BookPlayerError.runtimeError("Missing uuid when creating an update task")
+    }
 
     let context = modelContext
 

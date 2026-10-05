@@ -955,6 +955,29 @@ class ModifyLibraryTests: LibraryServiceTests {
     XCTAssert(folder2.items?.count == 0)
   }
 
+  /// The rest of a folder an item left is ranked again, each rank update naming its item: the
+  /// update task needs the uuid (without one that order never synced, and the queue trapped)
+  func testMovingOutOfAFolderRanksTheRestWithTheirUuids() throws {
+    let book1 = StubFactory.book(dataManager: sut.dataManager, title: "book1", duration: 100)
+    let book2 = StubFactory.book(dataManager: sut.dataManager, title: "book2", duration: 100)
+    let folder = try StubFactory.folder(dataManager: sut.dataManager, title: "folder")
+    try sut.moveItems(
+      [LibraryItemRef(relativePath: book1.relativePath, uuid: book1.uuid), LibraryItemRef(relativePath: book2.relativePath, uuid: book2.uuid)],
+      inside: folder.relativePath
+    )
+
+    var emissions: [[String: Any]] = []
+    let subscription = sut.immediateProgressUpdatePublisher.sink { emissions.append($0) }
+    try sut.moveItems([LibraryItemRef(relativePath: book1.relativePath, uuid: book1.uuid)], inside: nil)
+    subscription.cancel()
+
+    let remainingRanks = emissions.filter {
+      $0["relativePath"] as? String == book2.relativePath && $0["orderRank"] != nil
+    }
+    XCTAssertFalse(remainingRanks.isEmpty)
+    XCTAssertTrue(remainingRanks.allSatisfy { $0["uuid"] as? String == book2.uuid })
+  }
+
   func testFolderShallowDeleteWithOneBook() throws {
     let library = self.sut.getLibrary()
     let book1 = StubFactory.book(dataManager: self.sut.dataManager, title: "book1", duration: 100)
