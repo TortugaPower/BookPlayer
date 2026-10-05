@@ -7,6 +7,7 @@
 
 @testable import BookPlayer
 @testable import BookPlayerKit
+import JellyfinAPI
 import XCTest
 
 /// Guards the Keychain wire format for both integrations' saved connections.
@@ -152,5 +153,71 @@ final class IntegrationConnectionDataDecodingTests: XCTestCase {
     let connection = try decoder.decode(AudiobookShelfConnectionData.self, from: Data(json.utf8))
 
     XCTAssertFalse(connection.isUsable)
+  }
+}
+
+/// jellyfin-sdk-swift 0.4 has no `PersonKind` case for kinds that newer servers send (for example
+/// "Narrator"). Without the lenient decode, one such person makes the whole response fail with
+/// "The data couldn't be read because it isn't in the correct format." (#1602)
+final class JellyfinPeopleDecodingTests: XCTestCase {
+  private let itemJSON = """
+    {
+      "Name": "A Trade of Blood",
+      "Id": "26739ea1a8efd1683b08dc2f049d313e",
+      "Type": "AudioBook",
+      "DateCreated": "2026-09-01T10:20:30.1234567Z",
+      "PremiereDate": "2021-03-02T00:00:00Z",
+      "RunTimeTicks": 360000000000,
+      "People": [
+        { "Name": "Andrew Fallaize", "Id": "5867df33b04096d4d1a57652cc56e961", "Role": "", "Type": "Narrator" },
+        { "Name": "Robert Jackson Bennett", "Id": "420315f384336769f1145f27b8201354", "Role": "", "Type": "Author" }
+      ]
+    }
+    """
+
+  func testItemWithUnknownPersonKindStillDecodes() throws {
+    let item = try JellyfinConnectionService.decodeLeniently(BaseItemDto.self, from: Data(itemJSON.utf8))
+
+    XCTAssertEqual(item.name, "A Trade of Blood")
+    XCTAssertEqual(item.runTimeTicks, 360000000000)
+    // Both of the SDK's date formats: with a fraction (Jellyfin sends 7 digits) and without one
+    let dateCreated = try XCTUnwrap(item.dateCreated, "the fallback decode must parse Jellyfin dates like the SDK does")
+    XCTAssertEqual(dateCreated.timeIntervalSince1970, 1788258030.123, accuracy: 0.001)
+    let premiereDate = try XCTUnwrap(item.premiereDate)
+    XCTAssertEqual(premiereDate.timeIntervalSince1970, 1614643200)
+    let people = try XCTUnwrap(item.people)
+    XCTAssertEqual(people.map(\.name), ["Andrew Fallaize", "Robert Jackson Bennett"])
+    XCTAssertEqual(people.map(\.type), [.unknown, .author])
+  }
+
+  func testDecodeErrorsNotCausedByPeopleStillThrow() {
+    let json = #"{ "Name": "Broken", "RunTimeTicks": "not a number" }"#
+
+    XCTAssertThrowsError(try JellyfinConnectionService.decodeLeniently(BaseItemDto.self, from: Data(json.utf8)))
+  }
+
+  func testNarratorsAreFoundByPersonTypeOrRole() throws {
+    let json = """
+      {
+        "Items": [
+          { "Name": "Book 1", "People": [
+            { "Name": "Andrew Fallaize", "Id": "p1", "Role": "", "Type": "Narrator" },
+            { "Name": "Robert Jackson Bennett", "Id": "p2", "Role": "", "Type": "Author" }
+          ] },
+          { "Name": "Book 2", "People": [
+            { "Name": "Euan Morton", "Id": "p3", "Role": "Narrator", "Type": "Actor" },
+            { "Name": "Andrew Fallaize", "Id": "p1", "Role": "", "Type": "Narrator" }
+          ] },
+          { "Name": "Book 3" }
+        ],
+        "TotalRecordCount": 3
+      }
+      """
+
+    let narrators = try JellyfinConnectionService.narrators(fromItemsResponse: Data(json.utf8))
+
+    XCTAssertEqual(narrators.map(\.name), ["Andrew Fallaize", "Euan Morton"])
+    XCTAssertEqual(narrators.map(\.id), ["p1", "p3"])
+    XCTAssertTrue(narrators.allSatisfy { $0.kind == .narrator })
   }
 }
