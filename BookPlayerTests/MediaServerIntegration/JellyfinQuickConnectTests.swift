@@ -169,3 +169,52 @@ final class JellyfinQuickConnectTests: XCTestCase {
     }
   }
 }
+
+/// Covers the download request, which is built by hand instead of going through `JellyfinClient`
+/// and so gets none of the client's automatic auth. Jellyfin 12 servers can reject the `?api_key=` query
+/// token with a 401 and accept only the token in the `Authorization` header (#1598).
+@MainActor
+final class JellyfinDownloadRequestTests: XCTestCase {
+  private var sut: JellyfinConnectionService!
+
+  override func setUp() {
+    super.setUp()
+    sut = JellyfinConnectionService(keychainService: KeychainServiceMock())
+    sut.client = JellyfinClient(
+      configuration: JellyfinClient.Configuration(
+        url: URL(string: "https://jellyfin.example.com/jellyfin")!,
+        client: "BookPlayer",
+        deviceName: "Test Device",
+        deviceID: "test-device",
+        version: "1"
+      ),
+      accessToken: "s3cr3t"
+    )
+  }
+
+  override func tearDown() {
+    sut = nil
+    super.tearDown()
+  }
+
+  private let audiobook = JellyfinLibraryItem(id: "item-1", name: "Book", kind: .audiobook)
+
+  func testDownloadRequestCarriesTheTokenInTheAuthorizationHeader() throws {
+    let request = try sut.createItemDownloadRequest(audiobook)
+
+    XCTAssertEqual(
+      request.value(forHTTPHeaderField: "Authorization"),
+      "MediaBrowser Token=\"s3cr3t\""
+    )
+  }
+
+  /// The URL ends up in the download task's persisted `taskDescription`, so it must not carry the token.
+  func testDownloadURLDoesNotCarryTheToken() throws {
+    let request = try sut.createItemDownloadRequest(audiobook)
+    let url = try XCTUnwrap(request.url)
+
+    XCTAssertEqual(url.path, "/jellyfin/Items/item-1/Download")
+    XCTAssertFalse(url.absoluteString.contains("s3cr3t"))
+    XCTAssertFalse(url.absoluteString.contains("api_key"))
+  }
+}
