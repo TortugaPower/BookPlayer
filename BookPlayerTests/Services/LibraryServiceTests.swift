@@ -2201,21 +2201,6 @@ class LibraryServiceExternalResourceTests: XCTestCase {
     XCTAssertNil(second)
   }
 
-  func testFindResourceIsProviderScoped() async {
-    let book1 = makeBook("external-3")
-    let book2 = makeBook("external-4")
-    // The same providerId under two different providers: cross-instance id collisions
-    // must resolve to the right item per provider
-    _ = await sut.setExternalResource(providerName: "jellyfin", providerId: "shared-id", for: book1.uuid)
-    _ = await sut.setExternalResource(providerName: "audiobookshelf", providerId: "shared-id", for: book2.uuid)
-
-    let jellyfin = sut.findResource(for: "shared-id", providerName: "jellyfin")
-    XCTAssertEqual(jellyfin?.libraryItemUuid, book1.uuid)
-
-    let abs = sut.findResource(for: "shared-id", providerName: "audiobookshelf")
-    XCTAssertEqual(abs?.libraryItemUuid, book2.uuid)
-  }
-
   // MARK: - Media-server chapters
 
   private func chapters(_ spans: [(TimeInterval, TimeInterval)]) -> [ChapterMetadata] {
@@ -2386,7 +2371,7 @@ class LibraryServiceExternalResourceTests: XCTestCase {
   }
 
   @MainActor
-  func testInsertItemsFromResourcesCreatesExternalBooks() async {
+  func testInsertItemsFromResourcesCreatesExternalBooks() async throws {
     let simpleItem = SimpleLibraryItem(
       title: "remote-book",
       details: "remote-author",
@@ -2428,16 +2413,14 @@ class LibraryServiceExternalResourceTests: XCTestCase {
     // createExternalBook deliberately mints a fresh local uuid (matchUuid reconciles
     // against the server later) and names the book `<title>.<ext>`, as Android does
     XCTAssertEqual(inserted.first?.relativePath, "remote-book.m4b")
-    let stored = sut.findResource(for: "insert-1", providerName: "jellyfin")
-    XCTAssertEqual(stored?.libraryItemUuid, inserted.first?.uuid)
-    XCTAssertNil(sut.findResource(for: "insert-orphan", providerName: "jellyfin"))
+    let book = try XCTUnwrap(inserted.first)
+    XCTAssertEqual(sut.findResources(for: book.uuid)?.map(\.providerId), ["insert-1"])
   }
 
-  /// Re-importing the same provider identity must reuse the existing row: inserting
-  /// again would create a twin Book sharing one relativePath — the library's de-facto
-  /// primary key, which has no store-level uniqueness constraint.
+  /// Streaming a book already in the library makes another copy, as importing a file again does:
+  /// its own row, link and name (a name never has two rows: relativePath is the library's key)
   @MainActor
-  func testInsertItemsIsIdempotentOnReimport() async {
+  func testStreamingABookAgainMakesASeparateCopy() async throws {
     let simpleItem = SimpleLibraryItem(
       title: "twin-book",
       details: "author",
@@ -2464,14 +2447,16 @@ class LibraryServiceExternalResourceTests: XCTestCase {
       libraryItem: simpleItem
     )
 
-    let first = await sut.insertItems(fromResources: [resource], inside: nil)
-    XCTAssertEqual(first.count, 1)
+    let firstImport = await sut.insertItems(fromResources: [resource], inside: nil)
+    let secondImport = await sut.insertItems(fromResources: [resource], inside: nil)
+    let first = try XCTUnwrap(firstImport.first)
+    let second = try XCTUnwrap(secondImport.first)
 
-    let second = await sut.insertItems(fromResources: [resource], inside: nil)
-    XCTAssertTrue(second.isEmpty, "re-import must be skipped, not create a twin row")
-
-    let rowsAtPath = sut.fetchIdentifiers().filter { $0 == "twin-book.m4b" }
-    XCTAssertEqual(rowsAtPath.count, 1, "exactly one row may exist at the synthesized relativePath")
+    XCTAssertNotEqual(second.uuid, first.uuid)
+    XCTAssertEqual(first.relativePath, "twin-book.m4b")
+    XCTAssertEqual(second.relativePath, "twin-book-\(second.uuid.prefix(8)).m4b")
+    XCTAssertEqual(sut.findResources(for: first.uuid)?.map(\.providerId), ["twin-1"])
+    XCTAssertEqual(sut.findResources(for: second.uuid)?.map(\.providerId), ["twin-1"])
   }
 
   // MARK: - Stream imports: names and volumes (Android's VirtualImportManagerTest)
@@ -2480,10 +2465,11 @@ class LibraryServiceExternalResourceTests: XCTestCase {
     providerId: String,
     title: String,
     fileName: String,
-    files: [ExternalStreamFile] = []
+    files: [ExternalStreamFile] = [],
+    providerName: String = "audiobookshelf"
   ) -> SimpleExternalResource {
     SimpleExternalResource(
-      providerName: "audiobookshelf",
+      providerName: providerName,
       providerId: providerId,
       syncStatus: ExternalResource.SyncStatus.stream.rawValue,
       lastSyncedAt: nil,
@@ -2508,6 +2494,65 @@ class LibraryServiceExternalResourceTests: XCTestCase {
       ),
       files: files
     )
+  }
+
+  /// Two copies of a server's book (streamed twice), and the same id under the other provider
+  @MainActor
+  private func streamCopies() async throws -> (copy1: SimpleLibraryItem, copy2: SimpleLibraryItem, jellyfin: SimpleLibraryItem) {
+    let resource = streamResource(providerId: "li_d", title: "Dune", fileName: "Dune.m4b")
+    let first = await sut.insertItems(fromResources: [resource], inside: nil)
+    let second = await sut.insertItems(fromResources: [resource], inside: nil)
+    let jellyfin = await sut.insertItems(
+      fromResources: [streamResource(providerId: "li_d", title: "Emma", fileName: "Emma.m4b", providerName: "jellyfin")],
+      inside: nil
+    )
+    return (try XCTUnwrap(first.first), try XCTUnwrap(second.first), try XCTUnwrap(jellyfin.first))
+  }
+
+  /// A finished download marks its own book's link, not another copy's or the other provider's
+  @MainActor
+  func testADownloadMarksOnlyItsOwnBooksLink() async throws {
+    let (copy1, copy2, jellyfin) = try await streamCopies()
+
+    await sut.updateExternalResource(
+      for: SyncableExternalResource(
+        providerName: "audiobookshelf",
+        providerId: "li_d",
+        syncStatus: ExternalResource.SyncStatus.stream.rawValue,
+        lastSyncedAt: nil,
+        processedFile: true,
+        hostId: nil
+      ),
+      itemUuid: copy2.uuid
+    )
+
+    // Read where the update saved: the view context merges it a moment later
+    let context = sut.dataManager.getBackgroundContext()
+    let processed = { (uuid: String) in
+      context.performAndWait { (self.sut.findResourceEntities(for: uuid, context: context) ?? []).map(\.processedFile) }
+    }
+    XCTAssertEqual(processed(copy2.uuid), [true])
+    XCTAssertEqual(processed(copy1.uuid), [false])
+    XCTAssertEqual(processed(jellyfin.uuid), [false])
+  }
+
+  /// Copies of a server's book share its progress: a pull moves every copy to the server's spot
+  @MainActor
+  func testAProgressPullMovesEveryCopy() async throws {
+    let (copy1, copy2, jellyfin) = try await streamCopies()
+
+    sut.handleSyncFromExternalResource(
+      providerName: "audiobookshelf",
+      snapshotsByProviderId: [
+        "li_d": ExternalItemSnapshot(
+          progress: ExternalPlaybackProgress(currentTime: 40, lastPlayedDate: Date(timeIntervalSince1970: 2_000))
+        )
+      ]
+    )
+
+    XCTAssertEqual(sut.getSimpleItem(with: copy1.relativePath)?.currentTime, 40)
+    XCTAssertEqual(sut.getSimpleItem(with: copy2.relativePath)?.currentTime, 40)
+    XCTAssertEqual(sut.getSimpleItem(with: jellyfin.relativePath)?.currentTime, 0)
   }
 
   /// relativePath is the library's key, and an offloaded book is restored by its file name, so
@@ -2582,7 +2627,7 @@ class LibraryServiceExternalResourceTests: XCTestCase {
     XCTAssertEqual(volume.relativePath, "Big_ Book")
     XCTAssertEqual(volume.title, "Big: Book")
     XCTAssertEqual(volume.duration, 35, accuracy: 0.01)
-    XCTAssertEqual(sut.findResource(for: "li_v", providerName: "audiobookshelf")?.libraryItemUuid, volume.uuid)
+    XCTAssertEqual(sut.findResources(for: volume.uuid)?.map(\.providerId), ["li_v"])
 
     let books = try XCTUnwrap(sut.fetchContents(at: volume.relativePath, limit: nil, offset: nil))
     XCTAssertEqual(books.map(\.relativePath), [

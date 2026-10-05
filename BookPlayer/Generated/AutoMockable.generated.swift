@@ -1112,26 +1112,6 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
             return getExternalResourcesForReturnValue
         }
     }
-    //MARK: - findResource
-
-    var findResourceForProviderNameCallsCount = 0
-    var findResourceForProviderNameCalled: Bool {
-        return findResourceForProviderNameCallsCount > 0
-    }
-    var findResourceForProviderNameReceivedArguments: (providerId: String, providerName: String?)?
-    var findResourceForProviderNameReceivedInvocations: [(providerId: String, providerName: String?)] = []
-    var findResourceForProviderNameReturnValue: SimpleExternalResource?
-    var findResourceForProviderNameClosure: ((String, String?) -> SimpleExternalResource?)?
-    func findResource(for providerId: String, providerName: String?) -> SimpleExternalResource? {
-        findResourceForProviderNameCallsCount += 1
-        findResourceForProviderNameReceivedArguments = (providerId: providerId, providerName: providerName)
-        findResourceForProviderNameReceivedInvocations.append((providerId: providerId, providerName: providerName))
-        if let findResourceForProviderNameClosure = findResourceForProviderNameClosure {
-            return findResourceForProviderNameClosure(providerId, providerName)
-        } else {
-            return findResourceForProviderNameReturnValue
-        }
-    }
     //MARK: - findResources
 
     var findResourcesForCallsCount = 0

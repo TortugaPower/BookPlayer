@@ -183,9 +183,8 @@ public protocol LibraryServiceProtocol: AnyObject {
   /// Returns the item's external resources as lightweight values.
   func getExternalResources(for relativePath: String) async -> [SimpleExternalResource]
 
-  /// Snapshot, not a managed object: services never hand NSManagedObjects out (repo invariant).
-  func findResource(for providerId: String, providerName: String?) -> SimpleExternalResource?
-  
+  /// Snapshots, not managed objects: services never hand NSManagedObjects out (repo invariant).
+  /// Found through the item: a server's book can be in the library more than once.
   func findResources(for uuid: String) -> [SimpleExternalResource]?
 
   /// Media-server links of every item at one library level (root when nil), the way the list
@@ -1380,17 +1379,9 @@ extension LibraryService {
       // libraryItem is optional by construction (ignoreLibraryItem paths) — a resource
       // without one cannot become a book row; skip it instead of crashing.
       guard let simpleItem = resource.libraryItem else { continue }
-      // Idempotent import: the (providerName, providerId) pair IS the book's identity
-      // on its server, so re-importing must reuse the existing row — inserting again
-      // creates a twin sharing the same relativePath, the library's de-facto primary
-      // key, which has NO store-level uniqueness constraint. Mirrors the file flow's
-      // hasExistingBook guard in ImportOperation and setExternalResource's dedup.
-      guard findResource(for: resource.providerId, providerName: resource.providerName) == nil else {
-        Self.logger.info(
-          "Virtual import skipped: \(resource.providerName)/\(resource.providerId) is already in the library"
-        )
-        continue
-      }
+      // A book already in the library gets another copy, as a file imported again does (a user
+      // can keep one in several folders). Its own row, link and name; the copies share the
+      // server's progress, each pushing to and pulled from the same server item.
       // An item made of several files is a volume of them; Jellyfin serves one file per item
       let libraryItem: LibraryItem = resource.files.count > 1
         ? createExternalVolume(simpleItem: simpleItem, externalResource: resource, inside: parentPath)
@@ -3113,24 +3104,6 @@ extension LibraryService {
 }
 
 extension LibraryService {
-  /// Managed-object variant for same-module mutation/diffing paths ONLY — never exposed
-  /// on the protocol.
-  func findResourceEntity(for providerId: String, providerName: String? = nil, context: NSManagedObjectContext? = nil) -> ExternalResource? {
-    let fetch: NSFetchRequest<ExternalResource> = ExternalResource.fetchRequest()
-    // Scope by provider when known: provider item ids are only unique per provider, and a
-    // Jellyfin id colliding with an ABS id must not resolve/mutate the other's resource.
-    if let providerName {
-      fetch.predicate = NSPredicate(format: "providerId == %@ AND providerName == %@", providerId, providerName)
-    } else {
-      fetch.predicate = NSPredicate(format: "providerId == %@", providerId)
-    }
-    let context = context ?? self.dataManager.getContext()
-
-    let result = try? context.fetch(fetch)
-    
-    return result?.first
-  }
-  
   func findResourceEntities(for uuid: String, context: NSManagedObjectContext? = nil) -> [ExternalResource]? {
     let fetch: NSFetchRequest<ExternalResource> = ExternalResource.fetchRequest()
     fetch.predicate = NSPredicate(format: "%K == %@", #keyPath(ExternalResource.libraryItem.uuid), uuid)
@@ -3139,17 +3112,6 @@ extension LibraryService {
     let result = try? context.fetch(fetch)
     
     return result
-  }
-
-  public func findResource(for providerId: String, providerName: String?) -> SimpleExternalResource? {
-    let context = dataManager.getContext()
-    var snapshot: SimpleExternalResource?
-    context.performAndWait {
-      if let entity = findResourceEntity(for: providerId, providerName: providerName, context: context) {
-        snapshot = SimpleExternalResource(from: entity, ignoreLibraryItem: true)
-      }
-    }
-    return snapshot
   }
 
   public func findResources(for uuid: String) -> [SimpleExternalResource]? {

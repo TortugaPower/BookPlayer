@@ -50,7 +50,8 @@ public protocol LibrarySyncProtocol {
   /// Item uuid + external resources as lightweight values, fetched on the context's queue
   func getItemResourcesSnapshot(for relativePath: String) -> (uuid: String, resources: [SyncableExternalResource])?
 
-  func updateExternalResource(for item: SyncableExternalResource) async
+  /// The link of the item with `itemUuid`: a server's book can be in the library more than once
+  func updateExternalResource(for item: SyncableExternalResource, itemUuid: String) async
 
   /// The item's current path, read on a background context (an upload in the background
   /// finds its book's file by uuid after the user moved it)
@@ -395,11 +396,13 @@ extension LibraryService: LibrarySyncProtocol {
     }
   }
   
-  public func updateExternalResource(for item: SyncableExternalResource) async {
+  public func updateExternalResource(for item: SyncableExternalResource, itemUuid: String) async {
     return await withCheckedContinuation { continuation in
       let context = dataManager.getBackgroundContext()
       context.perform { [unowned self, context] in
-        let externalResource = self.findResourceEntity(for: item.providerId, providerName: item.providerName, context: context)
+        let externalResource = self.findResourceEntities(for: itemUuid, context: context)?.first {
+          $0.providerName == item.providerName && $0.providerId == item.providerId
+        }
         if let externalResource {
           externalResource.syncStatus = item.syncStatus
           externalResource.processedFile = item.processedFile

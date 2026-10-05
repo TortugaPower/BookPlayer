@@ -572,6 +572,11 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
     registration (`SyncableItem.volumeMediaServerProviderName`, so no file is asked for) and the post-download
     upload all go through the volume's. Single books are named `<title>.<ext>` (no provider prefix), with
     `-<uuid prefix>` when a book anywhere already has that name.
+  - **A stream import is created in the folder being browsed** (Android's `basePath`), and streaming a book
+    already in the library makes another copy (decided; Android to follow), as a file imported again does.
+    So a server's book can have several rows: find a link through its item (`findResources(for:)`), never by
+    `(providerName, providerId)` alone. The copies share the server's progress (each pushes to the same
+    server item; the pull updates every row linked to it).
 - **Hardcover** (`Hardcover/`, `@Observable HardcoverService`, GraphQL): two-way **reading-progress** sync, not a
   media server. Status `HardcoverBook.Status { local=0, library=1, reading=2, read=3 }`; **only 1/2/3 are ever
   POSTed** (`.local` is a local-only marker). Monotonic guards prevent backwards writes; auto-match on import has

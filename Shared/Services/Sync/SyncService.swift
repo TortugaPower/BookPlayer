@@ -1166,7 +1166,7 @@ extension SyncService {
       processedFile: true,
       hostId: externalResource.hostId
     )
-    await libraryService.updateExternalResource(for: externalSyncItem)
+    await libraryService.updateExternalResource(for: externalSyncItem, itemUuid: snapshot.uuid)
     // Deliberately NOT gated on `isActive`: external-resource sync is tier-independent by
     // design (the reference lives in the DB for every tier and the server validates
     // entitlements) — matching getDownloadState, which permits these downloads when !isActive.
