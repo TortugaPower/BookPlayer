@@ -66,7 +66,7 @@ App Intents in the top-level `BookPlayer/BookPlayer/AppIntents/` folder — don'
 ### Dependencies (SPM, declared inside `project.pbxproj`)
 
 RevenueCat (`purchases-ios`, ~5.33), Sentry (`sentry-cocoa`, **exact 8.36.0**), Kingfisher (~7.9),
-JellyfinAPI (`jellyfin-sdk-swift`, ~0.4), MarqueeLabel (~4.0.5), DeviceKit (~5.1),
+JellyfinAPI (`jellyfin-sdk-swift`, ~1.0), MarqueeLabel (~4.0.5), DeviceKit (~5.1),
 IDZSwiftCommonCrypto (~0.13.1), Themeable (~3.0), ZipArchive (~2.3), DirectoryWatcher (~2.8.6).
 `BlurHashDecode.swift` is vendored (SwiftLint-excluded). RevenueCat + Kingfisher link into the **frameworks**;
 most others link into the **app**. SwiftLint runs as a build-phase run-script; **Sourcery is run manually** (not

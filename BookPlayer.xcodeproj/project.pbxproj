@@ -6761,7 +6761,7 @@
 			repositoryURL = "https://github.com/jellyfin/jellyfin-sdk-swift.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 0.4.0;
+				minimumVersion = 1.0.0;
 			};
 		};
 		9FE8188D2805BCE40089A41E /* XCRemoteSwiftPackageReference "purchases-ios" */ = {

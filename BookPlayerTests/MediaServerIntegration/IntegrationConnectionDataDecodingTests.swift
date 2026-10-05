@@ -156,7 +156,7 @@ final class IntegrationConnectionDataDecodingTests: XCTestCase {
   }
 }
 
-/// jellyfin-sdk-swift 0.4 has no `PersonKind` case for kinds that newer servers send (for example
+/// jellyfin-sdk-swift before 3.0 has no `PersonKind` case for kinds that newer servers send (for example
 /// "Narrator"). Without the lenient decode, one such person makes the whole response fail with
 /// "The data couldn't be read because it isn't in the correct format." (#1602)
 final class JellyfinPeopleDecodingTests: XCTestCase {

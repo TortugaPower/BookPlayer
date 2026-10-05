@@ -183,12 +183,12 @@ final class JellyfinDownloadRequestTests: XCTestCase {
     sut.client = JellyfinClient(
       configuration: JellyfinClient.Configuration(
         url: URL(string: "https://jellyfin.example.com/jellyfin")!,
+        accessToken: "s3cr3t",
         client: "BookPlayer",
         deviceName: "Test Device",
         deviceID: "test-device",
         version: "1"
-      ),
-      accessToken: "s3cr3t"
+      )
     )
   }
 
