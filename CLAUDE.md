@@ -635,6 +635,12 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
   `PreferencesSyncService` freezes automatically-sorted locations into ranks before wiping `library_sort:*`,
   so sign-out doesn't visibly re-scramble the library.
   UI reads on `viewContext`, background on `backgroundContext`, only `Simple*` snapshots cross back to UI.
+  **A move never lands on a taken name** (as on Android): `LibraryService.moveItems` moves each item under its
+  current name (its path's last component, at the root too) and leaves one whose name another item or a file
+  already has at the destination where it is, returning it (a streamed item has no file, so the library is
+  asked). Callers sync only what moved and report the clash with `LibraryService.nameTakenError`, the error
+  `FileManager` itself throws, worded and localized by iOS. "Delete folder only" is refused when a child's name
+  is taken in the folder's parent: nothing moves and the folder stays.
 - **Search** (`Search/`): **local-only** CoreData search (`LibraryService.searchAllBooks`), 0.3s debounce,
   results grouped by parent folder. Remote search lives in the integration view models, **not** here — don't
   expect network calls in `Search/`.

@@ -271,6 +271,7 @@ struct LibraryRootView: View {
 
       var itemIdentifiers = processedItems.map({ $0.relativePath })
       let itemIdentifiersPairs = processedItems.map({ LibraryItemRef(relativePath: $0.relativePath, uuid: $0.uuid) })
+      var nameTakenError: Error?
       do {
         await syncService.scheduleUpload(items: processedItems)
         /// Move imported files to current selected folder so the user can see them. Found again
@@ -279,13 +280,20 @@ struct LibraryRootView: View {
           let landing,
           let destination = currentFolder(uuid: landing.uuid, path: landing.relativePath) {
           let folderRelativePath = destination.relativePath
-          try libraryService.moveItems(itemIdentifiersPairs, inside: folderRelativePath)
-          syncService.scheduleMove(
-            items: itemIdentifiersPairs,
-            to: LibraryItemRef(relativePath: folderRelativePath, uuid: destination.uuid)
-          )
+          // One whose name is taken in that folder stays at the root
+          let outcome = try libraryService.moveItems(itemIdentifiersPairs, inside: folderRelativePath)
+          if !outcome.moved.isEmpty {
+            syncService.scheduleMove(
+              items: outcome.moved,
+              to: LibraryItemRef(relativePath: folderRelativePath, uuid: destination.uuid)
+            )
+          }
           /// Update identifiers after moving for the follow up action alert
-          itemIdentifiers = itemIdentifiers.map({ "\(folderRelativePath)/\($0)" })
+          let movedPaths = Set(outcome.moved.map(\.relativePath))
+          itemIdentifiers = itemIdentifiers.map { movedPaths.contains($0) ? "\(folderRelativePath)/\($0)" : $0 }
+          nameTakenError = outcome.notMoved.first.map {
+            LibraryService.nameTakenError(moving: $0.relativePath, into: folderRelativePath)
+          }
           landed = destination
         }
       } catch {
@@ -297,6 +305,13 @@ struct LibraryRootView: View {
       listState.reloadAll(padding: itemIdentifiers.count)
 
       await hardcoverService.processAutoMatch(for: processedItems)
+
+      /// Some names were taken in the folder, so the batch is split between it and the root: said
+      /// instead of the placement prompt
+      if let nameTakenError {
+        loadingState.error = nameTakenError
+        return
+      }
 
       let availableFolders =
         self.libraryService.getItems(

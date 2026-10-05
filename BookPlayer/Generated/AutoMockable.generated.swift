@@ -173,15 +173,21 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     }
     var moveItemsInsideReceivedArguments: (items: [LibraryItemRef], relativePath: String?)?
     var moveItemsInsideReceivedInvocations: [(items: [LibraryItemRef], relativePath: String?)] = []
-    var moveItemsInsideClosure: (([LibraryItemRef], String?) throws -> Void)?
-    func moveItems(_ items: [LibraryItemRef], inside relativePath: String?) throws {
+    var moveItemsInsideReturnValue: MoveOutcome!
+    var moveItemsInsideClosure: (([LibraryItemRef], String?) throws -> MoveOutcome)?
+    @discardableResult
+    func moveItems(_ items: [LibraryItemRef], inside relativePath: String?) throws -> MoveOutcome {
         if let error = moveItemsInsideThrowableError {
             throw error
         }
         moveItemsInsideCallsCount += 1
         moveItemsInsideReceivedArguments = (items: items, relativePath: relativePath)
         moveItemsInsideReceivedInvocations.append((items: items, relativePath: relativePath))
-        try moveItemsInsideClosure?(items, relativePath)
+        if let moveItemsInsideClosure = moveItemsInsideClosure {
+            return try moveItemsInsideClosure(items, relativePath)
+        } else {
+            return moveItemsInsideReturnValue
+        }
     }
     //MARK: - delete
 

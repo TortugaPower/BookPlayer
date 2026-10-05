@@ -272,10 +272,11 @@ struct ImportPlacementPrompt: ViewModifier {
       Task { @MainActor in
         do {
           try await model.createFolder(titled: title, for: placement, type: type)
-          listState.reloadAll(padding: 1)
         } catch {
           loadingState.error = error
         }
+        // A clash is reported after the folder was made and the rest moved into it
+        listState.reloadAll(padding: 1)
       }
     }
     .disabled(folderName.isEmpty)

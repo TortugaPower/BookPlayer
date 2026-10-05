@@ -955,6 +955,39 @@ class ModifyLibraryTests: LibraryServiceTests {
     XCTAssert(folder2.items?.count == 0)
   }
 
+  /// A move never lands on a taken name (as on Android): that item stays where it is, the rest move
+  func testAMoveLeavesAnItemWhoseNameIsTakenThere() throws {
+    let folder = try StubFactory.folder(dataManager: sut.dataManager, title: "shelf")
+    let shelfDune = StubFactory.book(dataManager: sut.dataManager, title: "dune", duration: 100)
+    let emma = StubFactory.book(dataManager: sut.dataManager, title: "emma", duration: 100)
+    try sut.moveItems(
+      [LibraryItemRef(relativePath: shelfDune.relativePath, uuid: shelfDune.uuid), LibraryItemRef(relativePath: emma.relativePath, uuid: emma.uuid)],
+      inside: folder.relativePath
+    )
+    let rootDune = StubFactory.book(dataManager: sut.dataManager, title: "dune", duration: 100)
+    sut.dataManager.saveContext()
+
+    let outcome = try sut.moveItems(
+      [LibraryItemRef(relativePath: shelfDune.relativePath, uuid: shelfDune.uuid), LibraryItemRef(relativePath: emma.relativePath, uuid: emma.uuid)],
+      inside: nil
+    )
+
+    XCTAssertEqual(outcome.notMoved.map(\.uuid), [shelfDune.uuid])
+    XCTAssertEqual(outcome.moved.map(\.uuid), [emma.uuid])
+    XCTAssertEqual(shelfDune.relativePath, "shelf/dune.txt")
+    XCTAssertEqual(emma.relativePath, "emma.txt")
+    XCTAssertEqual(rootDune.relativePath, "dune.txt")
+  }
+
+  /// Never into the root under the path of a folder that's gone
+  func testAMoveIntoAFolderThatIsGoneThrows() throws {
+    let book = StubFactory.book(dataManager: sut.dataManager, title: "book", duration: 100)
+    sut.dataManager.saveContext()
+
+    XCTAssertThrowsError(try sut.moveItems([LibraryItemRef(relativePath: book.relativePath, uuid: book.uuid)], inside: "gone"))
+    XCTAssertEqual(book.relativePath, "book.txt")
+  }
+
   /// The rest of a folder an item left is ranked again, each rank update naming its item: the
   /// update task needs the uuid (without one that order never synced, and the queue trapped)
   func testMovingOutOfAFolderRanksTheRestWithTheirUuids() throws {
@@ -976,6 +1009,24 @@ class ModifyLibraryTests: LibraryServiceTests {
     }
     XCTAssertFalse(remainingRanks.isEmpty)
     XCTAssertTrue(remainingRanks.allSatisfy { $0["uuid"] as? String == book2.uuid })
+  }
+
+  /// Only the ranks that change are sent: each is a sync request
+  func testMovingTheLastItemOutSendsNoRankForTheRest() throws {
+    let book1 = StubFactory.book(dataManager: sut.dataManager, title: "book1", duration: 100)
+    let book2 = StubFactory.book(dataManager: sut.dataManager, title: "book2", duration: 100)
+    let folder = try StubFactory.folder(dataManager: sut.dataManager, title: "folder")
+    try sut.moveItems(
+      [LibraryItemRef(relativePath: book1.relativePath, uuid: book1.uuid), LibraryItemRef(relativePath: book2.relativePath, uuid: book2.uuid)],
+      inside: folder.relativePath
+    )
+
+    var emissions: [[String: Any]] = []
+    let subscription = sut.immediateProgressUpdatePublisher.sink { emissions.append($0) }
+    try sut.moveItems([LibraryItemRef(relativePath: book2.relativePath, uuid: book2.uuid)], inside: nil)
+    subscription.cancel()
+
+    XCTAssertFalse(emissions.contains { $0["relativePath"] as? String == book1.relativePath && $0["orderRank"] != nil })
   }
 
   func testFolderShallowDeleteWithOneBook() throws {
@@ -2748,6 +2799,68 @@ class LibraryServiceExternalResourceTests: XCTestCase {
     let twin = try XCTUnwrap(second.first)
     XCTAssertEqual(twin.relativePath, "Shelf/Golf-\(twin.uuid.prefix(8))")
     XCTAssertEqual(sut.fetchContents(at: "Shelf", limit: nil, offset: nil)?.count, 2)
+  }
+
+  /// A streamed copy moves to the root under its own name, not its originalFileName (the name the
+  /// first copy has there)
+  @MainActor
+  func testAStreamedCopyMovesToTheRootUnderItsOwnName() async throws {
+    let shelf = try sut.createFolder(with: "Shelf", inside: nil)
+    let resource = streamResource(providerId: "li_m", title: "Dune", fileName: "Dune.m4b")
+    _ = await sut.insertItems(fromResources: [resource], inside: nil)
+    let shelfImport = await sut.insertItems(fromResources: [resource], inside: shelf.relativePath)
+    let copy = try XCTUnwrap(shelfImport.first)
+
+    let outcome = try sut.moveItems([LibraryItemRef(relativePath: copy.relativePath, uuid: copy.uuid)], inside: nil)
+
+    XCTAssertTrue(outcome.notMoved.isEmpty)
+    XCTAssertEqual(sut.getItemRefs(forUuids: [copy.uuid]).first?.relativePath, "Dune-\(copy.uuid.prefix(8)).m4b")
+  }
+
+  /// Two streamed volumes named Golf: one at the root, one inside `parent`
+  @MainActor
+  private func golfVolumes(inside parent: String) async throws -> SimpleLibraryItem {
+    let files = [
+      ExternalStreamFile(path: "api/items/li_g/file/1", name: "01.mp3", duration: 10),
+      ExternalStreamFile(path: "api/items/li_g/file/2", name: "02.mp3", duration: 10),
+    ]
+    _ = await sut.insertItems(
+      fromResources: [streamResource(providerId: "li_g", title: "Golf", fileName: "Golf.mp3", files: files)],
+      inside: nil
+    )
+    let inner = await sut.insertItems(
+      fromResources: [streamResource(providerId: "li_h", title: "Golf", fileName: "Golf.mp3", files: files)],
+      inside: parent
+    )
+    return try XCTUnwrap(inner.first)
+  }
+
+  /// A streamed item has no file in the way: the library is asked whether its name is taken
+  @MainActor
+  func testAStreamedVolumeWhoseNameIsTakenAtTheRootStaysWhereItIs() async throws {
+    let shelf = try sut.createFolder(with: "Shelf", inside: nil)
+    let volume = try await golfVolumes(inside: shelf.relativePath)
+    XCTAssertEqual(volume.relativePath, "Shelf/Golf")
+
+    let outcome = try sut.moveItems([LibraryItemRef(relativePath: volume.relativePath, uuid: volume.uuid)], inside: nil)
+
+    XCTAssertEqual(outcome.notMoved.map(\.uuid), [volume.uuid])
+    XCTAssertEqual(sut.getItemRefs(forUuids: [volume.uuid]).first?.relativePath, "Shelf/Golf")
+  }
+
+  /// "Delete folder only" is refused when a child's name is taken where they go: nothing moves, and
+  /// the folder, which would take that child with it, isn't deleted
+  @MainActor
+  func testDeleteFolderOnlyIsRefusedWhenAChildsNameIsTaken() async throws {
+    let box = try sut.createFolder(with: "Box", inside: nil)
+    _ = try await golfVolumes(inside: box.relativePath)
+    let boxItem = try XCTUnwrap(sut.getSimpleItem(with: "Box"))
+
+    XCTAssertThrowsError(try sut.delete([boxItem], mode: .shallow)) { error in
+      XCTAssertEqual((error as? CocoaError)?.code, .fileWriteFileExists)
+    }
+    XCTAssertNotNil(sut.getSimpleItem(with: "Box"))
+    XCTAssertNotNil(sut.getSimpleItem(with: "Box/Golf"))
   }
 
   /// The browsed folder deleted by a sync pull while the import ran: the root

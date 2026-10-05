@@ -423,13 +423,10 @@ extension ItemListViewModel {
 
   func handleMoveIntoLibrary() {
     let selectedItemPaths = selectedItems.compactMap({ LibraryItemRef(relativePath: $0.relativePath, uuid: $0.uuid) })
-    let parentFolder = selectedItems.first?.parentFolder
 
     do {
+      // The folder they left is refreshed by the move itself
       try organizer.move(selectedItemPaths, into: nil)
-      if let parentFolder {
-        libraryService.rebuildFolderDetails(parentFolder)
-      }
     } catch {
       loadingState.error = error
     }
@@ -454,6 +451,10 @@ extension ItemListViewModel {
         editMode = .inactive
       } catch {
         loadingState.error = error
+        // A clash is reported after the folder was made and the rest moved into it: the selection
+        // still holds their old paths
+        listState.reloadAll(padding: 1)
+        editMode = .inactive
       }
     }
   }

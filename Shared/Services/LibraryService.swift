@@ -44,7 +44,9 @@ public protocol LibraryServiceProtocol: AnyObject {
   /// can be deleted later. URLs already registered are skipped.
   @MainActor func registerExistingProcessedItems(at urls: [URL]) async -> [SimpleLibraryItem]
   /// Move items between folders
-  func moveItems(_ items: [LibraryItemRef], inside relativePath: String?) throws
+  /// - Returns: what moved, and what was left where it was because its name is taken there
+  @discardableResult
+  func moveItems(_ items: [LibraryItemRef], inside relativePath: String?) throws -> MoveOutcome
   /// Delete items
   func delete(_ items: [SimpleLibraryItem], mode: DeleteMode) throws
 
@@ -284,15 +286,13 @@ public final class LibraryService: LibraryServiceProtocol, BPLogger, @unchecked 
     context: NSManagedObjectContext
   ) {
     let originalPath = item.relativePath!
+    // Its current name, at the root too: a streamed copy's (`-<uuid prefix>`) differs from its
+    // originalFileName, and the file on disk moves under the current name
+    let newPath = Self.path(of: Self.name(of: originalPath), inside: parentFolder)
 
     switch item {
     case let book as Book:
-      if let parentPath = parentFolder {
-        let itemRelativePath = book.relativePath.split(separator: "/").map({ String($0) }).last ?? book.relativePath
-        book.relativePath = "\(parentPath)/\(itemRelativePath!)"
-      } else {
-        book.relativePath = book.originalFileName
-      }
+      book.relativePath = newPath
 
       ArtworkService.moveCachedImage(from: originalPath, to: book.relativePath)
     case let folder as Folder:
@@ -307,12 +307,7 @@ public final class LibraryService: LibraryServiceProtocol, BPLogger, @unchecked 
           context: context
         ) ?? []
 
-      if let parentPath = parentFolder {
-        let itemRelativePath = folder.relativePath.split(separator: "/").map({ String($0) }).last ?? folder.relativePath
-        folder.relativePath = "\(parentPath)/\(itemRelativePath!)"
-      } else {
-        folder.relativePath = folder.originalFileName
-      }
+      folder.relativePath = newPath
 
       ArtworkService.moveCachedImage(from: originalPath, to: folder.relativePath)
 
@@ -1117,42 +1112,55 @@ extension LibraryService {
     )
   }
 
-  public func moveItems(_ items: [LibraryItemRef], inside relativePath: String?) throws {
+  @discardableResult
+  public func moveItems(_ items: [LibraryItemRef], inside relativePath: String?) throws -> MoveOutcome {
     let context = dataManager.getContext()
 
-    try moveItems(items, inside: relativePath, context: context)
+    return try moveItems(items, inside: relativePath, context: context)
   }
 
+  /// Moves each item under its current name into the folder at `relativePath` (the library root
+  /// when nil), as Android's `moveItems` does.
+  ///
+  /// - Parameter rebuildsSourceFolders: refresh the details of the folders the items left; not when
+  ///   that folder is deleted next, which would sync an update for a deleted item
+  /// - Returns: what moved, and the items left where they were: another item, or a file, already
+  ///   has their name there (a streamed item has no file, so the library is asked too). One gone
+  ///   from the library is in neither.
+  @discardableResult
   public func moveItems(
     _ items: [LibraryItemRef],
     inside relativePath: String?,
-    context: NSManagedObjectContext
-  ) throws {
+    context: NSManagedObjectContext,
+    rebuildsSourceFolders: Bool = true
+  ) throws -> MoveOutcome {
     var folder: Folder?
     let library = self.getLibraryReference(context: context)
 
-    if let relativePath = relativePath,
-      let folderReference = getItemReference(with: relativePath, context: context) as? Folder
-    {
+    if let relativePath {
+      // Never into the root under the path of a folder gone since the caller looked it up
+      guard let folderReference = getItemReference(with: relativePath, context: context) as? Folder else {
+        throw BookPlayerError.runtimeError("Can't find the folder at \(relativePath)")
+      }
       folder = folderReference
     }
 
-    /// Preserve original parent path to rebuild order rank later
-    var originalParentPath: String?
-    if let firstPath = items.first {
-      originalParentPath =
-        getItemProperty(
-          #keyPath(LibraryItem.folder.relativePath),
-          relativePath: firstPath.relativePath,
-          context: context
-        ) as? String
-    }
-
     let processedFolderURL = DataManager.getProcessedFolderURL()
-    let startingIndex = getNextOrderRank(in: relativePath, context: context)
+    var nextOrderRank = getNextOrderRank(in: relativePath, context: context)
+    var moved = [LibraryItemRef]()
+    var notMoved = [LibraryItemRef]()
+    /// The folders items left, to rank and refresh afterwards: each moved item's own, not the first
+    /// item's (it may be gone, and the items may come from different folders)
+    var sourceFolders = Set<String>()
 
-    for (index, itemPath) in items.enumerated() {
+    for itemPath in items {
       guard let libraryItem = getItemReference(with: itemPath.relativePath, context: context) else {
+        continue
+      }
+
+      let destinationPath = Self.path(of: Self.name(of: itemPath.relativePath), inside: relativePath)
+      guard !isTaken(destinationPath, by: libraryItem, processedFolderURL: processedFolderURL, context: context) else {
+        notMoved.append(itemPath)
         continue
       }
 
@@ -1166,7 +1174,11 @@ extension LibraryService {
         parentPath: folder?.relativePath
       )
 
-      libraryItem.orderRank = startingIndex + Int16(index)
+      if let sourceFolder = libraryItem.folder?.relativePath {
+        sourceFolders.insert(sourceFolder)
+      }
+      libraryItem.orderRank = nextOrderRank
+      nextOrderRank += 1
 
       /// Perform relationship lookups BEFORE rebuildRelativePaths changes the entity's relativePath
       if let folder = folder {
@@ -1210,6 +1222,8 @@ extension LibraryService {
         }
         library.addToItems(libraryItem)
       }
+
+      moved.append(itemPath)
     }
 
     self.dataManager.saveSyncContext(context)
@@ -1219,15 +1233,8 @@ extension LibraryService {
     }
 
     /// Also rebuild details for any moved folders to ensure correct counts
-    for itemPath in items {
-      let movedPath: String
-      if let relativePath {
-        let itemName = itemPath.relativePath.split(separator: "/").last.map(String.init) ?? itemPath.relativePath
-        movedPath = "\(relativePath)/\(itemName)"
-      } else {
-        let itemName = itemPath.relativePath.split(separator: "/").last.map(String.init) ?? itemPath.relativePath
-        movedPath = itemName
-      }
+    for itemPath in moved {
+      let movedPath = Self.path(of: Self.name(of: itemPath.relativePath), inside: relativePath)
       if let movedItem = getItemReference(with: movedPath, context: context),
         movedItem is Folder
       {
@@ -1235,14 +1242,67 @@ extension LibraryService {
       }
     }
 
-    if let originalParentPath {
-      rebuildOrderRank(in: originalParentPath)
+    for sourceFolder in sourceFolders.sorted() {
+      rebuildOrderRank(in: sourceFolder)
+      // Its count, duration and progress, here for every caller: one whose move reports a clash
+      // afterwards would skip its own
+      if rebuildsSourceFolders {
+        rebuildFolderDetails(sourceFolder, context: context)
+      }
     }
 
     /// The moved items' stored relativePaths (and any folder descendants, via the
     /// path-prefix rule) are now stale, so prune them from the Last Played widget
     /// snapshot. They reappear once played again at the new location.
-    SharedWidgetStore.removeItems(matching: items.map(\.relativePath))
+    SharedWidgetStore.removeItems(matching: moved.map(\.relativePath))
+
+    return MoveOutcome(moved: moved, notMoved: notMoved)
+  }
+
+  /// Whether another item, or a file, already has `destinationPath`
+  private func isTaken(
+    _ destinationPath: String,
+    by item: LibraryItem,
+    processedFolderURL: URL,
+    context: NSManagedObjectContext
+  ) -> Bool {
+    guard destinationPath != item.relativePath else { return false }
+
+    if let other = getItemReference(with: destinationPath, context: context), other != item {
+      return true
+    }
+
+    return FileManager.default.fileExists(atPath: processedFolderURL.appendingPathComponent(destinationPath).path)
+  }
+
+  /// The error `FileManager` throws for a move onto a taken name, worded and localized by iOS
+  /// ("“Dune.m4b” couldn’t be moved to “Shelf” because an item with the same name already
+  /// exists"): a streamed item has no file whose move would throw it. The library root is named
+  /// by its title rather than the Processed folder.
+  public static func nameTakenError(moving relativePath: String, into parentPath: String?) -> Error {
+    let processedFolderURL = DataManager.getProcessedFolderURL()
+    let name = Self.name(of: relativePath)
+    let destinationURL = parentPath.map {
+      processedFolderURL.appendingPathComponent($0).appendingPathComponent(name)
+    } ?? processedFolderURL.deletingLastPathComponent()
+      .appendingPathComponent("library_title".localized)
+      .appendingPathComponent(name)
+
+    return CocoaError(.fileWriteFileExists, userInfo: [
+      NSFilePathErrorKey: processedFolderURL.appendingPathComponent(relativePath).path,
+      "NSDestinationFilePath": destinationURL.path,
+      // What makes it the move's wording
+      "NSUserStringVariant": ["Move"],
+    ])
+  }
+
+  /// An item's name: the last component of its path
+  static func name(of relativePath: String) -> String {
+    relativePath.split(separator: "/").last.map(String.init) ?? relativePath
+  }
+
+  static func path(of name: String, inside parentPath: String?) -> String {
+    parentPath.map { "\($0)/\(name)" } ?? name
   }
 
   func rebuildOrderRank(in folderRelativePath: String?) {
@@ -1296,7 +1356,23 @@ extension LibraryService {
           if let items = getItemPair(in: item.relativePath, context: context),
             !items.isEmpty
           {
-            try moveItems(items, inside: item.parentFolder, context: context)
+            // Refused when a child's name is taken where they go (as on Android): nothing moves,
+            // and the folder isn't deleted, which would take that child with it
+            let processedFolderURL = DataManager.getProcessedFolderURL()
+            let taken = items.filter { child in
+              guard let entity = getItemReference(with: child.relativePath, context: context) else { return false }
+              let destinationPath = Self.path(of: Self.name(of: child.relativePath), inside: item.parentFolder)
+              return isTaken(destinationPath, by: entity, processedFolderURL: processedFolderURL, context: context)
+            }
+            if let clash = taken.first {
+              throw Self.nameTakenError(moving: clash.relativePath, into: item.parentFolder)
+            }
+
+            // Never delete the folder with a child still in it. Not refreshed: it's deleted next
+            let outcome = try moveItems(items, inside: item.parentFolder, context: context, rebuildsSourceFolders: false)
+            if let clash = outcome.notMoved.first {
+              throw Self.nameTakenError(moving: clash.relativePath, into: item.parentFolder)
+            }
           }
         }
 

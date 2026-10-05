@@ -17,10 +17,18 @@ struct LibraryOrganizer {
   let syncService: SyncServiceProtocol
   let playerManager: PlayerManagerProtocol
 
-  /// Moves `items` into `folder`, or to the library root when it's nil.
+  /// Moves `items` into `folder`, or to the library root when it's nil. One whose name is taken
+  /// there stays where it is: the rest move, then this throws the error a move onto a taken name
+  /// throws (`LibraryService.nameTakenError`), for the first one that didn't.
   func move(_ items: [LibraryItemRef], into folder: LibraryItemRef?) throws {
-    try libraryService.moveItems(items, inside: folder?.relativePath)
-    syncService.scheduleMove(items: items, to: folder)
+    let outcome = try libraryService.moveItems(items, inside: folder?.relativePath)
+    if !outcome.moved.isEmpty {
+      syncService.scheduleMove(items: outcome.moved, to: folder)
+    }
+
+    if let clash = outcome.notMoved.first {
+      throw LibraryService.nameTakenError(moving: clash.relativePath, into: folder?.relativePath)
+    }
   }
 
   /// Creates a folder (or a volume, by `type`) titled `title` inside `parentPath` (the library
@@ -40,17 +48,26 @@ struct LibraryOrganizer {
 
     let folder = try libraryService.createFolder(with: trimmedTitle, inside: parentPath)
     await syncService.scheduleUpload(items: [folder])
+    // Into a new folder, so names only clash with a stray file there
+    var outcome = MoveOutcome(moved: [], notMoved: [])
     if !items.isEmpty {
-      try libraryService.moveItems(items, inside: folder.relativePath)
-      syncService.scheduleMove(items: items, to: LibraryItemRef(relativePath: folder.relativePath, uuid: folder.uuid))
+      outcome = try libraryService.moveItems(items, inside: folder.relativePath)
+    }
+    let moved = outcome.moved
+    if !moved.isEmpty {
+      syncService.scheduleMove(items: moved, to: LibraryItemRef(relativePath: folder.relativePath, uuid: folder.uuid))
     }
     try libraryService.updateFolder(at: folder.relativePath, type: type)
     libraryService.rebuildFolderDetails(folder.relativePath)
 
     if let currentRelativePath = playerManager.currentItem?.relativePath,
-      items.contains(where: { $0.relativePath == currentRelativePath })
+      moved.contains(where: { $0.relativePath == currentRelativePath })
     {
       playerManager.stop()
+    }
+
+    if let clash = outcome.notMoved.first {
+      throw LibraryService.nameTakenError(moving: clash.relativePath, into: folder.relativePath)
     }
 
     return folder
