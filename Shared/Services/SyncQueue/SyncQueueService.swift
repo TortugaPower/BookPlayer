@@ -698,7 +698,10 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
         providerItemId: providerId,
         positionTicks: Int(ticks),
         percentCompleted: percentCompleted,
-        hostId: hostId
+        hostId: hostId,
+        lastPlayedDate: ExternalUpdateProgressOperation.lastPlayedDate(
+          fromTimestamp: task.parameters["lastPlayDateTimestamp"] as? Double
+        )
       )
     case .uploadFile:
       // Re-check access at execution, not just at scheduling: a pro→lite downgrade keeps

@@ -720,8 +720,16 @@ public class JellyfinConnectionService: BPLogger {
   /// Pushes playback progress for one item (`updateItemUserData`), mirroring what the Android
   /// app's external-update task sends. Routed through ``send(_:)`` so a mid-session 401/403
   /// surfaces as the typed re-auth signal instead of a generic error.
-  public func updateItemProgress(_ itemId: String, positionTicks: Int, percentCompleted: Double) async throws {
+  /// `lastPlayedDate` is when this position was reached: Jellyfin stores a date only when a client
+  /// sends one, and keeps the one it has when it's nil.
+  public func updateItemProgress(
+    _ itemId: String,
+    positionTicks: Int,
+    percentCompleted: Double,
+    lastPlayedDate: Date?
+  ) async throws {
     let userDataDto = UpdateUserItemDataDto(
+      lastPlayedDate: lastPlayedDate,
       playbackPositionTicks: positionTicks,
       playedPercentage: percentCompleted
     )

@@ -732,11 +732,14 @@ public class AudiobookShelfConnectionService: BPLogger {
   }
 
   /// Pushes playback progress for one library item (`PATCH /api/me/progress/{id}`), mirroring
-  /// what the Android app's external-update task sends.
+  /// what the Android app's external-update task sends. `lastUpdate` is when this position was
+  /// reached, so ABS records our play time rather than when the push landed; ABS honors it when
+  /// updating an existing entry, while the first write for a book still takes the server's clock.
   public func updateProgress(
     for id: String,
     progress: Double,
-    currentTime: Double
+    currentTime: Double,
+    lastUpdate: Date?
   ) async throws {
     guard let connection else {
       throw URLError(.userAuthenticationRequired)
@@ -752,10 +755,15 @@ public class AudiobookShelfConnectionService: BPLogger {
     request.httpMethod = "PATCH"
     applyAuthenticatedHeaders(to: &request, connection: connection)
     request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-    request.httpBody = try JSONSerialization.data(withJSONObject: [
+    var body: [String: Any] = [
       "progress": progress,
       "currentTime": currentTime,
-    ])
+    ]
+    if let lastUpdate {
+      // Epoch milliseconds
+      body["lastUpdate"] = Int64((lastUpdate.timeIntervalSince1970 * 1000).rounded())
+    }
+    request.httpBody = try JSONSerialization.data(withJSONObject: body)
 
     let (_, response) = try await httpClient.data(for: request)
     _ = try validateAuthenticatedResponse(response)

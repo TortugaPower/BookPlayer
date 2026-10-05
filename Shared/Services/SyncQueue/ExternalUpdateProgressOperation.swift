@@ -16,14 +16,32 @@ class ExternalUpdateProgressOperation: AsyncOperation, BPLogger, @unchecked Send
   let positionTicks: Int
   let percentCompleted: Double
   let hostId: String?
+  /// When the position was reached (the book's `lastPlayDate`); nil on tasks queued without one
+  let lastPlayedDate: Date?
 
-  init(providerName: String, providerItemId: String, positionTicks: Int, percentCompleted: Double, hostId: String? = nil) {
+  init(
+    providerName: String,
+    providerItemId: String,
+    positionTicks: Int,
+    percentCompleted: Double,
+    hostId: String? = nil,
+    lastPlayedDate: Date? = nil
+  ) {
     self.providerName = providerName
     self.providerItemId = providerItemId
     self.positionTicks = positionTicks
     self.percentCompleted = percentCompleted
     self.hostId = hostId
+    self.lastPlayedDate = lastPlayedDate
     super.init()
+  }
+
+  /// The task's persisted `lastPlayDateTimestamp` (epoch seconds) as a date. Persisted, like the
+  /// position: a value no real date has (NaN, infinite, past the year 5000) is left out instead of
+  /// trapping the push's conversion on every pop.
+  static func lastPlayedDate(fromTimestamp timestamp: Double?) -> Date? {
+    guard let timestamp, (0..<1e11).contains(timestamp) else { return nil }
+    return Date(timeIntervalSince1970: timestamp)
   }
 
   override func main() {
@@ -119,7 +137,8 @@ class ExternalUpdateProgressOperation: AsyncOperation, BPLogger, @unchecked Send
     try await jellyfinService.updateItemProgress(
       self.providerItemId,
       positionTicks: self.positionTicks,
-      percentCompleted: self.percentCompleted
+      percentCompleted: self.percentCompleted,
+      lastPlayedDate: self.lastPlayedDate
     )
   }
 
@@ -138,6 +157,11 @@ class ExternalUpdateProgressOperation: AsyncOperation, BPLogger, @unchecked Send
 
     // percentCompleted arrives as 0-100 (LibraryService rounds (currentTime/duration)*100);
     // ABS's progress field is a 0-1 FRACTION — pushing the raw value marks books complete.
-    try await audiobookshelfService.updateProgress(for: self.providerItemId, progress: self.percentCompleted / 100, currentTime: Double(self.positionTicks) / 10_000_000)
+    try await audiobookshelfService.updateProgress(
+      for: self.providerItemId,
+      progress: self.percentCompleted / 100,
+      currentTime: Double(self.positionTicks) / 10_000_000,
+      lastUpdate: self.lastPlayedDate
+    )
   }
 }
