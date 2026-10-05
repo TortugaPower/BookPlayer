@@ -134,6 +134,10 @@ struct IntegrationServerAddress: Equatable, Sendable {
   /// deleted the `/` the user had just typed — a reverse-proxy subpath could not be typed at all,
   /// only pasted — and showed `myserver.com:` or `http:` as an IPv6 literal on the way to a port or
   /// a scheme. The assembled URL in the footer is where the normalized form belongs.
+  ///
+  /// The model takes every edit, but the screen shows the returned text only after a paste or once
+  /// the field loses focus. While typing, each keystroke arrives as the whole typed text, so a port
+  /// typed digit by digit (`host:8`, `host:80`, …) ends at the full port.
   @discardableResult
   mutating func applyHostField(_ text: String) -> String {
     // A full URL (pasted, or typed through): distribute across ALL the fields — the scheme

@@ -270,6 +270,33 @@ final class IntegrationServerAddressTests: XCTestCase {
     XCTAssertEqual(address.path, "/abs")
   }
 
+  /// The screen rewrites the field only after a paste or once it loses focus, so while typing every
+  /// prefix of the address reaches the model as typed. Rewriting at `host:8` sent the rest of the port
+  /// into the host. Typed character by character, the model has to end where the paste does.
+  func testAnAddressTypedCharacterByCharacterEndsWhereItsPasteDoes() {
+    let cases: [(typed: String, scheme: IntegrationServerAddress.Scheme, url: String, display: String)] = [
+      ("media.example.com:8096/abs", .https, "https://media.example.com:8096/abs", "media.example.com/abs"),
+      ("http://media.example.com:8096/abs", .http, "http://media.example.com:8096/abs", "media.example.com/abs"),
+      ("[::1]:13378", .https, "https://[::1]:13378", "[::1]"),
+    ]
+
+    for (typed, scheme, url, display) in cases {
+      var typedAddress = IntegrationServerAddress(scheme: .https, host: "")
+      var lastDisplay = ""
+      for count in 1...typed.count {
+        lastDisplay = typedAddress.applyHostField(String(typed.prefix(count)))
+      }
+      var pastedAddress = IntegrationServerAddress(scheme: .https, host: "")
+      let pastedDisplay = pastedAddress.applyHostField(typed)
+
+      XCTAssertEqual(typedAddress, pastedAddress, typed)
+      XCTAssertEqual(typedAddress.scheme, scheme, typed)
+      XCTAssertEqual(typedAddress.urlString, url, typed)
+      XCTAssertEqual(lastDisplay, display, "what the field shows once it loses focus: \(typed)")
+      XCTAssertEqual(pastedDisplay, display, typed)
+    }
+  }
+
   func testTypingASchemeThroughIsNotMangledAndSnapsOnceItParses() {
     var address = IntegrationServerAddress(scheme: .https, host: "")
 
