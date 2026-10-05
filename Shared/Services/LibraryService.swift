@@ -622,6 +622,17 @@ extension LibraryService {
   }
 
   public func setLibraryLastBook(with relativePath: String?) {
+    /// Stamp the parent folders now too: the progress tick would only save their date seconds later,
+    /// so a parent list sorted by "Most recent" re-fetched on load wouldn't move the folder
+    if let relativePath,
+      let parentFolderPath = getItemProperty(
+        #keyPath(LibraryItem.folder.relativePath),
+        relativePath: relativePath
+      ) as? String
+    {
+      recursiveFolderLastPlayedDateUpdate(from: parentFolderPath, date: Date())
+    }
+
     setLibraryLastBook(with: relativePath, context: dataManager.getContext())
   }
 
