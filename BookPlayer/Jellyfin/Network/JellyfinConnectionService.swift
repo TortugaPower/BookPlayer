@@ -723,11 +723,10 @@ class JellyfinConnectionService: BPLogger {
     return client
   }
 
-  func createItemDownloadUrl(_ item: JellyfinLibraryItem) throws -> URL {
-    guard client != nil else {
-      throw IntegrationError.noClient("Jellyfin")
-    }
-
+  /// Kept private because the returned URL is *not* self-authenticating — handing it
+  /// straight to `URLSession`/`AVURLAsset` would 401. Go through
+  /// `createItemDownloadRequest(_:)`, which attaches the token.
+  private func createItemDownloadUrl(_ item: JellyfinLibraryItem) throws -> URL {
     let request = Paths.getDownload(itemID: item.id)
     let components = try createUrlComponentsForApiRequest(request)
 
