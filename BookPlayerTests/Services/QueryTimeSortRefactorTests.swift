@@ -179,6 +179,30 @@ final class QueryTimeSortRefactorTests: XCTestCase {
     )
   }
 
+  /// Loading a book stamps its parent folders as well, so the list re-fetched
+  /// on load moves the folder; the progress tick only saves their date later.
+  func testLoadingBookInsideFolderMovesFolderUnderMostRecent() {
+    let now = Date()
+    harness.seedBook(relativePath: "a.txt", rank: 0, lastPlayDate: now.addingTimeInterval(-100))
+    let folder = harness.seedFolder(relativePath: "f", rank: 1)
+    folder.lastPlayDate = now.addingTimeInterval(-200)
+    let nested = Folder(title: "f/g", context: harness.dataManager.getContext())
+    folder.addToItems(nested)
+    harness.seedBook(
+      relativePath: "f/g/b.txt",
+      rank: 0,
+      into: nested,
+      lastPlayDate: now.addingTimeInterval(-300)
+    )
+    harness.save()
+    preferences.setSort(.automatic(.mostRecent), forLocation: .libraryRoot)
+    XCTAssertEqual(harness.renderedOrder(), ["a.txt", "f"])
+
+    libraryService.setLibraryLastBook(with: "f/g/b.txt")
+
+    XCTAssertEqual(harness.renderedOrder(), ["f", "a.txt"], "the top-level folder moves, not just the book")
+  }
+
   // MARK: - Playback navigation follows the visible order
 
   func testPrevNextFollowVisibleOrderUnderTitleSort() {

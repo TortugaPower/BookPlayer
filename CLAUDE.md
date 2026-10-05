@@ -415,7 +415,10 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
   arrangement away. Route any new user-arrangement rank mutation through that helper (the one-shot
   materialization for `.unresolved` locations in `sortContents` is the deliberate exception — it has no pref
   key to flip). Playback prev/next walks
-  `getOrderedSiblings` (visible order, lightweight entries), not rank cursors. On logout,
+  `getOrderedSiblings` (visible order, lightweight entries), not rank cursors. A correct fetch order doesn't
+  update a list already on screen: `ItemListView` holds fetched rows, so under "Most recent" it re-fetches when
+  the loaded book changes, and `setLibraryLastBook` stamps the book's parent folders too, so parent lists move
+  the folder on that re-fetch instead of after the progress tick's delayed save. On logout,
   `PreferencesSyncService` freezes automatically-sorted locations into ranks before wiping `library_sort:*`,
   so sign-out doesn't visibly re-scramble the library.
   UI reads on `viewContext`, background on `backgroundContext`, only `Simple*` snapshots cross back to UI.

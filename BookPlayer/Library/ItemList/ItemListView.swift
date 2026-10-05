@@ -98,6 +98,26 @@ struct ItemListView: View {
         guard model.libraryNode.matchesSortPrefKey(key) else { return }
         listState.reloadAll()
       }
+      .onChange(of: playerState.loadedBookRelativePath) { _, relativePath in
+        // Loading a book stamps its lastPlayDate and its parent folders' before
+        // this fires, and "Most recent" sorts on that at query time, so a
+        // re-fetch moves the row up. An empty list has its first page to load.
+        guard
+          relativePath != nil,
+          isSortedByMostRecent,
+          !model.items.isEmpty,
+          !model.isFiltering,
+          !model.editMode.isEditing
+        else { return }
+        model.reloadItems()
+      }
+  }
+
+  private var isSortedByMostRecent: Bool {
+    guard case .automatic(.mostRecent) = preferencesService.effectiveSort(forLocation: currentLocation) else {
+      return false
+    }
+    return true
   }
 
   @ViewBuilder
