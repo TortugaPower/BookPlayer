@@ -160,11 +160,17 @@ struct IntegrationAddressScreen<VM: IntegrationConnectionViewModelProtocol>: Vie
   /// The port as typed. Kept as text so emptying the field is representable; parsed on change.
   @State private var portText: String
 
-  /// The host field's display text, mirrored from `address.hostField` rather than bound to it
-  /// directly. A focused `TextField` shows its live edit buffer and won't re-read a computed
-  /// binding whose setter changed the value — so a decomposed paste kept displaying the full URL
-  /// until focus left. A plain `@State` is something the field does refresh from immediately.
+  /// The host field's display text: what the user typed, as its own state rather than a binding to
+  /// the model's computed `hostField`. Two reasons. A focused `TextField` shows its live edit buffer
+  /// and won't re-read a computed binding whose setter changed the value — so a decomposed paste kept
+  /// displaying the full URL until focus left; a plain `@State` is something the field does refresh
+  /// from immediately. And the model normalizes for assembly (subpath slashes, encoding, IPv6
+  /// brackets), which must not be echoed into the field while typing — it deleted a just-typed `/`.
   @State private var hostText: String
+
+  /// Whether the host field has focus. Typed text that carries a scheme or port is laid out across
+  /// the fields when the field loses focus, not while it is being typed.
+  @FocusState private var isHostFocused: Bool
 
   @EnvironmentObject var theme: ThemeViewModel
   @Environment(\.dismiss) private var dismiss
@@ -226,17 +232,34 @@ struct IntegrationAddressScreen<VM: IntegrationConnectionViewModelProtocol>: Vie
               text: $hostText,
               accessibilityLabel: "integration_address_host_label".localized
             )
+            .focused($isHostFocused)
             .multilineTextAlignment(.trailing)
             .keyboardType(.URL)
             .textInputAutocapitalization(.never)
             .autocorrectionDisabled()
-            .onChange(of: hostText) { _, newValue in
-              address.hostField = newValue
-              // The setter normalizes — a pasted URL decomposes, IPv6 gains brackets. Reflect that
-              // in the visible text at once instead of on focus loss. Settles in one extra pass:
-              // re-setting an already-normalized value changes nothing.
-              if address.hostField != newValue {
-                hostText = address.hostField
+            .onChange(of: hostText) { oldValue, newValue in
+              // The model takes every edit, so the port row and the footer's URL stay current. The
+              // field keeps the typed text and is rewritten only when the edit moved something into
+              // another field — a URL's scheme and port, a `host:port`'s port — which
+              // `applyHostField` reports by returning the remaining host + subpath. A paste, which
+              // lands several characters at once, is rewritten right away; typed text when the field
+              // loses focus. Rewriting while typing took a port's first digit: `host:8` became
+              // `host` and port 8, and the rest of the port went into the host. Settles in one extra
+              // pass: re-applying the rewritten value changes nothing.
+              let port = address.port
+              let display = address.applyHostField(newValue)
+              if address.port != port {
+                portText = address.port.map(String.init) ?? ""
+              }
+              if display != newValue, newValue.count > oldValue.count + 1 {
+                hostText = display
+              }
+            }
+            .onChange(of: isHostFocused) { _, isFocused in
+              guard !isFocused else { return }
+              let display = address.applyHostField(hostText)
+              if display != hostText {
+                hostText = display
               }
             }
           }
@@ -250,14 +273,11 @@ struct IntegrationAddressScreen<VM: IntegrationConnectionViewModelProtocol>: Vie
               // Same association gap — and here the placeholder is a bare number, so an unlabelled
               // field announces as "8096", which is meaningless.
               .accessibilityLabel(Text("integration_address_port_label".localized))
+              // A port that arrives through the host field is copied into this text by the host
+              // field's handler, not by observing `address.port`: ordinary port typing (including an
+              // invalid value mid-edit, which maps to nil) must never rewrite the user's text.
               .onChange(of: portText) { _, newValue in
                 address.port = Int(newValue).flatMap { (1...65535).contains($0) ? $0 : nil }
-              }
-              // A pasted URL decomposes inside the host binding and can carry a port; the text this
-              // field displays has to follow. Keyed on the host so ordinary port typing (including
-              // an invalid value mid-edit, which maps to nil) never rewrites the user's text.
-              .onChange(of: address.host) { _, _ in
-                portText = address.port.map(String.init) ?? ""
               }
           }
         } header: {
