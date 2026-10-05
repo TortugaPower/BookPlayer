@@ -691,7 +691,7 @@ class JellyfinConnectionService: BPLogger {
   }
 
   /// Decodes a Jellyfin response the same way as the SDK, but does not fail on a `People[].Type`
-  /// value that the SDK's `PersonKind` does not know (for example "Narrator" in SDK 0.4, #1602).
+  /// value that the SDK's `PersonKind` does not know (for example "Narrator" before SDK 3.0, #1602).
   /// Only when the normal decode fails, such values are replaced with "Unknown" and decoded again.
   nonisolated static func decodeLeniently<T: Decodable>(_ type: T.Type, from data: Data) throws -> T {
     // Same date formats as the SDK's `OpenISO8601DateFormatter`, whose initializer is internal
@@ -778,17 +778,14 @@ class JellyfinConnectionService: BPLogger {
     }
     let configuration = JellyfinClient.Configuration(
       url: url,
+      accessToken: accessToken,
       client: clientName,
       deviceName: UIDevice.current.name,
       deviceID: "\(deviceID.uuidString)-\(clientName)",
       version: clientVersion
     )
     let injector = JellyfinHeaderInjector(customHeaders: customHeaders)
-    let client = JellyfinClient(
-      configuration: configuration,
-      delegate: injector,
-      accessToken: accessToken
-    )
+    let client = JellyfinClient(configuration: configuration, delegate: injector)
     return (client, injector)
   }
 
