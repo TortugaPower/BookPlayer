@@ -297,4 +297,47 @@ class PlayerManagerTests: XCTestCase {
     XCTAssertEqual(playbackServiceMock.getPlayableItemBeforeParentFolderCallsCount, 1)
     XCTAssertEqual(sut.currentItem?.currentTime ?? -1, 1, accuracy: 0.0001)
   }
+
+  // MARK: - classifyPlayerTime
+
+  func testClassifyPlayerTimeAcceptsRegularPosition() {
+    XCTAssertEqual(PlayerManager.classifyPlayerTime(1643.6, expected: 1642.6), .valid(1643.6))
+  }
+
+  func testClassifyPlayerTimeRecoversFromWrappedNegativeClock() {
+    // Observed on iOS 27 + CarPlay: the real position minus 2^32 samples at 48 kHz
+    let wrapped = 1643.599 - 4_294_967_296 / 48_000
+    XCTAssertEqual(PlayerManager.classifyPlayerTime(wrapped, expected: 1643.599), .recover)
+  }
+
+  func testClassifyPlayerTimeRecoversFromAnyNegativeWellIntoFile() {
+    XCTAssertEqual(PlayerManager.classifyPlayerTime(-0.3, expected: 120), .recover)
+  }
+
+  func testClassifyPlayerTimeIgnoresSmallNegativeAtFileStart() {
+    // Output latency right after a bound-book chapter switch (AirPlay)
+    XCTAssertEqual(PlayerManager.classifyPlayerTime(-0.4, expected: 0), .ignore)
+    XCTAssertEqual(PlayerManager.classifyPlayerTime(-0.4, expected: nil), .ignore)
+  }
+
+  func testClassifyPlayerTimeHandlesInvalidTime() {
+    XCTAssertEqual(PlayerManager.classifyPlayerTime(.nan, expected: 500), .recover)
+    XCTAssertEqual(PlayerManager.classifyPlayerTime(.nan, expected: 0), .ignore)
+  }
+
+  func testClassifyPlayerTimeRecoversFromSnapToFileStart() {
+    // Observed on iOS 27 + CarPlay: the paused item snapped to exactly 0 while 27 minutes in
+    XCTAssertEqual(PlayerManager.classifyPlayerTime(0, expected: 1647.2), .recover)
+  }
+
+  func testClassifyPlayerTimeAcceptsFileStartNearTheStart() {
+    // A fresh file, or a Picture in Picture skip-back close to the start
+    XCTAssertEqual(PlayerManager.classifyPlayerTime(0.2, expected: 0), .valid(0.2))
+    XCTAssertEqual(PlayerManager.classifyPlayerTime(0, expected: 12), .valid(0))
+  }
+
+  func testClassifyPlayerTimeAcceptsBackwardJumpAwayFromFileStart() {
+    // Only the file-start signature counts as a glitch, so skip-backs the player applies stand
+    XCTAssertEqual(PlayerManager.classifyPlayerTime(1630, expected: 1645), .valid(1630))
+  }
 }

@@ -46,6 +46,13 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   /// successful activation can tell whether recovery required an app relaunch.
   private var audioSessionFailedThisSession = false
   private var hasObserverRegistered = false
+  /// Last player position we trust, set by our own seeks and by every accepted tick. It's the
+  /// baseline for spotting moves the player makes on its own (see `classifyPlayerTime`)
+  private var expectedPlayerTime: TimeInterval?
+  /// A seek back to `expectedPlayerTime` is in flight
+  private var isRecoveringPlayerTime = false
+  /// Recoveries since the last accepted tick, capped so a clock that stays broken can't loop seeks
+  private var consecutivePlayerTimeRecoveries = 0
   private var observeStatus: Bool = false {
     didSet {
       guard oldValue != self.observeStatus else { return }
@@ -318,6 +325,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     /// Cancel in case there's an ongoing load task
     playTask?.cancel()
     loadChapterTask?.cancel()
+    resetExpectedPlayerTime()
 
     // Recover in case of failure
     if audioPlayer.status == .failed {
@@ -408,6 +416,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
       DispatchQueue.main.async {
         self.isFetchingRemoteURL = nil
         self.audioPlayer.replaceCurrentItem(with: playerItem)
+        self.expectedPlayerTime = 0
 
         self.currentSpeed = self.speedService.getSpeed(relativePath: chapter.relativePath)
         // Set book metadata for lockscreen and control center
@@ -470,22 +479,99 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     }
   }
 
+  /// What `updateTime` does with a position the player reports
+  enum PlayerTimeSample: Equatable {
+    /// A real position: record it
+    case valid(TimeInterval)
+    /// Not a position, but playback is where we left it: drop it
+    case ignore
+    /// The player moved without us: drop it and seek back to the last trusted position
+    case recover
+  }
+
+  /// How far into the current file a reading at or before its start stops being plausible
+  private static let negativeTimeRecoveryThreshold: TimeInterval = 3
+  private static let fileStartRecoveryThreshold: TimeInterval = 30
+
+  /// iOS 27 on the CarPlay route can move playback to the start of the file while reporting a time
+  /// 2^32 samples behind the real one (a large negative), then snap the paused item to exactly 0.
+  /// Neither is where the listener is, so neither may be recorded (GH #1605).
+  static func classifyPlayerTime(_ playerTime: TimeInterval, expected: TimeInterval?) -> PlayerTimeSample {
+    let expected = expected ?? 0
+
+    guard playerTime.isFinite, playerTime >= 0 else {
+      /// A small negative right at a file start is output latency (AirPlay, bound-book chapter switches)
+      return expected > negativeTimeRecoveryThreshold ? .recover : .ignore
+    }
+
+    /// Back at the file start while well into it, without a seek of ours putting it there.
+    /// The threshold leaves room for Picture in Picture's skip-back, which seeks the player directly
+    if playerTime < 0.5, expected > fileStartRecoveryThreshold {
+      return .recover
+    }
+
+    return .valid(playerTime)
+  }
+
+  /// Seek back to the last trusted position after the player moved on its own (see `classifyPlayerTime`)
+  private func recoverPlayerTime() {
+    guard
+      let expectedPlayerTime,
+      consecutivePlayerTimeRecoveries < 3
+    else { return }
+
+    consecutivePlayerTimeRecoveries += 1
+    isRecoveringPlayerTime = true
+    audioPlayer.seek(
+      to: CMTime(seconds: expectedPlayerTime, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
+    ) { [weak self] _ in
+      DispatchQueue.main.async {
+        self?.isRecoveringPlayerTime = false
+      }
+    }
+  }
+
+  /// iOS 27 can snap a paused item back to the file start (see `classifyPlayerTime`), so put it back
+  /// where we left it before resuming
+  private func restoreExpectedPlayerTimeIfNeeded() {
+    guard
+      let expectedPlayerTime,
+      Self.classifyPlayerTime(CMTimeGetSeconds(audioPlayer.currentTime()), expected: expectedPlayerTime) == .recover
+    else { return }
+
+    audioPlayer.seek(to: CMTime(seconds: expectedPlayerTime, preferredTimescale: CMTimeScale(NSEC_PER_SEC)))
+  }
+
+  private func resetExpectedPlayerTime() {
+    expectedPlayerTime = nil
+    isRecoveringPlayerTime = false
+    consecutivePlayerTimeRecoveries = 0
+  }
+
   // Called every second by the timer
   func updateTime() {
     guard
       let currentItem,
       let playerItem,
-      playerItem.status == .readyToPlay
+      playerItem.status == .readyToPlay,
+      /// The recovery seek's target is the position we already hold
+      !isRecoveringPlayerTime
     else {
       return
     }
 
-    var currentTime = CMTimeGetSeconds(self.audioPlayer.currentTime())
+    var currentTime: TimeInterval
 
-    // When using devices with AirPlay 1,
-    // `currentTime` can be negative when switching chapters
-    if currentTime < 0 {
-      currentTime = 0.05
+    switch Self.classifyPlayerTime(CMTimeGetSeconds(self.audioPlayer.currentTime()), expected: expectedPlayerTime) {
+    case .valid(let playerTime):
+      expectedPlayerTime = playerTime
+      consecutivePlayerTimeRecoveries = 0
+      currentTime = playerTime
+    case .ignore:
+      return
+    case .recover:
+      recoverPlayerTime()
+      return
     }
 
     if currentItem.isBoundBook {
@@ -734,6 +820,7 @@ extension PlayerManager {
       currentItem.isBoundBook
       ? currentItem.getChapterTime(in: currentItem.currentChapter, for: boundedTime)
       : boundedTime
+    expectedPlayerTime = newTime
     self.audioPlayer.seek(to: CMTime(seconds: newTime, preferredTimescale: CMTimeScale(NSEC_PER_SEC)))
   }
 
@@ -771,6 +858,7 @@ extension PlayerManager {
       currentItem.isBoundBook
       ? currentItem.getChapterTime(in: currentItem.currentChapter, for: boundedTime)
       : boundedTime
+    expectedPlayerTime = newTime
     self.audioPlayer.seek(to: CMTime(seconds: newTime, preferredTimescale: CMTimeScale(NSEC_PER_SEC)))
   }
 
@@ -1041,6 +1129,7 @@ extension PlayerManager {
       let playerTime = CMTimeGetSeconds(audioPlayer.currentTime())
       if playerTime.isFinite && Int(currentItem.duration) == Int(playerTime) { return }
 
+      restoreExpectedPlayerTimeIfNeeded()
       handleSmartRewind(currentItem)
 
       if !autoPlayed {
@@ -1081,8 +1170,11 @@ extension PlayerManager {
       let timeInChapter = item.currentTime - item.currentChapter.start
       let rewindTimeLimited = min(rewindTimeMin, timeInChapter, timePassed)
 
-      let newPlayerTime = max(CMTimeGetSeconds(self.audioPlayer.currentTime()) - rewindTimeLimited, 0)
+      /// Rewind from where we know playback is, not the raw player clock (see `classifyPlayerTime`)
+      let playerTime = expectedPlayerTime ?? CMTimeGetSeconds(self.audioPlayer.currentTime())
+      let newPlayerTime = max(playerTime - rewindTimeLimited, 0)
 
+      expectedPlayerTime = newPlayerTime
       self.audioPlayer.seek(to: CMTime(seconds: newPlayerTime, preferredTimescale: CMTimeScale(NSEC_PER_SEC)))
     }
 
@@ -1236,6 +1328,7 @@ extension PlayerManager {
 
   func stop() {
     stopPlayback()
+    resetExpectedPlayerTime()
 
     self.currentItem = nil
     playerItem = nil
