@@ -54,6 +54,8 @@ jobs:
     steps:
       # Every `uses:` is pinned to a commit SHA (version in the trailing comment): this job can assume an AWS role.
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false  # nothing below needs git credentials; gh reads GH_TOKEN from the env
 
       - name: Read the version
         id: version
