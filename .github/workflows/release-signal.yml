@@ -76,14 +76,21 @@ jobs:
         env:
           VERSION: ${{ steps.version.outputs.version }}
         run: |
-          RECORDED=$(aws ssm get-parameter --name "$PARAM" --query Parameter.Value --output text 2>/dev/null || echo '{}')
+          # Only a parameter that doesn't exist yet means "nothing recorded". Any other failure (access denied,
+          # throttling, an expired session) or a value that isn't ours must stop the run: treating it as "nothing
+          # recorded" would re-record and re-post on every push to main.
+          if ! RECORDED=$(aws ssm get-parameter --name "$PARAM" --query Parameter.Value --output text 2>ssm-error.txt); then
+            if grep -q ParameterNotFound ssm-error.txt; then RECORDED='{}'; else cat ssm-error.txt; echo "::error::could not read $PARAM"; exit 1; fi
+          fi
           NEWER=$(RECORDED="$RECORDED" python3 - <<'PY'
-          import json, os
+          import json, os, re, sys
           key = lambda v: tuple(int(p) for p in v.split("."))
           try:
               recorded = json.loads(os.environ["RECORDED"]).get("version") or "0"
-          except ValueError:
-              recorded = "0"
+          except (ValueError, AttributeError):
+              sys.exit("::error::the recorded value is not the JSON this workflow writes")
+          if not re.fullmatch(r"\d+(\.\d+){0,3}", str(recorded)):
+              sys.exit(f"::error::the recorded version {recorded!r} is not a version")
           print(json.dumps({"recorded": recorded, "newer": key(os.environ["VERSION"]) > key(recorded)}))
           PY
           )
@@ -106,15 +113,21 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ steps.version.outputs.version }}
         run: |
-          # The release PR (develop→main, titled "Release <version>") is the one this merge commit belongs to; the
-          # title search is the fallback for a run by hand on a later commit.
+          # The release PR (develop→main, titled "Release <version>", older ones "Release v<version>") is the one
+          # this merge commit belongs to; the title search is the fallback for a run by hand on a later commit.
+          # Titles are compared literally; $VERSION is only digits and dots (checked when it was read).
+          TITLES="(.title == \"Release $VERSION\" or .title == \"Release v$VERSION\")"
           gh api "repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA/pulls" \
-            --jq "[.[] | select(.base.ref == \"main\" and .merged_at != null and (.title | test(\"^Release v?$VERSION\$\")))][0].body // empty" > notes.md
+            --jq "[.[] | select(.base.ref == \"main\" and .merged_at != null and $TITLES)][0].body // empty" > notes.md
           if [ ! -s notes.md ]; then
             gh pr list --repo "$GITHUB_REPOSITORY" --state merged --base main --search "Release in:title" --limit 50 \
-              --json title,body --jq "[.[] | select(.title | test(\"^Release v?$VERSION\$\"))][0].body // empty" > notes.md
+              --json title,body --jq "[.[] | select($TITLES)][0].body // empty" > notes.md
           fi
-          if [ ! -s notes.md ]; then echo "::error::no merged release PR titled 'Release $VERSION' found"; exit 1; fi
+          if [ ! -s notes.md ]; then
+            echo "::error::no merged release PR titled 'Release $VERSION' found. The version is already recorded, so" \
+              "'Re-run failed jobs' would skip everything: post it with a manual run (Run workflow) with dry_run off and repost on."
+            exit 1
+          fi
 
       - name: Announce on Discord
         if: steps.recorded.outputs.newer == 'true' || env.REPOST == 'true' || env.DRY_RUN == 'true'
@@ -132,7 +145,8 @@ jobs:
           link = f"Link to {os.environ['STORE_LINK_LABEL']}: {os.environ['STORE_URL']}"
           limit = 4096 - len(link) - 10  # a Discord embed description holds 4096 characters
           if len(notes) > limit:
-              notes = notes[: notes.rfind("\n", 0, limit)].rstrip() + "\n…"
+              cut = notes.rfind("\n", 0, limit)  # end on a whole line, unless that would drop most of the text
+              notes = notes[: cut if cut >= limit // 2 else limit].rstrip() + "\n…"
           print(json.dumps({
               "content": f"**v{os.environ['VERSION']} is now available on {os.environ['STORE_IN_TITLE']} 🎉**",
               "embeds": [{"description": f"{notes}\n\n{link}", "color": int(os.environ["EMBED_COLOR"])}],
@@ -146,5 +160,7 @@ jobs:
           fi
           WEBHOOK=$(aws ssm get-parameter --name "$WEBHOOK_PARAM" --with-decryption --query Parameter.Value --output text)
           echo "::add-mask::$WEBHOOK"
-          curl --fail-with-body -sS -H "Content-Type: application/json" --data @payload.json "$WEBHOOK?wait=true" -o /dev/null
+          # On a rejection, show Discord's reason (the response body never contains the webhook URL).
+          curl --fail-with-body -sS -H "Content-Type: application/json" --data @payload.json "$WEBHOOK?wait=true" -o response.json \
+            || { cat response.json; echo; exit 1; }
           echo "Posted v$VERSION to Discord."
