@@ -1,0 +1,150 @@
+# Release signal: a new version reached the store.
+#
+# In this repo `main` is what is live on the App Store: the release PR develop→main is merged only AFTER the App
+# Store has published the build. So a push to main that carries a newer MARKETING_VERSION means that version is in
+# users' hands. This workflow then:
+#   1. records it in SSM (/bookplayer-support-pipeline/released/ios); the support pipeline's drafter reads it to
+#      tell customers that a known issue's fix is out ("update to 5.22.1") instead of "in review";
+#   2. posts the merged release PR's notes to the Discord Announcements channel (title line + blue card).
+# A push to main without a newer version does nothing. Run it by hand (workflow_dispatch) to preview the post
+# (dry run, the default) or to record + post a release this workflow missed.
+#
+# AWS access is GitHub OIDC → role github-release-signal, whose trust accepts only this repo's `release-signal`
+# environment (deployment branch policy: main) and which can only write the two released/* parameters and read the
+# webhook. No AWS keys or webhook URL are stored in GitHub.
+name: Release signal
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: Print the announcement and record nothing
+        type: boolean
+        default: true
+      repost:
+        description: Post (and record) even if this version is already recorded
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  pull-requests: read
+  id-token: write
+
+concurrency:
+  group: release-signal
+  cancel-in-progress: false
+
+jobs:
+  signal:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    environment: release-signal
+    env:
+      PARAM: /bookplayer-support-pipeline/released/ios
+      WEBHOOK_PARAM: /bookplayer-release-signal/discord-announcements-webhook
+      STORE_IN_TITLE: the AppStore
+      STORE_LINK_LABEL: AppStore
+      STORE_URL: https://apps.apple.com/us/app/bookplayer/id1138219998
+      EMBED_COLOR: "689407"  # 0x0A84FF, iOS blue (Android posts are green)
+      DRY_RUN: ${{ github.event_name == 'workflow_dispatch' && inputs.dry_run }}
+      REPOST: ${{ github.event_name == 'workflow_dispatch' && inputs.repost }}
+    steps:
+      # Every `uses:` is pinned to a commit SHA (version in the trailing comment): this job can assume an AWS role.
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Read the version
+        id: version
+        run: |
+          # Every target carries the same MARKETING_VERSION; more than one value means the bump was partial.
+          VERSIONS=$(grep -o 'MARKETING_VERSION = [^;]*;' BookPlayer.xcodeproj/project.pbxproj | sed 's/MARKETING_VERSION = \(.*\);/\1/' | sort -u)
+          if [ "$(echo "$VERSIONS" | wc -l)" -ne 1 ] || ! [[ "$VERSIONS" =~ ^[0-9]+(\.[0-9]+){1,3}$ ]]; then
+            echo "::error::expected one MARKETING_VERSION, found: ${VERSIONS//$'\n'/, }"; exit 1
+          fi
+          echo "version=$VERSIONS" >> "$GITHUB_OUTPUT"
+          echo "build=" >> "$GITHUB_OUTPUT"  # Xcode Cloud numbers the builds; the project file doesn't know it
+
+      - uses: aws-actions/configure-aws-credentials@cbe3b392738ccf3f987d68400dafcf4b0624a56c # v6.2.4
+        with:
+          role-to-assume: arn:aws:iam::327317202676:role/github-release-signal
+          aws-region: us-east-1
+
+      - name: Is this version newer than the recorded one?
+        id: recorded
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          RECORDED=$(aws ssm get-parameter --name "$PARAM" --query Parameter.Value --output text 2>/dev/null || echo '{}')
+          NEWER=$(RECORDED="$RECORDED" python3 - <<'PY'
+          import json, os
+          key = lambda v: tuple(int(p) for p in v.split("."))
+          try:
+              recorded = json.loads(os.environ["RECORDED"]).get("version") or "0"
+          except ValueError:
+              recorded = "0"
+          print(json.dumps({"recorded": recorded, "newer": key(os.environ["VERSION"]) > key(recorded)}))
+          PY
+          )
+          echo "recorded vs this commit: $NEWER (this commit: $VERSION)"
+          echo "newer=$(echo "$NEWER" | python3 -c 'import json,sys; print(str(json.load(sys.stdin)["newer"]).lower())')" >> "$GITHUB_OUTPUT"
+
+      - name: Record the released version
+        if: (steps.recorded.outputs.newer == 'true' || env.REPOST == 'true') && env.DRY_RUN != 'true'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          BUILD: ${{ steps.version.outputs.build }}
+        run: |
+          VALUE=$(python3 -c 'import json, os, datetime; print(json.dumps({"version": os.environ["VERSION"], "build": os.environ["BUILD"], "released_at": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"), "commit": os.environ["GITHUB_SHA"]}))')
+          aws ssm put-parameter --name "$PARAM" --type String --overwrite --value "$VALUE" --query Version --output text
+          echo "recorded: $VALUE"
+
+      - name: Find the release notes
+        if: steps.recorded.outputs.newer == 'true' || env.REPOST == 'true' || env.DRY_RUN == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          # The release PR (develop→main, titled "Release <version>") is the one this merge commit belongs to; the
+          # title search is the fallback for a run by hand on a later commit.
+          gh api "repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA/pulls" \
+            --jq "[.[] | select(.base.ref == \"main\" and .merged_at != null and (.title | test(\"^Release v?$VERSION\$\")))][0].body // empty" > notes.md
+          if [ ! -s notes.md ]; then
+            gh pr list --repo "$GITHUB_REPOSITORY" --state merged --base main --search "Release in:title" --limit 50 \
+              --json title,body --jq "[.[] | select(.title | test(\"^Release v?$VERSION\$\"))][0].body // empty" > notes.md
+          fi
+          if [ ! -s notes.md ]; then echo "::error::no merged release PR titled 'Release $VERSION' found"; exit 1; fi
+
+      - name: Announce on Discord
+        if: steps.recorded.outputs.newer == 'true' || env.REPOST == 'true' || env.DRY_RUN == 'true'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          python3 - <<'PY' > payload.json
+          import json, os, re
+          notes = open("notes.md", encoding="utf-8").read().replace("\r", "").strip()
+          # Store-style notes as they are, with their section names bold ("## Phone" headings included).
+          # [ \t], not \s: \s would also swallow the blank line that follows a heading.
+          notes = re.sub(r"^#{1,6}[ \t]*(.+?)[ \t]*$", r"**\1**", notes, flags=re.MULTILINE)
+          notes = re.sub(r"^(Improvements|Bugfixes|Bug fixes|Special thanks to:?)[ \t]*$", r"**\1**", notes, flags=re.MULTILINE)
+          notes = re.sub(r"\n{3,}", "\n\n", notes)
+          link = f"Link to {os.environ['STORE_LINK_LABEL']}: {os.environ['STORE_URL']}"
+          limit = 4096 - len(link) - 10  # a Discord embed description holds 4096 characters
+          if len(notes) > limit:
+              notes = notes[: notes.rfind("\n", 0, limit)].rstrip() + "\n…"
+          print(json.dumps({
+              "content": f"**v{os.environ['VERSION']} is now available on {os.environ['STORE_IN_TITLE']} 🎉**",
+              "embeds": [{"description": f"{notes}\n\n{link}", "color": int(os.environ["EMBED_COLOR"])}],
+              "allowed_mentions": {"parse": []},  # nothing in the notes can ping anyone
+          }))
+          PY
+          if [ "$DRY_RUN" = "true" ]; then
+            echo "Dry run, nothing posted. The announcement would be:"
+            python3 -c 'import json; p = json.load(open("payload.json")); print(p["content"]); print("---"); print(p["embeds"][0]["description"])'
+            exit 0
+          fi
+          WEBHOOK=$(aws ssm get-parameter --name "$WEBHOOK_PARAM" --with-decryption --query Parameter.Value --output text)
+          echo "::add-mask::$WEBHOOK"
+          curl --fail-with-body -sS -H "Content-Type: application/json" --data @payload.json "$WEBHOOK?wait=true" -o /dev/null
+          echo "Posted v$VERSION to Discord."
