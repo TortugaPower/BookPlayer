@@ -2951,6 +2951,59 @@ class LibraryServiceExternalResourceTests: XCTestCase {
     XCTAssertTrue(resources.isEmpty)
     XCTAssertTrue(missingFolder.isEmpty)
   }
+
+  // MARK: - The progress push names the media-server link
+
+  /// A matched book also has a Hardcover link. Picking it (the links are an unordered set) queued
+  /// the push in a lane that drops it, so the server never got the position.
+  @MainActor
+  func testProgressOfADualLinkedBookIsPushedToItsMediaServer() async throws {
+    let inserted = await sut.insertItems(
+      fromResources: [streamResource(providerId: "jf-dual", title: "Dual", fileName: "dual.m4b", providerName: "jellyfin")],
+      inside: nil
+    )
+    let book = try XCTUnwrap(inserted.first)
+    _ = await sut.setExternalResource(providerName: "hardcover", providerId: "hc-dual", for: book.uuid)
+
+    let params = try await publishedProgress(afterPlaying: book.relativePath)
+
+    XCTAssertEqual(params["providerName"] as? String, "jellyfin")
+    XCTAssertEqual(params["providerId"] as? String, "jf-dual")
+    XCTAssertEqual(params["hostId"] as? String, "https://abs.example.com")
+  }
+
+  /// A book linked only to Hardcover has no server to push to, so its progress names no provider
+  @MainActor
+  func testProgressOfAHardcoverOnlyBookNamesNoProvider() async throws {
+    let book = makeBook("hardcover-only")
+    _ = await sut.setExternalResource(providerName: "hardcover", providerId: "hc-only", for: book.uuid)
+
+    let params = try await publishedProgress(afterPlaying: book.relativePath)
+
+    XCTAssertNil(params["providerName"])
+    XCTAssertNil(params["providerId"])
+  }
+
+  /// Plays `relativePath` to 10 s and returns the progress the push is scheduled from
+  @MainActor
+  private func publishedProgress(afterPlaying relativePath: String) async throws -> [String: Any] {
+    // The links were written on the background context. No merge policy is set, so saving the
+    // view context over that change before it merged would crash
+    sut.dataManager.getContext().refreshAllObjects()
+
+    var received: [String: Any]?
+    let published = expectation(description: "progress published")
+    let subscription = sut.progressUpdatePublisher.sink { params in
+      received = params
+      published.fulfill()
+    }
+    defer { subscription.cancel() }
+
+    sut.updatePlaybackTime(relativePath: relativePath, time: 10, date: Date(), scheduleSave: false)
+
+    await fulfillment(of: [published], timeout: 2)
+    return try XCTUnwrap(received)
+  }
 }
 
 // MARK: - Hardcover stub repair

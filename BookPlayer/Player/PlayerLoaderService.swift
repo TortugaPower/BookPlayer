@@ -53,8 +53,9 @@ final class PlayerLoaderService: @unchecked Sendable {
     
     let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(libraryItem.relativePath)
     
+    // Only a media-server link can serve the file instead: a Hardcover link has none
     if syncService.isActive == false,
-       libraryItem.externalResources?.isEmpty ?? true,
+       libraryItem.externalResources?.streamingResource == nil,
        !FileManager.default.fileExists(atPath: fileURL.path)
     {
       throw BPPlayerError.fileMissing(relativePath: libraryItem.relativePath)

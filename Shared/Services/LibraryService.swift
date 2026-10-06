@@ -2827,7 +2827,11 @@ extension LibraryService {
       #keyPath(LibraryItem.uuid): item.uuid
     ] as [String : Any]
     
-    if let externalResource = item.resourcesArray.first {
+    // The link the player streams from. Not just the first: the set is unordered, and a Hardcover
+    // link (any matched book has one) would queue the push in a lane that drops it
+    if let externalResource = item.resourcesArray
+      .map({ SimpleExternalResource(from: $0, ignoreLibraryItem: true) })
+      .streamingResource {
       params[#keyPath(ExternalResource.providerId)] = externalResource.providerId
       params[#keyPath(ExternalResource.providerName)] = externalResource.providerName
       params["hostId"] = externalResource.hostId

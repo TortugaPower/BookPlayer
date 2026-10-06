@@ -1317,9 +1317,10 @@ extension SyncService {
 
   /// Get download state of an item
   public func getDownloadState(for item: SimpleLibraryItem) -> DownloadState {
-    let hasExternalResources = !(item.externalResources?.isEmpty ?? true)
-    /// Only process if subscription is active or it has external resources
-    guard isActive || hasExternalResources else { return .downloaded }
+    /// The link `downloadRemoteFiles` downloads from; a Hardcover link has no file to download
+    let streamsFromMediaServer = item.externalResources?.streamingResource != nil
+    /// Only process if subscription is active or it streams from a media server
+    guard isActive || streamsFromMediaServer else { return .downloaded }
     
     if downloadTasksDictionary[item.relativePath]?.isEmpty == false {
       return .downloading(progress: calculateDownloadProgress(with: item.relativePath))
