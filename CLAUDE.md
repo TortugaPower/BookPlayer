@@ -427,9 +427,11 @@ lines). It is the highest-risk file in the app.
   the session's tasks for the current `uploadId`, so a relaunch or a lost event resumes without re-sending. The
   resumable state (`uploadId`, `partSize`, `fileSize`, `restartCount`) lives on `UploadFileTaskModel`; parts are
   sliced to `tmp/uploads/<uuid>/`; 64 MiB parts, 8 in flight (fewer on low disk), fresh part URLs every top-up
-  (403 = expired), up to 3 restarts (`upload_not_found`/`invalid_parts`/NoSuchUpload, or `complete` answering
-  `parts_missing` 5 rounds running while S3 lists every part) before the task parks with the server's code — the
-  dead upload is forgotten and the budget reset first, so a Retry starts fresh; books over 10 GiB park as
+  (403 = expired), up to 3 restarts (`upload_not_found`/`invalid_parts`/NoSuchUpload) before the task parks with
+  the server's code — the dead upload is forgotten and the budget reset first, so a Retry starts fresh. `complete`
+  answering `parts_missing` gets one pass that re-reads S3's list and re-sends the gaps; if that list shows every
+  part (`complete` reads the same list), or `complete` still answers `parts_missing`, the task parks at once the
+  same way, never restarting to re-send the whole file; books over 10 GiB park as
   `file_too_large`. The source is the temp hard link, else the book's
   current Processed file found by uuid (`LibrarySyncProtocol.fetchRelativePath(forUuid:)`) — never deleted. A
   cellular-setting change cancels the parts in flight so they resend through the session that now applies.

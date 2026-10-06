@@ -187,6 +187,47 @@ final class MultipartUploadEngineTests: XCTestCase {
     XCTAssertEqual(server.calls(to: "/v1/library/upload/start"), 1)
   }
 
+  /// complete reads the same S3 list the parts route does: gaps it reports while that list
+  /// shows every part would only come back. The upload parks at once, with no blind rounds and
+  /// no restart that would send the whole file again, and is forgotten so a Retry starts fresh
+  func testMissingPartsTheListDoesNotShow_parkAtOnce() async throws {
+    try await storeTask()
+    server.completeErrors = [coded("parts_missing", status: 409)]
+    server.uploadedPartsAfterMissing = [1, 2, 3]
+    let operation = makeOperation()
+
+    await run(operation)
+
+    XCTAssertFalse(operation.didSucceed)
+    XCTAssertEqual(SyncFailurePolicy.codedFailure(operation.error)?.code, "parts_missing")
+    XCTAssertEqual(
+      SyncFailurePolicy.action(for: operation.error, jobType: .uploadFile, parkingEnabled: true),
+      .park(.task)
+    )
+    XCTAssertEqual(server.calls(to: "/v1/library/upload/complete"), 1)
+    XCTAssertEqual(server.calls(to: "/v1/library/upload/start"), 1)
+    XCTAssertEqual(transport.startedParts, [1, 2, 3])
+    let state = await savedState()
+    XCTAssertNil(state?.uploadId)
+    XCTAssertEqual(state?.restartCount, 0)
+  }
+
+  /// The gaps get one resend: if complete still finds parts missing, the upload parks
+  func testMissingPartsStillMissingAfterTheResend_park() async throws {
+    try await storeTask()
+    server.completeErrors = Array(repeating: coded("parts_missing", status: 409), count: 2)
+    server.uploadedPartsAfterMissing = [1, 3]
+    let operation = makeOperation()
+
+    await run(operation)
+
+    XCTAssertFalse(operation.didSucceed)
+    XCTAssertEqual(SyncFailurePolicy.codedFailure(operation.error)?.code, "parts_missing")
+    XCTAssertEqual(server.calls(to: "/v1/library/upload/complete"), 2)
+    XCTAssertEqual(server.calls(to: "/v1/library/upload/start"), 1)
+    XCTAssertEqual(transport.startedParts, [1, 2, 3, 2])
+  }
+
   func testLostUpload_startsAgain_countingTheRestart() async throws {
     try await storeTask()
     server.listErrors = [coded("upload_not_found", status: 409)]

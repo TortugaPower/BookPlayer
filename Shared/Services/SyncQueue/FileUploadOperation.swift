@@ -312,22 +312,26 @@ class FileUploadOperation: AsyncOperation, BPLogger, @unchecked Sendable {
       try await forgetUpload(countingRestart: false)
     }
 
-    var partsMissingAnswers = 0
+    // complete answered `parts_missing`: the next pass re-reads S3's list and sends the gaps
+    var completeFoundGaps = false
     while true {
       try Task.checkCancellation()
       do {
         if uploadState.uploadId == nil {
           guard try await start(fileSize: fileSize) else { return }
-          partsMissingAnswers = 0
+          completeFoundGaps = false
         }
-        try await sendAllParts(from: sourceURL)
+        let listedEveryPart = try await sendAllParts(from: sourceURL)
+        // complete reads the same S3 list: gaps the list doesn't show would only come back
+        if completeFoundGaps, listedEveryPart {
+          try await parkMissingParts()
+        }
         if try await complete() { return }
-        // S3's list says every part is there, yet complete says some aren't: past a few
-        // rounds, the upload itself is broken
-        partsMissingAnswers += 1
-        if partsMissingAnswers >= Self.maxPartAttempts {
-          throw UploadStop.restart(cause: Self.partsMissingError)
+        // Still missing after the gaps were sent again
+        if completeFoundGaps {
+          try await parkMissingParts()
         }
+        completeFoundGaps = true
       } catch UploadStop.restart(let cause) {
         guard uploadState.restartCount < Self.restartBudget else {
           // Parks. The dead upload is forgotten and the budget reset, so a Retry (or the
@@ -363,9 +367,20 @@ class FileUploadOperation: AsyncOperation, BPLogger, @unchecked Sendable {
     }
   }
 
-  /// Keeps up to `window` parts with the session until S3 holds every part
-  private func sendAllParts(from sourceURL: URL) async throws {
-    guard let uploadId = uploadState.uploadId else { return }
+  /// Parks with `parts_missing`. The upload is forgotten and the restart budget reset, like a
+  /// spent budget, so a Retry starts a fresh upload instead of parking on this one again.
+  private func parkMissingParts() async throws -> Never {
+    try await forgetUpload(countingRestart: false)
+    uploadState.restartCount = 0
+    try await saveState()
+    throw Self.partsMissingError
+  }
+
+  /// Keeps up to `window` parts with the session until S3 holds every part. `true` when S3's
+  /// list already held them all, so nothing was sent
+  @discardableResult
+  private func sendAllParts(from sourceURL: URL) async throws -> Bool {
+    guard let uploadId = uploadState.uploadId else { return false }
     let plan = MultipartUploadPlan(fileSize: uploadState.fileSize, partSize: uploadState.partSize)
 
     let (events, continuation) = AsyncStream<EngineEvent>.makeStream()
@@ -400,6 +415,7 @@ class FileUploadOperation: AsyncOperation, BPLogger, @unchecked Sendable {
     var iterator = events.makeAsyncIterator()
 
     var done = try await uploadedParts(uploadId: uploadId)
+    let listedEveryPart = done.count >= plan.partCount
     var active = await transport.activePartNumbers(for: uuid, uploadId: uploadId).subtracting(done)
     var bytesInFlight = [Int: Int64]()
     var failures = [Int: Int]()
@@ -487,6 +503,7 @@ class FileUploadOperation: AsyncOperation, BPLogger, @unchecked Sendable {
         lastReportedPercent: lastReportedPercent
       )
     }
+    return listedEveryPart
   }
 
   /// `true` once S3 assembled the file; `false` when parts turned out missing (send them)
@@ -591,7 +608,7 @@ class FileUploadOperation: AsyncOperation, BPLogger, @unchecked Sendable {
     }
   }
 
-  /// `complete` keeps finding gaps the part list doesn't show
+  /// `complete` finds gaps the part list doesn't show, or still finds them after they were sent again
   static let partsMissingError = BookPlayerError.networkErrorWithCode(
     message: "The upload keeps missing parts",
     code: "parts_missing",
