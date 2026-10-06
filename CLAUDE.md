@@ -570,8 +570,10 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
     (`MediaServerFileNames.volumeChildFileNames`). The books have no link of their own: playback
     (`PlaybackService.VolumeStream`), downloads (`MediaServerDownloadPlanner`, one more lookup after a 404), sync
     registration (`SyncableItem.volumeMediaServerProviderName`, so no file is asked for) and the post-download
-    upload all go through the volume's. Single books are named `<title>.<ext>` (no provider prefix), with
-    `-<uuid prefix>` when a book anywhere already has that name.
+    upload all go through the volume's. That upload is queued only when the book just came from its server
+    (the download's planned AudiobookShelf lookup), since the volume's link stays `stream`: a
+    cloud download, or any download on the watch, already has its file in the cloud. Single books are named
+    `<title>.<ext>` (no provider prefix), with `-<uuid prefix>` when a book anywhere already has that name.
   - **A stream import is created in the folder being browsed** (Android's `basePath`), and streaming a book
     already in the library makes another copy (decided; Android to follow), as a file imported again does.
     So a server's book can have several rows: find a link through its item (`findResources(for:)`), never by
