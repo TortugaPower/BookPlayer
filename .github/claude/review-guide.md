@@ -7,17 +7,23 @@ concurrency, and secrets conventions. Judge changes against it. This app handles
 per-user cloud sync, auth, and subscriptions**, so **memory/concurrency, player lifecycle, threading, and
 auth/entitlement** bugs are the highest-priority findings.
 
-**Base branch is `develop`.** Diff against `origin/develop`.
+**Base branch is `develop`.** The harness hands you the pull request's unified diff as a file. The checkout is
+the PR head only (`fetch-depth: 1`): there is no `origin/develop` ref and no `gh` access inside the review, and
+`git log` / `git blame` see only the head commit.
 
 ## How to review
 
-1. Get the diff: `gh pr diff <number>`. The branch is checked out in the working directory.
+1. Read the unified diff the harness wrote for you; its path is in the task prompt. The PR branch is already
+   checked out in the working directory.
 2. **Do not review the diff in isolation.** For each non-trivial change, open the surrounding code and its
    callers with `Read`/`Grep`/`Glob` before judging. Diff-only opinions are not acceptable.
 3. Respect the layout: app source is under nested `BookPlayer/BookPlayer/`; shared/framework code is in
    top-level `Shared/`. The top-level `Player/`, `Services/`, `Coordinators/`, `Library/` folders are **empty
    stubs** — never suggest putting code there.
-4. Cross-check against `CLAUDE.md` conventions (concurrency, persistence, DI, localization, accessibility).
+4. Cross-check against `CLAUDE.md` conventions (concurrency, persistence, DI, localization, accessibility). Check
+   memory/concurrency (retain cycles, `[weak self]` in closures and Combine sinks, stored cancellables,
+   `@MainActor` / thread-correct DB access), player and AVAudioSession lifecycle, and the BookPlayerKit boundary
+   where relevant.
 
 ## What to skip
 
@@ -35,8 +41,9 @@ auth/entitlement** bugs are the highest-priority findings.
 
 ### 🔴 ERROR — block merge
 
-- **Secrets / config.** Committing or overwriting the real `BuildConfiguration/Debug.xcconfig` /
-  `Release.xcconfig` (gitignored, real values); hardcoded API keys / tokens / Sentry DSN / RevenueCat key
+- **Secrets / config.** Committing the real `BuildConfiguration/Debug.xcconfig` (gitignored, real values), or
+  real values in `Release.xcconfig` (tracked with `replace.me` placeholders; `ci_scripts/ci_post_clone.sh`
+  rewrites it from Xcode Cloud env vars); hardcoded API keys / tokens / Sentry DSN / RevenueCat key
   instead of xcconfig → `Configuration`. A new secret must be added to `Debug.template.xcconfig` + the CI
   script + `ConfigurationKeys` — not inlined.
 - **CoreData threading.** Passing an `NSManagedObject` across threads/contexts instead of a `Simple*` /
@@ -89,9 +96,14 @@ auth/entitlement** bugs are the highest-priority findings.
 
 ## Reporting findings
 
-Your findings are consumed by an automated harness (it posts the comments, de-duplicates them across pushes,
-and resolves stale ones) — **do not post comments or create reviews yourself.** The exact JSON shape to emit is
-defined by the output contract in your system prompt.
+Your findings are consumed by an automated harness — **do not post comments or create reviews yourself.**
+It posts each finding as an inline comment, recognises a finding you reported on an earlier push and leaves
+that comment alone, and closes an earlier comment only when a second pass has judged it against the current
+code — fixed, no longer applicable, accepted by a maintainer, or a duplicate of something reported on this
+push. Nothing closes because you stopped mentioning it. A finding whose line the API will not accept as an
+inline anchor, and any finding past the inline cap, is listed in the summary comment rather than lost — but a
+finding with no usable line number at all is dropped, so tie every finding to a line this PR changed. The
+exact JSON shape to emit is defined by the output contract in your system prompt.
 
 - Report each issue with its severity, file, the **changed line** it applies to, and a concrete fix. Tie every
   finding to a line the PR actually changed.

@@ -1,7 +1,16 @@
 name: Claude PR Review
 
+# `pull_request_target`, not `pull_request`: the WORKFLOW FILE that runs is the base branch's, so a pull request
+# cannot rewrite this file to read the secrets below. That closes the class the two-checkout layout in the review
+# job opens up: the job executes the harness from the base branch and treats the pull request's tree as DATA the
+# agent reads. Nothing a pull request author controls runs in the job that holds a secret. (The remaining step
+# that makes this hold repository-wide is the `reviewer` environment: its secrets are usable only by runs on the
+# base branches, so no OTHER `pull_request` workflow an author edits can reach them either. See the README.)
+#
+# What `pull_request_target` must never do is run pull-request code with secrets. The one job here that runs the
+# pull request's own code — its harness tests — holds none, and says so.
 on:
-  pull_request:
+  pull_request_target:
     types: [opened, synchronize, reopened, ready_for_review]
     branches: [develop]
 
@@ -13,52 +22,212 @@ concurrency:
 jobs:
   review:
     # Skip draft PRs; they review on "ready_for_review".
-    # Skip fork PRs: pull_request runs from a fork don't receive repo secrets
-    # (ANTHROPIC_API_KEY), so the reviewer can't run — skip to keep the check
-    # neutral instead of a hard failure.
+    # Skip fork PRs, deliberately: on `pull_request_target` they WOULD receive the secrets, and the agent would
+    # read a stranger's tree with `ANTHROPIC_API_KEY` in its subprocess environment, where the Bash grammar is the
+    # only boundary. That is a decision to take on purpose, not to inherit from an event type.
+    # Skip Dependabot: its pull requests change only the lockfile, and this reviewer has nothing to say about that.
     if: >-
       github.event.pull_request.draft == false &&
-      github.event.pull_request.head.repo.full_name == github.repository
-    # Ubuntu on purpose: the reviewer only reads the diff/source, it does NOT build the app,
-    # so there's no need for an (expensive, slow) macOS runner.
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.actor != 'dependabot[bot]'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    # The secrets live in this environment, whose deployment-branch policy is `develop`. Under
+    # `pull_request_target` the run's ref IS the base branch, so this job qualifies; a `pull_request` run (ref
+    # `refs/pull/N/merge`) does not, however its workflow file is edited. The environment is created on first use;
+    # the branch policy and the move of the two secrets into it are repository settings — see the README.
+    environment: reviewer
+    # The LOOSEST bound in the file, and it has to be: every step below is capped, a step that hits its cap FAILS
+    # (which is what lets the notes at the end run), but a step that is merely slow and succeeds still spends the
+    # job's clock. So the step caps must fit inside this one with room to spare, or the job cap becomes the
+    # binding one — and a job cancelled by ITS timeout runs no `if: failure()` step at all: no note, no summary,
+    # a red check and nothing on the pull request.
+    #
+    # Every step below carries its own cap, sized from what the step actually takes (measured worst cases across
+    # six runs: review 9.6 min, install 6 s, node 5 s, checkout 2 s) — so these are hang guards with an order of
+    # magnitude of headroom, not budgets. This number must exceed their sum with room to spare, and
+    # `test/workflow.test.mjs` fails if it stops doing so: at 38 the sum was 37 and the worst realistic path
+    # finished at 38:00 on the nose, which is not slack, it is a coincidence.
+    timeout-minutes: 48
     permissions:
       contents: read
       pull-requests: write   # post inline + summary comments and resolve review threads
     steps:
-      - name: Checkout PR head
-        uses: actions/checkout@v5
+      # Every `uses:` in this file is pinned to a commit SHA, version in the trailing comment. A mutable tag lets
+      # whoever controls it swap the code that runs inside the job holding the secrets; a commit cannot move.
+      # `test/workflow.test.mjs` fails on an unpinned action. Bump by editing the SHA and the comment together.
+      # TWO checkouts. The harness — this directory, its lockfile, `review-guide.md` and `repo.mjs` — comes from
+      # the base branch and is the only code this job executes. The pull request's tree is checked out beside it
+      # and is what the agent reads: to the harness it is data, like the diff.
+      # The cost is deliberate: a pull request that changes the harness is reviewed by the harness it is
+      # changing FROM, and its own tests run in the `harness-tests` job below, without secrets.
+      - name: Checkout the harness from the base branch
+        id: harness
+        timeout-minutes: 3
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          # Check out the PR head commit (not the merge ref) so file line numbers
-          # match the commit_id we anchor inline comments to.
-          ref: ${{ github.event.pull_request.head.sha }}
+          ref: ${{ github.event.pull_request.base.ref }}
+          path: harness
           fetch-depth: 1
+          persist-credentials: false
+
+      # checkout v7 refuses to fetch a FORK's head under `pull_request_target` unless `allow-unsafe-pr-checkout: true`.
+      # That never fires here: the job-level `if` above skips fork pull requests before any step runs. Leave the
+      # input unset on purpose — if that skip is ever loosened, the refusal is the second guard, not a nuisance.
+      - name: Checkout PR head
+        id: checkout
+        timeout-minutes: 3
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The PR head commit (not the merge ref) so file line numbers match the commit_id inline comments are
+          # anchored to. Beside the harness, never on top of it.
+          ref: ${{ github.event.pull_request.head.sha }}
+          path: pr
+          fetch-depth: 1
+          # The agent may `cat .git/config`; don't leave the checkout token in it.
+          persist-credentials: false
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        timeout-minutes: 3
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
           node-version: '20'
+          # Cached: every round otherwise pulls the SDK and its platform binaries fresh, inside
+          # the install step's cap. A failed install here degrades to the "did not run" note rather than a silent
+          # red check, so this is flakiness and cost rather than correctness — which is why it is a cache and not
+          # a guard.
+          cache: npm
+          cache-dependency-path: harness/.github/claude/reviewer/package-lock.json
 
+      # --ignore-scripts: the lockfile is the base branch's now, but an install hook is still third-party code
+      # running first in the job that holds the secrets.
+      # Both pre-review steps are bounded, and the bound is the point rather than the number: a step that hangs
+      # (an install stuck on the registry) would otherwise burn the job's 48 minutes, and a job cancelled by ITS
+      # timeout does not run steps guarded by `if: failure()` — only `always()` or `cancelled()`. The "did not run"
+      # note below would never fire, and the round would end as a red check with nothing on the PR: the invisible
+      # failure the whole harness is organised against. A STEP timeout fails the step instead of cancelling the
+      # job, so the note posts.
       - name: Install reviewer deps
-        working-directory: .github/claude/reviewer
-        run: npm install --no-audit --no-fund --silent
+        id: install
+        timeout-minutes: 4
+        working-directory: harness/.github/claude/reviewer
+        # The smoke check is the only thing that exercises the SDK before the review runs: it is imported lazily
+        # inside `runAgent`, and every test stubs that seam, so `node --test test/` cannot tell a good install from
+        # one missing the native CLI binary for this runner (a lockfile written on another OS is how that happens).
+        # `smoke.mjs` loads the SDK and runs that binary; without it the first thing to find out is the review
+        # step, minutes later.
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund --silent
+          node smoke.mjs
 
       - name: Run Claude review
+        id: review
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GITHUB_TOKEN: ${{ github.token }}
           # PAT/App token used ONLY to resolve review threads (GITHUB_TOKEN can't — "Resource not
           # accessible by integration"). Optional: if unset, stale comments only show as "Outdated".
+          # A fine-grained PAT scoped to this repo with "Pull requests: read & write" is enough.
           REVIEW_RESOLVE_TOKEN: ${{ secrets.REVIEW_RESOLVE_TOKEN }}
-          GH_TOKEN: ${{ github.token }}              # for `gh pr diff` inside the agent
-          GH_REPO: ${{ github.repository }}
           GITHUB_REPOSITORY: ${{ github.repository }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
           COMMIT: ${{ github.event.pull_request.head.sha }}
           BASE_REF: ${{ github.event.pull_request.base.ref }}
           RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          REVIEW_MODEL: claude-opus-4-8
-          REVIEW_MAX_TURNS: '50'   # agent only reads/reports (posting is done by the script), so turns go far
-          IS_SANDBOX: '1'
-        run: node .github/claude/reviewer/review.mjs
+          # The tree the agent reads and the harness's path rules confine it to: the pull request's checkout, not
+          # the job's workspace (which also holds the harness and its node_modules).
+          REVIEW_CHECKOUT: ${{ github.workspace }}/pr
+          # Model is NOT pinned: review.mjs asks the Models API for the newest Opus-tier model on
+          # every run (Opus 5.5 today). To pin, e.g. while diagnosing a regression, set an exact id.
+          # REVIEW_MODEL: claude-opus-5-5
+          REVIEW_MAX_TURNS: '200'  # a runaway guard only; the real bound is REVIEW_DEADLINE_MS (12 min) in review.mjs
+        # Above the harness's own budget and well inside the job's 48, so review.mjs's clock is what ends this step
+        # in every case it can: its 18 minutes are measured from before the model lookup, and the reconcile phase
+        # that follows them is deliberately unclocked (up to 25 posts plus a resolve and a reply per closed
+        # thread). At 22 this cap, not the harness, was the tighter of the two. If it does fire, the step FAILS
+        # rather than cancelling the job, which is what lets the notes below run.
+        timeout-minutes: 24
+        run: node harness/.github/claude/reviewer/review.mjs
+
+      # A failure in the steps above happens outside review.mjs, so nothing would reach the PR and the check
+      # would go red with no comment. The review step explains itself, hence the step-scoped condition.
+      - name: Say on the PR that the harness did not run
+        # Every step before the review except the harness checkout, which this step depends on: it runs a file
+        # that checkout provides, so a harness-checkout failure takes this step with it (a second red step, no
+        # comment). Node is preinstalled on ubuntu-latest, so setup-node failing is not fatal here either. The
+        # review step itself is excluded because it explains its own failures.
+        if: failure() && steps.harness.outcome == 'success' && steps.review.outcome != 'failure'
+        timeout-minutes: 3   # a read and a write; review.mjs arms its own 90-second network clock in this mode
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: node harness/.github/claude/reviewer/review.mjs --setup-failed "a step before the review failed (the pull request checkout or the dependency install), so no review ran on this commit"
+
+      # And the failure the harness could not report ITSELF. `explained` is written by review.mjs whenever the pull
+      # request already carries its summary or its own failure note, so this fires whenever the step failed and
+      # nothing was written — which is two cases, not one: the step was killed (its cap, an OOM) so no handler ran
+      # at all, OR a handler ran and its write was refused. The note below must not claim to know which; saying
+      # "killed" when the cause was a refused write points a maintainer at the wrong knob. The gate is what stops
+      # this from replacing review.mjs's own explanation, which shares its heading.
+      - name: Say on the PR that the review step failed without explaining itself
+        if: failure() && steps.review.outcome == 'failure' && steps.review.outputs.explained != 'true'
+        timeout-minutes: 3   # exclusive with the note above: one of the two runs, never both
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: node harness/.github/claude/reviewer/review.mjs --setup-failed "the review step failed without leaving an explanation on this PR — either it was killed (the review step's 24 minutes, or the runner ran out of memory) or it could not post its own note; the run log has the reason"
+
+  # The pull request's OWN harness tests, when it touches the harness. This is the one job that executes pull
+  # request code, so it holds no secret, declares no environment, and gets a read-only token — the checkout below
+  # does not even keep that. A pull request that changes the harness is reviewed by the base branch's harness
+  # (above) and tested by its own (here); merging it is what promotes it to the reviewer.
+  harness-tests:
+    if: >-
+      github.event.pull_request.draft == false &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.actor != 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout PR head
+        timeout-minutes: 3
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+
+      # Only when the pull request touches the harness or this workflow: the suite is a minute of runner time that
+      # says nothing about an app change.
+      - name: Does this pull request touch the harness?
+        id: touches
+        timeout-minutes: 2
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          if gh api "repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}/files" --paginate --jq '.[].filename' | grep -qE '^\.github/(claude/|workflows/claude-review\.yml)'; then
+            echo "harness=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "harness=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up Node
+        if: steps.touches.outputs.harness == 'true'
+        timeout-minutes: 3
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: .github/claude/reviewer/package-lock.json
+
+      - name: Test the agent's tool allowlist and redaction
+        if: steps.touches.outputs.harness == 'true'
+        timeout-minutes: 6   # the suite is ~1 min; this is a hang guard, and the conservation fuzzer is the slow part
+        working-directory: .github/claude/reviewer
+        run: |
+          npm ci --ignore-scripts --no-audit --no-fund --silent
+          node --test test/
