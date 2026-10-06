@@ -144,9 +144,9 @@ first. Reordering boot risks a launch crash.
 - `@MainActor final class AppServices` with `static let shared` + `private init()`. Owns the async
   `setupCoreServicesTask`, the `DatabaseInitializer`, and a shared `PlayerState`.
 - `CoreServices` (`BookPlayer/Utils/CoreServices.swift`) is a struct of exactly **12 services**: `accountService`,
-  `syncQueueService`, `externalProgressService` (pulls media-server playback positions for lite/pro accounts;
-  self-subscribes to `.bookPlayed` for the on-play prompt, and `ListSyncRefreshService.syncList` drives the
-  per-level list pull through the one-method `ExternalProgressRefreshing` seam),
+  `syncQueueService`, `mediaServerChapterService` (`MediaServerChapterRefreshService`: fills in the chapters of
+  streamed books that arrived through sync with none, for lite/pro accounts; `ListSyncRefreshService.syncList`
+  drives it per level through the one-method `MediaServerChapterRefreshing` seam),
   `dataManager`, `hardcoverService`, `libraryService`, `playbackService`, `playerLoaderService`, `playerManager`,
   `preferencesService` (`PreferencesSyncService`), `syncService`, `watchService` (`PhoneWatchConnectivityService`).
 - **Two-step `init()` + `setup(...)` DI pattern:** services are created empty then configured, e.g.
@@ -160,15 +160,18 @@ first. Reordering boot risks a launch crash.
   coordinator-scoped services (`ImportManager`, `ListSyncRefreshService`, `SingleFileDownloadService`,
   `JellyfinConnectionService`, `AudiobookShelfConnectionService`).
   `ListSyncRefreshService.syncList(at:)` is the ONE list-refresh entry point (list appear, pull-to-refresh, sync
-  activation, CarPlay): cloud contents for the level → the level's media-server progress pull → preferences pull.
+  activation, CarPlay): cloud contents for the level → the level's media-server chapter refresh → preferences
+  pull. Media-server positions are never pulled (decided; Android never had it): progress only goes out, and a
+  streamed book starts at zero.
   A folder's cloud step is skipped until the first sync has run (`SyncService.hasRunFirstSync`, backed by
   `hasScheduledLibraryContents`): its listing would delete local items the server hasn't seen yet. The root refresh then asks, without waiting, for
   `SyncService.scheduleMissingItemsIfNeeded()` (the weekly / became-PRO missing-items pass).
-  The pull runs strictly AFTER the cloud step and never alongside it (cloud writes on the background context, the
-  progress ingest on the view context; no merge policy), whatever the cloud outcome. It is resource-first:
-  `LibraryService.findMediaServerResources(at:)` fetches only the level's media-server `ExternalResource` rows
-  (direct children, providers filtered in SQL from `ProviderName.mediaServerRawValues`) on the background context,
-  so the main thread does nothing but the ingest. `ExternalResource.ProviderName.mediaServer` — which maps a
+  The chapter refresh runs strictly AFTER the cloud step and never alongside it (cloud writes on the background
+  context, the chapters ingest on the view context; no merge policy), whatever the cloud outcome. It is
+  resource-first: `LibraryService.findChapterlessMediaServerResources(at:)` fetches only the media-server
+  `ExternalResource` rows of the level's books that still have no chapters (direct children, providers filtered in
+  SQL from `ProviderName.mediaServerRawValues`) on the background context, so in the steady state nothing is asked
+  and the main thread does nothing but the ingest. A book streamed on this device gets its chapters at import. `ExternalResource.ProviderName.mediaServer` — which maps a
   provider onto the `ExternalResource.MediaServerProvider` sub-enum (`jellyfin`, `audiobookshelf`) — is the single
   exhaustive "is this a media server" switch; `isMediaServer`, `SimpleExternalResource.mediaServer`, the SQL filter,
   and every server-only switch (stream source, host display, progress push, the library-row glyph) derive from it.
@@ -481,10 +484,9 @@ lines). It is the highest-risk file in the app.
 - **Sync = the `pro` OR `lite` entitlement** (`hasSyncEnabled()`); `lite` gets DB-backed sync only —
   S3 file uploads are gated per-job via `SyncQueueService.accessPolicy` (`.uploadFile` is pro-only,
   `.externalUpdate` — progress pushes to the USER'S OWN media server — is available on every tier,
-  matching the Android app). **The media-server progress PULL is the opposite:** `ExternalProgressService`
-  gates both the on-play resume prompt and the list refresh on `accountService.hasSyncEnabled()` (lite/pro),
-  read live on every pull, and cancels an in-flight pull on an `.accountUpdate` that drops the entitlement —
-  free/plus users push to their own server but never see other devices' positions. Android must mirror this.
+  matching the Android app). Nothing pulls a media server's position back. The media-server chapter refresh is
+  gated on `accountService.hasSyncEnabled()` (lite/pro), read live on every refresh: only a synced library
+  brings streamed books without chapters.
   Job types (`SyncJobType`): `upload, update, move, renameFolder, delete, shallowDelete, setBookmark,
   deleteBookmark, uploadArtwork, matchUuid, externalResource, externalResourceToDownload, deleteExternalResource`
   (sync lane), `uploadFile` (upload lane), `externalUpdate` (provider lanes).
@@ -579,8 +581,8 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
   - **A stream import is created in the folder being browsed** (Android's `basePath`), and streaming a book
     already in the library makes another copy (decided; Android to follow), as a file imported again does.
     So a server's book can have several rows: find a link through its item (`findResources(for:)`), never by
-    `(providerName, providerId)` alone. The copies share the server's progress (each pushes to the same
-    server item; the pull updates every row linked to it).
+    `(providerName, providerId)` alone. Each copy pushes its progress to the same server item, and the chapter
+    refresh fills every copy linked to it.
 - **Hardcover** (`Hardcover/`, `@Observable HardcoverService`, GraphQL): two-way **reading-progress** sync, not a
   media server. Status `HardcoverBook.Status { local=0, library=1, reading=2, read=3 }`; **only 1/2/3 are ever
   POSTed** (`.local` is a local-only marker). Monotonic guards prevent backwards writes; auto-match on import has

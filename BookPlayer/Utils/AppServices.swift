@@ -144,9 +144,8 @@ final class AppServices: BPLogger {
       libraryService.preferencesService = preferencesService
       Task { await preferencesService.bootstrap() }
 
-      let externalProgressService = ExternalProgressService()
-      externalProgressService.setup(libraryService: libraryService, accountService: accountService)
-      promptSurfaceArbiter.bind(to: externalProgressService)
+      let mediaServerChapterService = MediaServerChapterRefreshService()
+      mediaServerChapterService.setup(libraryService: libraryService, accountService: accountService)
 
       let coreServices = CoreServices(
         accountService: accountService,
@@ -159,7 +158,7 @@ final class AppServices: BPLogger {
         preferencesService: preferencesService,
         syncService: syncService,
         syncQueueService: syncQueueService,
-        externalProgressService: externalProgressService,
+        mediaServerChapterService: mediaServerChapterService,
         watchService: watchService
       )
 

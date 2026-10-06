@@ -45,17 +45,10 @@ public struct AudiobookShelfLibraryItem: IntegrationLibraryItemProtocol, Codable
   public let coverPath: String?
   public let coverItemId: String?
 
-  // Progress (if included)
-  public let progress: Double?
-  public let currentTime: TimeInterval?
-  public let isFinished: Bool?
   /// The server's chapter list, empty unless this item came from an EXPANDED payload.
   /// A streamed item has no other source: nothing opens the file to read embedded ones,
   /// and ABS chapters can be server-side edits that aren't in the file at all.
   public let chapters: [ChapterMetadata]
-  /// From the progress payload's lastUpdate (ms epoch) — drives the resume-playback
-  /// prompt's date comparison, same as Jellyfin's lastPlayedDate
-  public let lastPlayedDate: Date?
   /// The item's audio files, empty unless this item came from an EXPANDED payload. An item with
   /// several imports as a volume of them.
   public let streamFiles: [ExternalStreamFile]
@@ -80,10 +73,6 @@ public struct AudiobookShelfLibraryItem: IntegrationLibraryItemProtocol, Codable
     updatedAt: Int64? = nil,
     coverPath: String? = nil,
     coverItemId: String? = nil,
-    progress: Double? = nil,
-    currentTime: TimeInterval? = nil,
-    isFinished: Bool? = nil,
-    lastPlayedDate: Date? = nil,
     chapters: [ChapterMetadata] = [],
     streamFiles: [ExternalStreamFile] = [],
     browseCategory: AudiobookShelfBrowseCategory? = nil,
@@ -104,10 +93,6 @@ public struct AudiobookShelfLibraryItem: IntegrationLibraryItemProtocol, Codable
     self.updatedAt = updatedAt
     self.coverPath = coverPath
     self.coverItemId = coverItemId
-    self.progress = progress
-    self.currentTime = currentTime
-    self.isFinished = isFinished
-    self.lastPlayedDate = lastPlayedDate
     self.chapters = chapters
     self.streamFiles = streamFiles
     self.browseCategory = browseCategory
@@ -234,9 +219,6 @@ extension AudiobookShelfLibraryItem {
       fileExtension: apiItem.media.audioFiles?.first?.normalizedExtension,
       updatedAt: apiItem.updatedAt,
       coverPath: apiItem.media.coverPath,
-      progress: apiItem.userMediaProgress?.progress,
-      currentTime: apiItem.userMediaProgress?.currentTime,
-      isFinished: apiItem.userMediaProgress?.isFinished,
       chapters: Self.chapterMetadata(from: apiItem.media.chapters, duration: apiItem.media.duration),
       streamFiles: AudiobookShelfAPIItem.Media.Track.streamFiles(itemId: apiItem.id, tracks: apiItem.media.tracks)
     )
@@ -289,19 +271,6 @@ extension AudiobookShelfLibraryItem {
       )
     }
   }
-  
-  public init(progressItem: AudiobookShelfAPIItem.UserMediaProgress) {
-    self.init(
-      id: "",
-      title: "",
-      kind: Kind.audiobook,
-      libraryId: "",
-      progress: progressItem.progress,
-      currentTime: progressItem.currentTime,
-      isFinished: progressItem.isFinished,
-      lastPlayedDate: progressItem.lastUpdate.map { Date(timeIntervalSince1970: $0 / 1000) }
-    )
-  }
 }
 
 // MARK: - API Response Models
@@ -314,7 +283,6 @@ public struct AudiobookShelfAPIItem: Codable {
   public let mediaType: String?
   public let media: Media
   public let size: Int64?
-  public let userMediaProgress: UserMediaProgress?
   public let relPath: String?
   
   public struct Media: Codable {
@@ -452,14 +420,6 @@ public struct AudiobookShelfAPIItem: Codable {
       }
     }
   }
-
-  public struct UserMediaProgress: Codable {
-    public let progress: Double
-    public let currentTime: TimeInterval
-    public let isFinished: Bool
-    /// Milliseconds since epoch of the last progress update
-    public let lastUpdate: Double?
-  }
 }
 
 public struct AudiobookShelfItemsResponse: Codable {
@@ -540,12 +500,11 @@ extension AudiobookShelfLibraryItem {
       title: title,
       details: authorName ?? "voiceover_unknown_author".localized,
       speed: 1,
-      currentTime: Double(currentTime ?? 0),
+      // A streamed book starts at the beginning, as on Android: the server's position isn't read
+      currentTime: 0,
       duration: duration,
-      /// ABS reports progress as a 0-1 fraction; the duration gate the old expression
-      /// carried is now the pipeline's precondition.
-      percentCompleted: max(progress ?? 0, 0) * 100,
-      isFinished: isFinished ?? false,
+      percentCompleted: 0,
+      isFinished: false,
       relativePath: "",
       remoteURL: nil,
       artworkURL: connectionService.createItemImageURL(self, size: artworkSize),

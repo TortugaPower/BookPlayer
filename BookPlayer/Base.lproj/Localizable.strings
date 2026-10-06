@@ -536,10 +536,6 @@
 "series_title" = "Series";
 "task_uploading_file_label" = "Uploading file";
 "task_updating_progress_label" = "Updating progress for %@";
-"yes_button" = "Yes";
-"ignore_button" = "Ignore";
-"resume_playback_alert_title" = "Resume Playback";
-"resume_playback_alert_message" = "There is another source with current play time %@. Play from this time?";
 "queue_library_sync_title" = "Library Sync";
 "queue_file_uploads_title" = "File Uploads";
 "close_title" = "Close";

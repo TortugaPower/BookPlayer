@@ -15,7 +15,7 @@ import XCTest
 /// on different contexts and must never overlap), for the same path, and regardless of how
 /// the cloud step ended — the servers are independent hosts.
 final class ListSyncRefreshServiceTests: XCTestCase {
-  /// Shared by the cloud mock and the pull stub so a test can read the sequence back.
+  /// Shared by the cloud mock and the chapters stub so a test can read the sequence back.
   private final class Recorder: @unchecked Sendable {
     private let lock = NSLock()
     private var _events: [String] = []
@@ -33,15 +33,15 @@ final class ListSyncRefreshServiceTests: XCTestCase {
     }
   }
 
-  private final class ProgressRefreshStub: ExternalProgressRefreshing {
+  private final class ChapterRefreshStub: MediaServerChapterRefreshing {
     let recorder: Recorder
 
     init(recorder: Recorder) {
       self.recorder = recorder
     }
 
-    func refreshItems(at relativePath: String?) async {
-      recorder.record("pull:\(relativePath ?? "root")")
+    func refreshChapters(at relativePath: String?) async {
+      recorder.record("chapters:\(relativePath ?? "root")")
     }
   }
 
@@ -66,24 +66,24 @@ final class ListSyncRefreshServiceTests: XCTestCase {
       // Never reached: the loader only runs on the two last-book errors, which no test throws.
       playerLoaderService: PlayerLoaderService(),
       preferencesService: preferencesService,
-      externalProgressService: ProgressRefreshStub(recorder: recorder)
+      chapterRefreshService: ChapterRefreshStub(recorder: recorder)
     )
   }
 
-  func testPullsTheLevelAfterItsCloudSync() async throws {
+  func testRefreshesTheLevelsChaptersAfterItsCloudSync() async throws {
     try await sut.syncList(at: "Author/Series")
 
-    XCTAssertEqual(recorder.events, ["cloud:Author/Series", "pull:Author/Series"])
+    XCTAssertEqual(recorder.events, ["cloud:Author/Series", "chapters:Author/Series"])
     XCTAssertEqual(preferencesService.pullFromServerForceCallsCount, 1)
   }
 
   /// A cloud failure (network, server) is logged and swallowed; the media servers still get asked.
-  func testPullStillRunsWhenTheCloudSyncFails() async throws {
+  func testChaptersStillRefreshWhenTheCloudSyncFails() async throws {
     syncService.syncListContentsAtThrowableError = URLError(.notConnectedToInternet)
 
     try await sut.syncList(at: "Author/Series")
 
-    XCTAssertEqual(recorder.events, ["pull:Author/Series"], "the closure never ran; the pull did")
+    XCTAssertEqual(recorder.events, ["chapters:Author/Series"], "the closure never ran; the chapters refresh did")
     XCTAssertEqual(preferencesService.pullFromServerForceCallsCount, 1)
   }
 
@@ -94,7 +94,7 @@ final class ListSyncRefreshServiceTests: XCTestCase {
 
     try await sut.syncList(at: "Author/Series")
 
-    XCTAssertEqual(recorder.events, ["pull:Author/Series"])
+    XCTAssertEqual(recorder.events, ["chapters:Author/Series"])
     XCTAssertEqual(preferencesService.pullFromServerForceCallsCount, 1)
   }
 

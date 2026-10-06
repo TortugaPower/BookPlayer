@@ -622,7 +622,7 @@ extension AccountServiceProtocol {
   /// Whether media-server streaming is available: signed in, AND has paid at some point —
   /// broader than `hasSyncEnabled()` on the second half, on purpose. Streaming reaches the
   /// user's own Jellyfin/AudiobookShelf and never our servers, so it survives a subscription
-  /// ending, while sync, S3 and the progress pull stay behind an active lite/pro subscription.
+  /// ending, while sync, S3 and the chapter refresh stay behind an active lite/pro subscription.
   ///
   /// `getAccountId()`, not `hasAccount()`: logout blanks the account's fields but leaves the
   /// row, so `hasAccount()` stays true afterwards — `AccountServiceTests` asserts it is still

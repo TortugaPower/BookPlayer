@@ -711,26 +711,6 @@ public class AudiobookShelfConnectionService: BPLogger {
       .appendingPathComponent("download")
   }
 
-  /// Fetches the user's saved progress for one library item (`GET /api/me/progress/{id}`).
-  public func fetchItem(for id: String) async throws -> AudiobookShelfLibraryItem? {
-    guard let connection else {
-      throw URLError(.userAuthenticationRequired)
-    }
-
-    let url = connection.url
-      .appendingPathComponent("api")
-      .appendingPathComponent("me")
-      .appendingPathComponent("progress")
-      .appendingPathComponent(id)
-
-    var request = URLRequest(url: url)
-    applyAuthenticatedHeaders(to: &request, connection: connection)
-    let (data, response) = try await httpClient.data(for: request)
-    _ = try validateAuthenticatedResponse(response)
-    let progress = try JSONDecoder().decode(AudiobookShelfAPIItem.UserMediaProgress.self, from: data)
-    return AudiobookShelfLibraryItem(progressItem: progress)
-  }
-
   /// Pushes playback progress for one library item (`PATCH /api/me/progress/{id}`), mirroring
   /// what the Android app's external-update task sends. `lastUpdate` is when this position was
   /// reached, so ABS records our play time rather than when the push landed; ABS honors it when

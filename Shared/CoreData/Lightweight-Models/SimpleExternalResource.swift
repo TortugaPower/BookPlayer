@@ -26,10 +26,6 @@ public struct SimpleExternalResource: Identifiable, Equatable, Hashable {
   /// The item's audio files when it has several, for a virtual import: it's imported as a volume
   /// of them. Import-only, like `chapters`.
   public var files: [ExternalStreamFile] = []
-  /// Whether this item's book still has no chapters, so a refresh knows to ask its server
-  /// for them. Set only by `findMediaServerResources(at:)`; `false` everywhere else, which
-  /// is the safe default — it costs a book its chapters, never a wrong write.
-  public var needsChapters = false
 
   public init(
     id: Int = 0,
@@ -42,8 +38,7 @@ public struct SimpleExternalResource: Identifiable, Equatable, Hashable {
     libraryItemName: String? = nil,
     libraryItem: SimpleLibraryItem? = nil,
     chapters: [ChapterMetadata] = [],
-    files: [ExternalStreamFile] = [],
-    needsChapters: Bool = false
+    files: [ExternalStreamFile] = []
   ) {
     self.id = id
     self.providerName = providerName
@@ -56,7 +51,6 @@ public struct SimpleExternalResource: Identifiable, Equatable, Hashable {
     self.libraryItem = libraryItem
     self.chapters = chapters
     self.files = files
-    self.needsChapters = needsChapters
   }
 }
 

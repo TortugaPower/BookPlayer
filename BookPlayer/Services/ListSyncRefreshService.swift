@@ -16,28 +16,28 @@ enum BPSyncRefreshError: Error {
 }
 
 /// Refreshes one library level from every remote it has: the BookPlayer cloud (contents and
-/// last-played book), the user's synced preferences, and the positions the level's media
-/// servers report. Every caller — list appear, pull-to-refresh, sync activation, CarPlay —
+/// last-played book), the user's synced preferences, and the chapters the level's media
+/// servers report for streamed books that have none. Every caller — list appear, pull-to-refresh, sync activation, CarPlay —
 /// goes through `syncList(at:)`, so no entry point can forget a step.
 final class ListSyncRefreshService: BPLogger, ObservableObject {
   let playerManager: PlayerManagerProtocol
   let syncService: SyncServiceProtocol
   let playerLoaderService: PlayerLoaderService
   let preferencesService: PreferencesSyncServiceProtocol
-  let externalProgressService: ExternalProgressRefreshing
+  let chapterRefreshService: MediaServerChapterRefreshing
 
   init(
     playerManager: PlayerManagerProtocol,
     syncService: SyncServiceProtocol,
     playerLoaderService: PlayerLoaderService,
     preferencesService: PreferencesSyncServiceProtocol,
-    externalProgressService: ExternalProgressRefreshing
+    chapterRefreshService: MediaServerChapterRefreshing
   ) {
     self.playerManager = playerManager
     self.syncService = syncService
     self.playerLoaderService = playerLoaderService
     self.preferencesService = preferencesService
-    self.externalProgressService = externalProgressService
+    self.chapterRefreshService = chapterRefreshService
   }
 
   func syncList(at relativePath: String?) async throws {
@@ -69,10 +69,10 @@ final class ListSyncRefreshService: BPLogger, ObservableObject {
     }
 
     // Strictly AFTER the cloud step, never alongside it: the sync wrote this level on the
-    // background context and the progress ingest writes on the view context, and with no
+    // background context and the chapters ingest writes on the view context, and with no
     // merge policy set the two must not overlap. Runs whatever the cloud outcome was — the
-    // media servers are separate hosts, and the pull is gated on the entitlement inside.
-    await externalProgressService.refreshItems(at: relativePath)
+    // media servers are separate hosts, and the refresh is gated on the entitlement inside.
+    await chapterRefreshService.refreshChapters(at: relativePath)
 
     _ = await prefPull
 

@@ -189,11 +189,12 @@ public protocol LibraryServiceProtocol: AnyObject {
   /// Found through the item: a server's book can be in the library more than once.
   func findResources(for uuid: String) -> [SimpleExternalResource]?
 
-  /// Media-server links of every item at one library level (root when nil), the way the list
-  /// refresh needs them: one background fetch of the small resource rows, filtered to media
-  /// servers in the predicate, with no item snapshots built. Direct children only, like the
-  /// list itself — a book inside a subfolder belongs to that folder's level.
-  func findMediaServerResources(at relativePath: String?) async -> [SimpleExternalResource]
+  /// Media-server links of the books at one library level (root when nil) that still have no
+  /// chapters, the way the chapter refresh needs them: one background fetch of the small
+  /// resource rows, filtered to media servers in the predicate, with no item snapshots built.
+  /// Direct children only, like the list itself — a book inside a subfolder belongs to that
+  /// folder's level.
+  func findChapterlessMediaServerResources(at relativePath: String?) async -> [SimpleExternalResource]
 
   // fromResources (not from:): overloading insertItems(from: [URL]) collides in the
   // Sourcery-generated mock property names.
@@ -204,10 +205,11 @@ public protocol LibraryServiceProtocol: AnyObject {
     inside parentPath: String?
   ) async -> [SimpleLibraryItem]
   
-  /// Fold positions reported by a provider's servers into the local rows.
-  @MainActor func handleSyncFromExternalResource(
+  /// Store the chapters a provider's servers reported for the books linked to them, keyed by
+  /// providerId, on the books that still have none.
+  @MainActor func storeMediaServerChapters(
     providerName: String,
-    snapshotsByProviderId: [String: ExternalItemSnapshot]
+    chaptersByProviderId: [String: [ChapterMetadata]]
   )
 }
 
@@ -1461,8 +1463,8 @@ extension LibraryService {
       // without one cannot become a book row; skip it instead of crashing.
       guard let simpleItem = resource.libraryItem else { continue }
       // A book already in the library gets another copy, as a file imported again does (a user
-      // can keep one in several folders). Its own row, link and name; the copies share the
-      // server's progress, each pushing to and pulled from the same server item.
+      // can keep one in several folders). Its own row, link and name; each copy pushes its
+      // progress to the same server item.
       // An item made of several files is a volume of them; Jellyfin serves one file per item
       let libraryItem: LibraryItem = resource.files.count > 1
         ? createExternalVolume(simpleItem: simpleItem, externalResource: resource, inside: parentPath)
@@ -2048,7 +2050,7 @@ extension LibraryService {
     attachExternalResource(externalResource, to: book, context: context)
 
     // The server's chapters, if the hydration carried any. Written here rather than left
-    // to the progress pull so the FIRST play already has chapter navigation — nothing
+    // to the chapter refresh so the FIRST play already has chapter navigation — nothing
     // opens the file later to recover them.
     storeChaptersIfEmpty(externalResource.chapters, for: book, context: context)
 
@@ -3211,7 +3213,7 @@ extension LibraryService {
     return snapshots
   }
 
-  public func findMediaServerResources(at relativePath: String?) async -> [SimpleExternalResource] {
+  public func findChapterlessMediaServerResources(at relativePath: String?) async -> [SimpleExternalResource] {
     // The background context is the one the cloud sync writes a level on, so the links it just
     // reconciled are visible here directly, and the main thread does nothing for this query.
     let context = dataManager.getBackgroundContext()
@@ -3244,13 +3246,11 @@ extension LibraryService {
         context: context
       )
 
-      return resources.map { resource in
-        var simple = SimpleExternalResource(from: resource, ignoreLibraryItem: true)
-        if let relativePath = resource.libraryItem?.relativePath {
-          simple.needsChapters = chapterless.contains(relativePath)
-        }
-        return simple
-      }
+      // Chapters are written once and never replaced, so in the steady state this is empty and
+      // the refresh asks nothing. A book whose server has none stays in it: one small request
+      return resources
+        .filter { resource in resource.libraryItem?.relativePath.map(chapterless.contains) ?? false }
+        .map { SimpleExternalResource(from: $0, ignoreLibraryItem: true) }
     }
   }
 
@@ -3279,14 +3279,13 @@ extension LibraryService {
     return Set(results.compactMap { $0[#keyPath(Book.relativePath)] as? String })
   }
 
-  /// Provider-neutral on purpose: this only ever used the position, the date and the finished
-  /// flag, and typing it to `JellyfinLibraryItem` is what kept AudiobookShelf items from being
-  /// refreshed at all — the caller could not even express an ABS batch.
-  @MainActor public func handleSyncFromExternalResource(
+  /// Every row linked to a reported item gets its chapters (copies of a book share a server
+  /// item). Only ever adds: an empty list isn't a statement that the server has none.
+  @MainActor public func storeMediaServerChapters(
     providerName: String,
-    snapshotsByProviderId: [String: ExternalItemSnapshot]
+    chaptersByProviderId: [String: [ChapterMetadata]]
   ) {
-    let remoteKeys = Array(snapshotsByProviderId.keys)
+    let remoteKeys = Array(chaptersByProviderId.keys)
 
     let fetch: NSFetchRequest<ExternalResource> = ExternalResource.fetchRequest()
     fetch.predicate = NSPredicate(
@@ -3300,31 +3299,12 @@ extension LibraryService {
       let localResources = try context.fetch(fetch)
       
       for localResource in localResources {
-        // We already know this exists because of our predicate!
-        guard let localItem = localResource.libraryItem,
-              let snapshot = snapshotsByProviderId[localResource.providerId] else {
-          continue
-        }
+        guard
+          let book = localResource.libraryItem as? Book,
+          let chapters = chaptersByProviderId[localResource.providerId]
+        else { continue }
 
-        // Chapters ride the same response and land in the same save as the progress.
-        if let book = localItem as? Book {
-          self.storeChaptersIfEmpty(snapshot.chapters, for: book, context: context)
-        }
-
-        let remoteItem = snapshot.progress
-        let localDate = localItem.lastPlayDate ?? .distantPast
-        let remoteDate = remoteItem.lastPlayedDate ?? .distantPast
-        
-        if remoteDate > localDate {
-          localItem.currentTime = remoteItem.currentTime
-          localItem.isFinished = remoteItem.isFinished ?? localItem.isFinished
-          localItem.lastPlayDate = remoteDate
-          // The library row's progress bar renders percentCompleted, not currentTime —
-          // without this the playhead moves but the row keeps the stale percentage
-          if localItem.duration > 0 {
-            localItem.percentCompleted = min(localItem.currentTime / localItem.duration, 1.0) * 100
-          }
-        }
+        self.storeChaptersIfEmpty(chapters, for: book, context: context)
       }
       
       dataManager.saveSyncContext(context)

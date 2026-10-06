@@ -143,7 +143,7 @@ class CarPlayManager: NSObject {
           syncService: coreServices.syncService,
           playerLoaderService: coreServices.playerLoaderService,
           preferencesService: coreServices.preferencesService,
-          externalProgressService: coreServices.externalProgressService
+          chapterRefreshService: coreServices.mediaServerChapterService
         )
         self?.listSyncRefreshService = listRefreshService
 
@@ -763,39 +763,6 @@ extension CarPlayManager {
     guard let interfaceController else { return false }
 
     return interfaceController.presentedTemplate == nil
-  }
-}
-
-extension CarPlayManager: ResumeOfferPresenting {
-  /// The car's half of the resume offer. PromptSurfaceArbiter decides that the car — and only
-  /// the car — asks; this only presents. No shared flag to clear: the phone never raised one
-  /// for an offer routed here.
-  ///
-  /// Returns false when the car cannot present, so the arbiter hands the prompt back to the
-  /// phone rather than dropping it. CarPlay allows ONE presented template at a time, so an
-  /// alert already on screen would make this one fail silently — and `presentTemplate`
-  /// reports that only through a completion handler we cannot answer synchronously.
-  func presentResumeOffer(at remoteTime: TimeInterval) -> Bool {
-    guard canPresentTemplate else { return false }
-
-    showAlert(
-      BPAlertContent(
-        title: "resume_playback_alert_title".localized,
-        message: String(
-          format: "resume_playback_alert_message".localized,
-          TimeParser.formatTime(remoteTime)
-        ),
-        style: .alert,
-        actionItems: [
-          BPActionItem(title: "yes_button".localized) {
-            AppServices.shared.coreServices?.playerManager.jumpTo(remoteTime)
-          },
-          BPActionItem(title: "ignore_button".localized) {},
-        ]
-      )
-    )
-
-    return true
   }
 }
 

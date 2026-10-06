@@ -706,17 +706,6 @@ public class JellyfinConnectionService: BPLogger {
     )
   }
 
-  /// Fetches one library item by id (used to refresh a synced external resource's metadata).
-  public func fetchItem(for id: String) async throws -> JellyfinLibraryItem? {
-    // Raw data, like fetchItemDetails: a person the SDK's `PersonKind` doesn't know fails its decode (#1602)
-    let response = try await send { try await $0.data(for: Paths.getItem(itemID: id)) }
-    try Task.checkCancellation()
-
-    let data = response.value
-    let item = try await Task.detached { try Self.decodeLeniently(BaseItemDto.self, from: data) }.value
-    return JellyfinLibraryItem(apiItem: item)
-  }
-
   /// Pushes playback progress for one item (`updateItemUserData`), mirroring what the Android
   /// app's external-update task sends. Routed through ``send(_:)`` so a mid-session 401/403
   /// surfaces as the typed re-auth signal instead of a generic error.
@@ -736,23 +725,18 @@ public class JellyfinConnectionService: BPLogger {
     _ = try await send(Paths.updateItemUserData(itemID: itemId, userDataDto))
   }
 
-  /// Batch-fetches the Jellyfin items backing the given synced external resources, keyed by
-  /// provider item id — one round-trip instead of N when refreshing a list.
-  public func updateItemsFromJellyfin(
-    _ externalResources: [SimpleExternalResource],
-    includingChapters: Bool
+  /// Batch-fetches the Jellyfin items backing the given synced external resources with their
+  /// chapters, keyed by provider item id — one round-trip instead of N when refreshing a list.
+  public func fetchItemsWithChapters(
+    _ externalResources: [SimpleExternalResource]
   ) async throws -> [String: JellyfinLibraryItem] {
     guard !externalResources.isEmpty, let myId = connection?.userID else { return [:] }
 
     var parameters = Paths.GetItemsParameters(userID: myId, ids: externalResources.map(\.providerId))
-    /// Both fields are opt-in and both are needed together, but ONLY for the items that still
-    /// have no chapters: `Chapters` is the list itself, and `MediaSources` carries the runtime
-    /// that bounds the last chapter for an item Jellyfin hasn't probed at the item level —
-    /// without a runtime the whole list is dropped. A progress-only refresh asks for neither,
-    /// which is the payload this call carried before chapters existed.
-    if includingChapters {
-      parameters.fields = [.chapters, .mediaSources]
-    }
+    /// Both fields are opt-in and both are needed: `Chapters` is the list itself, and
+    /// `MediaSources` carries the runtime that bounds the last chapter for an item Jellyfin
+    /// hasn't probed at the item level — without a runtime the whole list is dropped.
+    parameters.fields = [.chapters, .mediaSources]
 
     let response = try await send(Paths.getItems(parameters: parameters))
 

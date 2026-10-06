@@ -1139,24 +1139,24 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
             return findResourcesForReturnValue
         }
     }
-    //MARK: - findMediaServerResources
+    //MARK: - findChapterlessMediaServerResources
 
-    var findMediaServerResourcesAtCallsCount = 0
-    var findMediaServerResourcesAtCalled: Bool {
-        return findMediaServerResourcesAtCallsCount > 0
+    var findChapterlessMediaServerResourcesAtCallsCount = 0
+    var findChapterlessMediaServerResourcesAtCalled: Bool {
+        return findChapterlessMediaServerResourcesAtCallsCount > 0
     }
-    var findMediaServerResourcesAtReceivedRelativePath: String?
-    var findMediaServerResourcesAtReceivedInvocations: [String?] = []
-    var findMediaServerResourcesAtReturnValue: [SimpleExternalResource]!
-    var findMediaServerResourcesAtClosure: ((String?) async -> [SimpleExternalResource])?
-    func findMediaServerResources(at relativePath: String?) async -> [SimpleExternalResource] {
-        findMediaServerResourcesAtCallsCount += 1
-        findMediaServerResourcesAtReceivedRelativePath = relativePath
-        findMediaServerResourcesAtReceivedInvocations.append(relativePath)
-        if let findMediaServerResourcesAtClosure = findMediaServerResourcesAtClosure {
-            return await findMediaServerResourcesAtClosure(relativePath)
+    var findChapterlessMediaServerResourcesAtReceivedRelativePath: String?
+    var findChapterlessMediaServerResourcesAtReceivedInvocations: [String?] = []
+    var findChapterlessMediaServerResourcesAtReturnValue: [SimpleExternalResource]!
+    var findChapterlessMediaServerResourcesAtClosure: ((String?) async -> [SimpleExternalResource])?
+    func findChapterlessMediaServerResources(at relativePath: String?) async -> [SimpleExternalResource] {
+        findChapterlessMediaServerResourcesAtCallsCount += 1
+        findChapterlessMediaServerResourcesAtReceivedRelativePath = relativePath
+        findChapterlessMediaServerResourcesAtReceivedInvocations.append(relativePath)
+        if let findChapterlessMediaServerResourcesAtClosure = findChapterlessMediaServerResourcesAtClosure {
+            return await findChapterlessMediaServerResourcesAtClosure(relativePath)
         } else {
-            return findMediaServerResourcesAtReturnValue
+            return findChapterlessMediaServerResourcesAtReturnValue
         }
     }
     //MARK: - insertItems
@@ -1180,21 +1180,21 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
             return insertItemsFromResourcesInsideReturnValue
         }
     }
-    //MARK: - handleSyncFromExternalResource
+    //MARK: - storeMediaServerChapters
 
-    var handleSyncFromExternalResourceProviderNameSnapshotsByProviderIdCallsCount = 0
-    var handleSyncFromExternalResourceProviderNameSnapshotsByProviderIdCalled: Bool {
-        return handleSyncFromExternalResourceProviderNameSnapshotsByProviderIdCallsCount > 0
+    var storeMediaServerChaptersProviderNameChaptersByProviderIdCallsCount = 0
+    var storeMediaServerChaptersProviderNameChaptersByProviderIdCalled: Bool {
+        return storeMediaServerChaptersProviderNameChaptersByProviderIdCallsCount > 0
     }
-    var handleSyncFromExternalResourceProviderNameSnapshotsByProviderIdReceivedArguments: (providerName: String, snapshotsByProviderId: [String: ExternalItemSnapshot])?
-    var handleSyncFromExternalResourceProviderNameSnapshotsByProviderIdReceivedInvocations: [(providerName: String, snapshotsByProviderId: [String: ExternalItemSnapshot])] = []
-    var handleSyncFromExternalResourceProviderNameSnapshotsByProviderIdClosure: ((String, [String: ExternalItemSnapshot]) -> Void)?
+    var storeMediaServerChaptersProviderNameChaptersByProviderIdReceivedArguments: (providerName: String, chaptersByProviderId: [String: [ChapterMetadata]])?
+    var storeMediaServerChaptersProviderNameChaptersByProviderIdReceivedInvocations: [(providerName: String, chaptersByProviderId: [String: [ChapterMetadata]])] = []
+    var storeMediaServerChaptersProviderNameChaptersByProviderIdClosure: ((String, [String: [ChapterMetadata]]) -> Void)?
     @MainActor
-    func handleSyncFromExternalResource(providerName: String, snapshotsByProviderId: [String: ExternalItemSnapshot]) {
-        handleSyncFromExternalResourceProviderNameSnapshotsByProviderIdCallsCount += 1
-        handleSyncFromExternalResourceProviderNameSnapshotsByProviderIdReceivedArguments = (providerName: providerName, snapshotsByProviderId: snapshotsByProviderId)
-        handleSyncFromExternalResourceProviderNameSnapshotsByProviderIdReceivedInvocations.append((providerName: providerName, snapshotsByProviderId: snapshotsByProviderId))
-        handleSyncFromExternalResourceProviderNameSnapshotsByProviderIdClosure?(providerName, snapshotsByProviderId)
+    func storeMediaServerChapters(providerName: String, chaptersByProviderId: [String: [ChapterMetadata]]) {
+        storeMediaServerChaptersProviderNameChaptersByProviderIdCallsCount += 1
+        storeMediaServerChaptersProviderNameChaptersByProviderIdReceivedArguments = (providerName: providerName, chaptersByProviderId: chaptersByProviderId)
+        storeMediaServerChaptersProviderNameChaptersByProviderIdReceivedInvocations.append((providerName: providerName, chaptersByProviderId: chaptersByProviderId))
+        storeMediaServerChaptersProviderNameChaptersByProviderIdClosure?(providerName, chaptersByProviderId)
     }
 }
 class PlaybackServiceProtocolMock: PlaybackServiceProtocol {

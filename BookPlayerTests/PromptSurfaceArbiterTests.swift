@@ -11,107 +11,15 @@ import Foundation
 @testable import BookPlayerKit
 import XCTest
 
-// MARK: - Resume offer routing
+// MARK: - Playback failure routing
 
-/// One surface asks, never two: the arbiter is the single subscriber to the service.
+/// One surface tells the user, never two.
 @MainActor
-final class PromptSurfaceArbiterTests: XCTestCase {
-  private final class PresenterSpy: ResumeOfferPresenting, PlaybackFailurePresenting {
-    var presentedTimes: [TimeInterval] = []
+final class PlaybackFailureRoutingTests: XCTestCase {
+  private final class PresenterSpy: PlaybackFailurePresenting {
     var presentedFailures: [PlaybackFailure] = []
     /// False stands in for a registered car whose interface controller has gone away.
     var canPresent = true
-
-    func presentResumeOffer(at remoteTime: TimeInterval) -> Bool {
-      guard canPresent else { return false }
-      presentedTimes.append(remoteTime)
-      return true
-    }
-
-    func presentPlaybackFailure(_ failure: PlaybackFailure) -> Bool {
-      guard canPresent else { return false }
-      presentedFailures.append(failure)
-      return true
-    }
-  }
-
-  private let position = ExternalPlaybackProgress(currentTime: 480, lastPlayedDate: Date())
-
-  func testWithoutCarPlayThePhoneGetsTheOffer() {
-    let playerState = PlayerState()
-    let sut = PromptSurfaceArbiter(playerState: playerState, isAppActive: { false })
-
-    sut.route(position)
-
-    XCTAssertTrue(playerState.showResumePopup)
-    XCTAssertEqual(playerState.remotePlayTime, 480)
-  }
-
-  /// The driving case: phone in a pocket, car connected. The car asks and the phone's flag is
-  /// never raised, so unlocking the phone later cannot ask the same question again.
-  func testCarPlayGetsTheOfferWhenTheAppIsInactive() {
-    let playerState = PlayerState()
-    let car = PresenterSpy()
-    let sut = PromptSurfaceArbiter(playerState: playerState, isAppActive: { false })
-    sut.carPlayPresenter = car
-
-    sut.route(position)
-
-    XCTAssertEqual(car.presentedTimes, [480])
-    XCTAssertFalse(playerState.showResumePopup, "an offer routed to the car leaves no phone flag behind")
-    XCTAssertNil(playerState.remotePlayTime)
-  }
-
-  /// Phone in hand with the car connected: the SwiftUI alert is the better surface, and the
-  /// car must stay quiet rather than ask in parallel.
-  func testThePhoneWinsWhenTheAppIsActiveEvenWithCarPlayConnected() {
-    let playerState = PlayerState()
-    let car = PresenterSpy()
-    let sut = PromptSurfaceArbiter(playerState: playerState, isAppActive: { true })
-    sut.carPlayPresenter = car
-
-    sut.route(position)
-
-    XCTAssertTrue(car.presentedTimes.isEmpty)
-    XCTAssertTrue(playerState.showResumePopup)
-  }
-
-  func testAnOfferAlreadyShowingIsNotClobbered() {
-    let playerState = PlayerState()
-    playerState.showResumePopup = true
-    playerState.remotePlayTime = 120
-    let sut = PromptSurfaceArbiter(playerState: playerState, isAppActive: { true })
-
-    sut.route(position)
-
-    XCTAssertEqual(playerState.remotePlayTime, 120, "the prompt the user is looking at keeps its position")
-  }
-
-  /// Disconnecting the car must hand the next offer back to the phone.
-  func testAReleasedPresenterFallsBackToThePhone() {
-    let playerState = PlayerState()
-    let sut = PromptSurfaceArbiter(playerState: playerState, isAppActive: { false })
-    var car: PresenterSpy? = PresenterSpy()
-    sut.carPlayPresenter = car
-    car = nil
-
-    sut.route(position)
-
-    XCTAssertTrue(playerState.showResumePopup, "a weak presenter that went away is the same as none")
-  }
-}
-
-// MARK: - Playback failure routing
-
-/// Same surface rule as the resume offer, deliberately: a second copy of "which surface may
-/// speak" is the drift the arbiter exists to prevent.
-@MainActor
-final class PlaybackFailureRoutingTests: XCTestCase {
-  private final class PresenterSpy: ResumeOfferPresenting, PlaybackFailurePresenting {
-    var presentedFailures: [PlaybackFailure] = []
-    var canPresent = true
-
-    func presentResumeOffer(at remoteTime: TimeInterval) -> Bool { canPresent }
 
     func presentPlaybackFailure(_ failure: PlaybackFailure) -> Bool {
       guard canPresent else { return false }
@@ -191,8 +99,8 @@ final class PlaybackFailureRoutingTests: XCTestCase {
     XCTAssertEqual(playerState.pendingFailure, failure)
   }
 
-  /// Unlike the resume offer, a newer failure replaces an older one: the second attempt is
-  /// what the user just did, so its error is the relevant one.
+  /// A newer failure replaces an older one: the second attempt is what the user just did, so
+  /// its error is the relevant one.
   func testANewerFailureReplacesThePendingOne() {
     let playerState = PlayerState()
     let sut = PromptSurfaceArbiter(playerState: playerState, isAppActive: { true })
@@ -286,46 +194,12 @@ final class PlaybackFailureCopyTests: XCTestCase {
   }
 }
 
-// MARK: - Which alert gets the one slot
+// MARK: - Which copy presents
 
-/// SwiftUI presents one alert per view, and both prompts hang off the same two attachment
-/// points — so the bindings, not luck, have to decide which one appears.
+/// The failure alert hangs off two attachment points (MainView's base and the player's cover),
+/// so the binding, not luck, has to decide which copy appears.
 @MainActor
 final class PromptBindingPrecedenceTests: XCTestCase {
-  func testAPendingFailureSuppressesTheResumeOffer() {
-    let playerState = PlayerState()
-    playerState.showResumePopup = true
-    playerState.pendingFailure = PlaybackFailure(
-      reason: .streamUnavailable,
-      phoneTitle: "Error 1234",
-      phoneMessage: nil,
-      canOfferMediaServers: false
-    )
-
-    XCTAssertFalse(
-      playerState.showResumePopupBinding(whenPlayerVisible: false).wrappedValue,
-      "two live bindings would drop one alert with its flag still set"
-    )
-    XCTAssertTrue(playerState.pendingFailureBinding(whenPlayerVisible: false).wrappedValue)
-  }
-
-  /// The offer is deferred, not discarded.
-  func testTheResumeOfferReturnsOnceTheFailureIsDismissed() {
-    let playerState = PlayerState()
-    playerState.showResumePopup = true
-    playerState.pendingFailure = PlaybackFailure(
-      reason: .other,
-      phoneTitle: "t",
-      phoneMessage: nil,
-      canOfferMediaServers: false
-    )
-
-    playerState.pendingFailureBinding(whenPlayerVisible: false).wrappedValue = false
-
-    XCTAssertNil(playerState.pendingFailure)
-    XCTAssertTrue(playerState.showResumePopupBinding(whenPlayerVisible: false).wrappedValue)
-  }
-
   /// Only the copy in the live presentation context may present.
   func testOnlyOneContextCopyIsEverEligible() {
     let playerState = PlayerState()
@@ -345,10 +219,8 @@ final class PromptBindingPrecedenceTests: XCTestCase {
     XCTAssertTrue(playerState.pendingFailureBinding(whenPlayerVisible: true).wrappedValue)
   }
 
-  func testClearPromptsRetiresBoth() {
+  func testClearPromptsRetiresThePendingFailure() {
     let playerState = PlayerState()
-    playerState.showResumePopup = true
-    playerState.remotePlayTime = 480
     playerState.pendingFailure = PlaybackFailure(
       reason: .other,
       phoneTitle: "t",
@@ -358,9 +230,6 @@ final class PromptBindingPrecedenceTests: XCTestCase {
 
     playerState.clearPrompts()
 
-    XCTAssertFalse(playerState.showResumePopup)
-    XCTAssertNil(playerState.remotePlayTime)
     XCTAssertNil(playerState.pendingFailure)
   }
 }
-

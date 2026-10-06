@@ -2321,127 +2321,52 @@ class LibraryServiceExternalResourceTests: XCTestCase {
     XCTAssertEqual(sut.getChapters(from: book.relativePath)?.count, 2)
   }
 
-  func testFindMediaServerResourcesMarksOnlyTheBooksWithoutChapters() async {
+  func testFindChapterlessMediaServerResourcesSkipsTheBooksWithChapters() async {
     let chaptered = makeBook("needs-nothing", duration: 1500)
     let bare = makeBook("needs-chapters", duration: 1500)
     _ = await sut.setExternalResource(providerName: "jellyfin", providerId: "jf-chaptered", for: chaptered.uuid)
     _ = await sut.setExternalResource(providerName: "jellyfin", providerId: "jf-bare", for: bare.uuid)
     await sut.storeChaptersIfNeeded(relativePath: chaptered.relativePath, chapters: chapters([(0, 1500)]))
 
-    let resources = await sut.findMediaServerResources(at: nil)
+    let resources = await sut.findChapterlessMediaServerResources(at: nil)
 
-    let byProviderId = Dictionary(uniqueKeysWithValues: resources.map { ($0.providerId, $0.needsChapters) })
-    XCTAssertEqual(byProviderId["jf-bare"], true)
     XCTAssertEqual(
-      byProviderId["jf-chaptered"],
-      false,
+      resources.map(\.providerId),
+      ["jf-bare"],
       "a book that already has chapters must not make the refresh ask for them again"
     )
   }
 
-  func testHandleSyncFromExternalResourceStoresTheSnapshotsChapters() async {
+  func testStoreMediaServerChaptersFillsTheLinkedBook() async {
     let book = makeBook("external-chapters-4", duration: 1500)
     _ = await sut.setExternalResource(providerName: "jellyfin", providerId: "jelly-ch", for: book.uuid)
     sut.dataManager.getContext().refreshAllObjects()
 
-    sut.handleSyncFromExternalResource(
+    sut.storeMediaServerChapters(
       providerName: "jellyfin",
-      snapshotsByProviderId: [
-        "jelly-ch": ExternalItemSnapshot(
-          progress: ExternalPlaybackProgress(currentTime: 0, lastPlayedDate: nil),
-          chapters: chapters([(0, 600), (600, 900)])
-        )
-      ]
+      chaptersByProviderId: ["jelly-ch": chapters([(0, 600), (600, 900)])]
     )
 
     sut.dataManager.getContext().refresh(book, mergeChanges: true)
-    XCTAssertEqual(
-      sut.getChapters(from: book.relativePath)?.map(\.title),
-      ["Chapter 1", "Chapter 2"],
-      "chapters ride the same response and land in the same save as the progress"
-    )
+    XCTAssertEqual(sut.getChapters(from: book.relativePath)?.map(\.title), ["Chapter 1", "Chapter 2"])
   }
 
-  func testHandleSyncFromExternalResourceUpdatesNewerProgress() async {
-    let book = makeBook("external-5", duration: 200)
-    // Background write FIRST, then refresh before the view-context mutations: there is
-    // no merge policy (conflicts fatalError by design), so the test must not hold a
-    // stale view snapshot across the background save.
-    _ = await sut.setExternalResource(providerName: "jellyfin", providerId: "jelly-5", for: book.uuid)
-    sut.dataManager.getContext().refreshAllObjects()
-
-    book.currentTime = 10
-    book.lastPlayDate = Date(timeIntervalSince1970: 1_000)
-    sut.dataManager.saveContext()
-
-    let remoteDate = Date(timeIntervalSince1970: 2_000)
-    let remote = ExternalPlaybackProgress(currentTime: 100, lastPlayedDate: remoteDate, isFinished: false)
-    sut.handleSyncFromExternalResource(
-      providerName: "jellyfin",
-      snapshotsByProviderId: ["jelly-5": ExternalItemSnapshot(progress: remote)]
-    )
-
-    sut.dataManager.getContext().refresh(book, mergeChanges: true)
-    XCTAssertEqual(book.currentTime, 100, accuracy: 0.01)
-    XCTAssertEqual(book.lastPlayDate, remoteDate)
-    // The library row renders percentCompleted — it must move with the playhead
-    XCTAssertEqual(book.percentCompleted, 50, accuracy: 0.01)
-  }
-
-  func testHandleSyncFromExternalResourceIgnoresOlderProgress() async {
-    let localDate = Date(timeIntervalSince1970: 5_000)
-    let book = makeBook("external-6", duration: 200)
-    // Same ordering rule as the newer-progress test: background write first
-    _ = await sut.setExternalResource(providerName: "jellyfin", providerId: "jelly-6", for: book.uuid)
-    sut.dataManager.getContext().refreshAllObjects()
-
-    book.currentTime = 150
-    book.lastPlayDate = localDate
-    sut.dataManager.saveContext()
-
-    let remote = ExternalPlaybackProgress(
-      currentTime: 20,
-      lastPlayedDate: Date(timeIntervalSince1970: 1_000),
-      isFinished: false
-    )
-    sut.handleSyncFromExternalResource(
-      providerName: "jellyfin",
-      snapshotsByProviderId: ["jelly-6": ExternalItemSnapshot(progress: remote)]
-    )
-
-    sut.dataManager.getContext().refresh(book, mergeChanges: true)
-    // Local progress is newer — the stale remote push must not clobber it
-    XCTAssertEqual(book.currentTime, 150, accuracy: 0.01)
-    XCTAssertEqual(book.lastPlayDate, localDate)
-  }
-
-  /// The predicate now filters on the provider name it was handed, so one provider's answers
-  /// can never land on another provider's rows — a provider id only means something to the
-  /// server that issued it.
-  func testHandleSyncFromExternalResourceOnlyTouchesTheNamedProvider() async {
+  /// The predicate filters on the provider name it was handed, so one provider's answers can
+  /// never land on another provider's rows — a provider id only means something to the server
+  /// that issued it.
+  func testStoreMediaServerChaptersOnlyTouchesTheNamedProvider() async {
     let book = makeBook("external-7", duration: 200)
     _ = await sut.setExternalResource(providerName: "jellyfin", providerId: "shared-id", for: book.uuid)
     sut.dataManager.getContext().refreshAllObjects()
 
-    book.currentTime = 10
-    book.lastPlayDate = Date(timeIntervalSince1970: 1_000)
-    sut.dataManager.saveContext()
-
-    // Same providerId, different provider: an ABS batch must not move the Jellyfin-linked row.
-    sut.handleSyncFromExternalResource(
+    // Same providerId, different provider: an ABS batch must not fill the Jellyfin-linked book
+    sut.storeMediaServerChapters(
       providerName: "audiobookshelf",
-      snapshotsByProviderId: [
-        "shared-id": ExternalItemSnapshot(
-          progress: ExternalPlaybackProgress(
-            currentTime: 180,
-            lastPlayedDate: Date(timeIntervalSince1970: 9_000)
-          )
-        )
-      ]
+      chaptersByProviderId: ["shared-id": chapters([(0, 100), (100, 100)])]
     )
 
     sut.dataManager.getContext().refresh(book, mergeChanges: true)
-    XCTAssertEqual(book.currentTime, 10, accuracy: 0.01, "another provider's answer is not ours")
+    XCTAssertEqual(sut.getChapters(from: book.relativePath)?.count ?? 0, 0, "another provider's answer is not ours")
   }
 
   func testInsertItemsFromResourcesCreatesExternalBooks() async throws {
@@ -2607,22 +2532,18 @@ class LibraryServiceExternalResourceTests: XCTestCase {
     XCTAssertEqual(processed(jellyfin.uuid), [false])
   }
 
-  /// Copies of a server's book share its progress: a pull moves every copy to the server's spot
-  func testAProgressPullMovesEveryCopy() async throws {
+  /// Copies of a server's book share its server item, so its chapters reach every copy
+  func testServerChaptersReachEveryCopy() async throws {
     let (copy1, copy2, jellyfin) = try await streamCopies()
 
-    sut.handleSyncFromExternalResource(
+    sut.storeMediaServerChapters(
       providerName: "audiobookshelf",
-      snapshotsByProviderId: [
-        "li_d": ExternalItemSnapshot(
-          progress: ExternalPlaybackProgress(currentTime: 40, lastPlayedDate: Date(timeIntervalSince1970: 2_000))
-        )
-      ]
+      chaptersByProviderId: ["li_d": chapters([(0, 150), (150, 150)])]
     )
 
-    XCTAssertEqual(sut.getSimpleItem(with: copy1.relativePath)?.currentTime, 40)
-    XCTAssertEqual(sut.getSimpleItem(with: copy2.relativePath)?.currentTime, 40)
-    XCTAssertEqual(sut.getSimpleItem(with: jellyfin.relativePath)?.currentTime, 0)
+    XCTAssertEqual(sut.getChapters(from: copy1.relativePath)?.count, 2)
+    XCTAssertEqual(sut.getChapters(from: copy2.relativePath)?.count, 2)
+    XCTAssertEqual(sut.getChapters(from: jellyfin.relativePath)?.count ?? 0, 0, "the same id under the other provider")
   }
 
   /// relativePath is the library's key, and an offloaded book is restored by its file name, so
@@ -2888,17 +2809,17 @@ class LibraryServiceExternalResourceTests: XCTestCase {
     XCTAssertNil(folderBooks.first { $0.title == "Local" }?.mediaServerProviderName)
   }
 
-  // MARK: - findMediaServerResources(at:) — the level query behind the list refresh
+  // MARK: - findChapterlessMediaServerResources(at:) — the level query behind the chapter refresh
 
   /// Root level: every media-server link on a root item, Hardcover filtered out in the query.
-  func testFindMediaServerResourcesAtRootSkipsHardcover() async {
+  func testFindChapterlessMediaServerResourcesAtRootSkipsHardcover() async {
     let first = makeBook("root-a")
     let second = makeBook("root-b")
     _ = await sut.setExternalResource(providerName: "jellyfin", providerId: "jf-1", for: first.uuid)
     _ = await sut.setExternalResource(providerName: "hardcover", providerId: "hc-1", for: first.uuid)
     _ = await sut.setExternalResource(providerName: "audiobookshelf", providerId: "abs-1", for: second.uuid)
 
-    let resources = await sut.findMediaServerResources(at: nil)
+    let resources = await sut.findChapterlessMediaServerResources(at: nil)
 
     XCTAssertEqual(Set(resources.map(\.providerId)), ["jf-1", "abs-1"])
     XCTAssertFalse(resources.contains { $0.providerName == "hardcover" })
@@ -2906,7 +2827,7 @@ class LibraryServiceExternalResourceTests: XCTestCase {
 
   /// A level is its direct children only, like the list: a book moved into a folder leaves the
   /// root result and appears in the folder's, and the folder row itself has no links.
-  func testFindMediaServerResourcesAtFolderReturnsDirectChildrenOnly() async throws {
+  func testFindChapterlessMediaServerResourcesAtFolderReturnsDirectChildrenOnly() async throws {
     let inFolder = makeBook("folder-book")
     let atRoot = makeBook("root-book")
     // Structure first, on the view context; the links after, on the background context.
@@ -2917,18 +2838,18 @@ class LibraryServiceExternalResourceTests: XCTestCase {
     _ = await sut.setExternalResource(providerName: "jellyfin", providerId: "in-folder", for: inFolder.uuid)
     _ = await sut.setExternalResource(providerName: "jellyfin", providerId: "at-root", for: atRoot.uuid)
 
-    let folderResources = await sut.findMediaServerResources(at: folder.relativePath)
-    let rootResources = await sut.findMediaServerResources(at: nil)
+    let folderResources = await sut.findChapterlessMediaServerResources(at: folder.relativePath)
+    let rootResources = await sut.findChapterlessMediaServerResources(at: nil)
 
     XCTAssertEqual(folderResources.map(\.providerId), ["in-folder"])
     XCTAssertEqual(rootResources.map(\.providerId), ["at-root"], "the moved book no longer belongs to root")
   }
 
-  func testFindMediaServerResourcesAtEmptyLevelIsEmpty() async {
+  func testFindChapterlessMediaServerResourcesAtEmptyLevelIsEmpty() async {
     _ = makeBook("unlinked")
 
-    let resources = await sut.findMediaServerResources(at: nil)
-    let missingFolder = await sut.findMediaServerResources(at: "Nowhere")
+    let resources = await sut.findChapterlessMediaServerResources(at: nil)
+    let missingFolder = await sut.findChapterlessMediaServerResources(at: "Nowhere")
 
     XCTAssertTrue(resources.isEmpty)
     XCTAssertTrue(missingFolder.isEmpty)

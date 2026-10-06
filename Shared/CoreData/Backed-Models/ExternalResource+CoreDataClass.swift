@@ -49,7 +49,7 @@ extension ExternalResource {
     /// so adding a provider case becomes a compile error here and whoever adds it has to say
     /// which side it falls on. Everything else derives from it — `isMediaServer`,
     /// `SimpleExternalResource.mediaServer`, the SQL filter in
-    /// `LibraryService.findMediaServerResources(at:)`, and every switch that handles servers
+    /// `LibraryService.findChapterlessMediaServerResources(at:)`, and every switch that handles servers
     /// only (stream source, host display, progress push, the row glyph), each of which then
     /// gets the same compile error for the half of the question it answers.
     public var mediaServer: MediaServerProvider? {

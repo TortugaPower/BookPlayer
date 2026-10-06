@@ -58,7 +58,7 @@ class MainCoordinator: NSObject {
       syncService: syncService,
       playerLoaderService: coreServices.playerLoaderService,
       preferencesService: coreServices.preferencesService,
-      externalProgressService: coreServices.externalProgressService
+      chapterRefreshService: coreServices.mediaServerChapterService
     )
     self.syncQueueService = coreServices.syncQueueService
     self.singleFileDownloadService = SingleFileDownloadService(networkClient: NetworkClient())

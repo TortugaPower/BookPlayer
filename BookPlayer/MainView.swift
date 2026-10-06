@@ -115,7 +115,7 @@ struct MainView: View {
       }
       .presentationBackground(.clear)
       .onAppear { listState.coversOnScreen.insert(.player) }
-      .playbackAlerts(playerState: playerState, playerManager: playerManager, whenPlayerVisible: true)
+      .playbackAlerts(playerState: playerState, whenPlayerVisible: true)
     }
     // Posted by the failure alert's Media Servers button (PlaybackAlerts) when a book can't
     // play because its media server isn't configured here. Lives at this level because both
@@ -128,12 +128,12 @@ struct MainView: View {
     // Sibling copy (see PlaybackAlerts): playback also starts with the player CLOSED —
     // mini-player, CarPlay, remote commands, last-book restore — and the copy inside the cover
     // isn't in the hierarchy then, silently dropping the prompt.
-    .playbackAlerts(playerState: playerState, playerManager: playerManager, whenPlayerVisible: false)
+    .playbackAlerts(playerState: playerState, whenPlayerVisible: false)
     // A prompt belongs to the context that raised it and is NOT handed over when the player
     // opens or closes — a deliberate product decision, not a workaround. The two-copy gate
-    // exists so exactly one copy can present, not so a prompt can migrate: a question the user
-    // was asked against a closed player, re-appearing over an open one after something else
-    // (a widget, an intent, Siri) opened it, has lost the context that made it make sense.
+    // exists so exactly one copy can present, not so a prompt can migrate: an alert raised
+    // against a closed player, re-appearing over an open one after something else (a widget,
+    // an intent, Siri) opened it, has lost the context that made it make sense.
     // Dropping it is the conservative half of that trade, and the alert is re-raised by the
     // next attempt anyway.
     .onChange(of: playerState.isShowingPlayer) {
@@ -141,8 +141,7 @@ struct MainView: View {
     }
     // A failure raised while backgrounded outlives the attempt that caused it, so playback
     // succeeding in the meantime has to retire it — otherwise coming back to the app shows an
-    // error for something that is playing right now. Only the failure: `.bookPlayed` is what
-    // drives the resume prompt in the first place (ExternalProgressService subscribes to it).
+    // error for something that is playing right now.
     .onReceive(NotificationCenter.default.publisher(for: .bookPlayed)) { _ in
       playerState.pendingFailure = nil
     }

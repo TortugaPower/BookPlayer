@@ -27,9 +27,6 @@ public struct JellyfinLibraryItem: IntegrationLibraryItemProtocol {
   public let kind: Kind
   
   public let durationSeconds: Int64?
-  public let currentSeconds: Int64?
-  public let isFinished: Bool?
-  public let lastPlayedDate: Date?
   public let blurHash: String?
   public let imageAspectRatio: Double?
   public let details: JellyfinAudiobookDetailsData?
@@ -64,9 +61,6 @@ extension JellyfinLibraryItem {
       name: name,
       kind: kind,
       durationSeconds: nil,
-      currentSeconds: nil,
-      isFinished: false,
-      lastPlayedDate: nil,
       blurHash: nil,
       imageAspectRatio: nil,
       details: nil,
@@ -172,9 +166,6 @@ extension JellyfinLibraryItem {
       name: name,
       kind: kind,
       durationSeconds: Int64(runtimeInSeconds ?? 0),
-      currentSeconds: Int64((apiItem.userData?.playbackPositionTicks ?? 0) / 10000000),
-      isFinished: apiItem.userData?.isPlayed,
-      lastPlayedDate: apiItem.userData?.lastPlayedDate,
       blurHash: blurHash,
       imageAspectRatio: apiItem.primaryImageAspectRatio,
       details: myDetails,
@@ -190,8 +181,8 @@ extension JellyfinLibraryItem {
     guard let id = authorApiItem.id else { return nil }
     let name = authorApiItem.name ?? id
     let blurHash = authorApiItem.imageBlurHashes?.primary?.first?.value
-    self.init(id: id, name: name, kind: .author, durationSeconds: Int64((authorApiItem.runTimeTicks ?? 0) / 10000000), currentSeconds: Int64((authorApiItem.userData?.playbackPositionTicks ?? 0) / 10000000), isFinished: authorApiItem.userData?.isPlayed,
-              lastPlayedDate: authorApiItem.userData?.lastPlayedDate, blurHash: blurHash, imageAspectRatio: authorApiItem.primaryImageAspectRatio, details: nil, chapters: [])
+    self.init(id: id, name: name, kind: .author, durationSeconds: Int64((authorApiItem.runTimeTicks ?? 0) / 10000000),
+              blurHash: blurHash, imageAspectRatio: authorApiItem.primaryImageAspectRatio, details: nil, chapters: [])
   }
 
   /// Create a narrator item from a Persons API response
@@ -199,8 +190,8 @@ extension JellyfinLibraryItem {
     guard let id = narratorApiItem.id else { return nil }
     let name = narratorApiItem.name ?? id
     let blurHash = narratorApiItem.imageBlurHashes?.primary?.first?.value
-    self.init(id: id, name: name, kind: .narrator, durationSeconds: Int64((narratorApiItem.runTimeTicks ?? 0) / 10000000), currentSeconds: Int64((narratorApiItem.userData?.playbackPositionTicks ?? 0) / 10000000), isFinished: narratorApiItem.userData?.isPlayed,
-              lastPlayedDate: narratorApiItem.userData?.lastPlayedDate, blurHash: blurHash, imageAspectRatio: narratorApiItem.primaryImageAspectRatio, details: nil, chapters: [])
+    self.init(id: id, name: name, kind: .narrator, durationSeconds: Int64((narratorApiItem.runTimeTicks ?? 0) / 10000000),
+              blurHash: blurHash, imageAspectRatio: narratorApiItem.primaryImageAspectRatio, details: nil, chapters: [])
   }
 }
 
@@ -227,21 +218,18 @@ extension JellyfinLibraryItem {
       title: name,
       details: resolvedDetails?.artist ?? "voiceover_unknown_author".localized,
       speed: 1,
-      currentTime: Double(currentSeconds ?? 0),
+      // A streamed book starts at the beginning, as on Android: the server's position isn't read
+      currentTime: 0,
       duration: duration,
-      /// The duration half of the old guard is now the pipeline's precondition, so the
-      /// division is safe on any item that reaches here.
-      percentCompleted: (currentSeconds ?? 0) > 0
-        ? Double(currentSeconds!) / duration * 100
-        : 0,
-      isFinished: isFinished ?? false,
+      percentCompleted: 0,
+      isFinished: false,
       relativePath: "",
       remoteURL: nil,
       artworkURL: try? connectionService.createItemImageURL(self, size: artworkSize),
       orderRank: 0,
       parentFolder: nil,
       originalFileName: MediaServerFileNames.importFileName(title: name, fileExtension: fileExtension),
-      lastPlayDate: lastPlayedDate,
+      lastPlayDate: nil,
       type: .book,
       uuid: UUID().uuidString
     )

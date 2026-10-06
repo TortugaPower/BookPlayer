@@ -793,532 +793,147 @@ final class ItemDetailsLoadTests: XCTestCase {
   }
 }
 
-// MARK: - External progress pull
+// MARK: - Media-server chapter refresh
 
-/// The inbound half of media-server progress sync, extracted out of ItemListViewModel.
-///
-/// Waits are expectations fulfilled by the publisher, never fixed sleeps: the service's timing
-/// is what's under test, and a fixed wait either flakes on a slow runner or hides a real
-/// delay. Notifications go through a private center so nothing here can reach a real
-/// service alive elsewhere in the test process.
+/// Fills in the chapters of streamed books that arrived through BookPlayer's own sync with
+/// none: nothing ever opens their file, so their server is the only source.
 @MainActor
-final class ExternalProgressServiceTests: XCTestCase {
-  /// Records what it was asked and answers from a script, so a test can assert the fan-out
-  /// without a server, a keychain, or a network. A slow answer sleeps WITHOUT swallowing
-  /// cancellation, so a cancelled refresh provably reaches the provider.
-  private final class ProviderStub: ExternalProgressProviding, @unchecked Sendable {
+final class MediaServerChapterRefreshServiceTests: XCTestCase {
+  /// Records what it was asked and answers every resource with the same chapters, so a test
+  /// can assert the fan-out without a server, a keychain or a network.
+  private final class ProviderStub: MediaServerChapterProviding, @unchecked Sendable {
     private let lock = NSLock()
-    private var _requested: [String] = []
-    private var _chapterRequests: [[String]] = []
-    private let answer: @Sendable (SimpleExternalResource) async throws -> ExternalPlaybackProgress?
-    /// Attached to every answered snapshot, so a test can script the chapter half without
-    /// restating the position half.
+    private var _requested: [[String]] = []
     private let chapters: [ChapterMetadata]
+    private let fails: Bool
 
-    var requested: [String] {
+    /// The id sets asked for, one entry per call
+    var requested: [[String]] {
       lock.lock()
       defer { lock.unlock() }
       return _requested
     }
 
-    /// The id sets asked WITH chapters, one entry per call — so a test can assert both that
-    /// chapters were requested for the right items and that they weren't requested at all.
-    var chapterRequests: [[String]] {
-      lock.lock()
-      defer { lock.unlock() }
-      return _chapterRequests
-    }
-
-    init(
-      chapters: [ChapterMetadata] = [],
-      answer: @escaping @Sendable (SimpleExternalResource) async throws -> ExternalPlaybackProgress?
-    ) {
+    init(chapters: [ChapterMetadata] = [], fails: Bool = false) {
       self.chapters = chapters
-      self.answer = answer
+      self.fails = fails
     }
 
-    func progress(for resource: SimpleExternalResource) async throws -> ExternalPlaybackProgress? {
+    func chapters(for resources: [SimpleExternalResource]) async throws -> [String: [ChapterMetadata]] {
       lock.lock()
-      _requested.append(resource.providerId)
+      _requested.append(resources.map(\.providerId))
       lock.unlock()
-      return try await answer(resource)
-    }
-
-    func progress(
-      forBatch resources: [SimpleExternalResource],
-      includingChapters: Bool
-    ) async throws -> [String: ExternalItemSnapshot] {
-      if includingChapters {
-        lock.lock()
-        _chapterRequests.append(resources.map(\.providerId))
-        lock.unlock()
-      }
-
-      var out: [String: ExternalItemSnapshot] = [:]
-      for resource in resources {
-        if let progress = try await progress(for: resource) {
-          out[resource.providerId] = ExternalItemSnapshot(
-            progress: progress,
-            chapters: includingChapters ? chapters : []
-          )
-        }
-      }
-      return out
+      if fails { throw URLError(.cannotConnectToHost) }
+      return Dictionary(uniqueKeysWithValues: resources.map { ($0.providerId, chapters) })
     }
   }
 
-  private var notificationCenter: NotificationCenter!
-  private var accountService: AccountServiceMock!
-  private var received: [ExternalPlaybackProgress] = []
-  private var cancellable: AnyCancellable?
+  private let chapters = [
+    ChapterMetadata(title: "One", start: 0, duration: 600, index: 1),
+    ChapterMetadata(title: "Two", start: 600, duration: 900, index: 2),
+  ]
 
-  override func setUp() {
-    super.setUp()
-    notificationCenter = NotificationCenter()
-    accountService = AccountServiceMock(account: nil)
-    received = []
-  }
-
-  override func tearDown() {
-    cancellable?.cancel()
-    cancellable = nil
-    super.tearDown()
-  }
-
-  private func makeResource(
-    provider: String,
-    id: String,
-    needsChapters: Bool = false
-  ) -> SimpleExternalResource {
+  private func makeResource(provider: String, id: String) -> SimpleExternalResource {
     SimpleExternalResource(
       providerName: provider,
       providerId: id,
       syncStatus: ExternalResource.SyncStatus.stream.rawValue,
       lastSyncedAt: nil,
       hostId: "guid-host",
-      libraryItem: nil,
-      needsChapters: needsChapters
+      libraryItem: nil
     )
   }
 
-  private func makeItem(uuid: String, currentTime: TimeInterval, lastPlayDate: Date?) -> PlayableItem {
-    PlayableItem(
-      title: "Book",
-      author: "Author",
-      chapters: [
-        PlayableChapter(
-          title: "Chapter",
-          author: "Author",
-          start: 0,
-          duration: 1000,
-          relativePath: "book.m4b",
-          remoteURL: nil,
-          externalURL: nil,
-          index: 1
-        )
-      ],
-      currentTime: currentTime,
-      duration: 1000,
-      relativePath: "book.m4b",
-      uuid: uuid,
-      parentFolder: nil,
-      percentCompleted: 0,
-      lastPlayDate: lastPlayDate,
-      isFinished: false,
-      isBoundBook: false
-    )
-  }
-
-  /// Entitled (lite/pro) unless a test says otherwise — the pull is gated, the push is not.
+  /// Entitled (lite/pro) unless a test says otherwise: only a synced library brings such rows.
   private func makeSUT(
-    resources: [SimpleExternalResource],
-    providers: [ExternalResource.ProviderName: ExternalProgressProviding],
+    chapterless: [SimpleExternalResource],
+    providers: [ExternalResource.ProviderName: MediaServerChapterProviding],
     syncEnabled: Bool = true
-  ) -> (ExternalProgressService, LibraryServiceProtocolMock) {
+  ) -> (MediaServerChapterRefreshService, LibraryServiceProtocolMock) {
     let libraryService = LibraryServiceProtocolMock()
-    libraryService.findResourcesForReturnValue = resources
+    libraryService.findChapterlessMediaServerResourcesAtReturnValue = chapterless
+    let accountService = AccountServiceMock(account: nil)
     accountService.hasSyncEnabledValue = syncEnabled
 
-    let sut = ExternalProgressService()
-    sut.setup(
-      libraryService: libraryService,
-      accountService: accountService,
-      providers: providers,
-      notificationCenter: notificationCenter
-    )
+    let sut = MediaServerChapterRefreshService()
+    sut.setup(libraryService: libraryService, accountService: accountService, providers: providers)
     return (sut, libraryService)
   }
 
-  /// Subscribes and returns an expectation that fulfils once per published position.
-  private func expectPublish(from sut: ExternalProgressService, count: Int = 1, inverted: Bool = false) -> XCTestExpectation {
-    let expectation = expectation(description: inverted ? "nothing published" : "position published")
-    expectation.isInverted = inverted
-    if !inverted {
-      expectation.expectedFulfillmentCount = count
-      expectation.assertForOverFulfill = true
-    }
-    cancellable = sut.promptablePositionPublisher
-      .receive(on: DispatchQueue.main)
-      .sink { [weak self] position in
-        self?.received.append(position)
-        expectation.fulfill()
-      }
-    return expectation
-  }
-
-  private func slowStub(_ progress: ExternalPlaybackProgress) -> ProviderStub {
-    ProviderStub { _ in
-      try await Task.sleep(nanoseconds: 250_000_000)
-      return progress
-    }
-  }
-
-  // MARK: the decision rule
-
-  func testPromptsWhenTheRemoteDateIsNewerBeyondTheThreshold() {
-    let position = [ExternalPlaybackProgress(currentTime: 90, lastPlayedDate: Date(timeIntervalSince1970: 1100))]
-      .promptable(localTime: 100, localDate: Date(timeIntervalSince1970: 1000))
-
-    XCTAssertEqual(position?.currentTime, 90, "a newer date prompts even when the position is behind")
-  }
-
-  func testDoesNotPromptInsideTheThreshold() {
-    let position = [ExternalPlaybackProgress(currentTime: 110, lastPlayedDate: Date(timeIntervalSince1970: 1005))]
-      .promptable(localTime: 100, localDate: Date(timeIntervalSince1970: 1000))
-
-    XCTAssertNil(position, "10s of drift on the book you are listening to is not another device")
-  }
-
-  func testPromptsWhenTheRemotePositionIsFartherWithoutADate() {
-    let position = [ExternalPlaybackProgress(currentTime: 400, lastPlayedDate: nil)]
-      .promptable(localTime: 100, localDate: Date(timeIntervalSince1970: 1000))
-
-    XCTAssertEqual(position?.currentTime, 400, "a server reporting no date still counts on position")
-  }
-
-  /// The rule SyncService.handleSyncedLastPlayed uses for our own cloud: newest date wins.
-  func testNewestCandidateWinsAcrossServers() {
-    let older = ExternalPlaybackProgress(currentTime: 900, lastPlayedDate: Date(timeIntervalSince1970: 1100))
-    let newer = ExternalPlaybackProgress(currentTime: 300, lastPlayedDate: Date(timeIntervalSince1970: 2000))
-
-    let position = [older, newer]
-      .promptable(localTime: 100, localDate: Date(timeIntervalSince1970: 1000))
-
-    XCTAssertEqual(position, newer, "the most recently played server wins, not the farthest position")
-  }
-
-  func testNoCandidatesMeansNoPrompt() {
-    XCTAssertNil(
-      [ExternalPlaybackProgress]().promptable(localTime: 100, localDate: nil)
-    )
-  }
-
-  // MARK: the service
-
-  func testAsksEveryLinkedServerConcurrentlyAndPublishesTheNewest() async {
-    let jellyfin = ProviderStub { _ in
-      ExternalPlaybackProgress(currentTime: 800, lastPlayedDate: Date(timeIntervalSince1970: 1100))
-    }
-    let abs = ProviderStub { _ in
-      ExternalPlaybackProgress(currentTime: 200, lastPlayedDate: Date(timeIntervalSince1970: 5000))
-    }
-    let (sut, _) = makeSUT(
-      resources: [makeResource(provider: "jellyfin", id: "jf-1"), makeResource(provider: "audiobookshelf", id: "abs-1")],
+  /// The level's links come from ONE library query, asked for exactly the path the list is
+  /// syncing, and each provider folds its own answers in under its own name.
+  func testRefreshAsksBothProvidersForTheLevelsChapterlessBooks() async {
+    let jellyfin = ProviderStub(chapters: chapters)
+    let abs = ProviderStub(chapters: chapters)
+    let (sut, libraryService) = makeSUT(
+      chapterless: [makeResource(provider: "jellyfin", id: "jf-1"), makeResource(provider: "audiobookshelf", id: "abs-1")],
       providers: [.jellyfin: jellyfin, .audiobookshelf: abs]
     )
-    let published = expectPublish(from: sut)
 
-    sut.refreshProgress(for: makeItem(uuid: "UUID", currentTime: 100, lastPlayDate: Date(timeIntervalSince1970: 1000)))
-    await fulfillment(of: [published], timeout: 2)
+    await sut.refreshChapters(at: "Author/Series")
 
-    XCTAssertEqual(jellyfin.requested, ["jf-1"], "both servers are asked")
-    XCTAssertEqual(abs.requested, ["abs-1"])
-    XCTAssertEqual(received.map(\.currentTime), [200], "the newest date wins across providers")
+    XCTAssertEqual(libraryService.findChapterlessMediaServerResourcesAtReceivedInvocations, ["Author/Series"])
+    XCTAssertEqual(jellyfin.requested, [["jf-1"]])
+    XCTAssertEqual(abs.requested, [["abs-1"]])
+    XCTAssertEqual(
+      Set(libraryService.storeMediaServerChaptersProviderNameChaptersByProviderIdReceivedInvocations.map(\.providerName)),
+      ["jellyfin", "audiobookshelf"]
+    )
   }
 
-  func testOneFailingServerDoesNotSilenceTheOther() async {
-    let failing = ProviderStub { _ in throw URLError(.timedOut) }
-    let working = ProviderStub { _ in
-      ExternalPlaybackProgress(currentTime: 700, lastPlayedDate: Date(timeIntervalSince1970: 9000))
-    }
-    let (sut, _) = makeSUT(
-      resources: [makeResource(provider: "jellyfin", id: "jf-1"), makeResource(provider: "audiobookshelf", id: "abs-1")],
-      providers: [.jellyfin: failing, .audiobookshelf: working]
+  func testRefreshForwardsTheServersChaptersUnchanged() async {
+    let (sut, libraryService) = makeSUT(
+      chapterless: [makeResource(provider: "jellyfin", id: "jf-1")],
+      providers: [.jellyfin: ProviderStub(chapters: chapters)]
     )
-    let published = expectPublish(from: sut)
 
-    sut.refreshProgress(for: makeItem(uuid: "UUID", currentTime: 0, lastPlayDate: nil))
-    await fulfillment(of: [published], timeout: 2)
+    await sut.refreshChapters(at: nil)
 
-    XCTAssertEqual(received.map(\.currentTime), [700], "a thrown error takes out only its own provider")
+    let ingested = libraryService.storeMediaServerChaptersProviderNameChaptersByProviderIdReceivedInvocations
+    XCTAssertEqual(ingested.first?.chaptersByProviderId["jf-1"], chapters)
   }
 
-  /// Hardcover shares the resource relationship but hosts nothing, so it must never be asked.
-  func testSkipsResourcesWithNoMediaServerProvider() async {
-    let jellyfin = ProviderStub { _ in XCTFail("hardcover must not reach a provider"); return nil }
-    let (sut, _) = makeSUT(
-      resources: [makeResource(provider: "hardcover", id: "12345")],
-      providers: [.jellyfin: jellyfin]
-    )
-    let nothing = expectPublish(from: sut, inverted: true)
+  /// The steady state: every book has its chapters, so no server is asked
+  func testRefreshAsksNothingWhenEveryBookHasChapters() async {
+    let jellyfin = ProviderStub(chapters: chapters)
+    let (sut, libraryService) = makeSUT(chapterless: [], providers: [.jellyfin: jellyfin])
 
-    sut.refreshProgress(for: makeItem(uuid: "UUID", currentTime: 0, lastPlayDate: nil))
-    await fulfillment(of: [nothing], timeout: 0.3)
+    await sut.refreshChapters(at: nil)
 
+    XCTAssertEqual(libraryService.findChapterlessMediaServerResourcesAtReceivedInvocations, [nil], "root is asked as nil")
     XCTAssertTrue(jellyfin.requested.isEmpty)
+    XCTAssertEqual(libraryService.storeMediaServerChaptersProviderNameChaptersByProviderIdCallsCount, 0)
   }
 
-  /// The bug that started the extraction: a slow answer for a book the user already left
-  /// must not raise a prompt carrying that book's position. With cancellation propagating
-  /// into the stub, the superseded refresh never even completes.
-  func testAnswerForASupersededItemIsDiscarded() async {
-    let slow = slowStub(ExternalPlaybackProgress(currentTime: 900, lastPlayedDate: Date(timeIntervalSince1970: 9000)))
-    let (sut, _) = makeSUT(
-      resources: [makeResource(provider: "jellyfin", id: "jf-1")],
-      providers: [.jellyfin: slow]
+  /// One unreachable provider can't keep the other's chapters out
+  func testAFailingProviderDoesNotStopTheOther() async {
+    let (sut, libraryService) = makeSUT(
+      chapterless: [makeResource(provider: "jellyfin", id: "jf-1"), makeResource(provider: "audiobookshelf", id: "abs-1")],
+      providers: [.jellyfin: ProviderStub(fails: true), .audiobookshelf: ProviderStub(chapters: chapters)]
     )
-    let published = expectPublish(from: sut, count: 1)
 
-    sut.refreshProgress(for: makeItem(uuid: "FIRST", currentTime: 0, lastPlayDate: nil))
-    // A different book starts before the first answer lands.
-    sut.refreshProgress(for: makeItem(uuid: "SECOND", currentTime: 0, lastPlayDate: nil))
-    await fulfillment(of: [published], timeout: 2)
+    await sut.refreshChapters(at: nil)
 
-    XCTAssertEqual(received.count, 1, "only the item that is playing now can prompt")
-    XCTAssertEqual(slow.requested, ["jf-1", "jf-1"], "both refreshes reached the provider; only one survived")
-  }
-
-  /// The point of the extraction: the pull is driven by the notification the player posts for
-  /// EVERY playback start, so it no longer depends on which UI holds a delegate slot.
-  func testRefreshesFromTheBookPlayedNotification() async {
-    let jellyfin = ProviderStub { _ in
-      ExternalPlaybackProgress(currentTime: 600, lastPlayedDate: Date(timeIntervalSince1970: 9000))
-    }
-    let (sut, _) = makeSUT(
-      resources: [makeResource(provider: "jellyfin", id: "jf-1")],
-      providers: [.jellyfin: jellyfin]
-    )
-    let published = expectPublish(from: sut)
-
-    notificationCenter.post(
-      name: .bookPlayed,
-      object: nil,
-      userInfo: ["book": makeItem(uuid: "UUID", currentTime: 0, lastPlayDate: nil)]
-    )
-    await fulfillment(of: [published], timeout: 2)
-
-    XCTAssertEqual(jellyfin.requested, ["jf-1"], "playback start alone drives the pull")
-    XCTAssertEqual(received.map(\.currentTime), [600])
-  }
-
-  func testLogoutNotificationCancelsInFlightWork() async {
-    let slow = slowStub(ExternalPlaybackProgress(currentTime: 900, lastPlayedDate: Date(timeIntervalSince1970: 9000)))
-    let (sut, _) = makeSUT(
-      resources: [makeResource(provider: "jellyfin", id: "jf-1")],
-      providers: [.jellyfin: slow]
-    )
-    let nothing = expectPublish(from: sut, inverted: true)
-
-    sut.refreshProgress(for: makeItem(uuid: "UUID", currentTime: 0, lastPlayDate: nil))
-    notificationCenter.post(name: .logout, object: nil)
-    // Longer than the stub's sleep, so an un-cancelled refresh WOULD have published by now.
-    await fulfillment(of: [nothing], timeout: 0.6)
-  }
-
-  func testTeardownCancelsAnInFlightRefresh() async {
-    let slow = slowStub(ExternalPlaybackProgress(currentTime: 900, lastPlayedDate: Date(timeIntervalSince1970: 9000)))
-    let (sut, _) = makeSUT(
-      resources: [makeResource(provider: "jellyfin", id: "jf-1")],
-      providers: [.jellyfin: slow]
-    )
-    let nothing = expectPublish(from: sut, inverted: true)
-
-    sut.refreshProgress(for: makeItem(uuid: "UUID", currentTime: 0, lastPlayDate: nil))
-    sut.teardown()
-    await fulfillment(of: [nothing], timeout: 0.6)
-  }
-
-  // MARK: the list refresh
-
-  /// The gap this closes: the list refresh collected Jellyfin resources only and handed them
-  /// to an ingest typed to a Jellyfin item, so AudiobookShelf items were never refreshed.
-  /// The level's links come from ONE resource-first library query, asked for exactly the path
-  /// the list is syncing.
-  func testRefreshItemsAtLevelFoldsInBothProviders() async {
-    let jellyfin = ProviderStub { _ in
-      ExternalPlaybackProgress(currentTime: 120, lastPlayedDate: Date(timeIntervalSince1970: 500))
-    }
-    let abs = ProviderStub { _ in
-      ExternalPlaybackProgress(currentTime: 340, lastPlayedDate: Date(timeIntervalSince1970: 900))
-    }
-    let (sut, libraryService) = makeSUT(resources: [], providers: [.jellyfin: jellyfin, .audiobookshelf: abs])
-    libraryService.findMediaServerResourcesAtReturnValue = [
-      makeResource(provider: "jellyfin", id: "jf-1"),
-      makeResource(provider: "audiobookshelf", id: "abs-1"),
-    ]
-
-    await sut.refreshItems(at: "Author/Series")
-
-    XCTAssertEqual(libraryService.findMediaServerResourcesAtReceivedInvocations, ["Author/Series"])
-    XCTAssertEqual(jellyfin.requested, ["jf-1"])
-    XCTAssertEqual(abs.requested, ["abs-1"], "AudiobookShelf items refresh too")
-
-    let ingested = libraryService.handleSyncFromExternalResourceProviderNameSnapshotsByProviderIdReceivedInvocations
     XCTAssertEqual(
-      Set(ingested.map(\.providerName)),
-      ["jellyfin", "audiobookshelf"],
-      "each provider folds its own answers in, under its own provider name"
+      libraryService.storeMediaServerChaptersProviderNameChaptersByProviderIdReceivedInvocations.map(\.providerName),
+      ["audiobookshelf"]
     )
-  }
-
-  /// The second-device path: a row arrives through BookPlayer's own sync, which carries no
-  /// chapters, and the level refresh is the only thing that can supply them.
-  func testRefreshItemsForwardsTheProvidersChaptersToTheIngest() async {
-    let chapters = [
-      ChapterMetadata(title: "One", start: 0, duration: 600, index: 1),
-      ChapterMetadata(title: "Two", start: 600, duration: 900, index: 2),
-    ]
-    let jellyfin = ProviderStub(chapters: chapters) { _ in
-      ExternalPlaybackProgress(currentTime: 120, lastPlayedDate: Date(timeIntervalSince1970: 500))
-    }
-    let (sut, libraryService) = makeSUT(resources: [], providers: [.jellyfin: jellyfin])
-    // The LEVEL path reads this one; `resources:` above feeds the on-play path.
-    libraryService.findMediaServerResourcesAtReturnValue = [
-      makeResource(provider: "jellyfin", id: "jf-1", needsChapters: true)
-    ]
-
-    await sut.refreshItems(at: nil)
-
-    let ingested = libraryService.handleSyncFromExternalResourceProviderNameSnapshotsByProviderIdReceivedInvocations
-    XCTAssertEqual(
-      ingested.first?.snapshotsByProviderId["jf-1"]?.chapters,
-      chapters,
-      "chapters ride the same snapshot as the position, unchanged"
-    )
-  }
-
-  /// The repeated case, and the reason the flag exists: once every book has chapters the
-  /// refresh must cost exactly what a progress-only refresh always cost.
-  func testRefreshItemsAsksForNoChaptersWhenNothingNeedsThem() async {
-    let jellyfin = ProviderStub { _ in
-      ExternalPlaybackProgress(currentTime: 120, lastPlayedDate: Date(timeIntervalSince1970: 500))
-    }
-    let (sut, libraryService) = makeSUT(resources: [], providers: [.jellyfin: jellyfin])
-    libraryService.findMediaServerResourcesAtReturnValue = [
-      makeResource(provider: "jellyfin", id: "jf-1"),
-      makeResource(provider: "jellyfin", id: "jf-2"),
-    ]
-
-    await sut.refreshItems(at: nil)
-
-    XCTAssertTrue(jellyfin.chapterRequests.isEmpty, "a chapters request here would repeat forever")
-    XCTAssertEqual(Set(jellyfin.requested), ["jf-1", "jf-2"], "every item is still refreshed for position")
-  }
-
-  /// A book whose server has no chapters never gets filled, so it stays in the needing set —
-  /// it must not drag the whole level's chapters along on every refresh.
-  func testRefreshItemsAsksForChaptersOnlyForTheItemsMissingThem() async {
-    let jellyfin = ProviderStub { _ in
-      ExternalPlaybackProgress(currentTime: 120, lastPlayedDate: Date(timeIntervalSince1970: 500))
-    }
-    let (sut, libraryService) = makeSUT(resources: [], providers: [.jellyfin: jellyfin])
-    libraryService.findMediaServerResourcesAtReturnValue = [
-      makeResource(provider: "jellyfin", id: "has-chapters"),
-      makeResource(provider: "jellyfin", id: "needs-chapters", needsChapters: true),
-    ]
-
-    await sut.refreshItems(at: nil)
-
-    XCTAssertEqual(jellyfin.chapterRequests, [["needs-chapters"]])
-    XCTAssertEqual(
-      Set(jellyfin.requested),
-      ["has-chapters", "needs-chapters"],
-      "both partitions are still asked for position, and both reach the ingest"
-    )
-
-    let ingested = libraryService.handleSyncFromExternalResourceProviderNameSnapshotsByProviderIdReceivedInvocations
-    XCTAssertEqual(
-      Set(ingested.first?.snapshotsByProviderId.keys ?? [:].keys),
-      ["has-chapters", "needs-chapters"],
-      "the two partitions' answers are merged before the ingest"
-    )
-  }
-
-  func testRefreshItemsAtLevelDoesNothingWithoutMediaServerResources() async {
-    let jellyfin = ProviderStub { _ in XCTFail("must not be asked"); return nil }
-    let (sut, libraryService) = makeSUT(resources: [], providers: [.jellyfin: jellyfin])
-    libraryService.findMediaServerResourcesAtReturnValue = []
-
-    await sut.refreshItems(at: nil)
-
-    XCTAssertEqual(libraryService.findMediaServerResourcesAtReceivedInvocations, [nil], "root is asked as nil")
-    XCTAssertTrue(jellyfin.requested.isEmpty)
-    XCTAssertEqual(libraryService.handleSyncFromExternalResourceProviderNameSnapshotsByProviderIdCallsCount, 0)
-  }
-
-  // MARK: the entitlement gate (pull only — the push runs on every tier)
-
-  func testOnPlayPullIsGatedToSyncTiers() async {
-    let jellyfin = ProviderStub { _ in XCTFail("a free account must not pull"); return nil }
-    let (sut, _) = makeSUT(
-      resources: [makeResource(provider: "jellyfin", id: "jf-1")],
-      providers: [.jellyfin: jellyfin],
-      syncEnabled: false
-    )
-    let nothing = expectPublish(from: sut, inverted: true)
-
-    sut.refreshProgress(for: makeItem(uuid: "UUID", currentTime: 0, lastPlayDate: nil))
-    await fulfillment(of: [nothing], timeout: 0.3)
-
-    XCTAssertTrue(jellyfin.requested.isEmpty)
   }
 
   /// Gated before the library is even queried: a free account costs no fetch at all.
-  func testListPullIsGatedToSyncTiers() async {
-    let jellyfin = ProviderStub { _ in XCTFail("a free account must not pull"); return nil }
-    let (sut, libraryService) = makeSUT(resources: [], providers: [.jellyfin: jellyfin], syncEnabled: false)
-    libraryService.findMediaServerResourcesAtReturnValue = [makeResource(provider: "jellyfin", id: "jf-1")]
+  func testRefreshIsGatedToSyncTiers() async {
+    let jellyfin = ProviderStub(chapters: chapters)
+    let (sut, libraryService) = makeSUT(
+      chapterless: [makeResource(provider: "jellyfin", id: "jf-1")],
+      providers: [.jellyfin: jellyfin],
+      syncEnabled: false
+    )
 
-    await sut.refreshItems(at: "Folder")
+    await sut.refreshChapters(at: "Folder")
 
-    XCTAssertEqual(libraryService.findMediaServerResourcesAtCallsCount, 0)
+    XCTAssertEqual(libraryService.findChapterlessMediaServerResourcesAtCallsCount, 0)
     XCTAssertTrue(jellyfin.requested.isEmpty)
-    XCTAssertEqual(libraryService.handleSyncFromExternalResourceProviderNameSnapshotsByProviderIdCallsCount, 0)
-  }
-
-  /// The entitlement is read live, so a downgrade takes effect on the NEXT pull; the one
-  /// already in flight is cancelled by the account-update observer.
-  func testDowngradeCancelsAnInFlightPull() async {
-    let slow = slowStub(ExternalPlaybackProgress(currentTime: 900, lastPlayedDate: Date(timeIntervalSince1970: 9000)))
-    let (sut, _) = makeSUT(
-      resources: [makeResource(provider: "jellyfin", id: "jf-1")],
-      providers: [.jellyfin: slow]
-    )
-    let nothing = expectPublish(from: sut, inverted: true)
-
-    sut.refreshProgress(for: makeItem(uuid: "UUID", currentTime: 0, lastPlayDate: nil))
-    accountService.hasSyncEnabledValue = false
-    notificationCenter.post(name: .accountUpdate, object: nil)
-    // Longer than the stub's sleep, so an un-cancelled refresh WOULD have published by now.
-    await fulfillment(of: [nothing], timeout: 0.6)
-
-    XCTAssertEqual(slow.requested, ["jf-1"], "the pull had started; the downgrade stopped it")
-  }
-
-  /// Account updates that keep the entitlement (renewal, pro↔lite) must not cancel anything.
-  func testAccountUpdateWhileEntitledKeepsThePull() async {
-    let slow = slowStub(ExternalPlaybackProgress(currentTime: 900, lastPlayedDate: Date(timeIntervalSince1970: 9000)))
-    let (sut, _) = makeSUT(
-      resources: [makeResource(provider: "jellyfin", id: "jf-1")],
-      providers: [.jellyfin: slow]
-    )
-    let published = expectPublish(from: sut)
-
-    sut.refreshProgress(for: makeItem(uuid: "UUID", currentTime: 0, lastPlayDate: nil))
-    notificationCenter.post(name: .accountUpdate, object: nil)
-    await fulfillment(of: [published], timeout: 2)
-
-    XCTAssertEqual(received.map(\.currentTime), [900])
+    XCTAssertEqual(libraryService.storeMediaServerChaptersProviderNameChaptersByProviderIdCallsCount, 0)
   }
 }
 
@@ -1575,9 +1190,7 @@ final class VirtualImportPayloadTests: XCTestCase {
       title: "Dune",
       kind: .audiobook,
       libraryId: "lib",
-      duration: 60,
-      progress: 0.25,
-      currentTime: 1200
+      duration: 60
     )
 
     let resource = item.asVirtualImportResource(
@@ -1592,7 +1205,8 @@ final class VirtualImportPayloadTests: XCTestCase {
       4800,
       "the HYDRATED length wins over the minified list item's own value"
     )
-    XCTAssertEqual(resource.libraryItem?.percentCompleted, 25, "ABS reports progress as a 0-1 fraction")
+    XCTAssertEqual(resource.libraryItem?.currentTime, 0, "a streamed book starts at the beginning, as on Android")
+    XCTAssertEqual(resource.libraryItem?.percentCompleted, 0)
   }
 
   func testJellyfinPayloadCarriesTheHydratedDuration() {
@@ -1601,9 +1215,6 @@ final class VirtualImportPayloadTests: XCTestCase {
       name: "Dune",
       kind: .audiobook,
       durationSeconds: 60,
-      currentSeconds: 1200,
-      isFinished: false,
-      lastPlayedDate: nil,
       blurHash: nil,
       imageAspectRatio: nil,
       details: nil,
@@ -1619,11 +1230,8 @@ final class VirtualImportPayloadTests: XCTestCase {
     )
 
     XCTAssertEqual(resource.libraryItem?.duration, 4800)
-    XCTAssertEqual(
-      resource.libraryItem?.percentCompleted,
-      25,
-      "progress divides by the hydrated duration, which the pipeline guarantees is non-zero"
-    )
+    XCTAssertEqual(resource.libraryItem?.currentTime, 0, "a streamed book starts at the beginning, as on Android")
+    XCTAssertEqual(resource.libraryItem?.percentCompleted, 0)
   }
 }
 

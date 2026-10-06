@@ -20,32 +20,16 @@ import SwiftUI
 /// player grows.
 struct PlaybackAlerts: ViewModifier {
   let playerState: PlayerState
-  let playerManager: PlayerManager
   /// Which of the two presentation contexts this copy lives in.
   let whenPlayerVisible: Bool
 
   func body(content: Content) -> some View {
-    /// Read both flags in `body`, not only inside the Binding getters: with `@Observable`, the
+    /// Read the flag in `body`, not only inside the Binding getter: with `@Observable`, the
     /// thing that registers this modifier as a dependency is a read during body evaluation,
-    /// and these two are the only state that makes it present at all.
-    _ = playerState.showResumePopup
+    /// and this is the only state that makes it present at all.
     _ = playerState.pendingFailure
 
     return content
-      .alert(
-        "resume_playback_alert_title",
-        isPresented: playerState.showResumePopupBinding(whenPlayerVisible: whenPlayerVisible)
-      ) {
-        Button("yes_button") { playerManager.jumpTo(playerState.remotePlayTime ?? 0) }
-        Button("ignore_button", role: .cancel) {}
-      } message: {
-        Text(
-          String(
-            format: "resume_playback_alert_message".localized,
-            TimeParser.formatTime(playerState.remotePlayTime ?? 0)
-          )
-        )
-      }
       .alert(
         playerState.pendingFailure?.phoneTitle ?? "",
         isPresented: playerState.pendingFailureBinding(whenPlayerVisible: whenPlayerVisible),
@@ -71,13 +55,11 @@ struct PlaybackAlerts: ViewModifier {
 extension View {
   func playbackAlerts(
     playerState: PlayerState,
-    playerManager: PlayerManager,
     whenPlayerVisible: Bool
   ) -> some View {
     modifier(
       PlaybackAlerts(
         playerState: playerState,
-        playerManager: playerManager,
         whenPlayerVisible: whenPlayerVisible
       )
     )
