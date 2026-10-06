@@ -4,7 +4,7 @@
 // both when you port.
 
 // Files in the checkout that hold credentials even though they are gitignored. `BuildConfiguration/Debug.xcconfig`
-// carries a developer's real Sentry DSN, RevenueCat key, team id and mocked bearer token; CI materialises it from
+// carries a developer's real Sentry DSN, RevenueCat key and team id; CI materialises it from
 // `Debug.template.xcconfig`, and nothing stops a later step from writing real values into it. The template is a
 // different name and stays readable. `Release.xcconfig` is deliberately NOT listed: despite its `.gitignore` entry
 // it is tracked, holds placeholders, and is rewritten with real values only on Xcode Cloud — a change to it is
@@ -14,8 +14,7 @@ export const REPO_SECRET_FILES = ['Debug.xcconfig'];
 // Secret SHAPES this repository's code and configuration can contain, applied by `redact` after the generic ones
 // (Anthropic keys, GitHub tokens, PEM private keys). Each entry carries the example(s) that prove it and a
 // look-alike that must pass untouched: the harness's own test runs both, so a shape cannot be listed without
-// working and cannot eat prose. (The mocked bearer token is deliberately not pattern-matched: it has no shape
-// that would not mangle prose, and it lives only in the gitignored Debug.xcconfig the path rule already refuses.)
+// working and cannot eat prose.
 export const REPO_SECRET_SHAPES = [
   {
     // A Sentry DSN, with OR without its scheme: an xcconfig treats `//` as a comment, so `BP_SENTRY_DSN` holds

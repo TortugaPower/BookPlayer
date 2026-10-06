@@ -78,8 +78,7 @@ public protocol AccountServiceProtocol {
   func subscribe(option: PricingModel) async throws -> Bool
   func restorePurchases() async throws -> CustomerInfo
 
-  func loginTestAccount(token: String) async throws
-  func login(
+  @MainActor func login(
     with token: String,
     userId: String
   ) async throws -> Account?
@@ -88,12 +87,12 @@ public protocol AccountServiceProtocol {
   func loginIfUserExists(delegate: PurchasesDelegate)
 
   func logout() throws
-  func deleteAccount() async throws -> String
+  @MainActor func deleteAccount() async throws -> String
 
-  func handlePasskeyLogin(response: PasskeyLoginResponse) async throws
+  @MainActor func handlePasskeyLogin(response: PasskeyLoginResponse) async throws
 
   /// Handle credentials transferred from iPhone to Watch
-  func loginWithTransferredCredentials(
+  @MainActor func loginWithTransferredCredentials(
     token: String,
     accountId: String,
     email: String,
@@ -355,21 +354,9 @@ public final class AccountService: AccountServiceProtocol {
     return try await Purchases.shared.restorePurchases()
   }
 
-  public func loginTestAccount(token: String) async throws {
-    let userId = "001918.a2d23624056d45618b7c2699d98c535e.2333"
-    self.updateAccount(
-      id: userId,
-      email: "gcarlo89@hotmail.com",
-      donationMade: true,
-      hasSubscription: true
-    )
-
-    try self.keychain.set(token, key: .token)
-
-    _ = try await Purchases.shared.logIn(userId)
-    UserDefaults.sharedDefaults.set(userId, forKey: "rcUserId")
-  }
-
+  /// On the main actor, like the other sign-ins and deleteAccount(): the account is read and
+  /// updated on the view context. Only the requests run off the main thread
+  @MainActor
   public func login(
     with token: String,
     userId: String
@@ -401,6 +388,7 @@ public final class AccountService: AccountServiceProtocol {
     return self.getAccount()
   }
 
+  @MainActor
   public func handlePasskeyLogin(response: PasskeyLoginResponse) async throws {
     // Store the token
     try self.keychain.set(response.token, key: .token)
@@ -420,6 +408,7 @@ public final class AccountService: AccountServiceProtocol {
     )
   }
 
+  @MainActor
   public func loginWithTransferredCredentials(
     token: String,
     accountId: String,
@@ -476,6 +465,9 @@ public final class AccountService: AccountServiceProtocol {
     NotificationCenter.default.post(name: .logout, object: self)
   }
 
+  /// On the main actor: logout() reads and updates the account on the view context and posts
+  /// `.logout`. Only the request itself runs off the main thread
+  @MainActor
   public func deleteAccount() async throws -> String {
     let response: DeleteResponse = try await provider.request(.delete)
 

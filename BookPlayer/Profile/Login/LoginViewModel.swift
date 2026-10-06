@@ -32,31 +32,6 @@ class LoginViewModel: LoginViewModelProtocol {
     self.accountService = accountService
   }
 
-  /// This should only be used when running the app in the simulator
-  func setupTestAccount() {
-    Task {
-      await MainActor.run { [weak self] in
-        self?.alertPresenter.showLoader()
-      }
-      do {
-        let token: String = Bundle.main.configurationValue(for: .mockedBearerToken)
-        try await self.accountService.loginTestAccount(token: token)
-        await MainActor.run { [weak self] in
-          self?.alertPresenter.stopLoader()
-        }
-      } catch {
-        await MainActor.run { [weak self, error] in
-          self?.alertPresenter.stopLoader()
-          self?.handleError(error)
-        }
-      }
-
-      await MainActor.run { [weak self] in
-        self?.onTransition?(.completeAccount)
-      }
-    }
-  }
-
   func handleSignIn(authorization: ASAuthorization) {
     switch authorization.credential {
     case let appleIDCredential as ASAuthorizationAppleIDCredential:
