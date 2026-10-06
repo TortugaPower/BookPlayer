@@ -78,7 +78,6 @@ public protocol AccountServiceProtocol {
   func subscribe(option: PricingModel) async throws -> Bool
   func restorePurchases() async throws -> CustomerInfo
 
-  func loginTestAccount(token: String) async throws
   @MainActor func login(
     with token: String,
     userId: String
@@ -353,21 +352,6 @@ public final class AccountService: AccountServiceProtocol {
     }
     
     return try await Purchases.shared.restorePurchases()
-  }
-
-  public func loginTestAccount(token: String) async throws {
-    let userId = "001918.a2d23624056d45618b7c2699d98c535e.2333"
-    self.updateAccount(
-      id: userId,
-      email: "gcarlo89@hotmail.com",
-      donationMade: true,
-      hasSubscription: true
-    )
-
-    try self.keychain.set(token, key: .token)
-
-    _ = try await Purchases.shared.logIn(userId)
-    UserDefaults.sharedDefaults.set(userId, forKey: "rcUserId")
   }
 
   /// On the main actor, like the other sign-ins and deleteAccount(): the account is read and
