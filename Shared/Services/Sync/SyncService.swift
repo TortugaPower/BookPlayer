@@ -1143,11 +1143,7 @@ extension SyncService {
 
     guard let snapshot = libraryService.getItemResourcesSnapshot(for: relativePath) else { return }
 
-    guard
-      let externalResource = snapshot.resources.first(where: {
-        $0.syncStatus == ExternalResource.SyncStatus.stream.rawValue
-      })
-    else {
+    guard let externalResource = Self.streamedMediaServerLink(in: snapshot.resources) else {
       // A streamed volume's book has no link of its own: its file goes up like a linked book's
       if let volumePath = LibraryService.parentPath(of: relativePath),
         let volume = libraryService.getItemResourcesSnapshot(for: volumePath),
@@ -1171,6 +1167,16 @@ extension SyncService {
     // design (the reference lives in the DB for every tier and the server validates
     // entitlements) — matching getDownloadState, which permits these downloads when !isActive.
     await jobManager.scheduleResourceToDownload(with: relativePath, for: snapshot.uuid)
+  }
+
+  /// The streamed media-server link a finished download marks processed and uploads the file
+  /// for. Not just any `stream` row: Android's offload flips every downloaded link back to
+  /// `stream`, Hardcover's included, and the links are an unordered set.
+  static func streamedMediaServerLink(in resources: [SyncableExternalResource]) -> SyncableExternalResource? {
+    resources
+      .filter { ExternalResource.ProviderName(rawValue: $0.providerName)?.isMediaServer == true }
+      .sorted { ($0.providerName, $0.providerId) < ($1.providerName, $1.providerId) }
+      .first { $0.syncStatus == ExternalResource.SyncStatus.stream.rawValue }
   }
 
   /// Backstop against truncated/botched downloads that finish without surfacing a

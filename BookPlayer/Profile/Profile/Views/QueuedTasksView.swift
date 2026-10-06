@@ -26,6 +26,8 @@ struct QueuedTasksView: View, BPLogger {
   @State private var reportShare: SyncPauseReportShare?
   /// A second tap while the report builds (or its sheet is up) is ignored
   @State private var isBuildingReport = false
+  /// The list reload in flight: a newer one replaces it
+  @State private var reloadTask: Task<Void, Never>?
   var monitor = SyncQueueProgressMonitor.shared
 
   @Environment(\.syncQueueService) private var syncQueueService
@@ -115,6 +117,13 @@ struct QueuedTasksView: View, BPLogger {
     // Replays the current snapshot on subscribe, so this is the initial load as well.
     .onReceive(syncQueueService.observeQueueCounts()) { snapshot in
       counts = snapshot
+    }
+    // The list at most twice a second: a first sync stores its tasks one at a time, and every
+    // store sends a snapshot. The replayed one still loads at once, and the last one still lands
+    .onReceive(
+      syncQueueService.observeQueueCounts()
+        .throttle(for: .milliseconds(500), scheduler: DispatchQueue.main, latest: true)
+    ) { _ in
       reloadTasks()
     }
   }
@@ -301,9 +310,13 @@ struct QueuedTasksView: View, BPLogger {
     }
   }
 
+  /// The latest reload wins: an older one finishing after it would show an older queue
   func reloadTasks() {
-    Task { @MainActor in
-      tasks = await syncQueueService.getOrderedQueuedJobs(activeTaskIDs: Set(monitor.activeTasks.keys))
+    reloadTask?.cancel()
+    reloadTask = Task { @MainActor in
+      let latest = await syncQueueService.getOrderedQueuedJobs(activeTaskIDs: Set(monitor.activeTasks.keys))
+      guard !Task.isCancelled else { return }
+      tasks = latest
     }
   }
 }

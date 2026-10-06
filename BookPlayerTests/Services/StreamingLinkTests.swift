@@ -9,9 +9,9 @@
 @testable import BookPlayerKit
 import XCTest
 
-/// With sync off, only a media-server link stands in for a book's missing file. Any matched book
-/// also has a Hardcover link, which has no file behind it: such a book still counts as downloaded,
-/// and its missing file is reported as missing, as before links existed.
+/// Only a media-server link streams. Any matched book also has a Hardcover link, which has no file
+/// behind it: with sync off, such a book still counts as downloaded and its missing file is reported
+/// as missing, as before links existed, and a finished download never treats it as streamed.
 final class StreamingLinkTests: XCTestCase {
   private var libraryService: LibraryService!
 
@@ -85,6 +85,28 @@ final class StreamingLinkTests: XCTestCase {
     }
   }
 
+  // MARK: - Finished download
+
+  /// Android's offload flips every downloaded link back to `stream`, Hardcover's included
+  func testAFinishedDownloadPicksTheStreamedMediaServerLink() {
+    let link = SyncService.streamedMediaServerLink(in: [
+      syncable(provider: "hardcover", status: .stream),
+      syncable(provider: "jellyfin", status: .stream),
+    ])
+
+    XCTAssertEqual(link?.providerName, "jellyfin")
+  }
+
+  /// A Hardcover-only book came from the cloud: no link to mark, and no upload to queue
+  func testAFinishedDownloadOfAHardcoverOnlyBookPicksNoLink() {
+    XCTAssertNil(SyncService.streamedMediaServerLink(in: [syncable(provider: "hardcover", status: .stream)]))
+  }
+
+  /// A link marked downloaded already has its file in the cloud
+  func testAFinishedDownloadSkipsALinkAlreadyDownloaded() {
+    XCTAssertNil(SyncService.streamedMediaServerLink(in: [syncable(provider: "jellyfin", status: .downloaded)]))
+  }
+
   // MARK: - Helpers
 
   private struct LoadStopped: Error {}
@@ -127,6 +149,17 @@ final class StreamingLinkTests: XCTestCase {
       type: .book,
       uuid: UUID().uuidString,
       externalResources: links
+    )
+  }
+
+  private func syncable(provider: String, status: ExternalResource.SyncStatus) -> SyncableExternalResource {
+    SyncableExternalResource(
+      providerName: provider,
+      providerId: "\(provider)-1",
+      syncStatus: status.rawValue,
+      lastSyncedAt: nil,
+      processedFile: false,
+      hostId: nil
     )
   }
 
