@@ -855,24 +855,23 @@ extension ItemListView {
 
 // MARK: - Custom Rotors
 extension ItemListView {
+  /// Filter the items before the `ForEach` instead of using an `if` inside it: built with the iOS 27 SDK, an `if`
+  /// there makes `Optional<AccessibilityRotorEntry>`, whose rotor conformance only exists on iOS 27, so the list
+  /// crashes at launch on earlier versions.
   @AccessibilityRotorContentBuilder
   private func customBookRotor(with scrollView: ScrollViewProxy) -> some AccessibilityRotorContent {
-    ForEach(model.filteredResults, id: \.id) { item in
-      if item.type != .folder {
-        AccessibilityRotorEntry(item.title, item.id, in: customRotorNamespace) {
-          scrollView.scrollTo(item.id)
-        }
+    ForEach(model.filteredResults.filter { $0.type != .folder }, id: \.id) { item in
+      AccessibilityRotorEntry(item.title, item.id, in: customRotorNamespace) {
+        scrollView.scrollTo(item.id)
       }
     }
   }
 
   @AccessibilityRotorContentBuilder
   private func customFolderRotor(with scrollView: ScrollViewProxy) -> some AccessibilityRotorContent {
-    ForEach(model.filteredResults, id: \.id) { item in
-      if item.type == .folder {
-        AccessibilityRotorEntry(item.title, item.id, in: customRotorNamespace) {
-          scrollView.scrollTo(item.id)
-        }
+    ForEach(model.filteredResults.filter { $0.type == .folder }, id: \.id) { item in
+      AccessibilityRotorEntry(item.title, item.id, in: customRotorNamespace) {
+        scrollView.scrollTo(item.id)
       }
     }
   }
