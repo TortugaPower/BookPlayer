@@ -86,7 +86,7 @@ jobs:
           fi
           NEWER=$(RECORDED="$RECORDED" python3 - <<'PY'
           import json, os, re, sys
-          key = lambda v: tuple(int(p) for p in v.split("."))
+          key = lambda v: (tuple(int(p) for p in v.split(".")) + (0, 0, 0, 0))[:4]  # 1.3 == 1.3.0
           try:
               recorded = json.loads(os.environ["RECORDED"]).get("version") or "0"
           except (ValueError, AttributeError):
@@ -162,7 +162,11 @@ jobs:
           fi
           WEBHOOK=$(aws ssm get-parameter --name "$WEBHOOK_PARAM" --with-decryption --query Parameter.Value --output text)
           echo "::add-mask::$WEBHOOK"
-          # On a rejection, show Discord's reason (the response body never contains the webhook URL).
-          curl --fail-with-body -sS -H "Content-Type: application/json" --data @payload.json "$WEBHOOK?wait=true" -o response.json \
-            || { cat response.json; echo; exit 1; }
+          # On a rejection, show Discord's reason (the response body never contains the webhook URL). No --retry: a
+          # POST that timed out after Discord accepted it would be announced twice; a missed post is the easy one.
+          curl --fail-with-body -sS --max-time 30 -H "Content-Type: application/json" --data @payload.json "$WEBHOOK?wait=true" -o response.json \
+            || { cat response.json 2>/dev/null || true; echo  # no file when curl failed before Discord answered
+                 echo "::error::the post failed and the version is already recorded, so 'Re-run failed jobs' would skip" \
+                   "everything: post it with a manual run (Run workflow) with dry_run off and repost on."
+                 exit 1; }
           echo "Posted v$VERSION to Discord."
