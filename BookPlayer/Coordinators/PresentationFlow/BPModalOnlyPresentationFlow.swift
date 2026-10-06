@@ -48,9 +48,11 @@ public class BPModalOnlyPresentationFlow: BPCoordinatorPresentationFlow {
   }
 
   /// Dismiss the ``presentedController``
-  /// - Parameter animated: Specifies if we want the dismiss transition animated or not
-  public func finishPresentation(animated: Bool) {
-    presentingController.dismiss(animated: animated)
+  /// - Parameters:
+  ///   - animated: Specifies if we want the dismiss transition animated or not
+  ///   - completion: Runs once the dismissal has finished
+  public func finishPresentation(animated: Bool, completion: (() -> Void)?) {
+    presentingController.dismiss(animated: animated, completion: completion)
   }
 }
 

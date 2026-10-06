@@ -33,3 +33,15 @@ struct FolderCreationInput {
     type = .folder
   }
 }
+
+/// The name alert for a new folder or volume, apart from the list's other alerts (see
+/// `ItemListView.contentView`)
+struct FolderNameRequest: Equatable {
+  let type: SimpleItemType
+  let placeholder: String
+
+  init(_ input: FolderCreationInput) {
+    type = input.type
+    placeholder = input.placeholder
+  }
+}

@@ -351,9 +351,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
       // the raw query back under `http.query`, on both network breadcrumbs and `http.client` spans.
       // Only the userinfo portion is redacted for us. That leaks real secrets from hosts we don't
       // control: AudiobookShelf's OIDC exchange has to carry `code` and `code_verifier` in the query
-      // (its endpoint is GET-only), and Jellyfin's download URLs still carry `api_key`. Either one
-      // would be uploaded verbatim alongside the user's self-hosted hostname on the next captured
-      // event.
+      // (its endpoint is GET-only). Both would be uploaded verbatim alongside the user's self-hosted
+      // hostname on the next captured event.
       //
       // Our own backend authenticates with a bearer header and puts nothing sensitive in a query, so
       // its query strings are kept — that's where this data actually helps debugging.

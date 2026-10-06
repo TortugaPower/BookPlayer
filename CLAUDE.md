@@ -66,7 +66,7 @@ App Intents in the top-level `BookPlayer/BookPlayer/AppIntents/` folder — don'
 ### Dependencies (SPM, declared inside `project.pbxproj`)
 
 RevenueCat (`purchases-ios`, ~5.33), Sentry (`sentry-cocoa`, **exact 8.36.0**), Kingfisher (~7.9),
-JellyfinAPI (`jellyfin-sdk-swift`, ~0.4), MarqueeLabel (~4.0.5), DeviceKit (~5.1),
+JellyfinAPI (`jellyfin-sdk-swift`, ~1.0), MarqueeLabel (~4.0.5), DeviceKit (~5.1),
 IDZSwiftCommonCrypto (~0.13.1), Themeable (~3.0), ZipArchive (~2.3), DirectoryWatcher (~2.8.6).
 `BlurHashDecode.swift` is vendored (SwiftLint-excluded). RevenueCat + Kingfisher link into the **frameworks**;
 most others link into the **app**. SwiftLint runs as a build-phase run-script; **Sourcery is run manually** (not
@@ -383,6 +383,19 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
   `SentrySDK.capture`s then `fatalError`s** — an intentional but real crash surface for bad imports. Book/folder
   records are created via `LibraryService.createBook/createFolder`; artwork is extracted lazily by
   `ArtworkService`, not inline. App-managed source files are removed after copy.
+  **The import's "where should these go?" prompt is `ImportPlacementPrompt`, owned by `LibraryRootView`, not
+  one of the list's alerts.** SwiftUI drops a presentation started while something covers the library or is
+  still leaving it, and a dropped value in the list's single `activeAlert` slot used to block every later list
+  alert until relaunch. So: the import screen starts the import only once it has closed
+  (`finishPresentation(animated:completion:)`); the prompt waits until `ListStateManager.coversOnScreen` is
+  empty (covers register in their content's `onAppear` and leave in the presentation's `onDismiss`: a new cover
+  over the library must do the same), the import screen is gone (`ImportManager.isImportScreenShown`) and the
+  Library tab is on screen; and it carries the imported items' uuids, reading their current paths when an
+  option is picked (`LibraryService.getItemRefs(forUuids:)`). The list's own sheets and alerts aren't waited
+  for: the prompt closes one (seen with a sheet), or is dropped under it, lost, and cleared when the next
+  import screen closes so it can't block later prompts. Its actions and the list's multi-select share
+  `LibraryOrganizer`. An alert that leads to another (Move → the folder name) uses a separate alert, set from
+  the first one's button: switching one alert's contents (nil, then the next) can be dropped mid-animation.
 - **Library** (`Library/ItemList/…`, backed by `Shared/Services/LibraryService.swift`): the main list, folders,
   and drag-drop reordering. **Ordering model (query-time sort):** `orderRank` means ONLY the user's custom
   arrangement (written by drag/reverse/Custom-freeze/one-shot sorts and by sync; never by an automatic sort).
@@ -402,7 +415,10 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
   arrangement away. Route any new user-arrangement rank mutation through that helper (the one-shot
   materialization for `.unresolved` locations in `sortContents` is the deliberate exception — it has no pref
   key to flip). Playback prev/next walks
-  `getOrderedSiblings` (visible order, lightweight entries), not rank cursors. On logout,
+  `getOrderedSiblings` (visible order, lightweight entries), not rank cursors. A correct fetch order doesn't
+  update a list already on screen: `ItemListView` holds fetched rows, so under "Most recent" it re-fetches when
+  the loaded book changes, and `setLibraryLastBook` stamps the book's parent folders too, so parent lists move
+  the folder on that re-fetch instead of after the progress tick's delayed save. On logout,
   `PreferencesSyncService` freezes automatically-sorted locations into ranks before wiping `library_sort:*`,
   so sign-out doesn't visibly re-scramble the library.
   UI reads on `viewContext`, background on `backgroundContext`, only `Simple*` snapshots cross back to UI.
@@ -420,7 +436,7 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
 - **Prefer native Apple / SwiftUI APIs** over custom implementations.
 - **Localization:** every user-facing string via `"key".localized`
   (`Shared/Extensions/String+BookPlayer.swift` → `NSLocalizedString`; no SwiftGen/`L10n`). New keys go in
-  `BookPlayer/Base.lproj/Localizable.strings`; ~27 locales are Lokalise-managed — flag a **missing Base key** or a
+  `BookPlayer/Base.lproj/Localizable.strings`; ~27 locales are community-translated — flag a **missing Base key** or a
   hardcoded literal, but do **not** nitpick the wording of existing translations.
 - **Accessibility is first-class** (audiobook app, many low-vision users). New interactive SwiftUI controls need
   `accessibilityLabel` (and `accessibilityValue` where stateful) and must respect Dynamic Type — use the

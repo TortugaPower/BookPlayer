@@ -84,7 +84,9 @@ struct MainView: View {
         MiniPlayerAccessoryView(relativePath: relativePath, showPlayer: showPlayer)
       }
     }
-    .sheet(item: $listState.activeIntegrationSheet) { sheet in
+    .sheet(item: $listState.activeIntegrationSheet, onDismiss: {
+      listState.coversOnScreen.remove(.mediaServers)
+    }) { sheet in
       switch sheet {
       case .mediaServers:
         NavigationStack {
@@ -94,9 +96,12 @@ struct MainView: View {
             style: .libraryEntry
           )
         }
+        .onAppear { listState.coversOnScreen.insert(.mediaServers) }
       }
     }
-    .fullScreenCover(isPresented: playerState.isShowingPlayerBinding) {
+    .fullScreenCover(isPresented: playerState.isShowingPlayerBinding, onDismiss: {
+      listState.coversOnScreen.remove(.player)
+    }) {
       PlayerView {
         PlayerViewModel(
           libraryService: libraryService,
@@ -106,6 +111,7 @@ struct MainView: View {
         )
       }
       .presentationBackground(.clear)
+      .onAppear { listState.coversOnScreen.insert(.player) }
     }
     .accessibilityAction(.magicTap) {
       playerManager.playPause()

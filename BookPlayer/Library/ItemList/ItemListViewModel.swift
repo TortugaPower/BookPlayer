@@ -18,6 +18,9 @@ final class ItemListViewModel: ObservableObject {
   private let syncService: SyncService
   private let listSyncRefreshService: ListSyncRefreshService
   private let loadingState: LoadingOverlayState
+  private var organizer: LibraryOrganizer {
+    LibraryOrganizer(libraryService: libraryService, syncService: syncService, playerManager: playerManager)
+  }
   private let listState: ListStateManager
   let singleFileDownloadService: SingleFileDownloadService
 
@@ -71,9 +74,6 @@ final class ItemListViewModel: ObservableObject {
     }
   }
   @Published var selectedItems = [SimpleLibraryItem]()
-  /// Stores item identifiers from import operations to avoid race condition
-  /// where items may not be loaded in the UI yet when moving to a folder
-  var pendingMoveItemIdentifiers: [LibraryItemRef]?
 
   /// Search
   @Published var scope: ItemListSearchScope = .all {
@@ -412,15 +412,7 @@ extension ItemListViewModel {
 
   func updateFolders(_ folders: [SimpleLibraryItem], type: SimpleItemType) {
     do {
-      try folders.forEach { folder in
-        try libraryService.updateFolder(at: folder.relativePath, type: type)
-
-        if let currentItem = playerManager.currentItem,
-          currentItem.relativePath.contains(folder.relativePath)
-        {
-          playerManager.stop()
-        }
-      }
+      try organizer.convert(folders, to: type)
 
       listState.reloadAll()
       editMode = .inactive
@@ -434,8 +426,7 @@ extension ItemListViewModel {
     let parentFolder = selectedItems.first?.parentFolder
 
     do {
-      try libraryService.moveItems(selectedItemPaths, inside: nil)
-      syncService.scheduleMove(items: selectedItemPaths, to: nil)
+      try organizer.move(selectedItemPaths, into: nil)
       if let parentFolder {
         libraryService.rebuildFolderDetails(parentFolder)
       }
@@ -447,45 +438,17 @@ extension ItemListViewModel {
     editMode = .inactive
   }
 
-  func importIntoLibrary(_ items: [LibraryItemRef]) {
-    do {
-      try libraryService.moveItems(items, inside: nil)
-      syncService.scheduleMove(items: items, to: nil)
-    } catch {
-      loadingState.error = error
-    }
-
-    listState.reloadAll(padding: items.count)
-  }
-
   func createFolder(with title: String, items: [LibraryItemRef]? = nil, type: SimpleItemType) {
     Task { @MainActor in
       do {
-        let trimmedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
-        
-        guard !trimmedTitle.isEmpty else {
-          return
-        }
-        
-        let folder = try libraryService.createFolder(
-          with: trimmedTitle,
-          inside: libraryNode.folderRelativePath
-        )
-        await syncService.scheduleUpload(items: [folder])
-        if let fetchedItems = items {
-          try libraryService.moveItems(fetchedItems, inside: folder.relativePath)
-          syncService.scheduleMove(items: fetchedItems, to: LibraryItemRef(relativePath: folder.relativePath, uuid: folder.uuid))
-        }
-        try libraryService.updateFolder(at: folder.relativePath, type: type)
-        libraryService.rebuildFolderDetails(folder.relativePath)
-
-        // stop playback if folder items contain that current item
-        if let items = items,
-          let currentRelativePath = playerManager.currentItem?.relativePath,
-           items.contains(where: { $0.relativePath == currentRelativePath })
-        {
-          playerManager.stop()
-        }
+        guard
+          try await organizer.createFolder(
+            titled: title,
+            inside: libraryNode.folderRelativePath,
+            holding: items ?? [],
+            type: type
+          ) != nil
+        else { return }
 
         listState.reloadAll(padding: 1)
         editMode = .inactive
@@ -496,19 +459,10 @@ extension ItemListViewModel {
   }
 
   func handleMoveIntoFolder(_ folder: SimpleLibraryItem) {
-    // Use pendingMoveItemIdentifiers if available (from import operations),
-    // otherwise fall back to selectedItems (from manual selection)
-    let fetchedItems: [LibraryItemRef]
-    if let pendingItems = pendingMoveItemIdentifiers {
-      fetchedItems = pendingItems
-      pendingMoveItemIdentifiers = nil
-    } else {
-      fetchedItems = selectedItems.compactMap({ LibraryItemRef(relativePath: $0.relativePath, uuid: $0.uuid) })
-    }
+    let fetchedItems = selectedItems.map { LibraryItemRef(relativePath: $0.relativePath, uuid: $0.uuid) }
 
     do {
-      try libraryService.moveItems(fetchedItems, inside: folder.relativePath)
-      syncService.scheduleMove(items: fetchedItems, to: LibraryItemRef(relativePath: folder.relativePath, uuid: folder.uuid))
+      try organizer.move(fetchedItems, into: LibraryItemRef(relativePath: folder.relativePath, uuid: folder.uuid))
     } catch {
       loadingState.error = error
     }

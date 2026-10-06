@@ -46,6 +46,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   /// successful activation can tell whether recovery required an app relaunch.
   private var audioSessionFailedThisSession = false
   private var hasObserverRegistered = false
+  /// How far we trust the player's clock: the baseline for spotting moves the player makes on its own
+  private var clockState: ClockState = .unknown
   private var observeStatus: Bool = false {
     didSet {
       guard oldValue != self.observeStatus else { return }
@@ -318,6 +320,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     /// Cancel in case there's an ongoing load task
     playTask?.cancel()
     loadChapterTask?.cancel()
+    clockState = .unknown
 
     // Recover in case of failure
     if audioPlayer.status == .failed {
@@ -408,6 +411,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
       DispatchQueue.main.async {
         self.isFetchingRemoteURL = nil
         self.audioPlayer.replaceCurrentItem(with: playerItem)
+        self.clockState = .trusting(0)
 
         self.currentSpeed = self.speedService.getSpeed(relativePath: chapter.relativePath)
         // Set book metadata for lockscreen and control center
@@ -470,6 +474,67 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     }
   }
 
+  /// How far `PlayerManager` trusts the player's clock (see `PlayerTimeSample`). Times are relative
+  /// to the current file
+  private enum ClockState {
+    /// Nothing loaded, so there's no baseline yet
+    case unknown
+    /// Readings are judged against `expected`, which comes from our own seeks and from every
+    /// accepted reading. `recoveries` counts the seeks back since the last accepted reading
+    case tracking(expected: TimeInterval, recoveries: Int)
+    /// A seek back to `target` is in flight
+    case recovering(target: TimeInterval, attempt: Int)
+
+    /// Trust a position we just put the player at, or that it just reported
+    static func trusting(_ time: TimeInterval) -> ClockState {
+      .tracking(expected: time, recoveries: 0)
+    }
+
+    var expectedTime: TimeInterval? {
+      switch self {
+      case .unknown:
+        return nil
+      case .tracking(let expected, _):
+        return expected
+      case .recovering(let target, _):
+        return target
+      }
+    }
+  }
+
+  /// Caps the seeks back in a row, so a clock that stays broken can't loop seeks
+  private static let maxClockRecoveries = 3
+
+  /// Seek back to the last trusted position after the player moved on its own (see `PlayerTimeSample`)
+  private func recoverPlayerTime() {
+    guard
+      case .tracking(let expected, let recoveries) = clockState,
+      recoveries < Self.maxClockRecoveries
+    else { return }
+
+    clockState = .recovering(target: expected, attempt: recoveries + 1)
+    audioPlayer.seek(
+      to: CMTime(seconds: expected, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
+    ) { [weak self] _ in
+      DispatchQueue.main.async {
+        /// Unless a seek of ours has set a newer baseline since
+        guard let self, case .recovering(let target, let attempt) = self.clockState else { return }
+        self.clockState = .tracking(expected: target, recoveries: attempt)
+      }
+    }
+  }
+
+  /// iOS 27 can snap a paused item back to the file start (see `PlayerTimeSample`), so put it back
+  /// where we left it before resuming
+  private func restorePlayerTimeIfNeeded() {
+    guard
+      case .tracking(let expected, _) = clockState,
+      PlayerTimeSample(playerTime: CMTimeGetSeconds(audioPlayer.currentTime()), expected: expected) == .recover
+    else { return }
+
+    audioPlayer.seek(to: CMTime(seconds: expected, preferredTimescale: CMTimeScale(NSEC_PER_SEC)))
+  }
+
   // Called every second by the timer
   func updateTime() {
     guard
@@ -480,12 +545,23 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
       return
     }
 
-    var currentTime = CMTimeGetSeconds(self.audioPlayer.currentTime())
+    /// A seek back is in flight, and its target is the position we already hold
+    if case .recovering = clockState { return }
 
-    // When using devices with AirPlay 1,
-    // `currentTime` can be negative when switching chapters
-    if currentTime < 0 {
-      currentTime = 0.05
+    var currentTime: TimeInterval
+
+    switch PlayerTimeSample(
+      playerTime: CMTimeGetSeconds(self.audioPlayer.currentTime()),
+      expected: clockState.expectedTime
+    ) {
+    case .valid(let playerTime):
+      clockState = .trusting(playerTime)
+      currentTime = playerTime
+    case .ignore:
+      return
+    case .recover:
+      recoverPlayerTime()
+      return
     }
 
     if currentItem.isBoundBook {
@@ -734,6 +810,7 @@ extension PlayerManager {
       currentItem.isBoundBook
       ? currentItem.getChapterTime(in: currentItem.currentChapter, for: boundedTime)
       : boundedTime
+    clockState = .trusting(newTime)
     self.audioPlayer.seek(to: CMTime(seconds: newTime, preferredTimescale: CMTimeScale(NSEC_PER_SEC)))
   }
 
@@ -771,6 +848,7 @@ extension PlayerManager {
       currentItem.isBoundBook
       ? currentItem.getChapterTime(in: currentItem.currentChapter, for: boundedTime)
       : boundedTime
+    clockState = .trusting(newTime)
     self.audioPlayer.seek(to: CMTime(seconds: newTime, preferredTimescale: CMTimeScale(NSEC_PER_SEC)))
   }
 
@@ -1041,6 +1119,7 @@ extension PlayerManager {
       let playerTime = CMTimeGetSeconds(audioPlayer.currentTime())
       if playerTime.isFinite && Int(currentItem.duration) == Int(playerTime) { return }
 
+      restorePlayerTimeIfNeeded()
       handleSmartRewind(currentItem)
 
       if !autoPlayed {
@@ -1081,8 +1160,11 @@ extension PlayerManager {
       let timeInChapter = item.currentTime - item.currentChapter.start
       let rewindTimeLimited = min(rewindTimeMin, timeInChapter, timePassed)
 
-      let newPlayerTime = max(CMTimeGetSeconds(self.audioPlayer.currentTime()) - rewindTimeLimited, 0)
+      /// Rewind from where we know playback is, not the raw player clock (see `PlayerTimeSample`)
+      let playerTime = clockState.expectedTime ?? CMTimeGetSeconds(self.audioPlayer.currentTime())
+      let newPlayerTime = max(playerTime - rewindTimeLimited, 0)
 
+      clockState = .trusting(newPlayerTime)
       self.audioPlayer.seek(to: CMTime(seconds: newPlayerTime, preferredTimescale: CMTimeScale(NSEC_PER_SEC)))
     }
 
@@ -1236,6 +1318,7 @@ extension PlayerManager {
 
   func stop() {
     stopPlayback()
+    clockState = .unknown
 
     self.currentItem = nil
     playerItem = nil

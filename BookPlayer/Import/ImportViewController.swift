@@ -32,6 +32,16 @@ final class ImportViewController: UIViewController, Storyboarded {
     self.bindFilesObserver()
   }
 
+  override func viewWillAppear(_ animated: Bool) {
+    super.viewWillAppear(animated)
+    viewModel.screenWillAppear()
+  }
+
+  override func viewDidDisappear(_ animated: Bool) {
+    super.viewDidDisappear(animated)
+    viewModel.screenDidDisappear()
+  }
+
   private func bindFilesObserver() {
     self.viewModel.$files.sink { [weak self] files in
       self?.files = files.sorted()

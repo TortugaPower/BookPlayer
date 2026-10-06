@@ -53,11 +53,9 @@ public final class PlaybackService: PlaybackServiceProtocol {
   }
 
   public func getNextChapter(from item: PlayableItem, after chapter: PlayableChapter) -> PlayableChapter? {
-    guard !item.chapters.isEmpty else { return nil }
-
-    if chapter == item.chapters.last { return nil }
-
-    return item.chapters[Int(chapter.index)]
+    /// The item owns chapter ordering; indexing `item.chapters` by `chapter.index` here used
+    /// to overrun the array for chapter lists that are not 1-based and gapless.
+    return item.nextChapter(after: chapter)
   }
 
   public func getPlayableItem(before relativePath: String, parentFolder: String?) -> PlayableItem? {

@@ -1,0 +1,3 @@
+# Installed in CI with `npm ci`; the lockfile is committed. Kept here, not in the repository root, so the
+# directory is self-contained: copying it to another repository copies this rule too.
+node_modules/

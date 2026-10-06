@@ -22,12 +22,20 @@ public protocol BPCoordinatorPresentationFlow {
   ///   - animated: Specifies if we want the transition animated or not
   func pushViewController(_ viewController: UIViewController, animated: Bool)
   /// Finish presentation of the flow
-  /// - Parameter animated: Specifies if we want the dismiss transition animated or not
-  func finishPresentation(animated: Bool)
+  /// - Parameters:
+  ///   - animated: Specifies if we want the dismiss transition animated or not
+  ///   - completion: Runs once the flow is gone from the screen, after its transition
+  func finishPresentation(animated: Bool, completion: (() -> Void)?)
 }
 
 /// Convenience default implementation for the functions that should work the same across different implementations
 extension BPCoordinatorPresentationFlow {
+  /// Finish presentation of the flow
+  /// - Parameter animated: Specifies if we want the dismiss transition animated or not
+  public func finishPresentation(animated: Bool) {
+    finishPresentation(animated: animated, completion: nil)
+  }
+
   /// Push the next `UIViewController` on top of ``navigationController``
   /// - Parameters:
   ///   - viewController: The next `UIViewController` in the coordinator's flow

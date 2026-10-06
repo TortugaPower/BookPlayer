@@ -6,7 +6,7 @@
     </a>
 </p>
 
-[![Four screenshots of BookPlayer on the iPhone X. Showing Player, Import options, the Library and, a playlist](./.github/readme-screenshots@2x.png)](https://itunes.apple.com/us/app/bookplayer-audio-book-player/id1138219998?ls=1&mt=8)
+[![Five screenshots of BookPlayer on iPhone, iPad and Apple Watch. Showing the Player, Import options, Cloud Sync, the Library and playback features](./.github/readme-screenshots@2x.png)](https://itunes.apple.com/us/app/bookplayer-audio-book-player/id1138219998?ls=1&mt=8)
 
 Please visit our [Wiki](https://github.com/TortugaPower/BookPlayer/wiki) for our
 [FAQ](https://github.com/TortugaPower/BookPlayer/wiki/FAQ) and
@@ -85,8 +85,6 @@ See [our Roadmap on GitHub](https://github.com/orgs/TortugaPower/projects/1) for
 - Catalan (Josep)
 - Japanese ([@watr](https://github.com/watr))
 
-Help us to [translate BookPlayer](#localisation).
-
 ## Contributing
 
 Pull requests and ideas are always welcomed. Please
@@ -117,17 +115,10 @@ A full list of all contributors can be found
 
 ### Community
 
-[Join us on our new Discord server](https://discord.gg/MjCUXgU) if you want to contribute or talk to other people using
-BookPlayer. Keep in mind that [you should file issues](#contributing) when you find bugs or have ideas for new features.
-Discord is a chat platform and while the maintainers will drop by once in a while, it is still a chat and not a
-bugtracker.
-
-### Localisation
-
-[![Localization generously sponsored by Lokalise, the best platform for adding lodalization to your applications](./.github/lokalise@2x.png)](https://lokalise.com/)
-
-If you want to help translating BookPlayer into your own language, send as an email at support@bookplayer.app so we can
-invite you to Lokalise.
+[Join us on our Discord server](https://discord.gg/MjCUXgU) if you want to contribute or talk to other people using
+BookPlayer. Bugs and feature requests belong in the **#bugs-and-feedback** forum channel there, or in
+[a GitHub issue](#contributing) — please don't report them in the chat channels. The maintainers drop by once in a
+while, but a chat is not a bugtracker.
 
 ## Dependencies
 
