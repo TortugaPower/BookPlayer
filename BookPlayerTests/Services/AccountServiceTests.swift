@@ -13,6 +13,8 @@ import Foundation
 import Combine
 import XCTest
 
+/// Main actor: the tests use the main-queue view context (see LibraryServiceTests).
+@MainActor
 class AccountServiceTests: XCTestCase {
   var sut: AccountService!
   var mockKeychain: KeychainServiceProtocol!

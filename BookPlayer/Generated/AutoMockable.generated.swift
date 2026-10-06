@@ -514,6 +514,7 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     var createBookFromReceivedInvocations: [URL] = []
     var createBookFromReturnValue: Book!
     var createBookFromClosure: ((URL) async -> Book)?
+    @MainActor
     func createBook(from url: URL) async -> Book {
         createBookFromCallsCount += 1
         createBookFromReceivedUrl = url

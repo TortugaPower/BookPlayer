@@ -97,7 +97,7 @@ public protocol LibraryServiceProtocol: AnyObject {
 
   /// Update metadata
   /// Create book core data object
-  func createBook(from url: URL) async -> Book
+  @MainActor func createBook(from url: URL) async -> Book
   /// Load metadata chapters if needed
   func loadChaptersIfNeeded(relativePath: String, asset: AVAsset) async
   /// Store chapters a media server reported for an item whose file is never opened here.
@@ -1982,6 +1982,8 @@ extension LibraryService {
 
 // MARK: - Metadata update
 extension LibraryService {
+  /// On the main actor: it creates the book on the view context
+  @MainActor
   public func createBook(from url: URL) async -> Book {
     let context = dataManager.getContext()
     

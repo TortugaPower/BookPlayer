@@ -13,6 +13,10 @@ import Foundation
 import Combine
 import XCTest
 
+/// Main actor: the service's view context is a main-queue context. An async test runs off the main
+/// thread otherwise, and its view-context reads and saves raced the main thread (the flaky
+/// InsertBooksTests crashes; Core Data's concurrency checking traps on them). Subclasses inherit it.
+@MainActor
 class LibraryServiceTests: XCTestCase {
   // swiftlint:disable force_cast
   var sut: LibraryService!
@@ -1749,7 +1753,6 @@ class ImportDirectoryTests: LibraryServiceTests {
 
   /// Test that importing a directory and then moving it into another folder works correctly
   /// (no ghost folder at root, correct file count)
-  @MainActor
   func testImportDirectoryThenMoveToFolder() async throws {
     let library = self.sut.getLibrary()
     let processedFolder = DataManager.getProcessedFolderURL()
@@ -2222,6 +2225,7 @@ class RegisterExistingProcessedItemsTests: LibraryServiceTests {
 /// External-resource service logic: link/dedup, removal, provider-scoped lookup,
 /// and the two-way progress sync (add/remove/reconcile paths for the media-server
 /// ExternalResource entity added in model v12).
+@MainActor
 class LibraryServiceExternalResourceTests: XCTestCase {
   var sut: LibraryService!
 
@@ -2335,7 +2339,6 @@ class LibraryServiceExternalResourceTests: XCTestCase {
     )
   }
 
-  @MainActor
   func testHandleSyncFromExternalResourceStoresTheSnapshotsChapters() async {
     let book = makeBook("external-chapters-4", duration: 1500)
     _ = await sut.setExternalResource(providerName: "jellyfin", providerId: "jelly-ch", for: book.uuid)
@@ -2359,7 +2362,6 @@ class LibraryServiceExternalResourceTests: XCTestCase {
     )
   }
 
-  @MainActor
   func testHandleSyncFromExternalResourceUpdatesNewerProgress() async {
     let book = makeBook("external-5", duration: 200)
     // Background write FIRST, then refresh before the view-context mutations: there is
@@ -2386,7 +2388,6 @@ class LibraryServiceExternalResourceTests: XCTestCase {
     XCTAssertEqual(book.percentCompleted, 50, accuracy: 0.01)
   }
 
-  @MainActor
   func testHandleSyncFromExternalResourceIgnoresOlderProgress() async {
     let localDate = Date(timeIntervalSince1970: 5_000)
     let book = makeBook("external-6", duration: 200)
@@ -2417,7 +2418,6 @@ class LibraryServiceExternalResourceTests: XCTestCase {
   /// The predicate now filters on the provider name it was handed, so one provider's answers
   /// can never land on another provider's rows — a provider id only means something to the
   /// server that issued it.
-  @MainActor
   func testHandleSyncFromExternalResourceOnlyTouchesTheNamedProvider() async {
     let book = makeBook("external-7", duration: 200)
     _ = await sut.setExternalResource(providerName: "jellyfin", providerId: "shared-id", for: book.uuid)
@@ -2444,7 +2444,6 @@ class LibraryServiceExternalResourceTests: XCTestCase {
     XCTAssertEqual(book.currentTime, 10, accuracy: 0.01, "another provider's answer is not ours")
   }
 
-  @MainActor
   func testInsertItemsFromResourcesCreatesExternalBooks() async throws {
     let simpleItem = SimpleLibraryItem(
       title: "remote-book",
@@ -2493,7 +2492,6 @@ class LibraryServiceExternalResourceTests: XCTestCase {
 
   /// Streaming a book already in the library makes another copy, as importing a file again does:
   /// its own row, link and name (a name never has two rows: relativePath is the library's key)
-  @MainActor
   func testStreamingABookAgainMakesASeparateCopy() async throws {
     let simpleItem = SimpleLibraryItem(
       title: "twin-book",
@@ -2571,7 +2569,6 @@ class LibraryServiceExternalResourceTests: XCTestCase {
   }
 
   /// Two copies of a server's book (streamed twice), and the same id under the other provider
-  @MainActor
   private func streamCopies() async throws -> (copy1: SimpleLibraryItem, copy2: SimpleLibraryItem, jellyfin: SimpleLibraryItem) {
     let resource = streamResource(providerId: "li_d", title: "Dune", fileName: "Dune.m4b")
     let first = await sut.insertItems(fromResources: [resource], inside: nil)
@@ -2584,7 +2581,6 @@ class LibraryServiceExternalResourceTests: XCTestCase {
   }
 
   /// A finished download marks its own book's link, not another copy's or the other provider's
-  @MainActor
   func testADownloadMarksOnlyItsOwnBooksLink() async throws {
     let (copy1, copy2, jellyfin) = try await streamCopies()
 
@@ -2602,8 +2598,9 @@ class LibraryServiceExternalResourceTests: XCTestCase {
 
     // Read where the update saved: the view context merges it a moment later
     let context = sut.dataManager.getBackgroundContext()
+    let service: LibraryService = sut
     let processed = { (uuid: String) in
-      context.performAndWait { (self.sut.findResourceEntities(for: uuid, context: context) ?? []).map(\.processedFile) }
+      context.performAndWait { (service.findResourceEntities(for: uuid, context: context) ?? []).map(\.processedFile) }
     }
     XCTAssertEqual(processed(copy2.uuid), [true])
     XCTAssertEqual(processed(copy1.uuid), [false])
@@ -2611,7 +2608,6 @@ class LibraryServiceExternalResourceTests: XCTestCase {
   }
 
   /// Copies of a server's book share its progress: a pull moves every copy to the server's spot
-  @MainActor
   func testAProgressPullMovesEveryCopy() async throws {
     let (copy1, copy2, jellyfin) = try await streamCopies()
 
@@ -2631,7 +2627,6 @@ class LibraryServiceExternalResourceTests: XCTestCase {
 
   /// relativePath is the library's key, and an offloaded book is restored by its file name, so
   /// a name a book already has anywhere gets part of the new book's uuid.
-  @MainActor
   func testAStreamedBookWhoseNameIsTakenGetsPartOfItsUuid() async throws {
     let folder = try sut.createFolder(with: "Shelf", inside: nil)
     let first = await sut.insertItems(fromResources: [streamResource(providerId: "li_1", title: "Dune", fileName: "Dune.m4b")], inside: nil)
@@ -2645,7 +2640,6 @@ class LibraryServiceExternalResourceTests: XCTestCase {
   }
 
   /// Android compares names ignoring case, and so does the restore-by-name lookup
-  @MainActor
   func testANameTakenInAnotherCaseIsTaken() async throws {
     _ = await sut.insertItems(fromResources: [streamResource(providerId: "li_a", title: "dune", fileName: "dune.m4b")], inside: nil)
 
@@ -2655,7 +2649,6 @@ class LibraryServiceExternalResourceTests: XCTestCase {
   }
 
   /// A streamed volume has no folder on disk: renaming it must still move its books' paths.
-  @MainActor
   func testAStreamedVolumeCanBeRenamed() async throws {
     let files = [
       ExternalStreamFile(path: "api/items/li_r/file/1", name: "01.mp3", duration: 10),
@@ -2683,7 +2676,6 @@ class LibraryServiceExternalResourceTests: XCTestCase {
 
   /// An item made of several files is a volume: a bound folder named after the title holding
   /// the link, one book per file in the server's order, named by its flattened path.
-  @MainActor
   func testAnItemWithSeveralFilesImportsAsAVolume() async throws {
     let files = [
       ExternalStreamFile(path: "api/items/li_v/file/1", name: "Disc 1/01.mp3", duration: 10),
@@ -2715,7 +2707,6 @@ class LibraryServiceExternalResourceTests: XCTestCase {
     XCTAssertTrue(books.allSatisfy { $0.externalResources?.isEmpty ?? true }, "the link is on the volume only")
   }
 
-  @MainActor
   func testAVolumeWhosePathIsTakenGetsPartOfItsUuid() async throws {
     _ = try sut.createFolder(with: "Golf", inside: nil)
     let files = [
@@ -2735,7 +2726,6 @@ class LibraryServiceExternalResourceTests: XCTestCase {
 
   /// A stream import made inside a folder is created there (Android's `basePath`), not at the
   /// root and then moved: one registration each, and the folder's count includes it.
-  @MainActor
   func testAStreamedBookIsCreatedInTheBrowsedFolder() async throws {
     let shelf = try sut.createFolder(with: "Shelf", inside: nil)
 
@@ -2754,7 +2744,6 @@ class LibraryServiceExternalResourceTests: XCTestCase {
   }
 
   /// A file name is still unique across the whole library (an offloaded book is restored by it)
-  @MainActor
   func testABookNameTakenElsewhereIsTakenInTheFolderToo() async throws {
     let shelf = try sut.createFolder(with: "Shelf", inside: nil)
     _ = await sut.insertItems(
@@ -2771,7 +2760,6 @@ class LibraryServiceExternalResourceTests: XCTestCase {
   }
 
   /// A volume's path is checked where it's created: a same-named item elsewhere doesn't matter
-  @MainActor
   func testAStreamedVolumeIsCreatedInTheBrowsedFolder() async throws {
     let shelf = try sut.createFolder(with: "Shelf", inside: nil)
     _ = try sut.createFolder(with: "Golf", inside: nil)
@@ -2803,7 +2791,6 @@ class LibraryServiceExternalResourceTests: XCTestCase {
 
   /// A streamed copy moves to the root under its own name, not its originalFileName (the name the
   /// first copy has there)
-  @MainActor
   func testAStreamedCopyMovesToTheRootUnderItsOwnName() async throws {
     let shelf = try sut.createFolder(with: "Shelf", inside: nil)
     let resource = streamResource(providerId: "li_m", title: "Dune", fileName: "Dune.m4b")
@@ -2818,7 +2805,6 @@ class LibraryServiceExternalResourceTests: XCTestCase {
   }
 
   /// Two streamed volumes named Golf: one at the root, one inside `parent`
-  @MainActor
   private func golfVolumes(inside parent: String) async throws -> SimpleLibraryItem {
     let files = [
       ExternalStreamFile(path: "api/items/li_g/file/1", name: "01.mp3", duration: 10),
@@ -2836,7 +2822,6 @@ class LibraryServiceExternalResourceTests: XCTestCase {
   }
 
   /// A streamed item has no file in the way: the library is asked whether its name is taken
-  @MainActor
   func testAStreamedVolumeWhoseNameIsTakenAtTheRootStaysWhereItIs() async throws {
     let shelf = try sut.createFolder(with: "Shelf", inside: nil)
     let volume = try await golfVolumes(inside: shelf.relativePath)
@@ -2850,7 +2835,6 @@ class LibraryServiceExternalResourceTests: XCTestCase {
 
   /// "Delete folder only" is refused when a child's name is taken where they go: nothing moves, and
   /// the folder, which would take that child with it, isn't deleted
-  @MainActor
   func testDeleteFolderOnlyIsRefusedWhenAChildsNameIsTaken() async throws {
     let box = try sut.createFolder(with: "Box", inside: nil)
     _ = try await golfVolumes(inside: box.relativePath)
@@ -2864,7 +2848,6 @@ class LibraryServiceExternalResourceTests: XCTestCase {
   }
 
   /// The browsed folder deleted by a sync pull while the import ran: the root
-  @MainActor
   func testAStreamImportIntoAFolderThatIsGoneLandsAtTheRoot() async throws {
     let inserted = await sut.insertItems(
       fromResources: [streamResource(providerId: "li_x", title: "Dune", fileName: "Dune.m4b")],
@@ -2877,7 +2860,6 @@ class LibraryServiceExternalResourceTests: XCTestCase {
 
   /// A volume's books have no link of their own, but their files come from its media server:
   /// their registration must not ask for a file, as a linked book's doesn't.
-  @MainActor
   func testAVolumesBooksAreMediaServerBooksForSync() async throws {
     let files = [
       ExternalStreamFile(path: "api/items/li_s/file/1", name: "01.mp3", duration: 10),
@@ -2956,7 +2938,6 @@ class LibraryServiceExternalResourceTests: XCTestCase {
 
   /// A matched book also has a Hardcover link. Picking it (the links are an unordered set) queued
   /// the push in a lane that drops it, so the server never got the position.
-  @MainActor
   func testProgressOfADualLinkedBookIsPushedToItsMediaServer() async throws {
     let inserted = await sut.insertItems(
       fromResources: [streamResource(providerId: "jf-dual", title: "Dual", fileName: "dual.m4b", providerName: "jellyfin")],
@@ -2973,7 +2954,6 @@ class LibraryServiceExternalResourceTests: XCTestCase {
   }
 
   /// A book linked only to Hardcover has no server to push to, so its progress names no provider
-  @MainActor
   func testProgressOfAHardcoverOnlyBookNamesNoProvider() async throws {
     let book = makeBook("hardcover-only")
     _ = await sut.setExternalResource(providerName: "hardcover", providerId: "hc-only", for: book.uuid)
@@ -2985,7 +2965,6 @@ class LibraryServiceExternalResourceTests: XCTestCase {
   }
 
   /// Plays `relativePath` to 10 s and returns the progress the push is scheduled from
-  @MainActor
   private func publishedProgress(afterPlaying relativePath: String) async throws -> [String: Any] {
     // The links were written on the background context. No merge policy is set, so saving the
     // view context over that change before it merged would crash

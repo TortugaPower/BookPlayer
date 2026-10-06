@@ -15,6 +15,8 @@ import XCTest
 /// The missing-items pass (bookplayer-api docs/multipart-uploads.md): the first sync's
 /// registration step, then again on LITE → PRO and weekly. It works by uuid, never by path,
 /// so a path that went stale on this device can't move anything back on the server.
+/// Main actor: the tests use the main-queue view context (see LibraryServiceTests).
+@MainActor
 final class MissingItemsPassTests: XCTestCase {
   /// Answers `/status` from its script and records every request
   private final class StatusClient: NetworkClientMock, @unchecked Sendable {
@@ -271,7 +273,6 @@ extension MissingItemsPassTests {
   }
 
   /// A registered book brings its user bookmarks along, in time order; other kinds stay local
-  @MainActor
   func testPass_registersUserBookmarksWithTheirBook() async throws {
     let marked = book("Marked")
     _ = libraryService.createBookmark(at: 200, relativePath: marked.relativePath, uuid: marked.uuid, type: .user)
@@ -532,7 +533,6 @@ extension MissingItemsPassTests {
 
   /// A lapse makes the return a first sync: what's imported meanwhile never reached the
   /// server, and a plain listing would delete it. Not on the watch
-  @MainActor
   func testLapse_makesTheReturnAFirstSync_onThePhoneOnly() async throws {
     markFirstSyncDone()
     let watch = launch(isActive: true, runsMissingItemsPass: false)
@@ -569,7 +569,6 @@ extension MissingItemsPassTests {
 
   /// Sync went off and came back while the first sync waited on the server: that session's
   /// teardown wiped what it queued, so it mustn't mark the first sync done
-  @MainActor
   func testFirstSync_acrossASessionChange_isNotMarkedDone() async throws {
     let fresh = book("Fresh")
     client.answer(unknown: [fresh.uuid])
