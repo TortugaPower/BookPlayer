@@ -10,8 +10,6 @@
 	<string>$(BP_API_SCHEME)</string>
 	<key>BP_BUNDLE_IDENTIFIER</key>
 	<string>$(BP_BUNDLE_IDENTIFIER)</string>
-	<key>BP_MOCKED_BEARER_TOKEN</key>
-	<string>$(BP_MOCKED_BEARER_TOKEN)</string>
 	<key>BP_REVENUECAT_KEY</key>
 	<string>$(BP_REVENUECAT_KEY)</string>
 	<key>CFBundleDevelopmentRegion</key>

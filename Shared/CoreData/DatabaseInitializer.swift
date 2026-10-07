@@ -70,24 +70,28 @@ public class DatabaseInitializer: BPLogger {
   }
 
   private func loadLibrary() async throws -> CoreDataStack {
-    return try await withCheckedThrowingContinuation { continuation in
-      let stack = dataMigrationManager.getCoreDataStack()
+    let stack = dataMigrationManager.getCoreDataStack()
 
+    try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
       stack.loadStore { _, error in
         if let error = error {
           Self.logger.error("Failed to load store")
 
           continuation.resume(throwing: error)
         } else {
-          let dataManager = DataManager(coreDataStack: stack)
-          let audioMetadataService = AudioMetadataService()
-          let libraryService = LibraryService()
-          libraryService.setup(dataManager: dataManager, audioMetadataService: audioMetadataService)
-          _ = libraryService.getLibrary()
-
-          continuation.resume(returning: stack)
+          continuation.resume()
         }
       }
     }
+
+    let dataManager = DataManager(coreDataStack: stack)
+    let audioMetadataService = AudioMetadataService()
+    let libraryService = LibraryService()
+    libraryService.setup(dataManager: dataManager, audioMetadataService: audioMetadataService)
+    // On the view context's queue: it's a main-queue context, and this runs on a background
+    // thread. getLibrary fetches the library, and creates it on a first launch
+    await dataManager.getContext().perform { _ = libraryService.getLibrary() }
+
+    return stack
   }
 }

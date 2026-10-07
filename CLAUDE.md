@@ -307,8 +307,7 @@ lines). It is the highest-risk file in the app.
 
 - `BuildConfiguration/*.xcconfig` define `BP_*` keys; `Info.plist` substitutes them (`$(BP_…)`);
   `Shared/Configuration.swift` (`ConfigurationKeys`) reads them. **`Bundle.configurationValue(for:)` uses `try!`
-  — a missing key crashes at launch.** Keys: API scheme/domain/port, bundle id, RevenueCat key, Sentry DSN,
-  `BP_MOCKED_BEARER_TOKEN`.
+  — a missing key crashes at launch.** Keys: API scheme/domain/port, bundle id, RevenueCat key, Sentry DSN.
 - **`Debug.xcconfig` and `Release.xcconfig` are gitignored and hold the working-tree real values —
   never commit or overwrite them.** Nuance a reviewer should know: `Debug.xcconfig` is untracked and holds real
   prod secrets; `Release.xcconfig` is *also* gitignored **but is already tracked** with placeholder values
@@ -316,8 +315,6 @@ lines). It is the highest-risk file in the app.
   secret must be added to **the template (`Debug.template.xcconfig`) + the CI script + `Info.plist` +
   `ConfigurationKeys`** in lockstep, never inlined — or the `try!` crashes Release builds. Hardcoded API keys /
   tokens / Sentry DSN / RevenueCat key are a 🔴 finding.
-- **Test-account backdoor:** `AccountService.loginTestAccount(...)` hardcodes a real Apple userId/email and sets
-  `hasSubscription = true`, reached via `BP_MOCKED_BEARER_TOKEN`. It must stay inert (empty token) in production.
 
 ### Keychain — `Shared/Services/KeychainService.swift`
 
@@ -481,7 +478,7 @@ The crash surfaces and invariants most likely to be broken by a change. (The ful
 8. **Entitlement gating** that trusts client-only RevenueCat state for a server-billed resource, or gates sync
    without going through `AccountService`.
 9. **Secrets:** committing/overwriting real `Debug.xcconfig` / `Release.xcconfig`, or hardcoding a key instead of
-   the xcconfig → `Configuration` path; `BP_MOCKED_BEARER_TOKEN` / `loginTestAccount` left live in prod.
+   the xcconfig → `Configuration` path.
 10. **Force-unwrap / `try!` on remote or decoded data** (network / JSON / S3) — a bad payload crashes.
 11. **App Group correctness** for anything consumed by widgets/watch/extension.
 12. **`BookPlayerKit` boundary:** `Shared/` importing app-layer types.
