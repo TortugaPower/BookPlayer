@@ -11,6 +11,7 @@ import Foundation
 @testable import BookPlayer
 @testable import BookPlayerKit
 import Combine
+import UIKit
 import XCTest
 
 /// Main actor: the service's view context is a main-queue context. An async test runs off the main
@@ -2940,5 +2941,38 @@ final class SimpleHardcoverBookRepairTests: XCTestCase {
     XCTAssertNotNil(repaired.artworkURL)
     XCTAssertEqual(repaired.status, .reading, "repair must not regress the pushed reading status")
     XCTAssertEqual(repaired.userBookID, 99, "losing userBookID would break the unlink removal call")
+  }
+}
+
+// MARK: - Hardcover cover download
+
+/// The cache stores whatever bytes it's given, so only a real image may become a book's cover
+final class HardcoverCoverDownloadTests: XCTestCase {
+  private let url = URL(string: "https://assets.hardcover.app/cover.jpg")!
+
+  private func response(_ status: Int) -> HTTPURLResponse {
+    HTTPURLResponse(url: url, statusCode: status, httpVersion: nil, headerFields: nil)!
+  }
+
+  private var imageData: Data {
+    UIGraphicsImageRenderer(size: CGSize(width: 2, height: 2)).pngData { context in
+      UIColor.red.setFill()
+      context.fill(CGRect(x: 0, y: 0, width: 2, height: 2))
+    }
+  }
+
+  func testAnImageThatDownloadedIsTheCover() {
+    XCTAssertEqual(HardcoverService.coverImageData(imageData, response: response(200)), imageData)
+  }
+
+  /// An expired URL or a CDN error: the page's HTML must not become the cover
+  func testAnErrorAnswerIsNotACover() {
+    XCTAssertNil(HardcoverService.coverImageData(Data("<html>Forbidden</html>".utf8), response: response(403)))
+    XCTAssertNil(HardcoverService.coverImageData(imageData, response: response(404)))
+  }
+
+  /// A proxy or captive portal can answer 200 with a page of its own
+  func testASuccessfulAnswerThatIsntAnImageIsNotACover() {
+    XCTAssertNil(HardcoverService.coverImageData(Data("<html>Sign in</html>".utf8), response: response(200)))
   }
 }

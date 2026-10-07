@@ -8,6 +8,7 @@
 
 import BookPlayerKit
 import Combine
+import UIKit
 
 protocol HardcoverServiceProtocol {
   /// Authorization token for API requests
@@ -506,13 +507,29 @@ extension HardcoverService {
     guard !hasOwnArtwork else { return }
 
     do {
-      let (data, _) = try await URLSession.shared.data(from: artworkURL)
-      await ArtworkService.storeInCache(data, for: item.relativePath)
+      let (data, response) = try await URLSession.shared.data(from: artworkURL)
+      // The cache stores whatever bytes it's given: an error page or a proxy's answer would become
+      // the cover, hide the embedded one for good, and be uploaded to every device
+      guard let coverData = Self.coverImageData(data, response: response) else {
+        Self.logger.error("Hardcover artwork for '\(item.title)' didn't download as an image")
+        return
+      }
+      await ArtworkService.storeInCache(coverData, for: item.relativePath)
       syncService.scheduleUploadArtwork(relativePath: item.relativePath, uuid: item.uuid)
       Self.logger.info("Set Hardcover artwork for '\(item.title)'")
     } catch {
       Self.logger.error("Failed to download Hardcover artwork for '\(item.title)': \(error)")
     }
+  }
+
+  /// The downloaded bytes when they're a cover: a 2xx answer that decodes as an image
+  static func coverImageData(_ data: Data, response: URLResponse) -> Data? {
+    guard
+      let status = (response as? HTTPURLResponse)?.statusCode,
+      (200...299).contains(status),
+      UIImage(data: data) != nil
+    else { return nil }
+    return data
   }
 
   func removeFromLibrary(_ book: SimpleHardcoverBook) async throws {
