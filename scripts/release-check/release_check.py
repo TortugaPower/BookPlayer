@@ -13,7 +13,10 @@ first three, "… Upgrade" for the last, so neither is reset right after playing
   import    test files in Documents → Import sheet → Done → "Library" → book and folder rows
   playback  tap the book → player → the elapsed time moves
   upgrade   the previous release imports and plays the same files, then this build is installed over
-            it: the rows and the book's progress survive and it still plays
+            it: the rows and the book's progress survive and it still plays. If the previous release
+            itself crashes on an iOS version (as 5.22.1 did at launch on iOS < 27), that version upgrades
+            from the release before it instead, which is where its users really come from; if that one
+            crashes too, the upgrade is reported as not tested there instead of failing this build
 
 Every step also fails on a new crash report from the app. A failure WITH a crash report fails the check
 at once. A failure without one gets one retry on a freshly reset simulator: the check fails only if it
@@ -394,8 +397,9 @@ def log_reports_crash(text):
 
 
 class StepFailure:
-    def __init__(self, message, crashed):
-        self.message, self.crashed = message, crashed
+    def __init__(self, message, crashed, previous=None):
+        # previous: the previous release's tag when the step ran on it rather than on this build
+        self.message, self.crashed, self.previous = message, crashed, previous
 
 
 def run_test(simulator, xctestrun, test, log_file, bundle_id):
@@ -435,7 +439,8 @@ def run_test(simulator, xctestrun, test, log_file, bundle_id):
 def run_chain(simulator, chain, logs, bundle_id, attempt):
     """Runs scenarios in order on a freshly reset simulator, stopping at the first failure.
 
-    `chain` is [(scenario, [step, …])], where a step is a callable (setup) or an (xctestrun, test) pair.
+    `chain` is [(scenario, [step, …])], where a step is a callable (setup), an (xctestrun, test) pair, or an
+    (xctestrun, test, previous_tag) triple for a test that runs on the previous release.
     Returns {scenario: None (passed) | StepFailure | "not run"}.
     """
     simulator.reset()
@@ -456,10 +461,15 @@ def run_chain(simulator, chain, logs, bundle_id, attempt):
                     failed = True
                     break
                 continue
-            xctestrun, test = step
-            failure = run_test(simulator, xctestrun, test, logs / f"{scenario}-{test}-attempt{attempt}.log", bundle_id)
+            xctestrun, test, previous = (*step, None)[:3]
+            build = f"-{previous}" if previous else ""
+            failure = run_test(simulator, xctestrun, test, logs / f"{scenario}-{test}{build}-attempt{attempt}.log",
+                               bundle_id)
             if failure:
-                simulator.screenshot(logs / f"{scenario}-failed-attempt{attempt}.png")
+                simulator.screenshot(logs / f"{scenario}{build}-failed-attempt{attempt}.png")
+                if previous:
+                    failure.previous = previous
+                    failure.message = f"previous release {previous}: {failure.message}"
                 outcome[scenario] = failure
                 failed = True
                 break
@@ -472,15 +482,16 @@ def run_chain(simulator, chain, logs, bundle_id, attempt):
 def run_with_retry(label, simulator, chain, logs, bundle_id):
     """One attempt; a failure without a crash report gets one more on a reset simulator.
 
-    Returns [(label, scenario, status, message)] with status "passed" | "retried" | "failed" | "not run".
+    Returns ([(label, scenario, status, message)], outcome), with status "passed" | "retried" | "failed" |
+    "not run", and the run_chain outcome of the attempt that decided it.
     """
     first = run_chain(simulator, chain, logs, bundle_id, attempt=1)
     failures = [f for f in first.values() if isinstance(f, StepFailure)]
     if not failures:
-        return [(label, scenario, "passed", "") for scenario in first]
+        return [(label, scenario, "passed", "") for scenario in first], first
     if any(f.crashed for f in failures):
         log(f"{label}: crashed, no retry")
-        return describe(label, first)
+        return describe(label, first), first
     log(f"{label}: failed without a crash report, retrying once on a reset simulator")
     second = run_chain(simulator, chain, logs, bundle_id, attempt=2)
     results = []
@@ -493,7 +504,40 @@ def run_with_retry(label, simulator, chain, logs, bundle_id):
                             f"failed twice; second attempt: {result.message}\nfirst attempt: {earlier.message}"))
         else:
             results += describe(label, {scenario: result})
-    return results
+    return results, second
+
+
+def run_upgrade(label, simulator, logs, bundle_id, previous_tags, previous_xctestrun, xctestrun, copy_fixtures):
+    """The upgrade scenario, seeded with the newest of `previous_tags` that doesn't crash on this iOS version.
+
+    A previous release that crashes here can't have left its users any data to upgrade (5.22.1 crashed at launch
+    on iOS < 27), so the release before it is the real starting point. A crash of THIS build still fails.
+    """
+    crashed = []
+    for tag in previous_tags:
+        previous = previous_xctestrun(tag)
+        chain = [("upgrade", [(previous, "testFreshLaunch", tag), copy_fixtures,
+                              (previous, "testSeedPreviousRelease", tag), (xctestrun, "testUpgradeContinuity")])]
+        rows, outcome = run_with_retry(label, simulator, chain, logs, bundle_id)
+        failure = outcome.get("upgrade")
+        if isinstance(failure, StepFailure) and failure.crashed and failure.previous:
+            log(f"{label}: previous release {tag} crashed, upgrading from the release before it")
+            crashed.append(tag)
+            continue
+        if crashed:
+            origin = f"from {tag} ({', '.join(crashed)} crashed on {label})"
+            rows = [(l, s, st, f"{origin}; {m}" if m else origin) for l, s, st, m in rows]
+        return rows
+    return [(label, "upgrade", "skipped",
+             f"not tested: previous release(s) {', '.join(crashed)} crashed on {label} (--previous can pick an older one)")]
+
+
+def older_tag(tag):
+    """The release tag before `tag`, or None."""
+    try:
+        return run(["git", "-C", str(REPO), "describe", "--tags", "--abbrev=0", "--match", "[0-9]*", f"{tag}^"]).strip()
+    except subprocess.CalledProcessError:
+        return None
 
 
 def describe(label, outcome):
@@ -539,7 +583,11 @@ def check(args):
         raise SetupError(f"tag {args.version} already exists; --version is the release being prepared, which isn't "
                          "tagged yet (to recheck a shipped build, run without --version)")
     tag = args.previous or previous_tag()
+    previous_tags = [t for t in (tag, older_tag(tag)) if t]
     ensure_debug_xcconfig(REPO)
+    # What this build is made from, recorded before building so a commit made during the run can't be cached as it
+    build_commit = git("rev-parse", "HEAD")
+    build_dirty = bool(git("status", "--porcelain", "--untracked-files=no"))
     products = build(REPO, out / "DerivedData")
     xctestrun = next(products.glob(f"{SCHEME}_*.xctestrun"), None)
     if not xctestrun:
@@ -547,7 +595,16 @@ def check(args):
     candidate = products / "Release-iphonesimulator/BookPlayer.app"
     with open(candidate / "Info.plist", "rb") as f:
         bundle_id = plistlib.load(f)["CFBundleIdentifier"]
-    previous = retarget(xctestrun, previous_app(tag, out), "previous.xctestrun")
+    previous_runs = {}
+
+    def previous_xctestrun(previous_tag_name):
+        # Built (or taken from the cache) only when an iOS version needs it
+        if previous_tag_name not in previous_runs:
+            previous_runs[previous_tag_name] = retarget(xctestrun, previous_app(previous_tag_name, out),
+                                                        f"previous-{previous_tag_name}.xctestrun")
+        return previous_runs[previous_tag_name]
+
+    previous_xctestrun(tag)  # fail early (exit 2) if the previous release can't be built
     fixtures = make_fixtures(out / "fixtures")
 
     def copy_fixtures(simulator):
@@ -565,21 +622,16 @@ def check(args):
             upgrade = Simulator(f"{SIMULATOR_PREFIX} {major} Upgrade", runtime, device_type)
             simulators.append(upgrade)
 
-            for simulator, chain in [
-                (main, [
-                    ("fresh", [(xctestrun, "testFreshLaunch")]),
-                    ("import", [copy_fixtures, (xctestrun, "testImport")]),
-                    ("playback", [(xctestrun, "testPlayback")]),
-                ]),
-                (upgrade, [
-                    ("upgrade", [(previous, "testFreshLaunch"), copy_fixtures, (previous, "testSeedPreviousRelease"),
-                                 (xctestrun, "testUpgradeContinuity")]),
-                ]),
-            ]:
-                rows = run_with_retry(label, simulator, chain, logs, bundle_id)
-                for row in rows:
-                    log(f"{row[0]} {row[1]}: {row[2]}")
-                results += rows
+            rows, _ = run_with_retry(label, main, [
+                ("fresh", [(xctestrun, "testFreshLaunch")]),
+                ("import", [copy_fixtures, (xctestrun, "testImport")]),
+                ("playback", [(xctestrun, "testPlayback")]),
+            ], logs, bundle_id)
+            rows += run_upgrade(label, upgrade, logs, bundle_id, previous_tags, previous_xctestrun, xctestrun,
+                                copy_fixtures)
+            for row in rows:
+                log(f"{row[0]} {row[1]}: {row[2]}")
+            results += rows
         except (SetupError, subprocess.TimeoutExpired, subprocess.CalledProcessError) as error:
             # Keep what already ran and carry on with the other versions; the report says what couldn't run
             setup_errors.append(f"{label} could not run: {error}")
@@ -592,12 +644,11 @@ def check(args):
                 simulator.shutdown()
 
     notes += setup_errors
-    passed = not setup_errors and all(status in ("passed", "retried") for _, _, status, _ in results)
+    passed = not setup_errors and all(status in ("passed", "retried", "skipped") for _, _, status, _ in results)
     if passed and args.version:
         # Reused as the next release's "previous" only if <version>'s tag turns out to be this commit
         # plus the version bump (see cached_app)
-        dirty = bool(git("status", "--porcelain", "--untracked-files=no"))
-        cache_app(candidate, args.version, git("rev-parse", "HEAD"), dirty)
+        cache_app(candidate, args.version, build_commit, build_dirty)
         prune_cache(keep=[args.version, tag, PACKAGES.name])
     if not args.keep_build:
         shutil.rmtree(out / "DerivedData", ignore_errors=True)
@@ -612,16 +663,16 @@ def prune_cache(keep):
             shutil.rmtree(entry, ignore_errors=True)
 
 
-ICONS = {"passed": "✅", "retried": "⚠️", "failed": "❌", "not run": "➖"}
+ICONS = {"passed": "✅", "retried": "⚠️", "skipped": "⚠️", "failed": "❌", "not run": "➖"}
 
 
 def write_report(out, started, tag, results, notes, passed, could_not_run=False):
     minutes = (datetime.datetime.now() - started).total_seconds() / 60
-    retried = any(status == "retried" for _, _, status, _ in results)
+    warnings = any(status in ("retried", "skipped") for _, _, status, _ in results)
     if could_not_run:
         verdict = "COULD NOT RUN (partial results)"
     else:
-        verdict = "FAILED" if not passed else ("PASSED (with a retry)" if retried else "PASSED")
+        verdict = "FAILED" if not passed else ("PASSED (with warnings)" if warnings else "PASSED")
     lines = [f"# Release check: {verdict}", "",
              f"Previous release for the upgrade scenario: {tag}. Took {minutes:.1f} min.", ""]
     lines += [f"- {note}" for note in notes] + ([""] if notes else [])
@@ -630,7 +681,7 @@ def write_report(out, started, tag, results, notes, passed, could_not_run=False)
         first = message.splitlines()[0] if message else status
         lines.append(f"| {label} | {scenario} | {ICONS[status]} {first} |")
     for label, scenario, status, message in results:
-        if status in ("failed", "retried") and message:
+        if status in ("failed", "retried", "skipped") and message:
             lines += ["", f"## {label} · {scenario} ({status})", "", "```", message, "```"]
     (out / "report.md").write_text("\n".join(lines) + "\n")
     (out / "report.json").write_text(json.dumps({

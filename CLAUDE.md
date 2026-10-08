@@ -87,7 +87,9 @@ a build phase) and its output is committed.
   four scenarios per supported iOS major (deployment target → SDK, minus the script's `SKIPPED_MAJORS`): fresh
   launch, import, playback, and upgrade from the previous release (cached in `~/Library/Caches/BookPlayerReleaseCheck/`).
   A failure with a crash report fails at once; one without gets a single retry on a reset simulator and is
-  reported as "passed on retry" if it then passes (simulators flake; a crash never gets a second chance). It
+  reported as "passed on retry" if it then passes (simulators flake; a crash never gets a second chance). If the
+  *previous* release crashes on an iOS version, the upgrade there starts from the release before it (its users never
+  had data in the crashing one), and is reported as not tested if that one crashes too. It
   exists because 5.22.1 crashed at launch on iOS < 27 while every check ran on iOS 27. The tests find the UI by four `accessibilityIdentifier`s (`library.row.<relativePath>`,
   `miniPlayer.info`, `player.playPause`, `player.currentTime`) and by the English labels "Done" (Import sheet) and
   "Library" (placement prompt); keep `BookPlayerUITests/ReleaseCheckUITests.swift` in step when changing those.
