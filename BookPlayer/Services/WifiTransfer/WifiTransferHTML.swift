@@ -28,55 +28,34 @@ enum WifiTransferHTML {
     let skipped: String
   }
 
-  static func strings(for languageCode: String) -> Strings {
-    let lang = languageCode.lowercased().hasPrefix("ru") ? "ru" : "en"
-    if lang == "ru" {
-      return Strings(
-        title: "BookPlayer",
-        subtitle: "Перетащите файлы или папки аудиокниг. Они появятся на экране импорта в приложении.",
-        accepted: "Поддерживаются: mp3, m4b, m4a, aax, flac, zip, lpf и похожие форматы.",
-        folderHint: "Структура папки сохранится.",
-        dropTitle: "Перетащите сюда",
-        dropHint: "файлы или целую папку",
-        chooseFiles: "Выбрать файлы",
-        chooseFolder: "Выбрать папку",
-        retry: "Повторить ошибки",
-        uploading: "Загрузка",
-        uploaded: "Загружено",
-        failed: "Ошибка",
-        importing: "Импорт в приложение…",
-        importDone: "Готово — смотрите импорт на телефоне",
-        queueEmpty: "Ожидание файлов…",
-        selectedCount: "В очереди: %d",
-        skipped: "Пропущено неподдерживаемых файлов: %d"
-      )
-    }
-    return Strings(
-      title: "BookPlayer",
-      subtitle: "Drop audiobook files or folders. They appear in the app’s import screen on your phone.",
-      accepted: "Accepted: mp3, m4b, m4a, aax, flac, zip, lpf, and similar audio archives.",
-      folderHint: "Folder structure is preserved.",
-      dropTitle: "Drop here",
-      dropHint: "files or an entire folder",
-      chooseFiles: "Choose files",
-      chooseFolder: "Choose folder",
-      retry: "Retry failed",
-      uploading: "Uploading",
-      uploaded: "Uploaded",
-      failed: "Failed",
-      importing: "Importing into the app…",
-      importDone: "Done — check Import on your phone",
-      queueEmpty: "Waiting for files…",
-      selectedCount: "Queued: %d",
-      skipped: "Skipped unsupported files: %d"
+  /// Page copy from the app’s `Localizable.strings` (same keys / language as Settings).
+  static var strings: Strings {
+    Strings(
+      title: "wifi_transfer_title".localized,
+      subtitle: "wifi_transfer_web_subtitle".localized,
+      accepted: "wifi_transfer_web_accepted".localized,
+      folderHint: "wifi_transfer_web_folder_hint".localized,
+      dropTitle: "wifi_transfer_web_drop_title".localized,
+      dropHint: "wifi_transfer_web_drop_hint".localized,
+      chooseFiles: "wifi_transfer_web_choose_files".localized,
+      chooseFolder: "wifi_transfer_web_choose_folder".localized,
+      retry: "wifi_transfer_web_retry".localized,
+      uploading: "wifi_transfer_web_uploading".localized,
+      uploaded: "wifi_transfer_web_uploaded".localized,
+      failed: "wifi_transfer_web_failed".localized,
+      importing: "wifi_transfer_web_importing".localized,
+      importDone: "wifi_transfer_web_import_done".localized,
+      queueEmpty: "wifi_transfer_web_queue_empty".localized,
+      selectedCount: "wifi_transfer_web_selected_count".localized,
+      skipped: "wifi_transfer_web_skipped".localized
     )
   }
 
   // Large embedded document: keep HTML/CSS/JS together for the transfer page.
   // swiftlint:disable:next function_body_length
-  static func page(languageCode: String) -> String {
-    let strings = strings(for: languageCode)
-    let lang = languageCode.lowercased().hasPrefix("ru") ? "ru" : "en"
+  static func page() -> String {
+    let strings = self.strings
+    let lang = Bundle.main.preferredLocalizations.first ?? "en"
     let json: String
     if let data = try? JSONEncoder().encode(strings),
       let encoded = String(data: data, encoding: .utf8)
@@ -94,6 +73,7 @@ enum WifiTransferHTML {
       }
       return s
     }()
+    let pageTitle = escapeHTML(strings.title)
 
     return """
     <!DOCTYPE html>
@@ -101,7 +81,7 @@ enum WifiTransferHTML {
     <head>
       <meta charset="utf-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
-      <title>\(strings.title) — Wi‑Fi Transfer</title>
+      <title>\(pageTitle)</title>
       <style>
         :root {
           color-scheme: light dark;
@@ -249,6 +229,8 @@ enum WifiTransferHTML {
         const I18N = \(json);
         const ALLOWED = new Set(\(allowedExtJSON));
         const CONCURRENCY = 3;
+        // Session lives under /<token>/ — keep relative API calls inside that prefix.
+        const BASE = (location.pathname.replace(/\\/+$/, '') + '/').replace(/\\/+/g, '/');
         const drop = document.getElementById('drop');
         const fileInput = document.getElementById('fileInput');
         const folderInput = document.getElementById('folderInput');
@@ -437,7 +419,7 @@ enum WifiTransferHTML {
         function uploadOne(item, ui) {
           return new Promise((resolve, reject) => {
             const xhr = new XMLHttpRequest();
-            const url = '/upload?path=' + encodeURIComponent(item.path);
+            const url = BASE + 'upload?path=' + encodeURIComponent(item.path);
             xhr.open('POST', url);
             xhr.responseType = 'text';
             xhr.upload.onprogress = (e) => {
@@ -466,7 +448,7 @@ enum WifiTransferHTML {
         function importRoot(root) {
           return new Promise((resolve, reject) => {
             const xhr = new XMLHttpRequest();
-            xhr.open('POST', '/import?root=' + encodeURIComponent(root));
+            xhr.open('POST', BASE + 'import?root=' + encodeURIComponent(root));
             xhr.onload = () => {
               if (xhr.status >= 200 && xhr.status < 300) resolve();
               else reject(new Error(xhr.responseText || String(xhr.status)));
@@ -498,21 +480,32 @@ enum WifiTransferHTML {
           setCount();
           if (!retryOnly) banner.hidden = true;
 
-          const roots = new Set();
+          /** @type {Record<string, {ok: number, fail: number}>} */
+          const rootStats = {};
           await runPool(batch, async (item) => {
             const ui = row(item.path);
             try {
               await uploadOne(item, ui);
-              if (item.root) roots.add(item.root);
+              if (item.root) {
+                rootStats[item.root] = rootStats[item.root] || { ok: 0, fail: 0 };
+                rootStats[item.root].ok += 1;
+              }
             } catch (_) {
               failed.push(item);
+              if (item.root) {
+                rootStats[item.root] = rootStats[item.root] || { ok: 0, fail: 0 };
+                rootStats[item.root].fail += 1;
+              }
             }
           });
 
-          if (roots.size) {
+          const completeRoots = Object.keys(rootStats).filter(
+            root => rootStats[root].ok > 0 && rootStats[root].fail === 0
+          );
+          if (completeRoots.length) {
             banner.hidden = false;
             banner.textContent = I18N.importing;
-            for (const root of roots) {
+            for (const root of completeRoots) {
               try {
                 await importRoot(root);
               } catch (e) {
@@ -525,9 +518,6 @@ enum WifiTransferHTML {
           }
 
           banner.hidden = false;
-          banner.textContent = failed.length && !roots.size && batch.every(i => !i.root)
-            ? (failed.length === batch.length ? I18N.failed : I18N.importDone)
-            : I18N.importDone;
           if (failed.length) {
             banner.textContent = I18N.failed + ' (' + failed.length + ')';
           } else {
@@ -543,5 +533,13 @@ enum WifiTransferHTML {
     </body>
     </html>
     """
+  }
+
+  private static func escapeHTML(_ value: String) -> String {
+    value
+      .replacingOccurrences(of: "&", with: "&amp;")
+      .replacingOccurrences(of: "<", with: "&lt;")
+      .replacingOccurrences(of: ">", with: "&gt;")
+      .replacingOccurrences(of: "\"", with: "&quot;")
   }
 }

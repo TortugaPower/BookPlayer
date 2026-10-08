@@ -79,25 +79,42 @@ final class WifiTransferFileSupportTests: XCTestCase {
     XCTAssertEqual(WifiTransferServer.portFallbackCount, 10)
   }
 
-  func testHTMLStrings_russianLocale() {
-    let ru = WifiTransferHTML.strings(for: "ru")
-    XCTAssertTrue(ru.folderHint.contains("структура") || ru.folderHint.lowercased().contains("папк"))
-    XCTAssertTrue(ru.skipped.contains("%d"))
-    XCTAssertFalse(ru.retry.isEmpty)
-    let en = WifiTransferHTML.strings(for: "en")
-    XCTAssertTrue(en.folderHint.lowercased().contains("structure"))
-    XCTAssertTrue(en.skipped.contains("%d"))
+  func testHTMLStrings_useAppLocalization() {
+    let strings = WifiTransferHTML.strings
+    XCTAssertEqual(strings.title, "wifi_transfer_title".localized)
+    XCTAssertEqual(strings.folderHint, "wifi_transfer_web_folder_hint".localized)
+    XCTAssertEqual(strings.retry, "wifi_transfer_web_retry".localized)
+    XCTAssertTrue(strings.skipped.contains("%d"))
+    XCTAssertTrue(strings.selectedCount.contains("%d"))
+    XCTAssertFalse(strings.subtitle.isEmpty)
+    XCTAssertNotEqual(strings.subtitle, "wifi_transfer_web_subtitle")
   }
 
   func testHTMLPage_includesAllowlistAndAutoUpload() {
-    let html = WifiTransferHTML.page(languageCode: "en")
+    let html = WifiTransferHTML.page()
     XCTAssertTrue(html.contains("ALLOWED"))
     XCTAssertTrue(html.contains("\"m4b\""))
     XCTAssertTrue(html.contains("startUpload"))
     XCTAssertTrue(html.contains("webkitGetAsEntry"))
     XCTAssertTrue(html.contains("dropEffect"))
+    XCTAssertTrue(html.contains("const BASE"))
     XCTAssertFalse(html.contains("id=\"send\""))
     XCTAssertTrue(html.contains("id=\"retry\""))
+    XCTAssertTrue(html.contains(WifiTransferHTML.strings.title))
+    XCTAssertFalse(html.contains("Access-Control-Allow-Origin"))
+  }
+
+  func testAccessToken_formatAndEntropy() {
+    let token = WifiTransferFileSupport.makeAccessToken()
+    XCTAssertTrue(WifiTransferFileSupport.isAccessTokenFormat(token))
+    XCTAssertFalse(WifiTransferFileSupport.isAccessTokenFormat("short"))
+    XCTAssertFalse(WifiTransferFileSupport.isAccessTokenFormat(String(repeating: "g", count: 32)))
+    let other = WifiTransferFileSupport.makeAccessToken()
+    XCTAssertNotEqual(token, other)
+  }
+
+  func testMaxUploadBytes_isPositiveCap() {
+    XCTAssertGreaterThan(WifiTransferFileSupport.maxUploadBytes, 0)
   }
 
   func testIsAllowedFilename_rejectsDotfilesAndUnknown() {
