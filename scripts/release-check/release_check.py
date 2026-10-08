@@ -281,8 +281,13 @@ class Simulator:
 # MARK: - Running tests
 
 
-def crash_reports_since(start, bundle_id):
-    """The app's crash reports written since `start`, ignoring other builds' (e.g. a dev session running alongside)."""
+def crash_reports_since(start, bundle_id, udid):
+    """The app's crash reports from simulator `udid` written since `start`.
+
+    Matches the bundle id and the simulator in the report's process path, so a crash from another build or another
+    simulator (e.g. a dev session running alongside) doesn't count. A report without a process path still counts:
+    a false alarm is better than a missed crash.
+    """
     reports = []
     folder = Path.home() / "Library/Logs/DiagnosticReports"
     # macOS moves reports into Retired/ after a while
@@ -290,10 +295,12 @@ def crash_reports_since(start, bundle_id):
         if report.stat().st_mtime < start:
             continue
         try:
-            header = json.loads(report.read_text().split("\n", 1)[0])
+            header_line, body = report.read_text().split("\n", 1)
+            header = json.loads(header_line)
+            proc_path = json.loads(body).get("procPath", "")
         except (OSError, ValueError):
             continue
-        if header.get("bundleID") == bundle_id:
+        if header.get("bundleID") == bundle_id and (not proc_path or f"/Devices/{udid}/" in proc_path):
             reports.append(report)
     return reports
 
@@ -346,14 +353,14 @@ def run_test(simulator, xctestrun, test, log_file, bundle_id):
         except subprocess.TimeoutExpired:
             code = None
     text = log_file.read_text()
-    crashes = crash_reports_since(start, bundle_id)
+    crashes = crash_reports_since(start, bundle_id, simulator.udid)
     if code == 0 and f"{test}]' passed" in text and not crashes:
         return None
     # A crash report can land a few seconds after xcodebuild returns; a crash must never be retried
     deadline = time.time() + CRASH_REPORT_GRACE
     while not crashes and time.time() < deadline:
         time.sleep(3)
-        crashes = crash_reports_since(start, bundle_id)
+        crashes = crash_reports_since(start, bundle_id, simulator.udid)
     reasons = [line.split(" : ", 1)[-1] for line in text.splitlines() if "error: -[" in line][:3]
     if code is None:
         reasons.append(f"timed out after {TEST_TIMEOUT} s")
@@ -480,31 +487,46 @@ def check(args):
     def copy_fixtures(simulator):
         simulator.copy_fixtures(bundle_id, fixtures)
 
+    setup_errors = []
     for major, runtime, device_type in plan:
         label = f"iOS {runtime['version']}"
         logs = out / f"ios-{runtime['version']}"
         logs.mkdir(exist_ok=True)
-        main = Simulator(f"{SIMULATOR_PREFIX} {major}", runtime, device_type)
-        upgrade = Simulator(f"{SIMULATOR_PREFIX} {major} Upgrade", runtime, device_type)
+        simulators = []
+        try:
+            main = Simulator(f"{SIMULATOR_PREFIX} {major}", runtime, device_type)
+            simulators.append(main)
+            upgrade = Simulator(f"{SIMULATOR_PREFIX} {major} Upgrade", runtime, device_type)
+            simulators.append(upgrade)
 
-        for simulator, chain in [
-            (main, [
-                ("fresh", [(xctestrun, "testFreshLaunch")]),
-                ("import", [copy_fixtures, (xctestrun, "testImport")]),
-                ("playback", [(xctestrun, "testPlayback")]),
-            ]),
-            (upgrade, [
-                ("upgrade", [(previous, "testFreshLaunch"), copy_fixtures, (previous, "testSeedPreviousRelease"),
-                             (xctestrun, "testUpgradeContinuity")]),
-            ]),
-        ]:
-            rows = run_with_retry(label, simulator, chain, logs, bundle_id)
-            for row in rows:
-                log(f"{row[0]} {row[1]}: {row[2]}")
-            results += rows
-            simulator.shutdown()
+            for simulator, chain in [
+                (main, [
+                    ("fresh", [(xctestrun, "testFreshLaunch")]),
+                    ("import", [copy_fixtures, (xctestrun, "testImport")]),
+                    ("playback", [(xctestrun, "testPlayback")]),
+                ]),
+                (upgrade, [
+                    ("upgrade", [(previous, "testFreshLaunch"), copy_fixtures, (previous, "testSeedPreviousRelease"),
+                                 (xctestrun, "testUpgradeContinuity")]),
+                ]),
+            ]:
+                rows = run_with_retry(label, simulator, chain, logs, bundle_id)
+                for row in rows:
+                    log(f"{row[0]} {row[1]}: {row[2]}")
+                results += rows
+        except (SetupError, subprocess.TimeoutExpired, subprocess.CalledProcessError) as error:
+            # Keep what already ran and carry on with the other versions; the report says what couldn't run
+            setup_errors.append(f"{label} could not run: {error}")
+            log(setup_errors[-1])
+            ran = {scenario for row_label, scenario, _, _ in results if row_label == label}
+            results += [(label, scenario, "not run", "could not run (see notes)")
+                        for scenario in ("fresh", "import", "playback", "upgrade") if scenario not in ran]
+        finally:
+            for simulator in simulators:
+                simulator.shutdown()
 
-    passed = all(status in ("passed", "retried") for _, _, status, _ in results)
+    notes += setup_errors
+    passed = not setup_errors and all(status in ("passed", "retried") for _, _, status, _ in results)
     if passed and args.version:
         cached = CACHE / args.version / "BookPlayer.app"
         shutil.rmtree(cached, ignore_errors=True)
@@ -514,8 +536,8 @@ def check(args):
     if not args.keep_build:
         shutil.rmtree(out / "DerivedData", ignore_errors=True)
 
-    write_report(out, started, tag, results, notes, passed)
-    return 0 if passed else 1
+    write_report(out, started, tag, results, notes, passed, could_not_run=bool(setup_errors))
+    return 2 if setup_errors else (0 if passed else 1)
 
 
 def prune_cache(keep):
@@ -527,10 +549,13 @@ def prune_cache(keep):
 ICONS = {"passed": "✅", "retried": "⚠️", "failed": "❌", "not run": "➖"}
 
 
-def write_report(out, started, tag, results, notes, passed):
+def write_report(out, started, tag, results, notes, passed, could_not_run=False):
     minutes = (datetime.datetime.now() - started).total_seconds() / 60
     retried = any(status == "retried" for _, _, status, _ in results)
-    verdict = "FAILED" if not passed else ("PASSED (with a retry)" if retried else "PASSED")
+    if could_not_run:
+        verdict = "COULD NOT RUN (partial results)"
+    else:
+        verdict = "FAILED" if not passed else ("PASSED (with a retry)" if retried else "PASSED")
     lines = [f"# Release check: {verdict}", "",
              f"Previous release for the upgrade scenario: {tag}. Took {minutes:.1f} min.", ""]
     lines += [f"- {note}" for note in notes] + ([""] if notes else [])
@@ -543,7 +568,7 @@ def write_report(out, started, tag, results, notes, passed):
             lines += ["", f"## {label} · {scenario} ({status})", "", "```", message, "```"]
     (out / "report.md").write_text("\n".join(lines) + "\n")
     (out / "report.json").write_text(json.dumps({
-        "passed": passed, "previous": tag, "notes": notes,
+        "passed": passed, "could_not_run": could_not_run, "previous": tag, "notes": notes,
         "results": [{"ios": l, "scenario": s, "status": st, "message": m} for l, s, st, m in results],
     }, indent=2))
     print("\n".join(lines))
