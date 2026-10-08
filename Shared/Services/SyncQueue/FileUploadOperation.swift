@@ -455,6 +455,10 @@ class FileUploadOperation: AsyncOperation, BPLogger, @unchecked Sendable {
         }
         done = try await uploadedParts(uploadId: uploadId)
         active = await transport.activePartNumbers(for: uuid, uploadId: uploadId).subtracting(done)
+        // A part that left `active` here (finished with its event lost, or now listed by S3) drops
+        // its partial bytes: `done` counts it whole, or it's sent again, and no later event for it
+        // would clear them, so the progress would count them twice for the rest of the pass
+        bytesInFlight = bytesInFlight.filter { active.contains($0.key) }
       case .cellularSettingChanged:
         // Their cancellations come back as `.resend`
         await transport.cancelParts(for: uuid)

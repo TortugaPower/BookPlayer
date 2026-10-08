@@ -253,12 +253,9 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
   func bindObservers() {
     NotificationCenter.default.publisher(for: .logout, object: nil)
       .sink(receiveValue: { [weak self] _ in
-        UserDefaults.standard.set(
-          false,
-          forKey: Constants.UserDefaults.hasScheduledLibraryContents
-        )
         // Persisted rows are wiped by resetAllJobs, but an IN-FLIGHT operation would keep
         // running (and uploading) under the next signed-in account's token without this.
+        // The first-sync flag is SyncService's: its logout clears it in the locked step.
         self?.operationQueue.cancelAllOperations()
       })
       .store(in: &disposeBag)
