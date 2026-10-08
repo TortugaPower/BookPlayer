@@ -518,7 +518,7 @@ def check(args):
     results, notes = [], []
 
     minimum, newest = deployment_target_major(), sdk_major()
-    runtimes = json.loads(run(["xcrun", "simctl", "list", "runtimes", "-j"]))["runtimes"]
+    runtimes = json.loads(run(["xcrun", "simctl", "list", "runtimes", "-j"], timeout=SIMCTL_TIMEOUT))["runtimes"]
     plan = []
     for major in supported_majors(minimum, newest):
         if major in SKIPPED_MAJORS:

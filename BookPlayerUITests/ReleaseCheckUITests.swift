@@ -81,7 +81,9 @@ final class ReleaseCheckUITests: XCTestCase {
     let bookRow = row(Self.bookPath)
     XCTAssertTrue(bookRow.waitForExistence(timeout: 30), "Book row from the previous release is gone")
     XCTAssertTrue(row(Self.folderPath).exists, "Folder row from the previous release is gone")
-    XCTAssertFalse(bookRow.label.contains(" 0 percent completed"), "The book's progress was lost: \(bookRow.label)")
+    let progress = percentCompleted(bookRow.label)
+    XCTAssertNotNil(progress, "The book row's label has no progress percentage: \(bookRow.label)")
+    XCTAssertGreaterThan(progress ?? 0, 0, "The book's progress was lost: \(bookRow.label)")
     assertStillRunning()
 
     try testPlayback()
@@ -106,7 +108,7 @@ final class ReleaseCheckUITests: XCTestCase {
     let deadline = Date().addingTimeInterval(15)
     var playing = false
     while !playing && Date() < deadline {
-      playing = app.buttons["Pause"].exists || !bookRow.label.contains(" 0 percent completed")
+      playing = app.buttons["Pause"].exists || (percentCompleted(bookRow.label) ?? 0) > 0
       if !playing { sleep(1) }
     }
     XCTAssertTrue(playing, "The previous release never started playing the book (seeding problem): \(bookRow.label)")
@@ -118,6 +120,13 @@ final class ReleaseCheckUITests: XCTestCase {
   }
 
   // MARK: - Helpers
+
+  /// The progress in a book row's label ("…, 25 percent completed, …", from `voiceover_book_progress`), or nil
+  /// when the label doesn't have it, so a reworded label fails instead of passing
+  private func percentCompleted(_ label: String) -> Int? {
+    guard let match = label.range(of: #"(\d+) percent completed"#, options: .regularExpression) else { return nil }
+    return Int(label[match].prefix { $0.isNumber })
+  }
 
   private func row(_ relativePath: String) -> XCUIElement {
     app.descendants(matching: .any)["library.row.\(relativePath)"]
