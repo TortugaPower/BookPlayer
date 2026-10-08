@@ -40,6 +40,7 @@ import subprocess
 import sys
 import tempfile
 import time
+import traceback
 import wave
 from pathlib import Path
 
@@ -154,23 +155,75 @@ def ensure_debug_xcconfig(source):
         shutil.copy(source / "BuildConfiguration/Debug.template.xcconfig", config)
 
 
+def git(*args):
+    return run(["git", "-C", str(REPO), *args]).strip()
+
+
+def only_version_bump(old, new):
+    """True when `new` is `old` plus nothing but MARKETING_VERSION changes (the skill's `set app version` commit)."""
+    if old == new:
+        return True
+    if subprocess.run(["git", "-C", str(REPO), "merge-base", "--is-ancestor", old, new]).returncode != 0:
+        return False
+    if git("diff", "--name-only", old, new).splitlines() != ["BookPlayer.xcodeproj/project.pbxproj"]:
+        return False
+    changed = [line for line in git("diff", "-U0", old, new).splitlines()
+               if line[:1] in "+-" and not line.startswith(("+++", "---"))]
+    return all("MARKETING_VERSION = " in line for line in changed)
+
+
+def cache_app(app, version, commit, dirty):
+    """Copies `app` into the cache for `version`, recording where it came from; written last, so a copy that
+    stopped partway is never trusted."""
+    entry = CACHE / version
+    shutil.rmtree(entry, ignore_errors=True)
+    entry.mkdir(parents=True)
+    partial = entry / "BookPlayer.app.partial"
+    shutil.copytree(app, partial, symlinks=True)
+    partial.rename(entry / "BookPlayer.app")
+    (entry / "source.json").write_text(json.dumps({"commit": commit, "dirty": dirty}))
+
+
+def cached_app(tag):
+    """The cached app for `tag`, or None (with the reason logged) when it can't be trusted as that release."""
+    entry = CACHE / tag
+    app, source = entry / "BookPlayer.app", entry / "source.json"
+    if not entry.exists():
+        return None
+    try:
+        recorded = json.loads(source.read_text())
+    except (OSError, ValueError):
+        log(f"previous release {tag}: cache has no source record (incomplete copy?), rebuilding")
+        return None
+    if not (app / "Info.plist").exists():
+        log(f"previous release {tag}: cached app is incomplete, rebuilding")
+        return None
+    if recorded.get("dirty"):
+        log(f"previous release {tag}: cached build had uncommitted changes, rebuilding")
+        return None
+    if not only_version_bump(recorded.get("commit", ""), git("rev-parse", f"{tag}^{{commit}}")):
+        log(f"previous release {tag}: cached build ({recorded.get('commit', '?')[:8]}) isn't what {tag} tagged, rebuilding")
+        return None
+    return app
+
+
 def previous_app(tag, work):
-    cached = CACHE / tag / "BookPlayer.app"
-    if cached.exists():
+    app = cached_app(tag)
+    if app:
         log(f"previous release {tag}: cached")
-        return cached
-    log(f"previous release {tag}: not cached, building the tag once…")
+        return app
+    log(f"previous release {tag}: building the tag once…")
     worktree = work / f"wt-{tag}"
-    run(["git", "-C", str(REPO), "worktree", "add", "--detach", str(worktree), tag])
+    git("worktree", "add", "--detach", str(worktree), tag)
     try:
         ensure_debug_xcconfig(worktree)
         products = build(worktree, work / f"dd-{tag}")
-        cached.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copytree(products / "Release-iphonesimulator/BookPlayer.app", cached, symlinks=True)
+        cache_app(products / "Release-iphonesimulator/BookPlayer.app", tag, git("rev-parse", f"{tag}^{{commit}}"),
+                  dirty=False)
     finally:
-        run(["git", "-C", str(REPO), "worktree", "remove", "--force", str(worktree)])
+        git("worktree", "remove", "--force", str(worktree))
         shutil.rmtree(work / f"dd-{tag}", ignore_errors=True)
-    return cached
+    return CACHE / tag / "BookPlayer.app"
 
 
 def retarget(xctestrun, app, name):
@@ -292,9 +345,9 @@ def crash_reports_since(start, bundle_id, udid):
     folder = Path.home() / "Library/Logs/DiagnosticReports"
     # macOS moves reports into Retired/ after a while
     for report in sorted([*folder.glob("*.ips"), *folder.glob("Retired/*.ips")]):
-        if report.stat().st_mtime < start:
-            continue
         try:
+            if report.stat().st_mtime < start:
+                continue
             header_line, body = report.read_text().split("\n", 1)
             header = json.loads(header_line)
             proc_path = json.loads(body).get("procPath", "")
@@ -528,10 +581,10 @@ def check(args):
     notes += setup_errors
     passed = not setup_errors and all(status in ("passed", "retried") for _, _, status, _ in results)
     if passed and args.version:
-        cached = CACHE / args.version / "BookPlayer.app"
-        shutil.rmtree(cached, ignore_errors=True)
-        cached.parent.mkdir(parents=True, exist_ok=True)
-        shutil.copytree(candidate, cached, symlinks=True)
+        # Reused as the next release's "previous" only if <version>'s tag turns out to be this commit
+        # plus the version bump (see cached_app)
+        dirty = bool(git("status", "--porcelain", "--untracked-files=no"))
+        cache_app(candidate, args.version, git("rev-parse", "HEAD"), dirty)
         prune_cache(keep=[args.version, tag, PACKAGES.name])
     if not args.keep_build:
         shutil.rmtree(out / "DerivedData", ignore_errors=True)
@@ -592,6 +645,10 @@ def main():
         sys.exit(2)
     except subprocess.TimeoutExpired as error:
         print(f"\nRelease check could not run: {' '.join(error.cmd)} timed out", file=sys.stderr)
+        sys.exit(2)
+    except Exception:  # noqa: BLE001 — a bug in this script must never read as a failed release (exit 1)
+        traceback.print_exc()
+        print("\nRelease check could not run: unexpected error in release_check.py (traceback above)", file=sys.stderr)
         sys.exit(2)
 
 
