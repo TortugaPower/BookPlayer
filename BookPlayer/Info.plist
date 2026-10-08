@@ -399,6 +399,12 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>BookPlayer uses the local network so you can upload audiobooks from a computer on the same Wi‑Fi.</string>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_http._tcp</string>
+	</array>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Enable microphone access so you can record audio</string>
 	<key>NSSiriUsageDescription</key>
