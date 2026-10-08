@@ -82,8 +82,33 @@ final class WifiTransferFileSupportTests: XCTestCase {
   func testHTMLStrings_russianLocale() {
     let ru = WifiTransferHTML.strings(for: "ru")
     XCTAssertTrue(ru.folderHint.contains("структура") || ru.folderHint.lowercased().contains("папк"))
+    XCTAssertTrue(ru.skipped.contains("%d"))
+    XCTAssertFalse(ru.retry.isEmpty)
     let en = WifiTransferHTML.strings(for: "en")
     XCTAssertTrue(en.folderHint.lowercased().contains("structure"))
+    XCTAssertTrue(en.skipped.contains("%d"))
+  }
+
+  func testHTMLPage_includesAllowlistAndAutoUpload() {
+    let html = WifiTransferHTML.page(languageCode: "en")
+    XCTAssertTrue(html.contains("ALLOWED"))
+    XCTAssertTrue(html.contains("\"m4b\""))
+    XCTAssertTrue(html.contains("startUpload"))
+    XCTAssertTrue(html.contains("webkitGetAsEntry"))
+    XCTAssertTrue(html.contains("dropEffect"))
+    XCTAssertFalse(html.contains("id=\"send\""))
+    XCTAssertTrue(html.contains("id=\"retry\""))
+  }
+
+  func testIsAllowedFilename_rejectsDotfilesAndUnknown() {
+    XCTAssertTrue(WifiTransferFileSupport.isAllowedFilename("book.m4b"))
+    XCTAssertFalse(WifiTransferFileSupport.isAllowedFilename(".DS_Store"))
+    XCTAssertFalse(WifiTransferFileSupport.isAllowedFilename("Thumbs.db"))
+    XCTAssertNil(WifiTransferFileSupport.sanitizedRelativePath(from: "Book/.DS_Store"))
+  }
+
+  func testSanitizedRootFolder_rejectsDotPrefix() {
+    XCTAssertNil(WifiTransferFileSupport.sanitizedRootFolder(from: ".hidden"))
   }
 
   func testClearStagingDirectory_removesLeftovers() throws {

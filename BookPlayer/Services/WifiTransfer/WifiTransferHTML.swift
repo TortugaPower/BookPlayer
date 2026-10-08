@@ -17,7 +17,7 @@ enum WifiTransferHTML {
     let dropHint: String
     let chooseFiles: String
     let chooseFolder: String
-    let upload: String
+    let retry: String
     let uploading: String
     let uploaded: String
     let failed: String
@@ -25,6 +25,7 @@ enum WifiTransferHTML {
     let importDone: String
     let queueEmpty: String
     let selectedCount: String
+    let skipped: String
   }
 
   static func strings(for languageCode: String) -> Strings {
@@ -39,14 +40,15 @@ enum WifiTransferHTML {
         dropHint: "файлы или целую папку",
         chooseFiles: "Выбрать файлы",
         chooseFolder: "Выбрать папку",
-        upload: "Загрузить",
+        retry: "Повторить ошибки",
         uploading: "Загрузка",
         uploaded: "Загружено",
         failed: "Ошибка",
         importing: "Импорт в приложение…",
         importDone: "Готово — смотрите импорт на телефоне",
-        queueEmpty: "Ничего не выбрано",
-        selectedCount: "Выбрано: %d"
+        queueEmpty: "Ожидание файлов…",
+        selectedCount: "В очереди: %d",
+        skipped: "Пропущено неподдерживаемых файлов: %d"
       )
     }
     return Strings(
@@ -58,14 +60,15 @@ enum WifiTransferHTML {
       dropHint: "files or an entire folder",
       chooseFiles: "Choose files",
       chooseFolder: "Choose folder",
-      upload: "Upload",
+      retry: "Retry failed",
       uploading: "Uploading",
       uploaded: "Uploaded",
       failed: "Failed",
       importing: "Importing into the app…",
       importDone: "Done — check Import on your phone",
-      queueEmpty: "Nothing selected",
-      selectedCount: "Selected: %d"
+      queueEmpty: "Waiting for files…",
+      selectedCount: "Queued: %d",
+      skipped: "Skipped unsupported files: %d"
     )
   }
 
@@ -82,6 +85,15 @@ enum WifiTransferHTML {
     } else {
       json = "{}"
     }
+    let allowedExtJSON: String = {
+      let sorted = WifiTransferFileSupport.allowedExtensions.sorted()
+      guard let data = try? JSONEncoder().encode(Array(sorted)),
+        let s = String(data: data, encoding: .utf8)
+      else {
+        return "[]"
+      }
+      return s
+    }()
 
     return """
     <!DOCTYPE html>
@@ -118,84 +130,79 @@ enum WifiTransferHTML {
             --border: #2f433a;
             --ok: #3dbe92;
             --err: #e06666;
-            --track: #24332c;
+            --track: #24352e;
             --shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
           }
         }
         * { box-sizing: border-box; }
         body {
           margin: 0; min-height: 100vh;
-          font-family: "Avenir Next", "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+          font: 16px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
           color: var(--fg);
           background:
-            radial-gradient(1200px 500px at 10% -10%, rgba(26,143,106,0.18), transparent 55%),
-            radial-gradient(900px 420px at 100% 0%, rgba(26,143,106,0.10), transparent 50%),
-            linear-gradient(180deg, var(--bg1), var(--bg0));
+            radial-gradient(1200px 600px at 10% -10%, color-mix(in srgb, var(--accent) 18%, transparent), transparent),
+            linear-gradient(160deg, var(--bg0), var(--bg1));
         }
-        main { max-width: 44rem; margin: 0 auto; padding: 2.5rem 1.25rem 3rem; }
-        .brand {
-          display: flex; align-items: baseline; gap: 0.65rem; margin-bottom: 0.75rem;
-        }
-        .brand h1 {
-          margin: 0; font-size: clamp(1.8rem, 4vw, 2.35rem); font-weight: 700; letter-spacing: -0.03em;
-        }
+        main { max-width: 640px; margin: 0 auto; padding: 2rem 1.25rem 3rem; }
+        .brand { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.35rem; }
+        h1 { font-size: 1.75rem; margin: 0; letter-spacing: -0.02em; }
         .pill {
-          font-size: 0.72rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
-          color: var(--accent); border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--border));
-          padding: 0.2rem 0.5rem; border-radius: 999px;
+          font-size: 0.7rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+          padding: 0.25rem 0.55rem; border-radius: 999px;
+          background: color-mix(in srgb, var(--accent) 16%, transparent);
+          color: var(--accent); border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
         }
-        .lead { margin: 0 0 0.4rem; color: var(--muted); line-height: 1.5; font-size: 1.02rem; }
-        .meta { margin: 0; color: var(--muted); font-size: 0.92rem; line-height: 1.45; }
-        .meta strong { color: var(--fg); font-weight: 600; }
+        .lead { color: var(--muted); margin: 0 0 0.5rem; }
+        .meta { color: var(--muted); font-size: 0.9rem; margin: 0 0 1.25rem; }
         .drop {
-          margin-top: 1.6rem; padding: 2.4rem 1.4rem 1.6rem; border: 1.5px dashed var(--border);
-          border-radius: 22px; background: var(--card); box-shadow: var(--shadow);
-          text-align: center; transition: border-color .15s, transform .15s, background .15s;
+          border: 2px dashed var(--border); border-radius: 20px; padding: 2rem 1.25rem;
+          background: var(--card); backdrop-filter: blur(8px); box-shadow: var(--shadow);
+          text-align: center; transition: border-color .15s, background .15s, transform .15s;
         }
         .drop.over {
           border-color: var(--accent);
           background: color-mix(in srgb, var(--accent) 10%, var(--card));
-          transform: translateY(-1px);
+          transform: scale(1.01);
         }
         .drop .icon {
-          width: 3.2rem; height: 3.2rem; margin: 0 auto 0.9rem; border-radius: 1rem;
-          display: grid; place-items: center;
-          background: color-mix(in srgb, var(--accent) 14%, transparent);
-          color: var(--accent); font-size: 1.5rem;
+          width: 3rem; height: 3rem; margin: 0 auto 0.75rem; border-radius: 1rem;
+          display: grid; place-items: center; font-size: 1.5rem;
+          background: color-mix(in srgb, var(--accent) 14%, transparent); color: var(--accent);
         }
-        .drop strong { display: block; font-size: 1.15rem; margin-bottom: 0.25rem; }
-        .actions {
-          display: flex; flex-wrap: wrap; gap: 0.6rem; justify-content: center; margin-top: 1.15rem;
-        }
+        .actions { display: flex; flex-wrap: wrap; gap: 0.6rem; justify-content: center; margin-top: 1.1rem; }
         .btn {
-          appearance: none; border: 0; border-radius: 12px; padding: 0.72rem 1.15rem;
-          font-weight: 700; font-size: 0.95rem; cursor: pointer;
+          appearance: none; border: 0; border-radius: 12px; padding: 0.7rem 1.1rem;
+          font-weight: 600; font-size: 0.95rem; cursor: pointer;
         }
+        .btn:disabled { opacity: 0.45; cursor: not-allowed; }
         .btn-primary { background: var(--accent); color: #fff; }
-        .btn-primary:hover { background: var(--accent-press); }
-        .btn-primary:disabled { opacity: 0.45; cursor: default; }
+        .btn-primary:hover:not(:disabled) { background: var(--accent-press); }
         .btn-ghost {
           background: transparent; color: var(--fg);
           border: 1px solid var(--border);
         }
+        .btn-ghost:hover:not(:disabled) {
+          border-color: var(--accent);
+          color: var(--accent);
+        }
         .hidden-input { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
         .toolbar {
-          display: flex; align-items: center; justify-content: space-between; gap: 1rem;
-          margin-top: 1.25rem;
+          display: flex; align-items: center; justify-content: space-between;
+          gap: 1rem; margin: 1.25rem 0 0.75rem; flex-wrap: wrap;
         }
-        .count { color: var(--muted); font-size: 0.92rem; }
-        ul { list-style: none; padding: 0; margin: 1rem 0 0; display: grid; gap: 0.55rem; }
-        li {
-          padding: 0.75rem 0.9rem; border-radius: 14px; background: var(--card);
-          border: 1px solid var(--border); box-shadow: var(--shadow);
+        .count { color: var(--muted); font-size: 0.95rem; }
+        #log { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.55rem; }
+        #log li {
+          background: var(--card); border: 1px solid var(--border); border-radius: 14px;
+          padding: 0.75rem 0.9rem; box-shadow: var(--shadow);
         }
-        li .row { display: flex; justify-content: space-between; gap: 0.75rem; align-items: baseline; }
-        li .name { font-size: 0.95rem; word-break: break-all; }
-        li .status { font-size: 0.8rem; color: var(--muted); white-space: nowrap; }
-        li.ok .status { color: var(--ok); }
-        li.err .status { color: var(--err); }
+        #log li.ok { border-color: color-mix(in srgb, var(--ok) 45%, var(--border)); }
+        #log li.err { border-color: color-mix(in srgb, var(--err) 45%, var(--border)); }
+        .row { display: flex; justify-content: space-between; gap: 0.75rem; align-items: baseline; }
+        .name { font-size: 0.92rem; word-break: break-all; }
+        .status { font-size: 0.8rem; color: var(--muted); white-space: nowrap; }
         .bar {
-          margin-top: 0.55rem; height: 6px; border-radius: 999px; background: var(--track); overflow: hidden;
+          margin-top: 0.45rem; height: 6px; border-radius: 999px; background: var(--track); overflow: hidden;
         }
         .bar > i {
           display: block; height: 100%; width: 0%; background: var(--accent); border-radius: inherit;
@@ -233,17 +240,19 @@ enum WifiTransferHTML {
 
         <div class="toolbar">
           <div class="count" id="count"></div>
-          <button type="button" class="btn btn-primary" id="send"></button>
+          <button type="button" class="btn btn-primary" id="retry" hidden></button>
         </div>
         <div class="banner" id="banner" hidden></div>
         <ul id="log"></ul>
       </main>
       <script>
         const I18N = \(json);
+        const ALLOWED = new Set(\(allowedExtJSON));
+        const CONCURRENCY = 3;
         const drop = document.getElementById('drop');
         const fileInput = document.getElementById('fileInput');
         const folderInput = document.getElementById('folderInput');
-        const send = document.getElementById('send');
+        const retryBtn = document.getElementById('retry');
         const log = document.getElementById('log');
         const count = document.getElementById('count');
         const banner = document.getElementById('banner');
@@ -258,22 +267,43 @@ enum WifiTransferHTML {
         document.getElementById('dropHint').textContent = I18N.dropHint;
         pickFiles.textContent = I18N.chooseFiles;
         pickFolder.textContent = I18N.chooseFolder;
-        send.textContent = I18N.upload;
+        retryBtn.textContent = I18N.retry;
 
         /** @type {{path: string, file: File, root: string|null}[]} */
-        let queue = [];
+        let pending = [];
+        /** @type {{path: string, file: File, root: string|null}[]} */
+        let failed = [];
+        let busy = false;
 
         function setCount() {
-          count.textContent = queue.length
-            ? I18N.selectedCount.replace('%d', String(queue.length))
+          const n = pending.length + (busy ? 1 : 0);
+          count.textContent = (pending.length || busy)
+            ? I18N.selectedCount.replace('%d', String(Math.max(pending.length, n)))
             : I18N.queueEmpty;
+          retryBtn.hidden = !failed.length || busy;
         }
         setCount();
 
-        function addFile(file, relativePath) {
+        function extOf(path) {
+          const i = path.lastIndexOf('.');
+          if (i < 0) return '';
+          return path.slice(i + 1).toLowerCase();
+        }
+
+        function isAllowedPath(path) {
+          const base = path.split('/').pop() || '';
+          if (!base || base.startsWith('.')) return false;
+          return ALLOWED.has(extOf(base));
+        }
+
+        function addFile(file, relativePath, collected, skipped) {
           const path = (relativePath || file.name || '').replace(/^\\/+/, '');
           if (!path) return;
-          queue.push({
+          if (!isAllowedPath(path)) {
+            skipped.count += 1;
+            return;
+          }
+          collected.push({
             path,
             file,
             root: path.includes('/') ? path.split('/')[0] : null
@@ -292,10 +322,10 @@ enum WifiTransferHTML {
           });
         }
 
-        async function walkEntry(entry, prefix) {
+        async function walkEntry(entry, prefix, collected, skipped) {
           if (entry.isFile) {
             const file = await new Promise((resolve, reject) => entry.file(resolve, reject));
-            addFile(file, prefix ? prefix + '/' + entry.name : entry.name);
+            addFile(file, prefix ? prefix + '/' + entry.name : entry.name, collected, skipped);
             return;
           }
           if (entry.isDirectory) {
@@ -303,49 +333,87 @@ enum WifiTransferHTML {
             const children = await readEntries(reader);
             const next = prefix ? prefix + '/' + entry.name : entry.name;
             for (const child of children) {
-              await walkEntry(child, next);
+              await walkEntry(child, next, collected, skipped);
             }
           }
         }
 
-        async function addFromDataTransfer(dt) {
+        async function collectFromDataTransfer(dt) {
+          const collected = [];
+          const skipped = { count: 0 };
           const items = dt.items ? [...dt.items] : [];
-          if (items.some(i => i.webkitGetAsEntry)) {
-            for (const item of items) {
-              const entry = item.webkitGetAsEntry && item.webkitGetAsEntry();
-              if (entry) await walkEntry(entry, '');
+          let walked = false;
+          for (const item of items) {
+            const entry = (typeof item.webkitGetAsEntry === 'function')
+              ? item.webkitGetAsEntry()
+              : null;
+            if (entry) {
+              walked = true;
+              await walkEntry(entry, '', collected, skipped);
             }
+          }
+          if (!walked || !collected.length) {
+            for (const file of dt.files || []) {
+              addFile(file, file.webkitRelativePath || file.name, collected, skipped);
+            }
+          }
+          return { collected, skipped: skipped.count };
+        }
+
+        function collectFromFileList(files, useRelative) {
+          const collected = [];
+          const skipped = { count: 0 };
+          for (const file of files) {
+            const path = useRelative ? (file.webkitRelativePath || file.name) : file.name;
+            addFile(file, path, collected, skipped);
+          }
+          return { collected, skipped: skipped.count };
+        }
+
+        function showSkipped(n) {
+          if (!n) return;
+          banner.hidden = false;
+          banner.textContent = I18N.skipped.replace('%d', String(n));
+        }
+
+        function enqueueAndStart(collected, skippedCount) {
+          if (skippedCount) showSkipped(skippedCount);
+          if (!collected.length) {
+            setCount();
             return;
           }
-          for (const file of dt.files || []) {
-            addFile(file, file.webkitRelativePath || file.name);
-          }
+          pending.push(...collected);
+          setCount();
+          startUpload();
         }
 
         ['dragenter','dragover'].forEach(ev => drop.addEventListener(ev, e => {
-          e.preventDefault(); drop.classList.add('over');
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'copy';
+          drop.classList.add('over');
         }));
-        ['dragleave','drop'].forEach(ev => drop.addEventListener(ev, e => {
-          e.preventDefault(); drop.classList.remove('over');
-        }));
+        drop.addEventListener('dragleave', e => {
+          e.preventDefault();
+          drop.classList.remove('over');
+        });
         drop.addEventListener('drop', async e => {
-          await addFromDataTransfer(e.dataTransfer);
-          setCount();
+          e.preventDefault();
+          drop.classList.remove('over');
+          const { collected, skipped } = await collectFromDataTransfer(e.dataTransfer);
+          enqueueAndStart(collected, skipped);
         });
 
         pickFiles.addEventListener('click', () => fileInput.click());
         pickFolder.addEventListener('click', () => folderInput.click());
         fileInput.addEventListener('change', () => {
-          for (const file of fileInput.files) addFile(file, file.name);
+          const { collected, skipped } = collectFromFileList(fileInput.files, false);
           fileInput.value = '';
-          setCount();
+          enqueueAndStart(collected, skipped);
         });
         folderInput.addEventListener('change', () => {
-          for (const file of folderInput.files) {
-            addFile(file, file.webkitRelativePath || file.name);
-          }
+          const { collected, skipped } = collectFromFileList(folderInput.files, true);
           folderInput.value = '';
-          setCount();
+          enqueueAndStart(collected, skipped);
         });
 
         function row(path) {
@@ -408,41 +476,69 @@ enum WifiTransferHTML {
           });
         }
 
-        send.addEventListener('click', async () => {
-          if (!queue.length) {
-            banner.hidden = false;
-            banner.textContent = I18N.queueEmpty;
+        async function runPool(items, worker) {
+          let index = 0;
+          const runners = Array.from({ length: Math.min(CONCURRENCY, items.length) }, async () => {
+            while (index < items.length) {
+              const i = index++;
+              await worker(items[i]);
+            }
+          });
+          await Promise.all(runners);
+        }
+
+        async function startUpload(retryOnly) {
+          if (busy) return;
+          const batch = retryOnly ? failed.splice(0, failed.length) : pending.splice(0, pending.length);
+          if (!batch.length) {
+            setCount();
             return;
           }
-          send.disabled = true;
-          banner.hidden = true;
-          const batch = queue.slice();
-          queue = [];
+          busy = true;
           setCount();
+          if (!retryOnly) banner.hidden = true;
+
           const roots = new Set();
-          for (const item of batch) {
+          await runPool(batch, async (item) => {
             const ui = row(item.path);
             try {
               await uploadOne(item, ui);
               if (item.root) roots.add(item.root);
-            } catch (_) { /* status already set */ }
-          }
+            } catch (_) {
+              failed.push(item);
+            }
+          });
+
           if (roots.size) {
             banner.hidden = false;
             banner.textContent = I18N.importing;
             for (const root of roots) {
-              try { await importRoot(root); }
-              catch (e) {
+              try {
+                await importRoot(root);
+              } catch (e) {
                 banner.textContent = I18N.failed + ': ' + (e.message || e);
-                send.disabled = false;
+                busy = false;
+                setCount();
                 return;
               }
             }
           }
+
           banner.hidden = false;
-          banner.textContent = I18N.importDone;
-          send.disabled = false;
-        });
+          banner.textContent = failed.length && !roots.size && batch.every(i => !i.root)
+            ? (failed.length === batch.length ? I18N.failed : I18N.importDone)
+            : I18N.importDone;
+          if (failed.length) {
+            banner.textContent = I18N.failed + ' (' + failed.length + ')';
+          } else {
+            banner.textContent = I18N.importDone;
+          }
+          busy = false;
+          setCount();
+          if (pending.length) startUpload(false);
+        }
+
+        retryBtn.addEventListener('click', () => startUpload(true));
       </script>
     </body>
     </html>

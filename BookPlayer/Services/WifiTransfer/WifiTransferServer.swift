@@ -182,18 +182,12 @@ final class WifiTransferServer: ObservableObject, BPLogger {
             self?.handleLooseFile(url)
           }
         },
-        onImportRoot: { [weak self] root in
-          // Connection I/O runs on a background queue; hop to main and wait.
-          var result: Result<Void, String> = .failure("wifi_transfer_import_failed_message".localized)
-          let group = DispatchGroup()
-          group.enter()
-          DispatchQueue.main.async {
-            result = self?.importRootFolder(root)
+        onImportRoot: { [weak self] root, completion in
+          Task { @MainActor in
+            let result = self?.importRootFolder(root)
               ?? .failure("wifi_transfer_import_failed_message".localized)
-            group.leave()
+            completion(result)
           }
-          _ = group.wait(timeout: .now() + 15)
-          return result
         },
         languageCode: languageCode,
         onFinished: { [weak self] id in
