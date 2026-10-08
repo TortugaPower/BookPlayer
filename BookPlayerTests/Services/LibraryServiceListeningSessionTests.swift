@@ -200,6 +200,48 @@ final class LibraryServiceListeningSessionTests: XCTestCase {
     XCTAssertEqual(sessions[0].relativePath, "new.m4b")
   }
 
+  func testEnd_doesNotInflateDurationWithWallClock() {
+    let context = sut.dataManager.getContext()
+    let orphan = ListeningSession.create(in: context)
+    orphan.relativePath = "book.m4b"
+    orphan.itemTitle = "Book"
+    orphan.startedAt = Date().addingTimeInterval(-3600)
+    orphan.endedAt = nil
+    orphan.duration = 20
+    sut.dataManager.saveContext()
+
+    sut.endListeningSession()
+
+    let sessions = sut.getListeningSessions(
+      from: nil, to: nil, relativePath: nil, limit: nil, offset: nil
+    )
+    XCTAssertEqual(sessions.count, 1)
+    XCTAssertEqual(sessions[0].duration, 20, accuracy: 0.001)
+  }
+
+  func testRenameBook_refreshesListeningSessionTitles() {
+    let book = StubFactory.book(dataManager: sut.dataManager, title: "Original", duration: 100)
+    sut.getLibraryReference().addToItems(book)
+    sut.dataManager.saveContext()
+
+    _ = sut.startListeningSession(
+      relativePath: book.relativePath,
+      title: "Original",
+      subtitle: nil,
+      artworkRelativePath: book.relativePath
+    )
+    for _ in 0..<15 { sut.recordListeningSessionTick() }
+    sut.endListeningSession()
+
+    sut.renameBook(at: book.relativePath, with: "Renamed")
+
+    let sessions = sut.getListeningSessions(
+      from: nil, to: nil, relativePath: nil, limit: nil, offset: nil
+    )
+    XCTAssertEqual(sessions.count, 1)
+    XCTAssertEqual(sessions[0].itemTitle, "Renamed")
+  }
+
   func testEnd_closesAllOrphanOpenSessions() {
     let context = sut.dataManager.getContext()
     let first = ListeningSession.create(in: context)

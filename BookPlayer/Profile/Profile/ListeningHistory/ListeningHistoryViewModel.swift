@@ -138,8 +138,14 @@ final class ListeningHistoryViewModel: ObservableObject {
   }
 
   func presentation(for session: SimpleListeningSession) -> ListeningHistoryPresentation {
-    // Prefer denormalized snapshot written at session start.
-    session.presentation
+    // Live library titles when the item still exists (rename/move); snapshot if deleted.
+    if libraryService.getSimpleItem(with: session.relativePath) != nil {
+      return libraryService.listeningHistoryPresentation(
+        for: session.relativePath,
+        fallbackTitle: session.itemTitle
+      )
+    }
+    return session.presentation
   }
 
   func artworkItem(for presentation: ListeningHistoryPresentation) -> SimpleLibraryItem? {

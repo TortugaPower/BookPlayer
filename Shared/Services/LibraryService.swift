@@ -291,6 +291,7 @@ public final class LibraryService: LibraryServiceProtocol, @unchecked Sendable {
       }
 
       ArtworkService.moveCachedImage(from: originalPath, to: book.relativePath)
+      remapListeningSessions(from: originalPath, to: book.relativePath, context: context)
     case let folder as Folder:
       /// Get contents before updating relative path
       let contents =
@@ -311,6 +312,7 @@ public final class LibraryService: LibraryServiceProtocol, @unchecked Sendable {
       }
 
       ArtworkService.moveCachedImage(from: originalPath, to: folder.relativePath)
+      remapListeningSessions(from: originalPath, to: folder.relativePath, context: context)
 
       for nestedItem in contents {
         rebuildRelativePaths(for: nestedItem, parentFolder: folder.relativePath, context: context)
@@ -2162,6 +2164,7 @@ extension LibraryService {
       #keyPath(LibraryItem.title): newTitle,
     ])
 
+    refreshListeningSessionSnapshots(for: relativePath)
     self.dataManager.saveContext()
   }
 
@@ -2710,7 +2713,8 @@ extension LibraryService {
 
   public func recordListeningSessionTick() {
     guard let session = getActiveListeningSession() else { return }
-    // Keep a running floor from the player clock; wall-clock on end is the source of truth.
+    // Playback-second source of truth (player `updateTime` while playing). Do not use
+    // wall-clock from `startedAt` — that over-counts pause / suspend gaps.
     session.duration += 1
     dataManager.scheduleSaveContext()
   }
@@ -2744,24 +2748,7 @@ extension LibraryService {
     }
 
     let results = (try? dataManager.getContext().fetch(fetch)) ?? []
-    return results.map { session in
-      var snapshot = SimpleListeningSession(from: session)
-      if session.endedAt == nil {
-        // Reflect live wall-clock duration for the active session.
-        let liveDuration = max(session.duration, Date().timeIntervalSince(session.startedAt))
-        snapshot = SimpleListeningSession(
-          id: snapshot.id,
-          relativePath: snapshot.relativePath,
-          itemTitle: snapshot.itemTitle,
-          subtitle: snapshot.subtitle,
-          artworkRelativePath: snapshot.artworkRelativePath,
-          startedAt: snapshot.startedAt,
-          endedAt: nil,
-          duration: liveDuration
-        )
-      }
-      return snapshot
-    }
+    return results.map { SimpleListeningSession(from: $0) }
   }
 
   public func getListeningSessionsCount(
@@ -2836,10 +2823,8 @@ extension LibraryService {
 
     let now = Date()
     // Close every open row — after a crash there may be more than one orphan.
+    // Keep tick-based `duration` (actual playback seconds); do not expand with wall-clock.
     for session in openSessions {
-      let wallClockDuration = max(0, now.timeIntervalSince(session.startedAt))
-      // Player ticks can under-count when `updateTime` early-returns on clock recovery.
-      session.duration = max(session.duration, wallClockDuration)
       session.endedAt = now
 
       if discardIfTooShort, session.duration < Self.listeningSessionMinimumDuration {
@@ -2871,6 +2856,60 @@ extension LibraryService {
     guard !results.isEmpty else { return }
     results.forEach { context.delete($0) }
     dataManager.saveContext()
+  }
+
+  /// Keep history rows loadable after move/rename of library paths.
+  private func remapListeningSessions(
+    from oldPath: String,
+    to newPath: String,
+    context: NSManagedObjectContext
+  ) {
+    guard oldPath != newPath else { return }
+
+    let fetch: NSFetchRequest<ListeningSession> = ListeningSession.fetchRequest()
+    fetch.predicate = NSPredicate(
+      format: "%K == %@ OR %K == %@",
+      #keyPath(ListeningSession.relativePath),
+      oldPath,
+      #keyPath(ListeningSession.artworkRelativePath),
+      oldPath
+    )
+    let sessions = (try? context.fetch(fetch)) ?? []
+    guard !sessions.isEmpty else { return }
+
+    for session in sessions {
+      if session.relativePath == oldPath {
+        session.relativePath = newPath
+      }
+      if session.artworkRelativePath == oldPath {
+        session.artworkRelativePath = newPath
+      }
+      applyListeningSessionPresentationSnapshot(to: session)
+    }
+  }
+
+  private func refreshListeningSessionSnapshots(for relativePath: String) {
+    let context = dataManager.getContext()
+    let fetch: NSFetchRequest<ListeningSession> = ListeningSession.fetchRequest()
+    fetch.predicate = NSPredicate(
+      format: "%K == %@ OR %K == %@",
+      #keyPath(ListeningSession.relativePath),
+      relativePath,
+      #keyPath(ListeningSession.artworkRelativePath),
+      relativePath
+    )
+    let sessions = (try? context.fetch(fetch)) ?? []
+    sessions.forEach { applyListeningSessionPresentationSnapshot(to: $0) }
+  }
+
+  private func applyListeningSessionPresentationSnapshot(to session: ListeningSession) {
+    let presentation = listeningHistoryPresentation(
+      for: session.relativePath,
+      fallbackTitle: session.itemTitle
+    )
+    session.itemTitle = presentation.title
+    session.subtitle = presentation.subtitle
+    session.artworkRelativePath = presentation.artworkRelativePath
   }
 
   private func listeningSessionsPredicate(
@@ -2909,7 +2948,8 @@ extension LibraryService {
     for relativePath: String,
     fallbackTitle: String
   ) -> ListeningHistoryPresentation {
-    guard let item = getSimpleItem(with: relativePath) else {
+    // Object fetch (not dictionary) so in-memory rename/move is visible before save.
+    guard let managedItem = getItemReference(with: relativePath) else {
       return ListeningHistoryPresentation(
         title: fallbackTitle,
         subtitle: nil,
@@ -2917,15 +2957,18 @@ extension LibraryService {
         loadRelativePath: relativePath
       )
     }
+    let item = SimpleLibraryItem(from: managedItem)
 
     switch item.type {
     case .bound:
       var subtitle: String?
       if let parentPath = item.parentFolder,
-        let parent = getSimpleItem(with: parentPath),
-        parent.type == .folder
+        let parentRef = getItemReference(with: parentPath)
       {
-        subtitle = parent.title
+        let parent = SimpleLibraryItem(from: parentRef)
+        if parent.type == .folder {
+          subtitle = parent.title
+        }
       }
       return ListeningHistoryPresentation(
         title: item.title,
@@ -2974,8 +3017,9 @@ extension LibraryService {
     var titlesReversed: [String] = []
     var visited = Set<String>()
 
-    while !visited.contains(path), let folder = getSimpleItem(with: path) {
+    while !visited.contains(path), let folderRef = getItemReference(with: path) {
       visited.insert(path)
+      let folder = SimpleLibraryItem(from: folderRef)
       guard folder.type == .folder else { break }
 
       if nearestFolderPath == nil {

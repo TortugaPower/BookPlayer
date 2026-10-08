@@ -161,7 +161,7 @@ final class ListeningHistoryViewModelTests: XCTestCase {
     XCTAssertEqual(sections[0].sessions.map(\.id), ["newer", "older"])
   }
 
-  func testPresentation_usesDenormalizedSessionFields() {
+  func testPresentation_usesDenormalizedFieldsWhenItemMissing() {
     let today = calendar.startOfDay(for: Date())
     let session = makeSession(
       id: "1",
@@ -171,6 +171,7 @@ final class ListeningHistoryViewModelTests: XCTestCase {
       artworkRelativePath: "folder",
       startedAt: today
     )
+    libraryServiceMock.getSimpleItemWithReturnValue = nil
 
     let sut = makeSUT()
     let presentation = sut.presentation(for: session)
@@ -179,6 +180,48 @@ final class ListeningHistoryViewModelTests: XCTestCase {
     XCTAssertEqual(presentation.subtitle, "Nice Book")
     XCTAssertEqual(presentation.artworkRelativePath, "folder")
     XCTAssertEqual(presentation.loadRelativePath, "folder/file.mp3")
+  }
+
+  func testPresentation_usesLiveLibraryWhenItemExists() {
+    let today = calendar.startOfDay(for: Date())
+    let session = makeSession(
+      id: "1",
+      relativePath: "folder/file.mp3",
+      title: "Old Folder",
+      subtitle: "Old Book",
+      artworkRelativePath: "folder",
+      startedAt: today
+    )
+    libraryServiceMock.getSimpleItemWithReturnValue = SimpleLibraryItem(
+      title: "file.mp3",
+      details: "",
+      speed: 1,
+      currentTime: 0,
+      duration: 100,
+      percentCompleted: 0,
+      isFinished: false,
+      relativePath: "folder/file.mp3",
+      remoteURL: nil,
+      artworkURL: nil,
+      orderRank: 0,
+      parentFolder: "folder",
+      originalFileName: "file.mp3",
+      lastPlayDate: nil,
+      type: .book,
+      uuid: "test-uuid"
+    )
+    libraryServiceMock.listeningHistoryPresentationForFallbackTitleReturnValue = ListeningHistoryPresentation(
+      title: "Renamed Folder",
+      subtitle: "Renamed Book",
+      artworkRelativePath: "folder",
+      loadRelativePath: "folder/file.mp3"
+    )
+
+    let sut = makeSUT()
+    let presentation = sut.presentation(for: session)
+
+    XCTAssertEqual(presentation.title, "Renamed Folder")
+    XCTAssertEqual(presentation.subtitle, "Renamed Book")
   }
 
   func testReload_readsHistoryDisabledFlag() {
