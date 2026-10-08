@@ -322,6 +322,8 @@
 "settings_crash_reports_title" = "Вимкнути звіти про збої";
 "settings_skan_attribution_title" = "Вимкнути атрибуцію SKAN";
 "settings_skan_attribution_description" = "SKAN — це рішення Apple для визначення конфіденційності, яке дає змогу вимірювати ефективність кампанії без шкоди для конфіденційності користувача";
+"settings_listening_history_disabled_description" = "Коли історію вимкнено, BookPlayer не записує нові сесії. Наявна історія залишається на пристрої, доки ви її не очистите.";
+"settings_listening_history_disabled_title" = "Вимкнути історію прослуховування";
 "intent_sleeptimer_cancel" = "Скасувати таймер сну";
 "intent_sleeptimer_set_duration" = "Встановіть таймер сну з тривалістю";
 "duration_title" = "Тривалість";
@@ -504,3 +506,25 @@
 "jellyfin_quick_connect_error_no_code" = "Your Jellyfin server didn't return a Quick Connect code. Make sure Quick Connect is enabled in the server's dashboard.";
 "jellyfin_quick_connect_error_generic" = "Quick Connect couldn't complete. Check that Quick Connect is enabled on your server and try again.";
 "jellyfin_quick_connect_error_timeout" = "Timed out waiting for the code to be entered. Please try again.";
+
+"listening_history_title" = "Історія прослуховування";
+"listening_history_today_title" = "Сьогодні";
+"listening_history_yesterday_title" = "Вчора";
+"listening_history_filter_title" = "Фільтр";
+"listening_history_filter_all_title" = "Увесь час";
+"listening_history_filter_today_title" = "Сьогодні";
+"listening_history_filter_week_title" = "Останні 7 днів";
+"listening_history_filter_month_title" = "Останні 30 днів";
+"listening_history_search_prompt" = "Пошук в історії";
+"listening_history_empty_title" = "Історія порожня";
+"listening_history_empty_description" = "Сесії довші за 15 секунд з’являться тут після прослуховування.";
+"listening_history_disabled_empty_description" = "Увімкніть історію прослуховування в Параметри → Конфіденційність, щоб знову записувати сесії.";
+"listening_history_disabled_banner" = "Історію прослуховування вимкнено. Нові сесії не записуються.";
+"listening_history_clear_all_title" = "Очистити все";
+"listening_history_clear_all_confirm_title" = "Очистити історію";
+"listening_history_clear_all_message" = "Це назавжди видалить усі сесії прослуховування з цього пристрою. Книги та прогрес не буде змінено.";
+"listening_history_delete_title" = "Видалити сесію";
+"listening_history_delete_message" = "Видалити сесію прослуховування «%@»?";
+"listening_history_missing_item_title" = "Книга недоступна";
+"listening_history_missing_item_message" = "Цієї книги більше немає в бібліотеці, але сесію прослуховування збережено.";
+

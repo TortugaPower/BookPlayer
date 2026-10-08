@@ -322,6 +322,8 @@
 "settings_crash_reports_title" = "Desativar relatórios de falhas";
 "settings_skan_attribution_title" = "Desativar a atribuição SKAN";
 "settings_skan_attribution_description" = "SKAN é uma solução de atribuição prioritária de privacidade da Apple e permite medir a eficácia de uma campanha sem comprometer a privacidade do utilizador";
+"settings_listening_history_disabled_description" = "Quando desativado, o BookPlayer deixa de registar novas sessões. O histórico existente permanece neste dispositivo até o limpar.";
+"settings_listening_history_disabled_title" = "Desativar histórico de audição";
 "intent_sleeptimer_cancel" = "Cancelar o Temporizador";
 "intent_sleeptimer_set_duration" = "Definir duração no Temporizador";
 "duration_title" = "Duração";
@@ -504,3 +506,24 @@
 "jellyfin_quick_connect_error_no_code" = "Your Jellyfin server didn't return a Quick Connect code. Make sure Quick Connect is enabled in the server's dashboard.";
 "jellyfin_quick_connect_error_generic" = "Quick Connect couldn't complete. Check that Quick Connect is enabled on your server and try again.";
 "jellyfin_quick_connect_error_timeout" = "Timed out waiting for the code to be entered. Please try again.";
+
+"listening_history_title" = "Histórico de audição";
+"listening_history_today_title" = "Hoje";
+"listening_history_yesterday_title" = "Ontem";
+"listening_history_filter_title" = "Filtro";
+"listening_history_filter_all_title" = "Todo o período";
+"listening_history_filter_today_title" = "Hoje";
+"listening_history_filter_week_title" = "Últimos 7 dias";
+"listening_history_filter_month_title" = "Últimos 30 dias";
+"listening_history_search_prompt" = "Pesquisar no histórico";
+"listening_history_empty_title" = "Sem histórico de audição";
+"listening_history_empty_description" = "As sessões com mais de 15 segundos aparecem aqui depois de ouvir.";
+"listening_history_disabled_empty_description" = "Ative o histórico de audição em Definições → Privacidade para voltar a registar sessões.";
+"listening_history_disabled_banner" = "O histórico de audição está desativado. Novas sessões não são registadas.";
+"listening_history_clear_all_title" = "Limpar tudo";
+"listening_history_clear_all_confirm_title" = "Limpar histórico";
+"listening_history_clear_all_message" = "Isto remove permanentemente todas as sessões de audição deste dispositivo. Os seus livros e progresso não são afetados.";
+"listening_history_delete_title" = "Eliminar sessão";
+"listening_history_delete_message" = "Remover a sessão de audição de “%@”?";
+"listening_history_missing_item_title" = "Livro indisponível";
+"listening_history_missing_item_message" = "Este livro já não está na sua biblioteca, mas a sessão de audição foi mantida.";

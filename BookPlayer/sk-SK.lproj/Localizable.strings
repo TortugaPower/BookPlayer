@@ -322,6 +322,8 @@ Usilovne pracujeme na poskytovaní bezproblémového zážitku, ak je to možné
 "settings_crash_reports_title" = "Zakázať správy o zlyhaní";
 "settings_skan_attribution_title" = "Zakázať SKAN";
 "settings_skan_attribution_description" = "SKAN je riešenie spoločnosti Apple zamerané na ochranu súkromia, ktoré umožňuje merať účinnosť kampane bez narušenia súkromia používateľov.";
+"settings_listening_history_disabled_description" = "Po vypnutí BookPlayer neukladá nové relácie počúvania. Existujúca história ostane v zariadení, kým ju nevymažete.";
+"settings_listening_history_disabled_title" = "Vypnúť históriu počúvania";
 "intent_sleeptimer_cancel" = "Zrušenie časovača spánku";
 "intent_sleeptimer_set_duration" = "Nastavenie časovača spánku s trvaním";
 "duration_title" = "Trvanie";
@@ -504,3 +506,24 @@ Usilovne pracujeme na poskytovaní bezproblémového zážitku, ak je to možné
 "jellyfin_quick_connect_error_no_code" = "Your Jellyfin server didn't return a Quick Connect code. Make sure Quick Connect is enabled in the server's dashboard.";
 "jellyfin_quick_connect_error_generic" = "Quick Connect couldn't complete. Check that Quick Connect is enabled on your server and try again.";
 "jellyfin_quick_connect_error_timeout" = "Timed out waiting for the code to be entered. Please try again.";
+
+"listening_history_title" = "História počúvania";
+"listening_history_today_title" = "Dnes";
+"listening_history_yesterday_title" = "Včera";
+"listening_history_filter_title" = "Filter";
+"listening_history_filter_all_title" = "Celý čas";
+"listening_history_filter_today_title" = "Dnes";
+"listening_history_filter_week_title" = "Posledných 7 dní";
+"listening_history_filter_month_title" = "Posledných 30 dní";
+"listening_history_search_prompt" = "Hľadať v histórii";
+"listening_history_empty_title" = "Žiadna história počúvania";
+"listening_history_empty_description" = "Relácie dlhšie ako 15 sekúnd sa tu zobrazia po počúvaní.";
+"listening_history_disabled_empty_description" = "Zapnite históriu počúvania v Nastavenia → Súkromie, aby ste znova ukladali relácie.";
+"listening_history_disabled_banner" = "História počúvania je vypnutá. Nové relácie sa neukladajú.";
+"listening_history_clear_all_title" = "Vymazať všetko";
+"listening_history_clear_all_confirm_title" = "Vymazať históriu";
+"listening_history_clear_all_message" = "Tým natrvalo odstránite všetky relácie počúvania z tohto zariadenia. Vaše knihy a priebeh nebudú ovplyvnené.";
+"listening_history_delete_title" = "Odstrániť reláciu";
+"listening_history_delete_message" = "Odstrániť reláciu počúvania pre „%@“?";
+"listening_history_missing_item_title" = "Kniha nie je dostupná";
+"listening_history_missing_item_message" = "Táto kniha už nie je vo vašej knižnici, ale relácia počúvania zostala uložená.";

@@ -322,6 +322,8 @@ Vi jobber hardt for å gi deg en sømløs opplevelse. Hvis mulig, kontakt oss p�
 "settings_crash_reports_title" = "Deaktiver krasjrapporter";
 "settings_skan_attribution_title" = "Deaktiver SKAN-attribusjon";
 "settings_skan_attribution_description" = "SKAN er Apples personvern-første attribusjonsløsning som gjør det mulig å måle hvor effektiv en kampanje var uten å kompromittere brukerens personvern";
+"settings_listening_history_disabled_description" = "Når den er slått av, slutter BookPlayer å registrere nye lyttesesjoner. Eksisterende historikk blir værende på denne enheten til du sletter den.";
+"settings_listening_history_disabled_title" = "Slå av lyttehistorikk";
 "intent_sleeptimer_cancel" = "Avbryt Sleep Timer";
 "intent_sleeptimer_set_duration" = "Still inn Sleep Timer med varighet";
 "duration_title" = "Varighet";
@@ -504,3 +506,24 @@ Vi jobber hardt for å gi deg en sømløs opplevelse. Hvis mulig, kontakt oss p�
 "jellyfin_quick_connect_error_no_code" = "Your Jellyfin server didn't return a Quick Connect code. Make sure Quick Connect is enabled in the server's dashboard.";
 "jellyfin_quick_connect_error_generic" = "Quick Connect couldn't complete. Check that Quick Connect is enabled on your server and try again.";
 "jellyfin_quick_connect_error_timeout" = "Timed out waiting for the code to be entered. Please try again.";
+
+"listening_history_title" = "Lyttehistorikk";
+"listening_history_today_title" = "I dag";
+"listening_history_yesterday_title" = "I går";
+"listening_history_filter_title" = "Filter";
+"listening_history_filter_all_title" = "Hele perioden";
+"listening_history_filter_today_title" = "I dag";
+"listening_history_filter_week_title" = "Siste 7 dager";
+"listening_history_filter_month_title" = "Siste 30 dager";
+"listening_history_search_prompt" = "Søk i historikk";
+"listening_history_empty_title" = "Ingen lyttehistorikk";
+"listening_history_empty_description" = "Sesjoner lengre enn 15 sekunder vises her etter at du har lyttet.";
+"listening_history_disabled_empty_description" = "Slå på lyttehistorikk under Innstillinger → Personvern for å registrere sesjoner igjen.";
+"listening_history_disabled_banner" = "Lyttehistorikk er slått av. Nye sesjoner registreres ikke.";
+"listening_history_clear_all_title" = "Tøm alt";
+"listening_history_clear_all_confirm_title" = "Tøm historikk";
+"listening_history_clear_all_message" = "Dette fjerner permanent alle lyttesesjoner fra denne enheten. Bøkene og fremgangen din påvirkes ikke.";
+"listening_history_delete_title" = "Slett sesjon";
+"listening_history_delete_message" = "Fjerne lyttesesjonen for «%@»?";
+"listening_history_missing_item_title" = "Bok utilgjengelig";
+"listening_history_missing_item_message" = "Denne boken er ikke lenger i biblioteket ditt, men lyttesesjonen ble beholdt.";

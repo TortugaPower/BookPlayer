@@ -322,6 +322,8 @@
 "settings_crash_reports_title" = "A hibajelentések letiltása";
 "settings_skan_attribution_title" = "A SKAN-hozzárendelés letiltása";
 "settings_skan_attribution_description" = "A SKAN az Apple adatvédelmi szempontú hozzárendelési megoldása, amely lehetővé teszi egy kampány hatékonyságának mérését anélkül, hogy veszélyeztetné a felhasználók adatait";
+"settings_listening_history_disabled_description" = "Kikapcsolva a BookPlayer nem rögzít új hallgatási munkameneteket. A meglévő előzmények az eszközön maradnak, amíg nem törlöd őket.";
+"settings_listening_history_disabled_title" = "Hallgatási előzmények kikapcsolása";
 "intent_sleeptimer_cancel" = "Az elalvásidőzítő törlése";
 "intent_sleeptimer_set_duration" = "Az elalvásidőzítő beállítása időtartammal";
 "duration_title" = "Időtartam";
@@ -504,3 +506,24 @@
 "jellyfin_quick_connect_error_no_code" = "Your Jellyfin server didn't return a Quick Connect code. Make sure Quick Connect is enabled in the server's dashboard.";
 "jellyfin_quick_connect_error_generic" = "Quick Connect couldn't complete. Check that Quick Connect is enabled on your server and try again.";
 "jellyfin_quick_connect_error_timeout" = "Timed out waiting for the code to be entered. Please try again.";
+
+"listening_history_title" = "Hallgatási előzmények";
+"listening_history_today_title" = "Ma";
+"listening_history_yesterday_title" = "Tegnap";
+"listening_history_filter_title" = "Szűrő";
+"listening_history_filter_all_title" = "Teljes időszak";
+"listening_history_filter_today_title" = "Ma";
+"listening_history_filter_week_title" = "Elmúlt 7 nap";
+"listening_history_filter_month_title" = "Elmúlt 30 nap";
+"listening_history_search_prompt" = "Keresés az előzményekben";
+"listening_history_empty_title" = "Nincs hallgatási előzmény";
+"listening_history_empty_description" = "A 15 másodpercnél hosszabb munkamenetek hallgatás után itt jelennek meg.";
+"listening_history_disabled_empty_description" = "Kapcsold be a hallgatási előzményeket a Beállítások → Adatvédelem menüpontban a rögzítéshez.";
+"listening_history_disabled_banner" = "A hallgatási előzmények ki vannak kapcsolva. Új munkamenetek nem kerülnek rögzítésre.";
+"listening_history_clear_all_title" = "Összes törlése";
+"listening_history_clear_all_confirm_title" = "Előzmények törlése";
+"listening_history_clear_all_message" = "Ezzel véglegesen eltávolítod az összes hallgatási munkamenetet erről az eszközről. A könyveid és a folyamatod nem változik.";
+"listening_history_delete_title" = "Munkamenet törlése";
+"listening_history_delete_message" = "Eltávolítod a(z) „%@” hallgatási munkamenetét?";
+"listening_history_missing_item_title" = "A könyv nem érhető el";
+"listening_history_missing_item_message" = "Ez a könyv már nincs a könyvtáradban, de a hallgatási munkamenet megmaradt.";

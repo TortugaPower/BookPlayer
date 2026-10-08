@@ -322,6 +322,8 @@
 "settings_crash_reports_title" = "Poista virheraportit käytöstä";
 "settings_skan_attribution_title" = "Poista SKAN-attribuutio käytöstä";
 "settings_skan_attribution_description" = "SKAN on Applen tietosuoja-asiakasratkaisu, jonka avulla voidaan mitata kampanjan tehokkuutta käyttäjän yksityisyydestä tinkimättä.";
+"settings_listening_history_disabled_description" = "Kun historia on pois käytöstä, BookPlayer ei tallenna uusia kuuntelujaksoja. Nykyinen historia säilyy laitteessa, kunnes tyhjennät sen.";
+"settings_listening_history_disabled_title" = "Poista kuunteluhistoria käytöstä";
 "intent_sleeptimer_cancel" = "Peru uniajastin";
 "intent_sleeptimer_set_duration" = "Aseta uniajastin keston mukaan";
 "duration_title" = "Kesto";
@@ -504,3 +506,24 @@
 "jellyfin_quick_connect_error_no_code" = "Your Jellyfin server didn't return a Quick Connect code. Make sure Quick Connect is enabled in the server's dashboard.";
 "jellyfin_quick_connect_error_generic" = "Quick Connect couldn't complete. Check that Quick Connect is enabled on your server and try again.";
 "jellyfin_quick_connect_error_timeout" = "Timed out waiting for the code to be entered. Please try again.";
+
+"listening_history_title" = "Kuunteluhistoria";
+"listening_history_today_title" = "Tänään";
+"listening_history_yesterday_title" = "Eilen";
+"listening_history_filter_title" = "Suodatin";
+"listening_history_filter_all_title" = "Koko aika";
+"listening_history_filter_today_title" = "Tänään";
+"listening_history_filter_week_title" = "Viimeiset 7 päivää";
+"listening_history_filter_month_title" = "Viimeiset 30 päivää";
+"listening_history_search_prompt" = "Hae historiasta";
+"listening_history_empty_title" = "Ei kuunteluhistoriaa";
+"listening_history_empty_description" = "Yli 15 sekunnin jaksot näkyvät täällä kuuntelun jälkeen.";
+"listening_history_disabled_empty_description" = "Ota kuunteluhistoria käyttöön kohdassa Asetukset → Tietosuoja tallentaaksesi jaksoja uudelleen.";
+"listening_history_disabled_banner" = "Kuunteluhistoria on pois päältä. Uusia jaksoja ei tallenneta.";
+"listening_history_clear_all_title" = "Tyhjennä kaikki";
+"listening_history_clear_all_confirm_title" = "Tyhjennä historia";
+"listening_history_clear_all_message" = "Tämä poistaa pysyvästi kaikki kuuntelujaksot tältä laitteelta. Kirjasi ja edistymisesi eivät muutu.";
+"listening_history_delete_title" = "Poista jakso";
+"listening_history_delete_message" = "Poistetaanko kuuntelujakso kohteelle “%@”?";
+"listening_history_missing_item_title" = "Kirja ei ole saatavilla";
+"listening_history_missing_item_message" = "Tätä kirjaa ei ole enää kirjastossasi, mutta kuuntelujakso säilytettiin.";

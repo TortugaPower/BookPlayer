@@ -322,6 +322,8 @@
 "settings_crash_reports_title" = "Inaktivera kraschrapporter";
 "settings_skan_attribution_title" = "Inaktivera SKAN-attribution";
 "settings_skan_attribution_description" = "SKAN är Apples integritetsförsta attributionslösning som gör det möjligt att mäta hur effektiv en kampanj var utan att kompromissa med användarnas integritet";
+"settings_listening_history_disabled_description" = "När den är inaktiverad slutar BookPlayer att registrera nya lyssningssessioner. Befintlig historik finns kvar på den här enheten tills du rensar den.";
+"settings_listening_history_disabled_title" = "Inaktivera lyssningshistorik";
 "intent_sleeptimer_cancel" = "Avbryt insomningstimern";
 "intent_sleeptimer_set_duration" = "Ställ in insomningstimern med varaktighet";
 "duration_title" = "Varaktighet";
@@ -504,3 +506,24 @@
 "jellyfin_quick_connect_error_no_code" = "Your Jellyfin server didn't return a Quick Connect code. Make sure Quick Connect is enabled in the server's dashboard.";
 "jellyfin_quick_connect_error_generic" = "Quick Connect couldn't complete. Check that Quick Connect is enabled on your server and try again.";
 "jellyfin_quick_connect_error_timeout" = "Timed out waiting for the code to be entered. Please try again.";
+
+"listening_history_title" = "Lyssningshistorik";
+"listening_history_today_title" = "I dag";
+"listening_history_yesterday_title" = "I går";
+"listening_history_filter_title" = "Filter";
+"listening_history_filter_all_title" = "Hela tiden";
+"listening_history_filter_today_title" = "I dag";
+"listening_history_filter_week_title" = "Senaste 7 dagarna";
+"listening_history_filter_month_title" = "Senaste 30 dagarna";
+"listening_history_search_prompt" = "Sök i historik";
+"listening_history_empty_title" = "Ingen lyssningshistorik";
+"listening_history_empty_description" = "Sessioner längre än 15 sekunder visas här efter att du har lyssnat.";
+"listening_history_disabled_empty_description" = "Slå på lyssningshistorik i Inställningar → Integritet för att registrera sessioner igen.";
+"listening_history_disabled_banner" = "Lyssningshistorik är avstängd. Nya sessioner registreras inte.";
+"listening_history_clear_all_title" = "Rensa allt";
+"listening_history_clear_all_confirm_title" = "Rensa historik";
+"listening_history_clear_all_message" = "Detta tar permanent bort alla lyssningssessioner från den här enheten. Dina böcker och din progress påverkas inte.";
+"listening_history_delete_title" = "Ta bort session";
+"listening_history_delete_message" = "Ta bort lyssningssessionen för “%@”?";
+"listening_history_missing_item_title" = "Boken är inte tillgänglig";
+"listening_history_missing_item_message" = "Den här boken finns inte längre i ditt bibliotek, men lyssningssessionen behölls.";

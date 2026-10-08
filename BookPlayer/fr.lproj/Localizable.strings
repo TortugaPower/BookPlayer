@@ -322,6 +322,8 @@
 "settings_crash_reports_title" = "Désactiver les rapports d'erreur";
 "settings_skan_attribution_title" = "Désactiver l'attribution SKAN";
 "settings_skan_attribution_description" = "SKAN est la solution d'attribution d'Apple axée sur la confidentialité qui permet de mesurer l'efficacité d'une campagne sans compromettre la confidentialité des utilisateurs.";
+"settings_listening_history_disabled_description" = "Lorsqu’il est désactivé, BookPlayer n’enregistre plus de nouvelles sessions. L’historique existant reste sur cet appareil jusqu’à ce que vous le supprimiez.";
+"settings_listening_history_disabled_title" = "Désactiver l’historique d’écoute";
 "intent_sleeptimer_cancel" = "Annuler la minuterie de mise en veille";
 "intent_sleeptimer_set_duration" = "Régler la minuterie de mise en veille avec la durée";
 "duration_title" = "Durée";
@@ -504,3 +506,25 @@
 "jellyfin_quick_connect_error_no_code" = "Your Jellyfin server didn't return a Quick Connect code. Make sure Quick Connect is enabled in the server's dashboard.";
 "jellyfin_quick_connect_error_generic" = "Quick Connect couldn't complete. Check that Quick Connect is enabled on your server and try again.";
 "jellyfin_quick_connect_error_timeout" = "Timed out waiting for the code to be entered. Please try again.";
+
+"listening_history_title" = "Historique d’écoute";
+"listening_history_today_title" = "Aujourd’hui";
+"listening_history_yesterday_title" = "Hier";
+"listening_history_filter_title" = "Filtrer";
+"listening_history_filter_all_title" = "Tout";
+"listening_history_filter_today_title" = "Aujourd’hui";
+"listening_history_filter_week_title" = "7 derniers jours";
+"listening_history_filter_month_title" = "30 derniers jours";
+"listening_history_search_prompt" = "Rechercher dans l’historique";
+"listening_history_empty_title" = "Aucun historique d’écoute";
+"listening_history_empty_description" = "Les sessions de plus de 15 secondes apparaîtront ici après écoute.";
+"listening_history_disabled_empty_description" = "Activez l’historique d’écoute dans Réglages → Confidentialité pour enregistrer à nouveau des sessions.";
+"listening_history_disabled_banner" = "L’historique d’écoute est désactivé. Les nouvelles sessions ne sont pas enregistrées.";
+"listening_history_clear_all_title" = "Tout effacer";
+"listening_history_clear_all_confirm_title" = "Effacer l’historique";
+"listening_history_clear_all_message" = "Cela supprime définitivement toutes les sessions d’écoute de cet appareil. Vos livres et votre progression ne sont pas affectés.";
+"listening_history_delete_title" = "Supprimer la session";
+"listening_history_delete_message" = "Supprimer la session d’écoute de « %@ » ?";
+"listening_history_missing_item_title" = "Livre indisponible";
+"listening_history_missing_item_message" = "Ce livre n’est plus dans votre bibliothèque, mais la session d’écoute a été conservée.";
+

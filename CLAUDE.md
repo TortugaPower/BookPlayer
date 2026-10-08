@@ -200,20 +200,24 @@ CarPlay event bus. Declared in `Shared/Extensions/Notification+BookPlayerKit.swi
   conflicts into crashes rather than reconciling them.
 - **Never pass an `NSManagedObject` across threads/contexts or out of a service.** Convert to a thread-safe value
   snapshot first (`Shared/CoreData/Lightweight-Models/`): `SimpleLibraryItem`, `SimpleChapter`, `SimpleBookmark`,
-  `SimpleTheme`, `SimpleAccount`, `SimplePlaybackRecord`, `SimpleHardcoverBook`, `SimpleItemType`, `LibraryItemRef`,
-  `PlayableChapter`. **`PlayableItem` is the one exception — a `final class: NSObject` (mutable, `Codable`), not
-  an immutable struct** — scrutinize its mutation/threading.
+  `SimpleTheme`, `SimpleAccount`, `SimplePlaybackRecord`, `SimpleHardcoverBook`, `SimpleListeningSession`,
+  `SimpleItemType`, `LibraryItemRef`, `PlayableChapter`, plus presentation helpers like
+  `ListeningHistoryPresentation`. **`PlayableItem` is the one exception — a `final class: NSObject` (mutable,
+  `Codable`), not an immutable struct** — scrutinize its mutation/threading.
 - Entities (`Shared/CoreData/Backed-Models/`): abstract `LibraryItem` (its `encode`/`init(from:)` `fatalError` —
   concrete subclasses `Book`/`Folder` must be used), plus `Library`, `Bookmark`, `Chapter`, `Account`, `Theme`,
-  `PlaybackRecord`, `HardcoverBook`. `ItemType: Int16 { folder, bound, book }`.
+  `PlaybackRecord`, `HardcoverBook`, `ListeningSession` (local listening-history rows; denormalized
+  `itemTitle`/`subtitle`/`artworkRelativePath` written at session start). `ItemType: Int16 { folder, bound, book }`.
 - **Migration is manual and staged** (`Shared/CoreData/Migrations/DataMigrationManager.swift` + `DBVersion.swift`,
-  currently `v1…v11`, current model `Audiobook Player 11`). It migrates **one version at a time** using explicit
-  `.xcmappingmodel`s where present (`v1→v2 … v3→v4`, `v7→v8 … v10→v11`; the v4–v7 hops rely on inference). A model
-  change requires: **(1)** new `.xcdatamodel` version + bump `.xccurrentversion`; **(2)** new `DBVersion` case +
-  `model()`; **(3)** a mapping model registered in `mappingModelName()` (inference is OFF, so anything
-  non-trivial fails without one); **(4)** any custom data population added to the post-migration step; **(5)**
-  bundled resources. `DatabaseInitializer` + `DatabaseBackupService` are the only safety net for a failed
-  migration (the migrator deletes the old store before moving the new one into place — interruption = data loss).
+  currently `v1…v12`, current model `Audiobook Player 12`). It migrates **one version at a time** using explicit
+  `.xcmappingmodel`s where present (`v1→v2 … v3→v4`, `v7→v8 … v10→v11`; the v4–v7 and **v11→v12** hops rely on
+  inference — v12 only adds the additive `ListeningSession` entity). A model change requires: **(1)** new
+  `.xcdatamodel` version + bump `.xccurrentversion`; **(2)** new `DBVersion` case + `model()`; **(3)** a mapping
+  model registered in `mappingModelName()` (inference is OFF at the stack level, so non-trivial hops need a
+  `.cdm`; additive-only hops may return `nil` and use `NSMappingModel.inferredMappingModel`); **(4)** any custom
+  data population added to the post-migration step; **(5)** bundled resources. `DatabaseInitializer` +
+  `DatabaseBackupService` are the only safety net for a failed migration (the migrator deletes the old store
+  before moving the new one into place — interruption = data loss).
 
 ### Sync task queue = SwiftData — `Shared/SwiftData/`
 

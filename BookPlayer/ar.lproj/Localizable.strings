@@ -322,6 +322,8 @@
 "settings_crash_reports_title" = "تعطيل تقارير الأعطال";
 "settings_skan_attribution_title" = "تعطيل إسناد SKAN";
 "settings_skan_attribution_description" = "SKAN هو حل إسناد الخصوصية أولاً من Apple والذي يتيح قياس مدى فعالية الحملة دون المساس بخصوصية المستخدم";
+"settings_listening_history_disabled_description" = "عند التعطيل، يتوقف BookPlayer عن تسجيل جلسات استماع جديدة. يبقى السجل الحالي على هذا الجهاز حتى تمسحه.";
+"settings_listening_history_disabled_title" = "تعطيل سجل الاستماع";
 "intent_sleeptimer_cancel" = "إلغاء مؤقت النوم";
 "intent_sleeptimer_set_duration" = "اضبط مؤقت النوم مع المدة";
 "duration_title" = "مدة";
@@ -504,3 +506,24 @@
 "jellyfin_quick_connect_error_no_code" = "Your Jellyfin server didn't return a Quick Connect code. Make sure Quick Connect is enabled in the server's dashboard.";
 "jellyfin_quick_connect_error_generic" = "Quick Connect couldn't complete. Check that Quick Connect is enabled on your server and try again.";
 "jellyfin_quick_connect_error_timeout" = "Timed out waiting for the code to be entered. Please try again.";
+
+"listening_history_title" = "سجل الاستماع";
+"listening_history_today_title" = "اليوم";
+"listening_history_yesterday_title" = "أمس";
+"listening_history_filter_title" = "تصفية";
+"listening_history_filter_all_title" = "كل الوقت";
+"listening_history_filter_today_title" = "اليوم";
+"listening_history_filter_week_title" = "آخر 7 أيام";
+"listening_history_filter_month_title" = "آخر 30 يومًا";
+"listening_history_search_prompt" = "البحث في السجل";
+"listening_history_empty_title" = "لا يوجد سجل استماع";
+"listening_history_empty_description" = "ستظهر هنا الجلسات الأطول من 15 ثانية بعد الاستماع.";
+"listening_history_disabled_empty_description" = "فعّل سجل الاستماع من الإعدادات ← الخصوصية لتسجيل الجلسات مجددًا.";
+"listening_history_disabled_banner" = "سجل الاستماع متوقف. لا تُسجَّل جلسات جديدة.";
+"listening_history_clear_all_title" = "مسح الكل";
+"listening_history_clear_all_confirm_title" = "مسح السجل";
+"listening_history_clear_all_message" = "سيؤدي هذا إلى إزالة جميع جلسات الاستماع نهائيًا من هذا الجهاز. لن تتأثر كتبك وتقدمك.";
+"listening_history_delete_title" = "حذف الجلسة";
+"listening_history_delete_message" = "إزالة جلسة الاستماع لـ «%@»؟";
+"listening_history_missing_item_title" = "الكتاب غير متاح";
+"listening_history_missing_item_message" = "هذا الكتاب لم يعد في مكتبتك، لكن جلسة الاستماع حُفظت.";

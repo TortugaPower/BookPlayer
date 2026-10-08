@@ -322,6 +322,8 @@
 "settings_crash_reports_title" = "Crashrapporten uitschakelen";
 "settings_skan_attribution_title" = "Schakel SKAN-toeschrijving uit";
 "settings_skan_attribution_description" = "SKAN is Apple's privacy-first attributieoplossing waarmee kan worden gemeten hoe effectief een campagne was, zonder de privacy van de gebruiker in gevaar te brengen";
+"settings_listening_history_disabled_description" = "Indien uitgeschakeld, stopt BookPlayer met het vastleggen van nieuwe luistersessies. Bestaande geschiedenis blijft op dit apparaat tot je die wist.";
+"settings_listening_history_disabled_title" = "Luistergeschiedenis uitschakelen";
 "intent_sleeptimer_cancel" = "Annuleer de slaaptimer";
 "intent_sleeptimer_set_duration" = "Stel de slaaptimer in met de duur";
 "duration_title" = "Duur";
@@ -504,3 +506,24 @@
 "jellyfin_quick_connect_error_no_code" = "Your Jellyfin server didn't return a Quick Connect code. Make sure Quick Connect is enabled in the server's dashboard.";
 "jellyfin_quick_connect_error_generic" = "Quick Connect couldn't complete. Check that Quick Connect is enabled on your server and try again.";
 "jellyfin_quick_connect_error_timeout" = "Timed out waiting for the code to be entered. Please try again.";
+
+"listening_history_title" = "Luistergeschiedenis";
+"listening_history_today_title" = "Vandaag";
+"listening_history_yesterday_title" = "Gisteren";
+"listening_history_filter_title" = "Filter";
+"listening_history_filter_all_title" = "Alle tijd";
+"listening_history_filter_today_title" = "Vandaag";
+"listening_history_filter_week_title" = "Laatste 7 dagen";
+"listening_history_filter_month_title" = "Laatste 30 dagen";
+"listening_history_search_prompt" = "Zoek in geschiedenis";
+"listening_history_empty_title" = "Geen luistergeschiedenis";
+"listening_history_empty_description" = "Sessies langer dan 15 seconden verschijnen hier na het luisteren.";
+"listening_history_disabled_empty_description" = "Schakel luistergeschiedenis in via Instellingen → Privacy om opnieuw sessies vast te leggen.";
+"listening_history_disabled_banner" = "Luistergeschiedenis is uitgeschakeld. Nieuwe sessies worden niet vastgelegd.";
+"listening_history_clear_all_title" = "Alles wissen";
+"listening_history_clear_all_confirm_title" = "Geschiedenis wissen";
+"listening_history_clear_all_message" = "Hiermee worden alle luistersessies permanent van dit apparaat verwijderd. Je boeken en voortgang blijven intact.";
+"listening_history_delete_title" = "Sessie verwijderen";
+"listening_history_delete_message" = "Luistersessie voor “%@” verwijderen?";
+"listening_history_missing_item_title" = "Boek niet beschikbaar";
+"listening_history_missing_item_message" = "Dit boek staat niet meer in je bibliotheek, maar de luistersessie is bewaard.";

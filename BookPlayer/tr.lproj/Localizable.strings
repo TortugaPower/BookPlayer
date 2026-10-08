@@ -322,6 +322,8 @@
 "settings_crash_reports_title" = "Kilitlenme raporlarını devre dışı bırak";
 "settings_skan_attribution_title" = "SKAN ilişkilendirmesini devre dışı bırak";
 "settings_skan_attribution_description" = "SKAN, kullanıcı gizliliğinden ödün vermeden bir kampanyanın ne kadar etkili olduğunu ölçmeye olanak tanıyan, Apple'ın gizliliğe öncelik veren ilişkilendirme çözümüdür";
+"settings_listening_history_disabled_description" = "Kapatıldığında BookPlayer yeni dinleme oturumlarını kaydetmez. Mevcut geçmiş, siz silene kadar bu cihazda kalır.";
+"settings_listening_history_disabled_title" = "Dinleme geçmişini kapat";
 "intent_sleeptimer_cancel" = "Uyku Zamanlayıcısını İptal Et";
 "intent_sleeptimer_set_duration" = "Uyku Zamanlayıcısını süre ile ayarla";
 "duration_title" = "Süre";
@@ -504,3 +506,24 @@
 "jellyfin_quick_connect_error_no_code" = "Your Jellyfin server didn't return a Quick Connect code. Make sure Quick Connect is enabled in the server's dashboard.";
 "jellyfin_quick_connect_error_generic" = "Quick Connect couldn't complete. Check that Quick Connect is enabled on your server and try again.";
 "jellyfin_quick_connect_error_timeout" = "Timed out waiting for the code to be entered. Please try again.";
+
+"listening_history_title" = "Dinleme geçmişi";
+"listening_history_today_title" = "Bugün";
+"listening_history_yesterday_title" = "Dün";
+"listening_history_filter_title" = "Filtre";
+"listening_history_filter_all_title" = "Tüm zamanlar";
+"listening_history_filter_today_title" = "Bugün";
+"listening_history_filter_week_title" = "Son 7 gün";
+"listening_history_filter_month_title" = "Son 30 gün";
+"listening_history_search_prompt" = "Geçmişte ara";
+"listening_history_empty_title" = "Dinleme geçmişi yok";
+"listening_history_empty_description" = "15 saniyeden uzun oturumlar dinledikten sonra burada görünür.";
+"listening_history_disabled_empty_description" = "Oturumları yeniden kaydetmek için Ayarlar → Gizlilik bölümünden dinleme geçmişini açın.";
+"listening_history_disabled_banner" = "Dinleme geçmişi kapalı. Yeni oturumlar kaydedilmiyor.";
+"listening_history_clear_all_title" = "Tümünü temizle";
+"listening_history_clear_all_confirm_title" = "Geçmişi temizle";
+"listening_history_clear_all_message" = "Bu, bu cihazdaki tüm dinleme oturumlarını kalıcı olarak kaldırır. Kitaplarınız ve ilerlemeniz etkilenmez.";
+"listening_history_delete_title" = "Oturumu sil";
+"listening_history_delete_message" = "“%@” için dinleme oturumu kaldırılsın mı?";
+"listening_history_missing_item_title" = "Kitap kullanılamıyor";
+"listening_history_missing_item_message" = "Bu kitap artık kitaplığınızda değil, ancak dinleme oturumu saklandı.";

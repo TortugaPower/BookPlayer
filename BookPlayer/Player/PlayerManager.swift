@@ -1067,7 +1067,10 @@ extension PlayerManager {
         !Task.isCancelled
       else { return }
 
-      userActivityManager.resumePlaybackActivity()
+      userActivityManager.resumePlaybackActivity(
+        relativePath: currentItem.relativePath,
+        title: currentItem.title
+      )
 
       do {
         let audioSession = AVAudioSession.sharedInstance()

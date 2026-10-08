@@ -322,6 +322,8 @@
 "settings_crash_reports_title" = "Dezactivați rapoartele de blocare";
 "settings_skan_attribution_title" = "Dezactivați atribuirea SKAN";
 "settings_skan_attribution_description" = "SKAN este soluția Apple de atribuire a confidențialității, care permite măsurarea cât de eficientă a fost o campanie fără a compromite confidențialitatea utilizatorului.";
+"settings_listening_history_disabled_description" = "Când este dezactivat, BookPlayer nu mai înregistrează sesiuni noi. Istoricul existent rămâne pe acest dispozitiv până îl ștergeți.";
+"settings_listening_history_disabled_title" = "Dezactivați istoricul de ascultare";
 "intent_sleeptimer_cancel" = "Anulați cronometrul de repaus";
 "intent_sleeptimer_set_duration" = "Setați cronometrul de repaus cu durata";
 "duration_title" = "Durată";
@@ -504,3 +506,24 @@
 "jellyfin_quick_connect_error_no_code" = "Your Jellyfin server didn't return a Quick Connect code. Make sure Quick Connect is enabled in the server's dashboard.";
 "jellyfin_quick_connect_error_generic" = "Quick Connect couldn't complete. Check that Quick Connect is enabled on your server and try again.";
 "jellyfin_quick_connect_error_timeout" = "Timed out waiting for the code to be entered. Please try again.";
+
+"listening_history_title" = "Istoric de ascultare";
+"listening_history_today_title" = "Astăzi";
+"listening_history_yesterday_title" = "Ieri";
+"listening_history_filter_title" = "Filtru";
+"listening_history_filter_all_title" = "Tot timpul";
+"listening_history_filter_today_title" = "Astăzi";
+"listening_history_filter_week_title" = "Ultimele 7 zile";
+"listening_history_filter_month_title" = "Ultimele 30 de zile";
+"listening_history_search_prompt" = "Caută în istoric";
+"listening_history_empty_title" = "Niciun istoric de ascultare";
+"listening_history_empty_description" = "Sesiunile mai lungi de 15 secunde vor apărea aici după ce ascultați.";
+"listening_history_disabled_empty_description" = "Activați istoricul de ascultare în Setări → Confidențialitate pentru a înregistra din nou sesiuni.";
+"listening_history_disabled_banner" = "Istoricul de ascultare este dezactivat. Nu se înregistrează sesiuni noi.";
+"listening_history_clear_all_title" = "Șterge tot";
+"listening_history_clear_all_confirm_title" = "Șterge istoricul";
+"listening_history_clear_all_message" = "Aceasta elimină definitiv toate sesiunile de ascultare de pe acest dispozitiv. Cărțile și progresul nu sunt afectate.";
+"listening_history_delete_title" = "Șterge sesiunea";
+"listening_history_delete_message" = "Eliminați sesiunea de ascultare pentru „%@”?";
+"listening_history_missing_item_title" = "Carte indisponibilă";
+"listening_history_missing_item_message" = "Această carte nu mai este în bibliotecă, dar sesiunea de ascultare a fost păstrată.";

@@ -322,6 +322,8 @@
 "settings_crash_reports_title" = "Zakázat zprávy o selhání";
 "settings_skan_attribution_title" = "Zakázat atribuci SKAN";
 "settings_skan_attribution_description" = "SKAN je řešení pro atribuci na prvním místě společnosti Apple, které umožňuje měřit, jak efektivní byla kampaň, aniž by došlo k ohrožení soukromí uživatelů.";
+"settings_listening_history_disabled_description" = "Po vypnutí BookPlayer neukládá nové poslechové relace. Stávající historie zůstane v zařízení, dokud ji nevymažete.";
+"settings_listening_history_disabled_title" = "Vypnout historii poslechu";
 "intent_sleeptimer_cancel" = "Zrušit časovač vypnutí";
 "intent_sleeptimer_set_duration" = "Nastavte časovač vypnutí s dobou trvání";
 "duration_title" = "Doba trvání";
@@ -504,3 +506,24 @@
 "jellyfin_quick_connect_error_no_code" = "Your Jellyfin server didn't return a Quick Connect code. Make sure Quick Connect is enabled in the server's dashboard.";
 "jellyfin_quick_connect_error_generic" = "Quick Connect couldn't complete. Check that Quick Connect is enabled on your server and try again.";
 "jellyfin_quick_connect_error_timeout" = "Timed out waiting for the code to be entered. Please try again.";
+
+"listening_history_title" = "Histororie poslechu";
+"listening_history_today_title" = "Dnes";
+"listening_history_yesterday_title" = "Včera";
+"listening_history_filter_title" = "Filtr";
+"listening_history_filter_all_title" = "Celá doba";
+"listening_history_filter_today_title" = "Dnes";
+"listening_history_filter_week_title" = "Posledních 7 dní";
+"listening_history_filter_month_title" = "Posledních 30 dní";
+"listening_history_search_prompt" = "Hledat v historii";
+"listening_history_empty_title" = "Žádná historie poslechu";
+"listening_history_empty_description" = "Relace delší než 15 sekund se zde zobrazí po poslechu.";
+"listening_history_disabled_empty_description" = "Zapněte historii poslechu v Nastavení → Soukromí, abyste znovu ukládali relace.";
+"listening_history_disabled_banner" = "Histororie poslechu je vypnutá. Nové relace se neukládají.";
+"listening_history_clear_all_title" = "Vymazat vše";
+"listening_history_clear_all_confirm_title" = "Vymazat historii";
+"listening_history_clear_all_message" = "Tím trvale odstraníte všechny poslechové relace z tohoto zařízení. Vaše knihy a postup nebudou ovlivněny.";
+"listening_history_delete_title" = "Smazat relaci";
+"listening_history_delete_message" = "Odstranit poslechovou relaci pro „%@“?";
+"listening_history_missing_item_title" = "Kniha není k dispozici";
+"listening_history_missing_item_message" = "Tato kniha už není ve vaší knihovně, ale poslechová relace zůstala uložená.";

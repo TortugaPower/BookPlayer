@@ -14,19 +14,26 @@ struct ProfileListenedSectionView: View {
 
   @EnvironmentObject private var theme: ThemeViewModel
   @Environment(\.libraryService) private var libraryService
+
   var body: some View {
     Section {
-      VStack {
-        Text(formattedListeningTime)
-          .bpFont(.title)
-        Text("total_listening_title".localized)
-          .bpFont(.subheadline)
-          .foregroundStyle(theme.secondaryColor)
+      NavigationLink(value: ProfileScreen.listeningHistory) {
+        VStack {
+          Text(formattedListeningTime)
+            .bpFont(.title)
+          Text("total_listening_title")
+            .bpFont(.subheadline)
+            .foregroundStyle(theme.secondaryColor)
+          Text("listening_history_title")
+            .bpFont(.caption)
+            .foregroundStyle(theme.linkColor)
+            .padding(.top, 4)
+        }
+        .accessibilityElement(children: .combine)
+        .frame(maxWidth: .infinity)
       }
-      .accessibilityElement(children: .combine)
-      .frame(maxWidth: .infinity)
+      .listRowBackground(Color.clear)
     }
-    .listRowBackground(Color.clear)
     .onReceive(NotificationCenter.default.publisher(for: .bookPaused)) { _ in
       reloadListeningTime()
     }
@@ -37,9 +44,9 @@ struct ProfileListenedSectionView: View {
 
   func reloadListeningTime() {
     let time = libraryService.getTotalListenedTime()
-    
+
     guard let formattedTime = formatTime(time) else { return }
-    
+
     formattedListeningTime = formattedTime
   }
 
@@ -74,8 +81,15 @@ struct ProfileListenedSectionView: View {
     return libraryService
   }()
 
-  Form {
-    ProfileListenedSectionView()
+  NavigationStack {
+    Form {
+      ProfileListenedSectionView()
+    }
+    .navigationDestination(for: ProfileScreen.self) { destination in
+      if destination == .listeningHistory {
+        Text("Listening History")
+      }
+    }
   }
   .environmentObject(ThemeViewModel())
   .environment(\.accountService, accountService)

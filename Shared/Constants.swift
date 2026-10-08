@@ -42,6 +42,8 @@ public enum Constants {
     public static let iCloudBackupsEnabled = "userSettingsiCloudBackupsEnabled"
     public static let crashReportsDisabled = "userSettingsCrashReportsDisabled"
     public static let skanAttributionDisabled = "userSettingsSKANAttributionDisabled"
+    /// When true, listening sessions are not recorded and history stays empty going forward.
+    public static let listeningHistoryDisabled = "userSettingsListeningHistoryDisabled"
     public static let orientationLock = "userSettingsOrientationLock"
     public static let autolockDisabled = "userSettingsDisableAutolock"
     public static let autolockDisabledOnlyWhenPowered = "userSettingsAutolockOnlyWhenPowered"

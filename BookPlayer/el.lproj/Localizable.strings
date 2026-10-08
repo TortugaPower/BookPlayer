@@ -322,6 +322,8 @@
 "settings_crash_reports_title" = "Απενεργοποίηση αναφορών σφαλμάτων";
 "settings_skan_attribution_title" = "Απενεργοποιήστε την απόδοση SKAN";
 "settings_skan_attribution_description" = "Το SKAN είναι η πρώτη λύση απόδοσης απορρήτου της Apple που επιτρέπει τη μέτρηση της αποτελεσματικότητας μιας καμπάνιας χωρίς να διακυβεύεται το απόρρητο των χρηστών";
+"settings_listening_history_disabled_description" = "Όταν είναι απενεργοποιημένο, το BookPlayer σταματά να καταγράφει νέες συνεδρίες. Το υπάρχον ιστορικό παραμένει στη συσκευή μέχρι να το διαγράψετε.";
+"settings_listening_history_disabled_title" = "Απενεργοποίηση ιστορικού ακρόασης";
 "intent_sleeptimer_cancel" = "Ακύρωση χρονοδιακόπτη ύπνου";
 "intent_sleeptimer_set_duration" = "Ρυθμίστε το χρονοδιακόπτη ύπνου με διάρκεια";
 "duration_title" = "Διάρκεια";
@@ -504,3 +506,24 @@
 "jellyfin_quick_connect_error_no_code" = "Your Jellyfin server didn't return a Quick Connect code. Make sure Quick Connect is enabled in the server's dashboard.";
 "jellyfin_quick_connect_error_generic" = "Quick Connect couldn't complete. Check that Quick Connect is enabled on your server and try again.";
 "jellyfin_quick_connect_error_timeout" = "Timed out waiting for the code to be entered. Please try again.";
+
+"listening_history_title" = "Ιστορικό ακρόασης";
+"listening_history_today_title" = "Σήμερα";
+"listening_history_yesterday_title" = "Χθες";
+"listening_history_filter_title" = "Φίλτρο";
+"listening_history_filter_all_title" = "Όλο το διάστημα";
+"listening_history_filter_today_title" = "Σήμερα";
+"listening_history_filter_week_title" = "Τελευταίες 7 ημέρες";
+"listening_history_filter_month_title" = "Τελευταίες 30 ημέρες";
+"listening_history_search_prompt" = "Αναζήτηση στο ιστορικό";
+"listening_history_empty_title" = "Δεν υπάρχει ιστορικό ακρόασης";
+"listening_history_empty_description" = "Οι συνεδρίες άνω των 15 δευτερολέπτων θα εμφανίζονται εδώ μετά την ακρόαση.";
+"listening_history_disabled_empty_description" = "Ενεργοποιήστε το ιστορικό ακρόασης στις Ρυθμίσεις → Απόρρητο για να καταγράφονται ξανά συνεδρίες.";
+"listening_history_disabled_banner" = "Το ιστορικό ακρόασης είναι απενεργοποιημένο. Δεν καταγράφονται νέες συνεδρίες.";
+"listening_history_clear_all_title" = "Διαγραφή όλων";
+"listening_history_clear_all_confirm_title" = "Διαγραφή ιστορικού";
+"listening_history_clear_all_message" = "Αυτό αφαιρεί οριστικά όλες τις συνεδρίες ακρόασης από αυτή τη συσκευή. Τα βιβλία και η πρόοδός σας δεν επηρεάζονται.";
+"listening_history_delete_title" = "Διαγραφή συνεδρίας";
+"listening_history_delete_message" = "Να αφαιρεθεί η συνεδρία ακρόασης για «%@»;";
+"listening_history_missing_item_title" = "Το βιβλίο δεν είναι διαθέσιμο";
+"listening_history_missing_item_message" = "Αυτό το βιβλίο δεν υπάρχει πλέον στη βιβλιοθήκη σας, αλλά η συνεδρία ακρόασης διατηρήθηκε.";

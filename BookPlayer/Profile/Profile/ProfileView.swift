@@ -13,6 +13,7 @@ struct ProfileView: View {
   @State private var path = NavigationPath()
   @State private var showLogin = false
   @Environment(\.accountService) private var accountService
+  @Environment(\.libraryService) private var libraryService
   @Environment(\.playerState) private var playerState
   @EnvironmentObject private var theme: ThemeViewModel
 
@@ -46,6 +47,10 @@ struct ProfileView: View {
         case .tasks:
           QueuedSyncTasksView()
             .miniPlayerSafeAreaInset()
+        case .listeningHistory:
+          ListeningHistoryView {
+            ListeningHistoryViewModel(libraryService: libraryService)
+          }
         }
       }
       .sheet(isPresented: $showLogin) {

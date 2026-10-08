@@ -322,6 +322,8 @@
 "settings_crash_reports_title" = "Deaktiver nedbrudsrapporter";
 "settings_skan_attribution_title" = "Deaktiver SKAN-tilskrivning";
 "settings_skan_attribution_description" = "SKAN er Apples privatlivsførste tilskrivningsløsning, der gør det muligt at måle, hvor effektiv en kampagne var uden at kompromittere brugernes privatliv";
+"settings_listening_history_disabled_description" = "Når den er deaktiveret, stopper BookPlayer med at registrere nye lyttesessioner. Eksisterende historik forbliver på denne enhed, indtil du sletter den.";
+"settings_listening_history_disabled_title" = "Deaktiver lyttehistorik";
 "intent_sleeptimer_cancel" = "Annuller Sleep Timer";
 "intent_sleeptimer_set_duration" = "Indstil Sleep Timer med varighed";
 "duration_title" = "Varighed";
@@ -504,3 +506,24 @@
 "jellyfin_quick_connect_error_no_code" = "Your Jellyfin server didn't return a Quick Connect code. Make sure Quick Connect is enabled in the server's dashboard.";
 "jellyfin_quick_connect_error_generic" = "Quick Connect couldn't complete. Check that Quick Connect is enabled on your server and try again.";
 "jellyfin_quick_connect_error_timeout" = "Timed out waiting for the code to be entered. Please try again.";
+
+"listening_history_title" = "Lyttehistorik";
+"listening_history_today_title" = "I dag";
+"listening_history_yesterday_title" = "I går";
+"listening_history_filter_title" = "Filter";
+"listening_history_filter_all_title" = "Hele perioden";
+"listening_history_filter_today_title" = "I dag";
+"listening_history_filter_week_title" = "Seneste 7 dage";
+"listening_history_filter_month_title" = "Seneste 30 dage";
+"listening_history_search_prompt" = "Søg i historik";
+"listening_history_empty_title" = "Ingen lyttehistorik";
+"listening_history_empty_description" = "Sessioner længere end 15 sekunder vises her, når du har lyttet.";
+"listening_history_disabled_empty_description" = "Slå lyttehistorik til under Indstillinger → Privatliv for at registrere sessioner igen.";
+"listening_history_disabled_banner" = "Lyttehistorik er slået fra. Nye sessioner registreres ikke.";
+"listening_history_clear_all_title" = "Ryd alt";
+"listening_history_clear_all_confirm_title" = "Ryd historik";
+"listening_history_clear_all_message" = "Dette fjerner permanent alle lyttesessioner fra denne enhed. Dine bøger og fremskridt påvirkes ikke.";
+"listening_history_delete_title" = "Slet session";
+"listening_history_delete_message" = "Fjern lyttesessionen for “%@”?";
+"listening_history_missing_item_title" = "Bog utilgængelig";
+"listening_history_missing_item_message" = "Denne bog er ikke længere i dit bibliotek, men lyttesessionen blev bevaret.";
