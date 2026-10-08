@@ -13,8 +13,8 @@ final class WifiTransferConnection: @unchecked Sendable {
   struct Handlers {
     /// Called after a successful top-level (loose) file upload — import immediately.
     var onLooseFile: (URL) -> Void
-    /// Import a folder that was staged under Documents (`POST /import?root=`).
-    var onImportRoot: (String) -> Result<Void, String>
+    /// Import a staged folder (`POST /import?root=`). Must invoke `completion` exactly once.
+    var onImportRoot: (_ root: String, _ completion: @escaping (Result<Void, String>) -> Void) -> Void
     /// Preferred app language code for the HTML page (`en`, `ru`, …).
     var languageCode: String
     var onFinished: (ObjectIdentifier) -> Void
@@ -220,11 +220,14 @@ final class WifiTransferConnection: @unchecked Sendable {
       return
     }
 
-    switch handlers.onImportRoot(root) {
-    case .success:
-      respond(status: 200, body: "OK", contentType: "text/plain; charset=utf-8")
-    case .failure(let message):
-      respond(status: 400, body: message, contentType: "text/plain; charset=utf-8")
+    handlers.onImportRoot(root) { [weak self] result in
+      guard let self, !self.completed else { return }
+      switch result {
+      case .success:
+        self.respond(status: 200, body: "OK", contentType: "text/plain; charset=utf-8")
+      case .failure(let message):
+        self.respond(status: 400, body: message, contentType: "text/plain; charset=utf-8")
+      }
     }
   }
 
