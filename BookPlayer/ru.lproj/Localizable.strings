@@ -322,6 +322,8 @@
 "settings_crash_reports_title" = "Отключить отчеты о сбоях";
 "settings_skan_attribution_title" = "Отключить SKAN-атрибуцию";
 "settings_skan_attribution_description" = "SKAN — система анонимной аналитики Apple.";
+"settings_listening_history_disabled_description" = "Когда история отключена, BookPlayer не записывает новые сессии. Уже сохранённая история остаётся на устройстве, пока вы её не очистите.";
+"settings_listening_history_disabled_title" = "Отключить историю прослушивания";
 "intent_sleeptimer_cancel" = "Отменить таймер сна";
 "intent_sleeptimer_set_duration" = "Установить таймер сна на определенное время";
 "duration_title" = "Продолжительность";
@@ -504,3 +506,25 @@
 "jellyfin_quick_connect_error_no_code" = "Your Jellyfin server didn't return a Quick Connect code. Make sure Quick Connect is enabled in the server's dashboard.";
 "jellyfin_quick_connect_error_generic" = "Quick Connect couldn't complete. Check that Quick Connect is enabled on your server and try again.";
 "jellyfin_quick_connect_error_timeout" = "Timed out waiting for the code to be entered. Please try again.";
+
+"listening_history_title" = "История прослушивания";
+"listening_history_today_title" = "Сегодня";
+"listening_history_yesterday_title" = "Вчера";
+"listening_history_filter_title" = "Фильтр";
+"listening_history_filter_all_title" = "Всё время";
+"listening_history_filter_today_title" = "Сегодня";
+"listening_history_filter_week_title" = "Последние 7 дней";
+"listening_history_filter_month_title" = "Последние 30 дней";
+"listening_history_search_prompt" = "Поиск по истории";
+"listening_history_empty_title" = "История пуста";
+"listening_history_empty_description" = "Сессии длиннее 15 секунд появятся здесь после прослушивания.";
+"listening_history_disabled_empty_description" = "Включите историю прослушивания в Настройки → Конфиденциальность, чтобы снова записывать сессии.";
+"listening_history_disabled_banner" = "История прослушивания выключена. Новые сессии не записываются.";
+"listening_history_clear_all_title" = "Очистить всё";
+"listening_history_clear_all_confirm_title" = "Очистить историю";
+"listening_history_clear_all_message" = "Это навсегда удалит все сессии прослушивания с этого устройства. Книги и прогресс не затронуты.";
+"listening_history_delete_title" = "Удалить сессию";
+"listening_history_delete_message" = "Удалить сессию прослушивания «%@»?";
+"listening_history_missing_item_title" = "Книга недоступна";
+"listening_history_missing_item_message" = "Этой книги больше нет в библиотеке, но сессия прослушивания сохранена.";
+

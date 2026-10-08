@@ -892,6 +892,135 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
             return getTotalListenedTimeReturnValue
         }
     }
+    //MARK: - startListeningSession
+
+    var startListeningSessionRelativePathTitleSubtitleArtworkRelativePathCallsCount = 0
+    var startListeningSessionRelativePathTitleSubtitleArtworkRelativePathCalled: Bool {
+        return startListeningSessionRelativePathTitleSubtitleArtworkRelativePathCallsCount > 0
+    }
+    var startListeningSessionRelativePathTitleSubtitleArtworkRelativePathReceivedArguments: (relativePath: String, title: String, subtitle: String?, artworkRelativePath: String?)?
+    var startListeningSessionRelativePathTitleSubtitleArtworkRelativePathReceivedInvocations: [(relativePath: String, title: String, subtitle: String?, artworkRelativePath: String?)] = []
+    var startListeningSessionRelativePathTitleSubtitleArtworkRelativePathReturnValue: SimpleListeningSession!
+    var startListeningSessionRelativePathTitleSubtitleArtworkRelativePathClosure: ((String, String, String?, String?) -> SimpleListeningSession)?
+    @discardableResult
+    func startListeningSession(relativePath: String, title: String, subtitle: String?, artworkRelativePath: String?) -> SimpleListeningSession {
+        startListeningSessionRelativePathTitleSubtitleArtworkRelativePathCallsCount += 1
+        startListeningSessionRelativePathTitleSubtitleArtworkRelativePathReceivedArguments = (relativePath: relativePath, title: title, subtitle: subtitle, artworkRelativePath: artworkRelativePath)
+        startListeningSessionRelativePathTitleSubtitleArtworkRelativePathReceivedInvocations.append((relativePath: relativePath, title: title, subtitle: subtitle, artworkRelativePath: artworkRelativePath))
+        if let startListeningSessionRelativePathTitleSubtitleArtworkRelativePathClosure = startListeningSessionRelativePathTitleSubtitleArtworkRelativePathClosure {
+            return startListeningSessionRelativePathTitleSubtitleArtworkRelativePathClosure(relativePath, title, subtitle, artworkRelativePath)
+        } else {
+            return startListeningSessionRelativePathTitleSubtitleArtworkRelativePathReturnValue
+        }
+    }
+    //MARK: - recordListeningSessionTick
+
+    var recordListeningSessionTickCallsCount = 0
+    var recordListeningSessionTickCalled: Bool {
+        return recordListeningSessionTickCallsCount > 0
+    }
+    var recordListeningSessionTickClosure: (() -> Void)?
+    func recordListeningSessionTick() {
+        recordListeningSessionTickCallsCount += 1
+        recordListeningSessionTickClosure?()
+    }
+    //MARK: - endListeningSession
+
+    var endListeningSessionCallsCount = 0
+    var endListeningSessionCalled: Bool {
+        return endListeningSessionCallsCount > 0
+    }
+    var endListeningSessionClosure: (() -> Void)?
+    func endListeningSession() {
+        endListeningSessionCallsCount += 1
+        endListeningSessionClosure?()
+    }
+    //MARK: - getListeningSessions
+
+    var getListeningSessionsFromToRelativePathLimitOffsetCallsCount = 0
+    var getListeningSessionsFromToRelativePathLimitOffsetCalled: Bool {
+        return getListeningSessionsFromToRelativePathLimitOffsetCallsCount > 0
+    }
+    var getListeningSessionsFromToRelativePathLimitOffsetReceivedArguments: (startDate: Date?, endDate: Date?, relativePath: String?, limit: Int?, offset: Int?)?
+    var getListeningSessionsFromToRelativePathLimitOffsetReceivedInvocations: [(startDate: Date?, endDate: Date?, relativePath: String?, limit: Int?, offset: Int?)] = []
+    var getListeningSessionsFromToRelativePathLimitOffsetReturnValue: [SimpleListeningSession]!
+    var getListeningSessionsFromToRelativePathLimitOffsetClosure: ((Date?, Date?, String?, Int?, Int?) -> [SimpleListeningSession])?
+    func getListeningSessions(from startDate: Date?, to endDate: Date?, relativePath: String?, limit: Int?, offset: Int?) -> [SimpleListeningSession] {
+        getListeningSessionsFromToRelativePathLimitOffsetCallsCount += 1
+        getListeningSessionsFromToRelativePathLimitOffsetReceivedArguments = (startDate: startDate, endDate: endDate, relativePath: relativePath, limit: limit, offset: offset)
+        getListeningSessionsFromToRelativePathLimitOffsetReceivedInvocations.append((startDate: startDate, endDate: endDate, relativePath: relativePath, limit: limit, offset: offset))
+        if let getListeningSessionsFromToRelativePathLimitOffsetClosure = getListeningSessionsFromToRelativePathLimitOffsetClosure {
+            return getListeningSessionsFromToRelativePathLimitOffsetClosure(startDate, endDate, relativePath, limit, offset)
+        } else {
+            return getListeningSessionsFromToRelativePathLimitOffsetReturnValue
+        }
+    }
+    //MARK: - getListeningSessionsCount
+
+    var getListeningSessionsCountFromToRelativePathCallsCount = 0
+    var getListeningSessionsCountFromToRelativePathCalled: Bool {
+        return getListeningSessionsCountFromToRelativePathCallsCount > 0
+    }
+    var getListeningSessionsCountFromToRelativePathReceivedArguments: (startDate: Date?, endDate: Date?, relativePath: String?)?
+    var getListeningSessionsCountFromToRelativePathReceivedInvocations: [(startDate: Date?, endDate: Date?, relativePath: String?)] = []
+    var getListeningSessionsCountFromToRelativePathReturnValue: Int!
+    var getListeningSessionsCountFromToRelativePathClosure: ((Date?, Date?, String?) -> Int)?
+    func getListeningSessionsCount(from startDate: Date?, to endDate: Date?, relativePath: String?) -> Int {
+        getListeningSessionsCountFromToRelativePathCallsCount += 1
+        getListeningSessionsCountFromToRelativePathReceivedArguments = (startDate: startDate, endDate: endDate, relativePath: relativePath)
+        getListeningSessionsCountFromToRelativePathReceivedInvocations.append((startDate: startDate, endDate: endDate, relativePath: relativePath))
+        if let getListeningSessionsCountFromToRelativePathClosure = getListeningSessionsCountFromToRelativePathClosure {
+            return getListeningSessionsCountFromToRelativePathClosure(startDate, endDate, relativePath)
+        } else {
+            return getListeningSessionsCountFromToRelativePathReturnValue
+        }
+    }
+    //MARK: - deleteListeningSessions
+
+    var deleteListeningSessionsIdsCallsCount = 0
+    var deleteListeningSessionsIdsCalled: Bool {
+        return deleteListeningSessionsIdsCallsCount > 0
+    }
+    var deleteListeningSessionsIdsReceivedIds: [String]?
+    var deleteListeningSessionsIdsReceivedInvocations: [[String]] = []
+    var deleteListeningSessionsIdsClosure: (([String]) -> Void)?
+    func deleteListeningSessions(ids: [String]) {
+        deleteListeningSessionsIdsCallsCount += 1
+        deleteListeningSessionsIdsReceivedIds = ids
+        deleteListeningSessionsIdsReceivedInvocations.append(ids)
+        deleteListeningSessionsIdsClosure?(ids)
+    }
+    //MARK: - deleteAllListeningSessions
+
+    var deleteAllListeningSessionsCallsCount = 0
+    var deleteAllListeningSessionsCalled: Bool {
+        return deleteAllListeningSessionsCallsCount > 0
+    }
+    var deleteAllListeningSessionsClosure: (() -> Void)?
+    func deleteAllListeningSessions() {
+        deleteAllListeningSessionsCallsCount += 1
+        deleteAllListeningSessionsClosure?()
+    }
+    //MARK: - listeningHistoryPresentation
+
+    var listeningHistoryPresentationForFallbackTitleCallsCount = 0
+    var listeningHistoryPresentationForFallbackTitleCalled: Bool {
+        return listeningHistoryPresentationForFallbackTitleCallsCount > 0
+    }
+    var listeningHistoryPresentationForFallbackTitleReceivedArguments: (relativePath: String, fallbackTitle: String)?
+    var listeningHistoryPresentationForFallbackTitleReceivedInvocations: [(relativePath: String, fallbackTitle: String)] = []
+    var listeningHistoryPresentationForFallbackTitleReturnValue: ListeningHistoryPresentation!
+    var listeningHistoryPresentationForFallbackTitleClosure: ((String, String) -> ListeningHistoryPresentation)?
+    func listeningHistoryPresentation(for relativePath: String, fallbackTitle: String) -> ListeningHistoryPresentation {
+        listeningHistoryPresentationForFallbackTitleCallsCount += 1
+        listeningHistoryPresentationForFallbackTitleReceivedArguments = (relativePath: relativePath, fallbackTitle: fallbackTitle)
+        listeningHistoryPresentationForFallbackTitleReceivedInvocations.append((relativePath: relativePath, fallbackTitle: fallbackTitle))
+        if let listeningHistoryPresentationForFallbackTitleClosure = listeningHistoryPresentationForFallbackTitleClosure {
+            return listeningHistoryPresentationForFallbackTitleClosure(relativePath, fallbackTitle)
+        } else {
+            return listeningHistoryPresentationForFallbackTitleReturnValue
+        }
+    }
     //MARK: - getBookmarks
 
     var getBookmarksOfRelativePathCallsCount = 0

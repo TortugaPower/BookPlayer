@@ -147,6 +147,43 @@ public protocol LibraryServiceProtocol: AnyObject {
   /// Get total listened time across all items
   func getTotalListenedTime() -> TimeInterval
 
+  /// Listening sessions (local history)
+  /// Start a new listening session for the given item (ends any active session first)
+  @discardableResult
+  func startListeningSession(
+    relativePath: String,
+    title: String,
+    subtitle: String?,
+    artworkRelativePath: String?
+  ) -> SimpleListeningSession
+  /// Increment the active session duration by one second
+  func recordListeningSessionTick()
+  /// End the active session (discards if under minimum) and prune old sessions
+  func endListeningSession()
+  /// Fetch listening sessions (includes the in-progress session)
+  func getListeningSessions(
+    from startDate: Date?,
+    to endDate: Date?,
+    relativePath: String?,
+    limit: Int?,
+    offset: Int?
+  ) -> [SimpleListeningSession]
+  /// Count listening sessions matching filters
+  func getListeningSessionsCount(
+    from startDate: Date?,
+    to endDate: Date?,
+    relativePath: String?
+  ) -> Int
+  /// Delete sessions by id
+  func deleteListeningSessions(ids: [String])
+  /// Delete all listening sessions
+  func deleteAllListeningSessions()
+  /// Resolve folder/book titles for a listening-history row (write-time snapshot source)
+  func listeningHistoryPresentation(
+    for relativePath: String,
+    fallbackTitle: String
+  ) -> ListeningHistoryPresentation
+
   /// Bookmarks
   /// Fetch bookmarks for an item
   func getBookmarks(of type: BookmarkType, relativePath: String) -> [SimpleBookmark]?
@@ -174,6 +211,8 @@ public final class LibraryService: LibraryServiceProtocol, @unchecked Sendable {
   /// Sticky-sort preference resolver. Injected after construction to break the
   /// circular dependency with `PreferencesSyncService`.
   public weak var preferencesService: SortPreferencesResolving?
+  /// ObjectID of the in-progress listening session (avoids fragile predicate fetches).
+  private var activeListeningSessionObjectID: NSManagedObjectID?
 
   /// Internal passthrough publisher for emitting metadata update events
   private var metadataPassthroughPublisher = PassthroughSubject<[String: Any], Never>()
@@ -2631,6 +2670,324 @@ extension LibraryService {
 
     return results["totalTime"] ?? 0
 
+  }
+}
+
+// MARK: - Listening sessions
+extension LibraryService {
+  public static let listeningSessionMinimumDuration: TimeInterval = 15
+  public static let listeningSessionRetentionDays: Int = 365
+
+  @discardableResult
+  public func startListeningSession(
+    relativePath: String,
+    title: String,
+    subtitle: String?,
+    artworkRelativePath: String?
+  ) -> SimpleListeningSession {
+    if let active = getActiveListeningSession(), active.relativePath == relativePath {
+      return SimpleListeningSession(from: active)
+    }
+
+    endActiveListeningSession(discardIfTooShort: true)
+
+    let context = dataManager.getContext()
+    let session = ListeningSession.create(in: context)
+    session.relativePath = relativePath
+    session.itemTitle = title
+    session.subtitle = subtitle
+    session.artworkRelativePath = artworkRelativePath
+    session.startedAt = Date()
+    session.endedAt = nil
+    session.duration = 0
+
+    // Persist immediately so history / fetches see the session even if the app is backgrounded.
+    // ObjectID must be captured after save — it changes from temporary to permanent.
+    dataManager.saveContext()
+    activeListeningSessionObjectID = session.objectID
+    return SimpleListeningSession(from: session)
+  }
+
+  public func recordListeningSessionTick() {
+    guard let session = getActiveListeningSession() else { return }
+    // Keep a running floor from the player clock; wall-clock on end is the source of truth.
+    session.duration += 1
+    dataManager.scheduleSaveContext()
+  }
+
+  public func endListeningSession() {
+    endActiveListeningSession(discardIfTooShort: true)
+    pruneListeningSessions()
+  }
+
+  public func getListeningSessions(
+    from startDate: Date?,
+    to endDate: Date?,
+    relativePath: String?,
+    limit: Int?,
+    offset: Int?
+  ) -> [SimpleListeningSession] {
+    let fetch: NSFetchRequest<ListeningSession> = ListeningSession.fetchRequest()
+    // Include the in-progress session so history isn't empty while still listening.
+    fetch.predicate = listeningSessionsPredicate(
+      from: startDate,
+      to: endDate,
+      relativePath: relativePath,
+      completedOnly: false
+    )
+    fetch.sortDescriptors = [NSSortDescriptor(key: #keyPath(ListeningSession.startedAt), ascending: false)]
+    if let limit {
+      fetch.fetchLimit = limit
+    }
+    if let offset {
+      fetch.fetchOffset = offset
+    }
+
+    let results = (try? dataManager.getContext().fetch(fetch)) ?? []
+    return results.map { session in
+      var snapshot = SimpleListeningSession(from: session)
+      if session.endedAt == nil {
+        // Reflect live wall-clock duration for the active session.
+        let liveDuration = max(session.duration, Date().timeIntervalSince(session.startedAt))
+        snapshot = SimpleListeningSession(
+          id: snapshot.id,
+          relativePath: snapshot.relativePath,
+          itemTitle: snapshot.itemTitle,
+          subtitle: snapshot.subtitle,
+          artworkRelativePath: snapshot.artworkRelativePath,
+          startedAt: snapshot.startedAt,
+          endedAt: nil,
+          duration: liveDuration
+        )
+      }
+      return snapshot
+    }
+  }
+
+  public func getListeningSessionsCount(
+    from startDate: Date?,
+    to endDate: Date?,
+    relativePath: String?
+  ) -> Int {
+    let fetch: NSFetchRequest<ListeningSession> = ListeningSession.fetchRequest()
+    fetch.predicate = listeningSessionsPredicate(
+      from: startDate,
+      to: endDate,
+      relativePath: relativePath,
+      completedOnly: false
+    )
+    return (try? dataManager.getContext().count(for: fetch)) ?? 0
+  }
+
+  public func deleteListeningSessions(ids: [String]) {
+    guard !ids.isEmpty else { return }
+
+    let fetch: NSFetchRequest<ListeningSession> = ListeningSession.fetchRequest()
+    fetch.predicate = NSPredicate(format: "%K IN %@", #keyPath(ListeningSession.id), ids)
+    let context = dataManager.getContext()
+    let results = (try? context.fetch(fetch)) ?? []
+    results.forEach { session in
+      if session.objectID == activeListeningSessionObjectID {
+        activeListeningSessionObjectID = nil
+      }
+      context.delete(session)
+    }
+    dataManager.saveContext()
+  }
+
+  public func deleteAllListeningSessions() {
+    let fetch: NSFetchRequest<ListeningSession> = ListeningSession.fetchRequest()
+    let context = dataManager.getContext()
+    let results = (try? context.fetch(fetch)) ?? []
+    results.forEach { context.delete($0) }
+    activeListeningSessionObjectID = nil
+    dataManager.saveContext()
+  }
+
+  private func getActiveListeningSession() -> ListeningSession? {
+    let context = dataManager.getContext()
+
+    if let objectID = activeListeningSessionObjectID,
+      let session = try? context.existingObject(with: objectID) as? ListeningSession,
+      session.endedAt == nil,
+      !session.isDeleted
+    {
+      return session
+    }
+
+    let fetch: NSFetchRequest<ListeningSession> = ListeningSession.fetchRequest()
+    fetch.predicate = NSPredicate(format: "%K == nil", #keyPath(ListeningSession.endedAt))
+    fetch.fetchLimit = 1
+    fetch.sortDescriptors = [NSSortDescriptor(key: #keyPath(ListeningSession.startedAt), ascending: false)]
+    let session = try? context.fetch(fetch).first
+    activeListeningSessionObjectID = session?.objectID
+    return session
+  }
+
+  private func endActiveListeningSession(discardIfTooShort: Bool) {
+    let context = dataManager.getContext()
+    let fetch: NSFetchRequest<ListeningSession> = ListeningSession.fetchRequest()
+    fetch.predicate = NSPredicate(format: "%K == nil", #keyPath(ListeningSession.endedAt))
+    let openSessions = (try? context.fetch(fetch)) ?? []
+    guard !openSessions.isEmpty else {
+      activeListeningSessionObjectID = nil
+      return
+    }
+
+    let now = Date()
+    // Close every open row — after a crash there may be more than one orphan.
+    for session in openSessions {
+      let wallClockDuration = max(0, now.timeIntervalSince(session.startedAt))
+      // Player ticks can under-count when `updateTime` early-returns on clock recovery.
+      session.duration = max(session.duration, wallClockDuration)
+      session.endedAt = now
+
+      if discardIfTooShort, session.duration < Self.listeningSessionMinimumDuration {
+        context.delete(session)
+      }
+    }
+
+    activeListeningSessionObjectID = nil
+    dataManager.saveContext()
+  }
+
+  private func pruneListeningSessions() {
+    guard
+      let cutoff = Calendar.current.date(
+        byAdding: .day,
+        value: -Self.listeningSessionRetentionDays,
+        to: Date()
+      )
+    else { return }
+
+    let fetch: NSFetchRequest<ListeningSession> = ListeningSession.fetchRequest()
+    fetch.predicate = NSPredicate(
+      format: "%K < %@",
+      #keyPath(ListeningSession.startedAt),
+      cutoff as NSDate
+    )
+    let context = dataManager.getContext()
+    let results = (try? context.fetch(fetch)) ?? []
+    guard !results.isEmpty else { return }
+    results.forEach { context.delete($0) }
+    dataManager.saveContext()
+  }
+
+  private func listeningSessionsPredicate(
+    from startDate: Date?,
+    to endDate: Date?,
+    relativePath: String?,
+    completedOnly: Bool
+  ) -> NSPredicate {
+    var predicates: [NSPredicate] = []
+    if completedOnly {
+      predicates.append(NSPredicate(format: "%K != nil", #keyPath(ListeningSession.endedAt)))
+    }
+    if let startDate {
+      predicates.append(
+        NSPredicate(format: "%K >= %@", #keyPath(ListeningSession.startedAt), startDate as NSDate)
+      )
+    }
+    if let endDate {
+      predicates.append(
+        NSPredicate(format: "%K < %@", #keyPath(ListeningSession.startedAt), endDate as NSDate)
+      )
+    }
+    if let relativePath {
+      predicates.append(
+        NSPredicate(format: "%K == %@", #keyPath(ListeningSession.relativePath), relativePath)
+      )
+    }
+
+    guard !predicates.isEmpty else {
+      return NSPredicate(value: true)
+    }
+    return NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
+  }
+
+  public func listeningHistoryPresentation(
+    for relativePath: String,
+    fallbackTitle: String
+  ) -> ListeningHistoryPresentation {
+    guard let item = getSimpleItem(with: relativePath) else {
+      return ListeningHistoryPresentation(
+        title: fallbackTitle,
+        subtitle: nil,
+        artworkRelativePath: relativePath,
+        loadRelativePath: relativePath
+      )
+    }
+
+    switch item.type {
+    case .bound:
+      var subtitle: String?
+      if let parentPath = item.parentFolder,
+        let parent = getSimpleItem(with: parentPath),
+        parent.type == .folder
+      {
+        subtitle = parent.title
+      }
+      return ListeningHistoryPresentation(
+        title: item.title,
+        subtitle: subtitle,
+        artworkRelativePath: item.relativePath,
+        loadRelativePath: item.relativePath
+      )
+
+    case .book:
+      let folderChain = folderBreadcrumbTitles(startingAt: item.parentFolder)
+      if !folderChain.titles.isEmpty {
+        return ListeningHistoryPresentation(
+          title: folderChain.titles.joined(separator: " / "),
+          subtitle: item.title,
+          artworkRelativePath: folderChain.nearestFolderPath ?? item.relativePath,
+          loadRelativePath: item.relativePath
+        )
+      }
+      return ListeningHistoryPresentation(
+        title: item.title,
+        subtitle: nil,
+        artworkRelativePath: item.relativePath,
+        loadRelativePath: item.relativePath
+      )
+
+    case .folder:
+      // Unusual for a session path, but keep a sensible fallback.
+      return ListeningHistoryPresentation(
+        title: item.title,
+        subtitle: nil,
+        artworkRelativePath: item.relativePath,
+        loadRelativePath: item.relativePath
+      )
+    }
+  }
+
+  /// Walks up `.folder` parents from `startingPath` (nearest → outer), returns titles outer→inner.
+  private func folderBreadcrumbTitles(
+    startingAt startingPath: String?
+  ) -> (titles: [String], nearestFolderPath: String?) {
+    guard var path = startingPath else {
+      return ([], nil)
+    }
+
+    var nearestFolderPath: String?
+    var titlesReversed: [String] = []
+    var visited = Set<String>()
+
+    while !visited.contains(path), let folder = getSimpleItem(with: path) {
+      visited.insert(path)
+      guard folder.type == .folder else { break }
+
+      if nearestFolderPath == nil {
+        nearestFolderPath = folder.relativePath
+      }
+      titlesReversed.append(folder.title)
+
+      guard let parentPath = folder.parentFolder else { break }
+      path = parentPath
+    }
+
+    return (titlesReversed.reversed(), nearestFolderPath)
   }
 }
 

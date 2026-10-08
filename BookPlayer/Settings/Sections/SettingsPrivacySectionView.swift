@@ -14,8 +14,11 @@ struct SettingsPrivacySectionView: View {
   var crashReportsDisabled: Bool = false
   @AppStorage(Constants.UserDefaults.skanAttributionDisabled)
   var skanAttributionDisabled: Bool = false
+  @AppStorage(Constants.UserDefaults.listeningHistoryDisabled, store: .sharedDefaults)
+  var listeningHistoryDisabled: Bool = false
   @EnvironmentObject var theme: ThemeViewModel
-  
+  @Environment(\.libraryService) private var libraryService
+
   var body: some View {
     ThemedSection {
       Toggle(isOn: $crashReportsDisabled) {
@@ -32,6 +35,23 @@ struct SettingsPrivacySectionView: View {
         .foregroundStyle(theme.secondaryColor)
     } footer: {
       Text("settings_skan_attribution_description")
+        .bpFont(.caption)
+        .foregroundStyle(theme.secondaryColor)
+    }
+
+    ThemedSection {
+      Toggle(isOn: $listeningHistoryDisabled) {
+        Text("settings_listening_history_disabled_title")
+          .bpFont(.body)
+      }
+      .onChange(of: listeningHistoryDisabled) { _, isDisabled in
+        if isDisabled {
+          // Stop any in-flight session so we don't keep a dangling active row.
+          libraryService.endListeningSession()
+        }
+      }
+    } footer: {
+      Text("settings_listening_history_disabled_description")
         .bpFont(.caption)
         .foregroundStyle(theme.secondaryColor)
     }
