@@ -89,10 +89,11 @@ a build phase) and its output is committed.
   A failure with a crash report fails at once; one without gets a single retry on a reset simulator and is
   reported as "passed on retry" if it then passes (simulators flake; a crash never gets a second chance). If the
   *previous* release crashes on an iOS version, the upgrade there starts from the release before it (its users never
-  had data in the crashing one), and is reported as not tested if that one crashes too. It
-  exists because 5.22.1 crashed at launch on iOS < 27 while every check ran on iOS 27. The tests find the UI by four `accessibilityIdentifier`s (`library.row.<relativePath>`,
-  `miniPlayer.info`, `player.playPause`, `player.currentTime`) and by the English labels "Done" (Import sheet) and
-  "Library" (placement prompt); keep `BookPlayerUITests/ReleaseCheckUITests.swift` in step when changing those.
+  had data in the crashing one), and is reported as not tested if that one crashes too. It exists because 5.22.1
+  crashed at launch on iOS < 27 while every check ran on iOS 27. The tests find the UI by four
+  `accessibilityIdentifier`s (`library.row.<relativePath>`, `miniPlayer.info`, `player.playPause`,
+  `player.currentTime`) and by the English labels "Done" (Import sheet) and "Library" (placement prompt); keep
+  `BookPlayerUITests/ReleaseCheckUITests.swift` in step when changing those.
   The upgrade scenario drives the *previous* release with labels only, since older builds lack the identifiers.
 - **Lint/format is enforced by tools — do NOT flag style they own.** `.swiftlint.yml` **disables**: `line_length`,
   `identifier_name`, `type_name`, `type_body_length`, `file_length`, `nesting`, `force_try`, `trailing_comma`,
