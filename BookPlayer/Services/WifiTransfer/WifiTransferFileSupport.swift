@@ -8,12 +8,51 @@
 import Foundation
 
 enum WifiTransferFileSupport {
+  static let stagingFolderName = "BookPlayerWifiTransfer"
+
   /// Staging area outside Documents so DirectoryWatcher does not import files mid-upload.
   static var stagingRootURL: URL {
-    let url = FileManager.default.temporaryDirectory
-      .appendingPathComponent("BookPlayerWifiTransfer", isDirectory: true)
+    let url = stagingRootURLIfPresent
+      ?? FileManager.default.temporaryDirectory
+        .appendingPathComponent(stagingFolderName, isDirectory: true)
     try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
     return url
+  }
+
+  /// Existing staging directory, or `nil` if nothing was left behind.
+  static var stagingRootURLIfPresent: URL? {
+    let url = FileManager.default.temporaryDirectory
+      .appendingPathComponent(stagingFolderName, isDirectory: true)
+    var isDirectory: ObjCBool = false
+    guard FileManager.default.fileExists(atPath: url.path, isDirectory: &isDirectory),
+      isDirectory.boolValue
+    else {
+      return nil
+    }
+    return url
+  }
+
+  /// Removes leftover Wi‑Fi transfer staging (crash / force-quit / aborted upload).
+  /// Safe to call at launch and whenever the transfer server stops.
+  @discardableResult
+  static func clearStagingDirectory() -> Bool {
+    guard let url = stagingRootURLIfPresent else { return false }
+    do {
+      try FileManager.default.removeItem(at: url)
+      return true
+    } catch {
+      // Best-effort: retry by emptying contents if the root could not be removed.
+      if let children = try? FileManager.default.contentsOfDirectory(
+        at: url,
+        includingPropertiesForKeys: nil
+      ) {
+        for child in children {
+          try? FileManager.default.removeItem(at: child)
+        }
+      }
+      try? FileManager.default.removeItem(at: url)
+      return !FileManager.default.fileExists(atPath: url.path)
+    }
   }
 
   /// Extensions accepted by the Wi‑Fi transfer page (aligned with import / document types).

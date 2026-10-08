@@ -85,4 +85,19 @@ final class WifiTransferFileSupportTests: XCTestCase {
     let en = WifiTransferHTML.strings(for: "en")
     XCTAssertTrue(en.folderHint.lowercased().contains("structure"))
   }
+
+  func testClearStagingDirectory_removesLeftovers() throws {
+    let root = WifiTransferFileSupport.stagingRootURL
+    let nested = root.appendingPathComponent("Orphan/Book.m4b")
+    try FileManager.default.createDirectory(
+      at: nested.deletingLastPathComponent(),
+      withIntermediateDirectories: true
+    )
+    try Data("x".utf8).write(to: nested)
+    XCTAssertNotNil(WifiTransferFileSupport.stagingRootURLIfPresent)
+
+    XCTAssertTrue(WifiTransferFileSupport.clearStagingDirectory())
+    XCTAssertNil(WifiTransferFileSupport.stagingRootURLIfPresent)
+    XCTAssertFalse(WifiTransferFileSupport.clearStagingDirectory())
+  }
 }

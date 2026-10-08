@@ -71,6 +71,8 @@ final class WifiTransferServer: ObservableObject, BPLogger {
     guard !isRunning, status != .starting else { return }
     status = .starting
     serverURL = nil
+    // Drop any orphaned staging from a previous crashed / aborted session.
+    WifiTransferFileSupport.clearStagingDirectory()
 
     guard isOnWiFi else {
       status = .failed("wifi_transfer_no_wifi_message".localized)
@@ -93,6 +95,8 @@ final class WifiTransferServer: ObservableObject, BPLogger {
     listener?.cancel()
     listener = nil
     serverURL = nil
+    // Cancel closes in-flight writes; wipe the rest so partial folder trees do not linger.
+    WifiTransferFileSupport.clearStagingDirectory()
     if case .failed = status {
       // keep failure message until next start
     } else {
@@ -252,6 +256,8 @@ final class WifiTransferServer: ObservableObject, BPLogger {
       return .success(())
     } catch {
       Self.logger.error("Wi‑Fi transfer folder import failed: \(error.localizedDescription)")
+      // Leave nothing half-moved under staging if import cannot proceed.
+      try? FileManager.default.removeItem(at: stagedFolder)
       return .failure("wifi_transfer_import_failed_message".localized)
     }
   }
