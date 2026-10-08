@@ -101,6 +101,16 @@ final class ReleaseCheckUITests: XCTestCase {
     XCTAssertTrue(bookRow.waitForExistence(timeout: 30), "Book row never appeared in the previous release")
     bookRow.tap()
 
+    // Fail here as a seeding problem, not later as "progress lost" in the new build: a "Pause" button
+    // (mini player) or the row's progress moving off 0 means the previous release is playing
+    let deadline = Date().addingTimeInterval(15)
+    var playing = false
+    while !playing && Date() < deadline {
+      playing = app.buttons["Pause"].exists || !bookRow.label.contains(" 0 percent completed")
+      if !playing { sleep(1) }
+    }
+    XCTAssertTrue(playing, "The previous release never started playing the book (seeding problem): \(bookRow.label)")
+
     sleep(8)
     // Backgrounding saves the position
     XCUIDevice.shared.press(.home)
