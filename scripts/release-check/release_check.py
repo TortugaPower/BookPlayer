@@ -203,6 +203,7 @@ def make_fixtures(folder):
         run(["afconvert", "-f", "m4af", "-d", "aac", str(wav), str(path)])
         wav.unlink()
 
+    shutil.rmtree(folder, ignore_errors=True)  # a rerun with the same --out
     (folder / FOLDER_NAME).mkdir(parents=True)
     tone(folder / BOOK_NAME, 60)
     tone(folder / FOLDER_NAME / "01 Chapter.m4a", 20)
@@ -314,6 +315,15 @@ def crash_summary(report):
         return f"(couldn't read {report.name}: {error})"
 
 
+# xcodebuild's own words for an app crash during a UI test (5.22.1's launch crash logged "crashed in main")
+CRASH_TEXT = ("crashed in ", "The app crashed", "unexpected exit, crash")
+CRASH_REPORT_GRACE = 15
+
+
+def log_reports_crash(text):
+    return any(marker in text for marker in CRASH_TEXT)
+
+
 class StepFailure:
     def __init__(self, message, crashed):
         self.message, self.crashed = message, crashed
@@ -339,12 +349,18 @@ def run_test(simulator, xctestrun, test, log_file, bundle_id):
     crashes = crash_reports_since(start, bundle_id)
     if code == 0 and f"{test}]' passed" in text and not crashes:
         return None
+    # A crash report can land a few seconds after xcodebuild returns; a crash must never be retried
+    deadline = time.time() + CRASH_REPORT_GRACE
+    while not crashes and time.time() < deadline:
+        time.sleep(3)
+        crashes = crash_reports_since(start, bundle_id)
     reasons = [line.split(" : ", 1)[-1] for line in text.splitlines() if "error: -[" in line][:3]
     if code is None:
         reasons.append(f"timed out after {TEST_TIMEOUT} s")
     for report in crashes:
         reasons.append(f"crash report {report.name}:\n{crash_summary(report)}")
-    return StepFailure(f"{test}: " + ("\n".join(reasons) or f"failed (exit {code}), see {log_file}"), bool(crashes))
+    crashed = bool(crashes) or log_reports_crash(text)
+    return StepFailure(f"{test}: " + ("\n".join(reasons) or f"failed (exit {code}), see {log_file}"), crashed)
 
 
 def run_chain(simulator, chain, logs, bundle_id, attempt):
@@ -445,7 +461,9 @@ def check(args):
     tag = args.previous or previous_tag()
     ensure_debug_xcconfig(REPO)
     products = build(REPO, out / "DerivedData")
-    xctestrun = next(products.glob(f"{SCHEME}_*.xctestrun"))
+    xctestrun = next(products.glob(f"{SCHEME}_*.xctestrun"), None)
+    if not xctestrun:
+        raise SetupError(f"the build produced no {SCHEME} .xctestrun in {products}")
     candidate = products / "Release-iphonesimulator/BookPlayer.app"
     with open(candidate / "Info.plist", "rb") as f:
         bundle_id = plistlib.load(f)["CFBundleIdentifier"]
