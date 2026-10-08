@@ -24,8 +24,9 @@ public protocol MediaServerChapterProviding: Sendable {
   ///
   /// The resources may span SEVERAL servers of the same provider, so each is resolved to its
   /// own connection and asked there — a batch is not one request. A resource whose host
-  /// resolves to nothing is simply absent from the result. An empty list is NOT a statement
-  /// that the server has no chapters, which is why the ingest only ever adds them.
+  /// resolves to nothing, or whose server failed, is simply absent from the result. An empty
+  /// list is NOT a statement that the server has no chapters, which is why the ingest only
+  /// ever adds them.
   func chapters(for resources: [SimpleExternalResource]) async throws -> [String: [ChapterMetadata]]
 }
 
@@ -59,6 +60,27 @@ extension MediaServerChapterProviding {
 
     return byConnectionIndex.map { (connections[$0.key], $0.value) }
   }
+
+  /// Asks each server for its own books' chapters, `fetch` taking the server and its books'
+  /// ids. A server that fails (offline, an expired session) is left out, so it can't cost the
+  /// other servers theirs.
+  func chaptersByServer<C: IntegrationHostIdentifiable>(
+    _ resources: [SimpleExternalResource],
+    connections: [C],
+    fetch: (C, [String]) async throws -> [String: [ChapterMetadata]]
+  ) async -> [String: [ChapterMetadata]] {
+    var chapters: [String: [ChapterMetadata]] = [:]
+
+    for group in grouped(resources, by: connections) {
+      guard
+        let serverChapters = try? await fetch(group.connection, group.resources.map(\.providerId))
+      else { continue }
+
+      chapters.merge(serverChapters) { _, new in new }
+    }
+
+    return chapters
+  }
 }
 
 /// Stateless: the connection service is built per call rather than held.
@@ -75,17 +97,11 @@ public struct JellyfinChapterProvider: MediaServerChapterProviding {
     let service = JellyfinConnectionService()
     await service.setup()
 
-    var chapters: [String: [ChapterMetadata]] = [:]
+    return await chaptersByServer(resources, connections: await service.connections) { connection, ids in
+      await service.useConnection(connection)
 
-    for group in grouped(resources, by: await service.connections) {
-      await service.useConnection(group.connection)
-
-      for item in try await service.fetchItems(ids: group.resources.map(\.providerId)) {
-        chapters[item.id] = item.chapters
-      }
+      return try await service.fetchItems(ids: ids).reduce(into: [:]) { $0[$1.id] = $1.chapters }
     }
-
-    return chapters
   }
 }
 
@@ -98,16 +114,10 @@ public struct AudiobookShelfChapterProvider: MediaServerChapterProviding {
     let service = AudiobookShelfConnectionService()
     await service.setup()
 
-    var chapters: [String: [ChapterMetadata]] = [:]
+    return await chaptersByServer(resources, connections: await service.connections) { connection, ids in
+      await service.useConnection(connection)
 
-    for group in grouped(resources, by: await service.connections) {
-      await service.useConnection(group.connection)
-
-      for item in try await service.fetchItems(ids: group.resources.map(\.providerId)) {
-        chapters[item.id] = item.chapters
-      }
+      return try await service.fetchItems(ids: ids).reduce(into: [:]) { $0[$1.id] = $1.chapters }
     }
-
-    return chapters
   }
 }

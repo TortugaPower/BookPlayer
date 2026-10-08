@@ -833,13 +833,13 @@ final class MediaServerChapterRefreshServiceTests: XCTestCase {
     ChapterMetadata(title: "Two", start: 600, duration: 900, index: 2),
   ]
 
-  private func makeResource(provider: String, id: String) -> SimpleExternalResource {
+  private func makeResource(provider: String, id: String, hostId: String = "guid-host") -> SimpleExternalResource {
     SimpleExternalResource(
       providerName: provider,
       providerId: id,
       syncStatus: ExternalResource.SyncStatus.stream.rawValue,
       lastSyncedAt: nil,
-      hostId: "guid-host",
+      hostId: hostId,
       libraryItem: nil
     )
   }
@@ -917,6 +917,37 @@ final class MediaServerChapterRefreshServiceTests: XCTestCase {
     XCTAssertEqual(
       libraryService.storeMediaServerChaptersProviderNameChaptersByProviderIdReceivedInvocations.map(\.providerName),
       ["audiobookshelf"]
+    )
+  }
+
+  /// Nor one server of a provider another's: an offline server or an expired session leaves out
+  /// only its own books
+  func testAFailingServerDoesNotStopTheOthers() async {
+    let reachable = makeConnection("https://abs.example.com")
+    let offline = makeConnection("https://offline.example.com")
+    let chapters = chapters
+
+    let chaptersByProviderId = await AudiobookShelfChapterProvider().chaptersByServer(
+      [
+        makeResource(provider: "audiobookshelf", id: "abs-1", hostId: reachable.stableHostId),
+        makeResource(provider: "audiobookshelf", id: "abs-2", hostId: offline.stableHostId),
+      ],
+      connections: [offline, reachable]
+    ) { connection, ids in
+      if connection.url == offline.url { throw URLError(.cannotConnectToHost) }
+      return Dictionary(uniqueKeysWithValues: ids.map { ($0, chapters) })
+    }
+
+    XCTAssertEqual(chaptersByProviderId, ["abs-1": chapters])
+  }
+
+  private func makeConnection(_ url: String) -> AudiobookShelfConnectionData {
+    AudiobookShelfConnectionData(
+      url: URL(string: url)!,
+      serverName: "ABS",
+      userID: "u1",
+      userName: "reader",
+      apiToken: "t"
     )
   }
 
