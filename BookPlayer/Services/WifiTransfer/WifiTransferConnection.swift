@@ -10,10 +10,19 @@ import Network
 
 /// Handles one HTTP connection for the Wi‑Fi transfer server.
 final class WifiTransferConnection: @unchecked Sendable {
+  struct Handlers {
+    /// Called after a successful top-level (loose) file upload — import immediately.
+    var onLooseFile: (URL) -> Void
+    /// Import a folder that was staged under Documents (`POST /import?root=`).
+    var onImportRoot: (String) -> Result<Void, String>
+    /// Preferred app language code for the HTML page (`en`, `ru`, …).
+    var languageCode: String
+    var onFinished: (ObjectIdentifier) -> Void
+  }
+
   private let connection: NWConnection
   private let stagingDirectory: URL
-  private let onFile: (URL) -> Void
-  private let onFinished: (ObjectIdentifier) -> Void
+  private let handlers: Handlers
 
   private var buffer = Data()
   private var headersParsed = false
@@ -23,18 +32,19 @@ final class WifiTransferConnection: @unchecked Sendable {
   private var bodyReceived = 0
   private var fileHandle: FileHandle?
   private var destinationURL: URL?
+  private var importImmediately = false
   private var cancelled = false
+  private var isImportRequest = false
+  private var completed = false
 
   init(
     connection: NWConnection,
     stagingDirectory: URL,
-    onFile: @escaping (URL) -> Void,
-    onFinished: @escaping (ObjectIdentifier) -> Void
+    handlers: Handlers
   ) {
     self.connection = connection
     self.stagingDirectory = stagingDirectory
-    self.onFile = onFile
-    self.onFinished = onFinished
+    self.handlers = handlers
   }
 
   func start() {
@@ -60,7 +70,7 @@ final class WifiTransferConnection: @unchecked Sendable {
 
   private func receive() {
     connection.receive(minimumIncompleteLength: 1, maximumLength: 256 * 1024) { [weak self] data, _, isComplete, error in
-      guard let self, !self.cancelled else { return }
+      guard let self, !self.cancelled, !self.completed else { return }
       if let error {
         self.failAndClose("Receive error: \(error.localizedDescription)")
         return
@@ -69,14 +79,16 @@ final class WifiTransferConnection: @unchecked Sendable {
         self.handle(data)
       }
       if isComplete {
-        if self.headersParsed, self.method == "POST", self.contentLength == nil {
+        if self.headersParsed, self.method == "POST", self.isImportRequest {
+          // handled in prepareImport (no body)
+        } else if self.headersParsed, self.method == "POST", self.contentLength == nil {
           self.completeUpload()
         } else if !self.headersParsed {
           self.failAndClose("Incomplete request")
         }
         return
       }
-      if error == nil {
+      if error == nil, !self.completed {
         self.receive()
       }
     }
@@ -103,10 +115,20 @@ final class WifiTransferConnection: @unchecked Sendable {
       }
 
       if method == "POST" {
-        guard prepareUpload() else { return }
-        if !bodyStart.isEmpty {
-          appendBody(bodyStart)
+        if path.hasPrefix("/import") {
+          prepareImport()
+          return
         }
+        if path.hasPrefix("/upload") {
+          guard prepareUpload() else { return }
+          if !bodyStart.isEmpty {
+            appendBody(bodyStart)
+          } else if contentLength == 0 {
+            completeUpload()
+          }
+          return
+        }
+        respond(status: 404, body: "Not Found", contentType: "text/plain; charset=utf-8")
         return
       }
 
@@ -114,7 +136,7 @@ final class WifiTransferConnection: @unchecked Sendable {
       return
     }
 
-    if method == "POST" {
+    if method == "POST", !isImportRequest {
       appendBody(data)
     }
   }
@@ -148,21 +170,34 @@ final class WifiTransferConnection: @unchecked Sendable {
   }
 
   private func prepareUpload() -> Bool {
-    guard path.hasPrefix("/upload") else {
-      respond(status: 404, body: "Not Found", contentType: "text/plain; charset=utf-8")
-      return false
-    }
     guard
-      let components = URLComponents(string: path),
-      let nameItem = components.queryItems?.first(where: { $0.name == "name" }),
-      let rawName = nameItem.value,
-      let filename = WifiTransferFileSupport.sanitizedFilename(from: rawName)
+      let components = URLComponents(string: path)
     else {
-      respond(status: 400, body: "Missing or unsupported file name", contentType: "text/plain; charset=utf-8")
+      respond(status: 400, body: "Bad request", contentType: "text/plain; charset=utf-8")
       return false
     }
 
-    let destination = WifiTransferFileSupport.uniqueFileURL(filename: filename, in: stagingDirectory)
+    let relative: String?
+    if let pathItem = components.queryItems?.first(where: { $0.name == "path" })?.value {
+      relative = WifiTransferFileSupport.sanitizedRelativePath(from: pathItem)
+    } else if let nameItem = components.queryItems?.first(where: { $0.name == "name" })?.value {
+      relative = WifiTransferFileSupport.sanitizedFilename(from: nameItem)
+    } else {
+      relative = nil
+    }
+
+    guard let relative else {
+      respond(status: 400, body: "Missing or unsupported file path", contentType: "text/plain; charset=utf-8")
+      return false
+    }
+
+    guard let destination = WifiTransferFileSupport.uniqueFileURL(relativePath: relative, in: stagingDirectory)
+    else {
+      respond(status: 500, body: "Could not create file", contentType: "text/plain; charset=utf-8")
+      return false
+    }
+
+    importImmediately = WifiTransferFileSupport.isLooseFilePath(relative)
     FileManager.default.createFile(atPath: destination.path, contents: nil)
     do {
       fileHandle = try FileHandle(forWritingTo: destination)
@@ -171,6 +206,25 @@ final class WifiTransferConnection: @unchecked Sendable {
     } catch {
       respond(status: 500, body: "Could not create file", contentType: "text/plain; charset=utf-8")
       return false
+    }
+  }
+
+  private func prepareImport() {
+    isImportRequest = true
+    guard
+      let components = URLComponents(string: path),
+      let rootItem = components.queryItems?.first(where: { $0.name == "root" })?.value,
+      let root = WifiTransferFileSupport.sanitizedRootFolder(from: rootItem)
+    else {
+      respond(status: 400, body: "Missing or invalid root folder", contentType: "text/plain; charset=utf-8")
+      return
+    }
+
+    switch handlers.onImportRoot(root) {
+    case .success:
+      respond(status: 200, body: "OK", contentType: "text/plain; charset=utf-8")
+    case .failure(let message):
+      respond(status: 400, body: message, contentType: "text/plain; charset=utf-8")
     }
   }
 
@@ -187,6 +241,7 @@ final class WifiTransferConnection: @unchecked Sendable {
   }
 
   private func completeUpload() {
+    guard !completed else { return }
     try? fileHandle?.close()
     fileHandle = nil
     guard let destinationURL else {
@@ -198,15 +253,20 @@ final class WifiTransferConnection: @unchecked Sendable {
       respond(status: 400, body: "Incomplete upload", contentType: "text/plain; charset=utf-8")
       return
     }
-    onFile(destinationURL)
+    if importImmediately {
+      handlers.onLooseFile(destinationURL)
+    }
     respond(status: 201, body: "OK", contentType: "text/plain; charset=utf-8")
   }
 
   private func serveHTML() {
-    respond(status: 200, body: WifiTransferHTML.page, contentType: "text/html; charset=utf-8")
+    let html = WifiTransferHTML.page(languageCode: handlers.languageCode)
+    respond(status: 200, body: html, contentType: "text/html; charset=utf-8")
   }
 
   private func respond(status: Int, body: String, contentType: String) {
+    guard !completed else { return }
+    completed = true
     let reason: String
     switch status {
     case 200: reason = "OK"
@@ -233,10 +293,8 @@ final class WifiTransferConnection: @unchecked Sendable {
 
   private func failAndClose(_ message: String) {
     cleanupPartialFile()
-    if headersParsed, method == "POST", fileHandle != nil || destinationURL != nil {
-      try? fileHandle?.close()
-      fileHandle = nil
-    }
+    try? fileHandle?.close()
+    fileHandle = nil
     if !cancelled {
       respond(status: 400, body: message, contentType: "text/plain; charset=utf-8")
     } else {
@@ -255,6 +313,6 @@ final class WifiTransferConnection: @unchecked Sendable {
   }
 
   private func finish() {
-    onFinished(ObjectIdentifier(self))
+    handlers.onFinished(ObjectIdentifier(self))
   }
 }
