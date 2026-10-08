@@ -6,9 +6,26 @@
 //
 
 import Foundation
+import Security
 
 enum WifiTransferFileSupport {
   static let stagingFolderName = "BookPlayerWifiTransfer"
+
+  /// Hard cap per uploaded file (prevents a LAN peer from filling the device).
+  static let maxUploadBytes = 8 * 1024 * 1024 * 1024
+
+  /// Ephemeral path segment used as a shared secret for one server session.
+  static func makeAccessToken() -> String {
+    var bytes = [UInt8](repeating: 0, count: 16)
+    _ = SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes)
+    return bytes.map { String(format: "%02x", $0) }.joined()
+  }
+
+  /// Validates `token` shape (32 lowercase hex chars).
+  static func isAccessTokenFormat(_ token: String) -> Bool {
+    guard token.count == 32 else { return false }
+    return token.unicodeScalars.allSatisfy { CharacterSet(charactersIn: "0123456789abcdef").contains($0) }
+  }
 
   /// Staging area outside Documents so DirectoryWatcher does not import files mid-upload.
   static var stagingRootURL: URL {

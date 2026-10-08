@@ -11,12 +11,12 @@ import Network
 /// Handles one HTTP connection for the Wi‑Fi transfer server.
 final class WifiTransferConnection: @unchecked Sendable {
   struct Handlers {
+    /// Session secret; every request path must start with `/<token>/…`.
+    var accessToken: String
     /// Called after a successful top-level (loose) file upload — import immediately.
     var onLooseFile: (URL) -> Void
     /// Import a staged folder (`POST /import?root=`). Must invoke `completion` exactly once.
     var onImportRoot: (_ root: String, _ completion: @escaping (Result<Void, String>) -> Void) -> Void
-    /// Preferred app language code for the HTML page (`en`, `ru`, …).
-    var languageCode: String
     var onFinished: (ObjectIdentifier) -> Void
   }
 
@@ -108,6 +108,10 @@ final class WifiTransferConnection: @unchecked Sendable {
       buffer = Data()
       guard parseHeaders(headerData) else { return }
       headersParsed = true
+      guard authorizeAndStripToken() else {
+        respond(status: 401, body: "Unauthorized", contentType: "text/plain; charset=utf-8")
+        return
+      }
 
       if method == "GET" {
         serveHTML()
@@ -123,7 +127,7 @@ final class WifiTransferConnection: @unchecked Sendable {
           guard prepareUpload() else { return }
           if !bodyStart.isEmpty {
             appendBody(bodyStart)
-          } else if contentLength == 0 {
+          } else if let contentLength, contentLength == 0 {
             completeUpload()
           }
           return
@@ -169,7 +173,37 @@ final class WifiTransferConnection: @unchecked Sendable {
     return true
   }
 
+  /// Requires `/<accessToken>/…` and rewrites `path` to the remainder (`/`, `/upload?…`, …).
+  private func authorizeAndStripToken() -> Bool {
+    let expected = handlers.accessToken
+    guard !expected.isEmpty else { return false }
+    guard path.hasPrefix("/") else { return false }
+    let withoutSlash = path.dropFirst()
+    let token: String
+    let remainder: String
+    if let slash = withoutSlash.firstIndex(of: "/") {
+      token = String(withoutSlash[..<slash])
+      remainder = String(withoutSlash[slash...])
+    } else {
+      let split = withoutSlash.split(separator: "?", maxSplits: 1, omittingEmptySubsequences: false)
+      token = String(split[0])
+      remainder = split.count > 1 ? "/?\(split[1])" : "/"
+    }
+    guard token == expected else { return false }
+    path = remainder.isEmpty ? "/" : remainder
+    return true
+  }
+
   private func prepareUpload() -> Bool {
+    guard let length = contentLength, length > 0 else {
+      respond(status: 411, body: "Content-Length required", contentType: "text/plain; charset=utf-8")
+      return false
+    }
+    guard length <= WifiTransferFileSupport.maxUploadBytes else {
+      respond(status: 413, body: "File too large", contentType: "text/plain; charset=utf-8")
+      return false
+    }
+
     guard
       let components = URLComponents(string: path)
     else {
@@ -232,9 +266,15 @@ final class WifiTransferConnection: @unchecked Sendable {
   }
 
   private func appendBody(_ data: Data) {
+    let nextTotal = bodyReceived + data.count
+    if nextTotal > WifiTransferFileSupport.maxUploadBytes {
+      cleanupPartialFile()
+      respond(status: 413, body: "File too large", contentType: "text/plain; charset=utf-8")
+      return
+    }
     do {
       try fileHandle?.write(contentsOf: data)
-      bodyReceived += data.count
+      bodyReceived = nextTotal
       if let contentLength, bodyReceived >= contentLength {
         completeUpload()
       }
@@ -263,7 +303,7 @@ final class WifiTransferConnection: @unchecked Sendable {
   }
 
   private func serveHTML() {
-    let html = WifiTransferHTML.page(languageCode: handlers.languageCode)
+    let html = WifiTransferHTML.page()
     respond(status: 200, body: html, contentType: "text/html; charset=utf-8")
   }
 
@@ -275,8 +315,11 @@ final class WifiTransferConnection: @unchecked Sendable {
     case 200: reason = "OK"
     case 201: reason = "Created"
     case 400: reason = "Bad Request"
+    case 401: reason = "Unauthorized"
     case 404: reason = "Not Found"
     case 405: reason = "Method Not Allowed"
+    case 411: reason = "Length Required"
+    case 413: reason = "Payload Too Large"
     default: reason = "Error"
     }
     let bodyData = Data(body.utf8)
@@ -284,7 +327,6 @@ final class WifiTransferConnection: @unchecked Sendable {
     response += "Content-Type: \(contentType)\r\n"
     response += "Content-Length: \(bodyData.count)\r\n"
     response += "Connection: close\r\n"
-    response += "Access-Control-Allow-Origin: *\r\n"
     response += "\r\n"
     var payload = Data(response.utf8)
     payload.append(bodyData)
