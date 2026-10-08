@@ -121,10 +121,18 @@ def runtime_for(major, runtimes):
 
 
 def previous_tag():
-    tag = run(["git", "-C", str(REPO), "describe", "--tags", "--abbrev=0", "--match", "[0-9]*", "HEAD"]).strip()
-    if not tag:
-        raise SetupError("no release tag reachable from HEAD")
-    return tag
+    """The latest release tag reachable from HEAD that isn't on HEAD itself.
+
+    Normally HEAD isn't tagged (the skill checks before the version bump). When the check is run by hand on a
+    released commit, HEAD's own tag is the release being checked, so the upgrade starts from the one before it.
+    """
+    cmd = ["git", "-C", str(REPO), "describe", "--tags", "--abbrev=0", "--match", "[0-9]*"]
+    for own_tag in run(["git", "-C", str(REPO), "tag", "--points-at", "HEAD"]).split():
+        cmd += ["--exclude", own_tag]
+    try:
+        return run(cmd + ["HEAD"]).strip()
+    except subprocess.CalledProcessError:
+        raise SetupError("no earlier release tag reachable from HEAD; pass --previous")
 
 
 # MARK: - Building
@@ -275,7 +283,7 @@ class Simulator:
         self.udid = self._find_or_create()
 
     def _find_or_create(self):
-        devices = json.loads(run(["xcrun", "simctl", "list", "devices", "-j"]))["devices"]
+        devices = json.loads(run(["xcrun", "simctl", "list", "devices", "-j"], timeout=SIMCTL_TIMEOUT))["devices"]
         for runtime_id, entries in devices.items():
             for device in entries:
                 if device["name"] != self.name:
@@ -283,7 +291,8 @@ class Simulator:
                 if runtime_id == self.runtime["identifier"] and device.get("isAvailable", True):
                     return device["udid"]
                 self._delete(device["udid"])
-        return run(["xcrun", "simctl", "create", self.name, self.device_type, self.runtime["identifier"]]).strip()
+        return run(["xcrun", "simctl", "create", self.name, self.device_type, self.runtime["identifier"]],
+                   timeout=SIMCTL_TIMEOUT).strip()
 
     @staticmethod
     def _delete(udid):
@@ -314,7 +323,7 @@ class Simulator:
                 log(f"{self.name}: stuck resetting ({type(error).__name__}), recreating it")
                 self._delete(self.udid)
                 self.udid = run(["xcrun", "simctl", "create", self.name, self.device_type,
-                                 self.runtime["identifier"]]).strip()
+                                 self.runtime["identifier"]], timeout=SIMCTL_TIMEOUT).strip()
 
     def copy_fixtures(self, bundle_id, fixtures):
         container = run(["xcrun", "simctl", "get_app_container", self.udid, bundle_id, "data"], timeout=SIMCTL_TIMEOUT)
@@ -525,6 +534,10 @@ def check(args):
         raise SetupError("no iOS version to test")
     log("testing on " + ", ".join(f"iOS {r['version']}" for _, r, _ in plan))
 
+    if args.version and subprocess.run(["git", "-C", str(REPO), "rev-parse", "-q", "--verify", f"refs/tags/{args.version}"],
+                                       capture_output=True).returncode == 0:
+        raise SetupError(f"tag {args.version} already exists; --version is the release being prepared, which isn't "
+                         "tagged yet (to recheck a shipped build, run without --version)")
     tag = args.previous or previous_tag()
     ensure_debug_xcconfig(REPO)
     products = build(REPO, out / "DerivedData")
