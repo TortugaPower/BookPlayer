@@ -205,6 +205,7 @@
 "wifi_transfer_no_wifi_message" = "Connect this device to Wi‑Fi to use transfer.";
 "wifi_transfer_start_failed_message" = "Could not start the transfer server. Try again.";
 "wifi_transfer_last_file_format" = "Received: %@";
+"wifi_transfer_import_failed_message" = "Could not import the uploaded folder.";
 "storage_fix_file_button" = "Fix";
 "storage_fix_file_description" = "The book item is missing, if the corresponding item cannot be found, a new one will be created";
 "bookmarks_title" = "Bookmarks";

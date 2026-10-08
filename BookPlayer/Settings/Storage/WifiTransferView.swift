@@ -16,6 +16,10 @@ struct WifiTransferView: View {
   @State private var isEnabled = false
   @State private var copied = false
 
+  private var canStart: Bool {
+    networkMonitor.isConnectedViaWiFi
+  }
+
   var body: some View {
     Form {
       ThemedSection {
@@ -23,25 +27,32 @@ struct WifiTransferView: View {
           isOn: Binding(
             get: { isEnabled },
             set: { newValue in
-              isEnabled = newValue
-              if newValue {
-                wifiTransferServer.start()
-              } else {
+              guard newValue else {
+                isEnabled = false
                 wifiTransferServer.stop()
+                return
               }
+              guard canStart else {
+                isEnabled = false
+                wifiTransferServer.start(isOnWiFi: false)
+                return
+              }
+              isEnabled = true
+              wifiTransferServer.start(isOnWiFi: true)
             }
           )
         ) {
           Text("wifi_transfer_toggle_title".localized)
             .foregroundStyle(theme.primaryColor)
         }
+        .disabled(!canStart && !isEnabled)
         .accessibilityLabel("wifi_transfer_toggle_title".localized)
       } footer: {
         Text("wifi_transfer_footer".localized)
           .foregroundStyle(theme.secondaryColor)
       }
 
-      if !networkMonitor.isConnectedViaWiFi {
+      if !canStart {
         ThemedSection {
           Text("wifi_transfer_no_wifi_message".localized)
             .bpFont(.body)
@@ -97,19 +108,23 @@ struct WifiTransferView: View {
     .navigationTitle("wifi_transfer_title".localized)
     .navigationBarTitleDisplayMode(.inline)
     .onAppear {
-      if isEnabled, !wifiTransferServer.isRunning {
-        wifiTransferServer.start()
+      if isEnabled, canStart, !wifiTransferServer.isRunning {
+        wifiTransferServer.start(isOnWiFi: true)
       }
     }
     .onDisappear {
       isEnabled = false
       wifiTransferServer.stop()
     }
+    .onChange(of: canStart) { _, onWiFi in
+      if !onWiFi, isEnabled {
+        isEnabled = false
+        wifiTransferServer.stop()
+      }
+    }
     .onChange(of: wifiTransferServer.status) { _, newStatus in
       switch newStatus {
-      case .failed:
-        isEnabled = false
-      case .stopped:
+      case .failed, .stopped:
         isEnabled = false
       case .running:
         copied = false

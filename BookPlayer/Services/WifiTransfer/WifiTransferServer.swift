@@ -33,8 +33,6 @@ final class WifiTransferServer: ObservableObject, BPLogger {
   private var listener: NWListener?
   private var connections: [ObjectIdentifier: WifiTransferConnection] = [:]
   private var backgroundObserver: NSObjectProtocol?
-  private var pathMonitor: NWPathMonitor?
-  private let pathQueue = DispatchQueue(label: "com.bookplayer.wifi-transfer.path")
 
   init() {
     backgroundObserver = NotificationCenter.default.addObserver(
@@ -52,7 +50,6 @@ final class WifiTransferServer: ObservableObject, BPLogger {
     if let backgroundObserver {
       NotificationCenter.default.removeObserver(backgroundObserver)
     }
-    pathMonitor?.cancel()
     listener?.cancel()
   }
 
@@ -65,10 +62,20 @@ final class WifiTransferServer: ObservableObject, BPLogger {
     return false
   }
 
-  func start() {
+  var preferredLanguageCode: String {
+    Bundle.main.preferredLocalizations.first ?? "en"
+  }
+
+  /// - Parameter isOnWiFi: must be true; cellular-only starts are rejected.
+  func start(isOnWiFi: Bool) {
     guard !isRunning, status != .starting else { return }
     status = .starting
     serverURL = nil
+
+    guard isOnWiFi else {
+      status = .failed("wifi_transfer_no_wifi_message".localized)
+      return
+    }
 
     guard let host = Self.localIPv4Address() else {
       status = .failed("wifi_transfer_no_wifi_message".localized)
@@ -79,8 +86,6 @@ final class WifiTransferServer: ObservableObject, BPLogger {
   }
 
   func stop() {
-    pathMonitor?.cancel()
-    pathMonitor = nil
     for connection in connections.values {
       connection.cancel()
     }
@@ -163,25 +168,92 @@ final class WifiTransferServer: ObservableObject, BPLogger {
   }
 
   private func accept(_ connection: NWConnection) {
+    let languageCode = preferredLanguageCode
     let handler = WifiTransferConnection(
       connection: connection,
-      stagingDirectory: DataManager.getDocumentsFolderURL()
-    ) { [weak self] url in
-      Task { @MainActor in
-        self?.handleUploadedFile(url)
-      }
-    } onFinished: { [weak self] id in
-      Task { @MainActor in
-        self?.connections.removeValue(forKey: id)
-      }
-    }
+      stagingDirectory: WifiTransferFileSupport.stagingRootURL,
+      handlers: WifiTransferConnection.Handlers(
+        onLooseFile: { [weak self] url in
+          Task { @MainActor in
+            self?.handleLooseFile(url)
+          }
+        },
+        onImportRoot: { [weak self] root in
+          // Connection I/O runs on a background queue; hop to main and wait.
+          var result: Result<Void, String> = .failure("wifi_transfer_import_failed_message".localized)
+          let group = DispatchGroup()
+          group.enter()
+          DispatchQueue.main.async {
+            result = self?.importRootFolder(root)
+              ?? .failure("wifi_transfer_import_failed_message".localized)
+            group.leave()
+          }
+          _ = group.wait(timeout: .now() + 15)
+          return result
+        },
+        languageCode: languageCode,
+        onFinished: { [weak self] id in
+          Task { @MainActor in
+            self?.connections.removeValue(forKey: id)
+          }
+        }
+      )
+    )
     connections[ObjectIdentifier(handler)] = handler
     handler.start()
   }
 
-  private func handleUploadedFile(_ url: URL) {
-    lastUploadedFilename = url.lastPathComponent
-    importManager?.process(url)
+  private func handleLooseFile(_ stagedURL: URL) {
+    do {
+      let documents = DataManager.getDocumentsFolderURL()
+      let destination = WifiTransferFileSupport.uniqueFileURL(
+        filename: stagedURL.lastPathComponent,
+        in: documents
+      )
+      if FileManager.default.fileExists(atPath: destination.path) {
+        try FileManager.default.removeItem(at: destination)
+      }
+      try FileManager.default.moveItem(at: stagedURL, to: destination)
+      lastUploadedFilename = destination.lastPathComponent
+      importManager?.process(destination)
+    } catch {
+      Self.logger.error("Wi‑Fi transfer loose file move failed: \(error.localizedDescription)")
+      try? FileManager.default.removeItem(at: stagedURL)
+    }
+  }
+
+  private func importRootFolder(_ root: String) -> Result<Void, String> {
+    guard let root = WifiTransferFileSupport.sanitizedRootFolder(from: root) else {
+      return .failure("wifi_transfer_import_failed_message".localized)
+    }
+    let stagedFolder = WifiTransferFileSupport.stagingRootURL
+      .appendingPathComponent(root, isDirectory: true)
+    var isDirectory: ObjCBool = false
+    guard FileManager.default.fileExists(atPath: stagedFolder.path, isDirectory: &isDirectory),
+      isDirectory.boolValue
+    else {
+      return .failure("wifi_transfer_import_failed_message".localized)
+    }
+
+    let documents = DataManager.getDocumentsFolderURL()
+    var destination = documents.appendingPathComponent(root, isDirectory: true)
+    if FileManager.default.fileExists(atPath: destination.path) {
+      var index = 1
+      repeat {
+        destination = documents.appendingPathComponent("\(root) (\(index))", isDirectory: true)
+        index += 1
+      } while FileManager.default.fileExists(atPath: destination.path)
+    }
+
+    do {
+      try FileManager.default.moveItem(at: stagedFolder, to: destination)
+      lastUploadedFilename = destination.lastPathComponent
+      importManager?.process(destination)
+      return .success(())
+    } catch {
+      Self.logger.error("Wi‑Fi transfer folder import failed: \(error.localizedDescription)")
+      return .failure("wifi_transfer_import_failed_message".localized)
+    }
   }
 
   /// IPv4 on the Wi‑Fi interface (`en0`), else first non-loopback IPv4.
