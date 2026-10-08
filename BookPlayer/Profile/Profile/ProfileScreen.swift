@@ -12,4 +12,5 @@ enum ProfileScreen: Hashable {
   case account
   /// Every queued task, one collapsible section per lane
   case queueTasks
+  case listeningHistory
 }
