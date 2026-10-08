@@ -488,8 +488,20 @@ extension AppDelegate {
   }
 
   func handleAppRefresh(task: BGAppRefreshTask) {
-    guard let syncQueueService = AppServices.shared.coreServices?.syncQueueService else { return }
+    // On a cold launch into this task the services can still be loading, and returning
+    // without them would leave the task never completed
+    Task { @MainActor in
+      guard let syncQueueService = try? await AppServices.shared.awaitCoreServices().syncQueueService else {
+        self.scheduleAppRefresh()
+        task.setTaskCompleted(success: false)
+        return
+      }
 
+      self.runAppRefresh(task, syncQueueService: syncQueueService)
+    }
+  }
+
+  private func runAppRefresh(_ task: BGAppRefreshTask, syncQueueService: SyncQueueService) {
     // A gated sync lane (sync off) never drains, so waiting on it would only hold the
     // window open until expiration
     guard syncQueueService.serverLanesEnabled else {
