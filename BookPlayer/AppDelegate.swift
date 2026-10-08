@@ -78,6 +78,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
     self.setupRevenueCat()
     // Setup Sentry
     self.setupSentry()
+    // Drop Wi‑Fi transfer staging left by a previous crash / force-quit
+    WifiTransferFileSupport.clearStagingDirectory()
     // Setup core services
     AppServices.shared.setupCoreServices()
 
