@@ -452,9 +452,10 @@ public class JellyfinConnectionService: BPLogger {
     return (items, nextStartItemIndex, maxNumItems)
   }
 
-  /// Hydrates the given item ids with their media sources (container/path), which list
-  /// responses don't carry. Virtual import requires the REAL file extension — items the
-  /// server reports without one are skipped by the importer, never guessed.
+  /// Hydrates the given item ids with their media sources (container/path) and chapters, which
+  /// list responses don't carry. Virtual import requires the REAL file extension — items the
+  /// server reports without one are skipped by the importer, never guessed. The chapter refresh
+  /// uses it too, for streamed books that arrived through sync with none.
   public func fetchItems(ids: [String]) async throws -> [JellyfinLibraryItem] {
     guard !ids.isEmpty else { return [] }
 
@@ -466,8 +467,10 @@ public class JellyfinConnectionService: BPLogger {
       let chunk = Array(ids[start..<min(start + chunkSize, ids.count)])
       var parameters = Paths.GetItemsParameters()
       parameters.ids = chunk
+      /// `MediaSources` also carries the runtime that bounds the last chapter for an item
+      /// Jellyfin hasn't probed at the item level — without a runtime the whole list is dropped.
       parameters.fields = [.mediaSources, .path, .chapters]
-      parameters.enableUserData = true
+      parameters.enableUserData = false
       let response = try await send(Paths.getItems(parameters: parameters))
       try Task.checkCancellation()
       hydrated.append(
@@ -723,29 +726,6 @@ public class JellyfinConnectionService: BPLogger {
       playedPercentage: percentCompleted
     )
     _ = try await send(Paths.updateItemUserData(itemID: itemId, userDataDto))
-  }
-
-  /// Batch-fetches the Jellyfin items backing the given synced external resources with their
-  /// chapters, keyed by provider item id — one round-trip instead of N when refreshing a list.
-  public func fetchItemsWithChapters(
-    _ externalResources: [SimpleExternalResource]
-  ) async throws -> [String: JellyfinLibraryItem] {
-    guard !externalResources.isEmpty, let myId = connection?.userID else { return [:] }
-
-    var parameters = Paths.GetItemsParameters(userID: myId, ids: externalResources.map(\.providerId))
-    /// Both fields are opt-in and both are needed: `Chapters` is the list itself, and
-    /// `MediaSources` carries the runtime that bounds the last chapter for an item Jellyfin
-    /// hasn't probed at the item level — without a runtime the whole list is dropped.
-    parameters.fields = [.chapters, .mediaSources]
-
-    let response = try await send(Paths.getItems(parameters: parameters))
-
-    var itemsDictionary: [String: JellyfinLibraryItem] = [:]
-    for item in response.value.items ?? [] {
-      guard let jellyfinItem = JellyfinLibraryItem(apiItem: item) else { continue }
-      itemsDictionary[jellyfinItem.id] = jellyfinItem
-    }
-    return itemsDictionary
   }
 
   public func fetchAudiobookDownloadRequests(for folderID: String) async throws -> [URLRequest] {

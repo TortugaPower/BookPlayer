@@ -104,15 +104,19 @@ class ExternalUpdateProgressOperation: AsyncOperation, BPLogger, @unchecked Send
   /// ABS surfaces non-2xx as `IntegrationError.unexpectedResponse`; Jellyfin's SDK
   /// surfaces them as `Get.APIError.unacceptableStatusCode` (401/403 are already mapped
   /// to `sessionExpired` upstream when a connection exists).
+  /// Every 4xx but two: 408 (the server stopped waiting for the request) and 429 (rate limited,
+  /// usually by a proxy in front of the server) both mean "try again later".
   private static func isPermanentRejection(_ error: Error) -> Bool {
+    let status: Int
     switch error {
-    case IntegrationError.unexpectedResponse(let code?) where (400...499).contains(code):
-      return true
-    case APIError.unacceptableStatusCode(let status) where (400...499).contains(status):
-      return true
+    case IntegrationError.unexpectedResponse(let code?):
+      status = code
+    case APIError.unacceptableStatusCode(let code):
+      status = code
     default:
       return false
     }
+    return (400...499).contains(status) && ![408, 429].contains(status)
   }
 
   func doJellyfinUpdate() async throws {

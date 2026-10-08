@@ -69,6 +69,8 @@ extension MediaServerChapterProviding {
 public struct JellyfinChapterProvider: MediaServerChapterProviding {
   public init() {}
 
+  /// The import's own lookup, chapters included: it asks in batches, so a folder of hundreds of
+  /// books can't overflow the URL.
   public func chapters(for resources: [SimpleExternalResource]) async throws -> [String: [ChapterMetadata]] {
     let service = JellyfinConnectionService()
     await service.setup()
@@ -78,8 +80,8 @@ public struct JellyfinChapterProvider: MediaServerChapterProviding {
     for group in grouped(resources, by: await service.connections) {
       await service.useConnection(group.connection)
 
-      for (providerId, item) in try await service.fetchItemsWithChapters(group.resources) {
-        chapters[providerId] = item.chapters
+      for item in try await service.fetchItems(ids: group.resources.map(\.providerId)) {
+        chapters[item.id] = item.chapters
       }
     }
 
