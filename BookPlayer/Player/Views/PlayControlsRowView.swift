@@ -55,6 +55,7 @@ struct PlayControlsRowView: View {
         playerManager.playPause()
       }
         .accessibilityLabel(isPlaying ? "pause_title".localized : "play_title".localized)
+        .accessibilityIdentifier("player.playPause")
       Spacer()
       Spacer()
       PlayerJumpView(backgroundImage: forwardImage, text: forwardLabelText, tintColor: Color(theme.linkColor)) {

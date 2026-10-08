@@ -355,6 +355,8 @@ struct ItemListView: View {
         }
       }
     }
+    /// For the release-check UI tests: the row's label includes its progress, so they find it by path
+    .accessibilityIdentifier("library.row.\(item.relativePath)")
     .onAppear {
       Task {
         await model.prefetchIfNeeded(for: item)

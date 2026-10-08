@@ -43,6 +43,7 @@ struct ListeningProgressView: View {
           .bpFont(.miniPlayerTitle).monospacedDigit()
           .frame(maxWidth: .infinity, alignment: .leading)
           .accessibilityLabel(currentTimeAccessLabel)
+          .accessibilityIdentifier("player.currentTime")
         
         Spacer()
         
