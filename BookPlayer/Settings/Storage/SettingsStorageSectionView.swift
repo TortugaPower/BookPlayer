@@ -14,12 +14,17 @@ struct SettingsStorageSectionView: View {
   @EnvironmentObject var theme: ThemeViewModel
   
   var body: some View {
-    ThemedSection {
+      ThemedSection {
       NavigationLink(value: SettingsScreen.storage) {
         Text("settings_storage_description")
           .bpFont(.body)
       }
       .settingsRowBackground(for: .storage)
+      NavigationLink(value: SettingsScreen.wifiTransfer) {
+        Text("wifi_transfer_settings_row")
+          .bpFont(.body)
+      }
+      .settingsRowBackground(for: .wifiTransfer)
       if accessLevel == .pro {
         NavigationLink(value: SettingsScreen.syncbackup) {
           Text("settings_storage_sync_deleted_description")

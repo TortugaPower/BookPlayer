@@ -12,7 +12,7 @@ import SwiftUI
 enum SettingsScreen: String, Hashable {
   case themes, icons
   case controls, autoplay, autolock
-  case storage, syncbackup
+  case storage, syncbackup, wifiTransfer
   case shortcuts
   case mediaServers, hardcover
   case tipjar
