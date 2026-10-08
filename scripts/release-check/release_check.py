@@ -378,7 +378,14 @@ def run_chain(simulator, chain, logs, bundle_id, attempt):
             continue
         for step in steps:
             if callable(step):
-                step(simulator)
+                # A setup step that errors or hangs (e.g. simctl) is a non-crash failure, so it gets the retry
+                try:
+                    step(simulator)
+                except (subprocess.TimeoutExpired, subprocess.CalledProcessError, OSError) as error:
+                    simulator.screenshot(logs / f"{scenario}-failed-attempt{attempt}.png")
+                    outcome[scenario] = StepFailure(f"setup: {error}", crashed=False)
+                    failed = True
+                    break
                 continue
             xctestrun, test = step
             failure = run_test(simulator, xctestrun, test, logs / f"{scenario}-{test}-attempt{attempt}.log", bundle_id)
