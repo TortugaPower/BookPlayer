@@ -34,7 +34,7 @@ The on-disk tree is deeply misleading. Before judging *where* code should live, 
 
 ## Targets & dependency rule
 
-Nine native targets in `BookPlayer.xcodeproj` (no `Package.swift`, no app `.xcworkspace`):
+Ten native targets in `BookPlayer.xcodeproj` (no `Package.swift`, no app `.xcworkspace`):
 
 | Target | Product / type | Role | Source |
 |---|---|---|---|
@@ -47,6 +47,7 @@ Nine native targets in `BookPlayer.xcodeproj` (no `Package.swift`, no app `.xcwo
 | `BookPlayerIntents` | app-extension | **legacy SiriKit** `INExtension` | `BookPlayerIntents/` |
 | `BookPlayerShareExtension` | app-extension | Share-sheet import | `BookPlayerShareExtension/` |
 | `BookPlayerTests` | "Audiobook PlayerTests" · unit-test | Unit + perf tests | `BookPlayerTests/` |
+| `BookPlayerUITests` | UI-test bundle | **Release check only** (never CI), see below | `BookPlayerUITests/` |
 
 **Dependency rule:** app → `BookPlayerKit` (`import BookPlayerKit`). `Shared/` must **not** import app-layer
 types — that breaks the framework boundary and is a 🔴 finding. Watch/shared code selects the framework with:
@@ -80,6 +81,20 @@ a build phase) and its output is committed.
   `test-without-building` with the **`Unit Tests`** test plan, `-only-testing:BookPlayerTests`, simulator
   `iPhone 17`. It first copies `Debug.template.xcconfig` → `Debug.xcconfig`. Triggers on push to `main`/`develop`
   and PRs to `develop`.
+- **Release check** (`scripts/release-check/release_check.py`): run locally by the iOS release skill before a
+  release is tagged, **never by CI**. It builds the **Release** configuration for the simulator through the shared
+  `ReleaseCheck` scheme (CI's `BookPlayer` scheme and `Unit Tests` plan don't include `BookPlayerUITests`) and runs
+  four scenarios per supported iOS major (deployment target → SDK, minus the script's `SKIPPED_MAJORS`): fresh
+  launch, import, playback, and upgrade from the previous release (cached in `~/Library/Caches/BookPlayerReleaseCheck/`).
+  A failure with a crash report fails at once; one without gets a single retry on a reset simulator and is
+  reported as "passed on retry" if it then passes (simulators flake; a crash never gets a second chance). If the
+  *previous* release crashes on an iOS version, the upgrade there starts from the release before it (its users never
+  had data in the crashing one), and is reported as not tested if that one crashes too. It exists because 5.22.1
+  crashed at launch on iOS < 27 while every check ran on iOS 27. The tests find the UI by four
+  `accessibilityIdentifier`s (`library.row.<relativePath>`, `miniPlayer.info`, `player.playPause`,
+  `player.currentTime`) and by the English labels "Done" (Import sheet) and "Library" (placement prompt); keep
+  `BookPlayerUITests/ReleaseCheckUITests.swift` in step when changing those.
+  The upgrade scenario drives the *previous* release with labels only, since older builds lack the identifiers.
 - **Lint/format is enforced by tools — do NOT flag style they own.** `.swiftlint.yml` **disables**: `line_length`,
   `identifier_name`, `type_name`, `type_body_length`, `file_length`, `nesting`, `force_try`, `trailing_comma`,
   `trailing_newline`, `trailing_whitespace`, `switch_case_alignment`, `private_over_fileprivate`, `opening_brace`,
@@ -484,3 +499,6 @@ The crash surfaces and invariants most likely to be broken by a change. (The ful
 12. **`BookPlayerKit` boundary:** `Shared/` importing app-layer types.
 13. **Integration session-expiry / token contracts** (see the integrations section).
 14. Hand-editing `Generated/AutoMockable.generated.swift`; adding code to a top-level **empty stub** folder.
+15. **SDK-only result-builder content:** an `if` or several statements inside a `ForEach` that builds rotor or toolbar
+    content uses `Optional`/`TupleContent` conformances that, with the iOS 27 SDK, exist only on iOS 27 → launch
+    crash on older iOS (5.22.1). Filter the data before the `ForEach` instead.
