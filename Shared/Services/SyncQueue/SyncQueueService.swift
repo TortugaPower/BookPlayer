@@ -78,6 +78,11 @@ public protocol SyncQueueServiceProtocol {
   /// on wakes them.
   func setServerLanesEnabled(_ enabled: Bool)
 
+  /// Re-derives the per-job policy from the account's current level. `SyncService` calls it
+  /// on every account change, before it turns the server lanes on, so a worker never runs a
+  /// held task under the previous tier's policy.
+  func refreshAccessPolicy()
+
   /// The user's Retry on a parked task: back to pending, and its lane wakes. Returns once
   /// the task is pending again.
   func retryPausedTask(id: String) async
@@ -226,7 +231,6 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
     self.tasksDataManager = tasksDataManager
     startListeningForNewTasks()
     bindObservers()
-    bindAccountObserver()
     // Policy BEFORE workers: createOperation consults accessPolicy to decide whether a
     // persisted upload may run — waking workers first only worked because wakeUpWorkers
     // happens to suspend on the repository actor before any pop
@@ -236,18 +240,10 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
     wakeUpWorkers(resumingPausedTasks: true)
   }
 
-  /// Ownership norm (same as SyncService): the service re-derives its own per-job
-  /// policy on account changes — no per-platform coordinator wiring to forget.
-  /// RevenueCat updates post .accountUpdate; without this, a mid-session upgrade left
-  /// the launch-time policy (file uploads still gated off) until the next app start.
-  func bindAccountObserver() {
-    NotificationCenter.default.publisher(for: .accountUpdate, object: nil)
-      .receive(on: DispatchQueue.main)
-      .sink { [weak self] _ in
-        guard let self else { return }
-        self.updateAccessPolicy(self.getAccessLevel())
-      }
-      .store(in: &disposeBag)
+  /// Nothing to derive before `setup` hands over the account read
+  public func refreshAccessPolicy() {
+    guard let getAccessLevel else { return }
+    updateAccessPolicy(getAccessLevel())
   }
 
   func bindObservers() {

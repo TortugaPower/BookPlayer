@@ -484,7 +484,10 @@ lines). It is the highest-risk file in the app.
 - **Sync = the `pro` OR `lite` entitlement** (`hasSyncEnabled()`); `lite` gets DB-backed sync only —
   S3 file uploads are gated per-job via `SyncQueueService.accessPolicy` (`.uploadFile` is pro-only,
   `.externalUpdate` — progress pushes to the USER'S OWN media server — is available on every tier,
-  matching the Android app). Nothing pulls a media server's position back. The media-server chapter refresh is
+  matching the Android app). The policy is set in the queue's `setup`, then refreshed only by `SyncService`'s
+  `.accountUpdate` listener (`refreshAccessPolicy()`), first thing as the update arrives, before the main-actor step
+  that turns the lanes on: the queue has no listener of its own, so a worker can't take a held upload under the
+  previous tier's policy and drop it. Nothing pulls a media server's position back. The media-server chapter refresh is
   gated on `accountService.hasSyncEnabled()` (lite/pro), read live on every refresh: only a synced library
   brings streamed books without chapters.
   Job types (`SyncJobType`): `upload, update, move, renameFolder, delete, shallowDelete, setBookmark,

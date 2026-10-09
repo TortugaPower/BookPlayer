@@ -320,7 +320,7 @@ extension ExtensionDelegate: PurchasesDelegate {
     coreServices?.updateSyncEnabled(enableSync)
 
     // Same route as iOS's MainCoordinator delegate: AccountService derives the level
-    // and posts .accountUpdate, which SyncQueueService (and SyncService) observe —
+    // and posts .accountUpdate, which SyncService observes (for the queue's policy too) —
     // this replaced a hand-rolled entitlement parse forwarded manually to the queue.
     coreServices?.accountService.updateAccount(from: customerInfo)
   }

@@ -509,6 +509,26 @@ extension MissingItemsPassTests {
     XCTAssertFalse(defaults.bool(forKey: Constants.UserDefaults.lastKnownProAccess))
   }
 
+  /// An account update gives the queue the new tier's policy before the lanes turn on. The
+  /// refresh runs as the update is delivered, the lanes only in a later main-actor step, so a
+  /// worker can't take a held upload under the old policy and drop it (a PRO user whose launch
+  /// read was stale until RevenueCat answered)
+  func testAccountUpdate_refreshesTheUploadPolicyBeforeTheLanesTurnOn() async throws {
+    sync = launch(isActive: false, runsMissingItemsPass: true)
+    let account = account!
+    queue.getAccessLevel = { account.getAccessLevel() }
+    queue.accessPolicy = [.uploadFile: false, .externalUpdate: true]
+    account.account = accountRow(id: "user-1")
+    account.hasSyncEnabledValue = true
+    account.accessLevelValue = .pro
+
+    NotificationCenter.default.post(name: .accountUpdate, object: nil)
+
+    XCTAssertEqual(queue.accessPolicy[.uploadFile], true)
+    XCTAssertFalse(queue.serverLanesEnabled, "the lanes turn on in a later main-actor step")
+    try await waitUntil { queue.serverLanesEnabled }
+  }
+
   /// An account row with this id: blank is how a signed-out account stays behind
   private func accountRow(id: String) -> Account {
     let row = Account(context: dataManager.getContext())

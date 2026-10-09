@@ -253,36 +253,6 @@ final class SyncQueueTests: XCTestCase {
   }
 }
 
-// MARK: - Policy ownership (self-refresh on account updates)
-
-extension SyncQueueTests {
-  /// The mid-session-upgrade pin: the service re-derives its per-job policy from
-  /// .accountUpdate on its own — no coordinator wiring. Before this, an upgrade left
-  /// file uploads gated off until the next app start unless every platform remembered
-  /// to forward the new level manually.
-  @MainActor
-  func testAccessPolicyRefreshesOnAccountUpdate() {
-    let service = SyncQueueService(maxConcurrentTasks: 1)
-    var level = AccessLevel.free
-    service.getAccessLevel = { level }
-    service.bindAccountObserver()
-    service.updateAccessPolicy(level)
-    XCTAssertEqual(service.accessPolicy[.uploadFile], false)
-
-    level = .pro
-    NotificationCenter.default.post(name: .accountUpdate, object: nil)
-
-    // The sink hops through DispatchQueue.main; one enqueued block after the post
-    // is guaranteed to run after the delivery.
-    let refreshed = expectation(description: "policy refreshed")
-    DispatchQueue.main.async { refreshed.fulfill() }
-    wait(for: [refreshed], timeout: 1)
-
-    XCTAssertEqual(service.accessPolicy[.uploadFile], true, "mid-session upgrade must reach the policy")
-    XCTAssertEqual(service.accessPolicy[.externalUpdate], true)
-  }
-}
-
 // MARK: - Queue counts (engine-owned)
 
 extension SyncQueueTests {

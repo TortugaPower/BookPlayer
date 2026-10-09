@@ -292,11 +292,17 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
       .store(in: &disposeBag)
 
     /// Sync ownership lives here, not in the views: any account/subscription change
-    /// re-derives whether syncing should be active. All logout paths post `.logout`
-    /// (handled above), so account-present-but-sync-disabled is the case we map here.
+    /// re-derives whether syncing should be active, and the queue's per-job policy. All
+    /// logout paths post `.logout` (handled above), so account-present-but-sync-disabled is
+    /// the case we map here.
     NotificationCenter.default.publisher(for: .accountUpdate, object: nil)
       .sink(receiveValue: { [weak self] _ in
-        guard let self, self.accountService.hasAccount() else { return }
+        guard let self else { return }
+        // The policy first, and right here: `.accountUpdate` is posted on main and the lanes
+        // only turn on in a later main-actor step, so no worker can take a held upload under
+        // the previous tier's policy (which would drop it as not allowed)
+        self.syncQueueService.refreshAccessPolicy()
+        guard self.accountService.hasAccount() else { return }
         self.updateSyncEnabled(self.accountService.hasSyncEnabled())
         self.noteProAccess()
       })
