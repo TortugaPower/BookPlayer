@@ -65,7 +65,7 @@ struct MediaServersView: View {
         servers: jellyfinService.connections.map(ServerRow.init)
       )
       section(
-        title: "AudiobookShelf",
+        title: "Audiobookshelf",
         kind: .audiobookshelf,
         servers: audiobookshelfService.connections.map(ServerRow.init)
       )
@@ -372,7 +372,7 @@ private struct AddServerAudiobookShelfSheet: View {
   }
 
   var body: some View {
-    IntegrationConnectionFlowView(viewModel: viewModel, kind: .audiobookshelf, integrationName: "AudiobookShelf")
+    IntegrationConnectionFlowView(viewModel: viewModel, kind: .audiobookshelf, integrationName: "Audiobookshelf")
       .environmentObject(theme)
       .onChange(of: viewModel.signInCompletedAt) { _, newValue in
         guard newValue != nil else { return }
@@ -440,7 +440,7 @@ private struct ConnectionDetailsAudiobookShelfSheet: View {
 
   var body: some View {
     NavigationStack {
-      IntegrationConnectionView(viewModel: viewModel, integrationName: "AudiobookShelf")
+      IntegrationConnectionView(viewModel: viewModel, integrationName: "Audiobookshelf")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
           ToolbarItem(placement: .confirmationAction) {

@@ -10,10 +10,6 @@ import Foundation
 import JellyfinAPI
 
 public struct JellyfinLibraryItem: IntegrationLibraryItemProtocol {
-  public static func == (lhs: JellyfinLibraryItem, rhs: JellyfinLibraryItem) -> Bool {
-    return lhs.id == rhs.id
-  }
-  
   public enum Kind {
     case userView
     case folder

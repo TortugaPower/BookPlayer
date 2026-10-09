@@ -231,7 +231,7 @@ class PlayerManagerTests: XCTestCase {
       failure.phoneMessage,
       String(
         format: "integration_error_missing_connection_address".localized,
-        "AudiobookShelf",
+        "Audiobookshelf",
         "https://abs.example.com"
       )
     )

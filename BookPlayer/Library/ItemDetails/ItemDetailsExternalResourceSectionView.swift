@@ -28,7 +28,7 @@ struct ItemDetailsExternalResourceSectionView: View {
             Text("provider_title")
               .bold()
             Spacer()
-            Text(resource.providerName.capitalized)
+            Text(resource.mediaServer?.displayName ?? resource.providerName.capitalized)
               .lineLimit(1)
           }
 

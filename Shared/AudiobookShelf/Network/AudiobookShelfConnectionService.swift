@@ -123,7 +123,7 @@ public class AudiobookShelfConnectionService: BPLogger {
       let success = json["success"] as? Bool, success
     {
       // Return a friendly server name based on the URL
-      let host = url.host ?? "AudiobookShelf Server"
+      let host = url.host ?? "Audiobookshelf Server"
       return host
     }
 

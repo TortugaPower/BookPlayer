@@ -33,7 +33,7 @@ extension ExternalResource {
     public var displayName: String {
       switch self {
       case .jellyfin: "Jellyfin"
-      case .audiobookshelf: "AudiobookShelf"
+      case .audiobookshelf: "Audiobookshelf"
       }
     }
   }

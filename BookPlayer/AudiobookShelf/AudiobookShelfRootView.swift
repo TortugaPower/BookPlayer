@@ -189,7 +189,7 @@ struct AudiobookShelfRootView: View {
     .sheet(isPresented: $showConnectionForm) {
       // The flow owns its NavigationStack and its own cancel affordances (Cancel for Add Server,
       // an X otherwise) — no outer wrapping.
-      IntegrationConnectionFlowView(viewModel: connectionViewModel, kind: .audiobookshelf, integrationName: "AudiobookShelf")
+      IntegrationConnectionFlowView(viewModel: connectionViewModel, kind: .audiobookshelf, integrationName: "Audiobookshelf")
         .environmentObject(theme)
     }
     .sheet(isPresented: $showLibraryPicker) {
@@ -436,7 +436,7 @@ private struct AudiobookShelfTabRoot: View {
     .tint(theme.linkColor)
     .sheet(isPresented: $showConnectionDetails) {
       NavigationStack {
-        IntegrationSettingsView(integrationName: "AudiobookShelf") {
+        IntegrationSettingsView(integrationName: "Audiobookshelf") {
           AudiobookShelfConnectionViewModel(
             connectionService: connectionService,
             mode: .viewDetails

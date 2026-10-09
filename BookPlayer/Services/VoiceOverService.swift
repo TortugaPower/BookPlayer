@@ -64,7 +64,7 @@ class VoiceOverService {
   /// Empty when the item isn't linked to a media server.
   private static func sourcePrefix(for item: SimpleLibraryItem) -> String {
     let providers = (item.externalResources?.displayOrderedMediaServerResources ?? [])
-      .map { $0.providerName.capitalized }
+      .map { $0.mediaServer?.displayName ?? $0.providerName.capitalized }
 
     guard !providers.isEmpty else { return "" }
 
