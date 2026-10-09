@@ -451,8 +451,9 @@ lines). It is the highest-risk file in the app.
   its key on the server). A Retry of that parked upload clears the mark (decided: the user asked for the upload),
   so the book is registered once more instead of parking again. Only a MEDIA-SERVER link (`SyncableItem.mediaServerProviderName`, never Hardcover) marks an
   `.upload` as provider-backed (its answer then schedules no file); such a book's file goes up once downloaded
-  through the sync-lane `externalResourceToDownload` job, which just schedules the upload (the old `external_set`
-  route is gone; `complete` marks the resources downloaded).
+  through the sync-lane `externalResourceToDownload` job, which just schedules the upload, on the phone only (the
+  watch keeps no media-server connections, so what it downloads came from the cloud). The old `external_set`
+  route is gone; `complete` marks the resources downloaded.
 - **Missing-items pass** (`SyncService.runMissingItemsPass`; contract in bookplayer-api `docs/multipart-uploads.md`):
   sends every local uuid in ONE `POST /v1/library/status` and gets `{ unknown, unsynced }` back. Unknown items
   (no server row, active or deleted) are first matched by path INLINE (`POST /uuids`, conflicts adopted in the

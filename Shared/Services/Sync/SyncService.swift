@@ -1203,7 +1203,12 @@ extension SyncService {
       hostId: externalResource.hostId
     )
     await libraryService.updateExternalResource(for: externalSyncItem, itemUuid: snapshot.uuid)
-    await jobManager.scheduleResourceToDownload(with: relativePath, for: snapshot.uuid)
+    // Phone only: the watch keeps no media-server connections, so whatever it downloads came
+    // from the cloud, which has the file (a link still reading `stream` there is stale, e.g.
+    // after Android's offload). Drop this if the watch ever downloads from a media server.
+    if runsMissingItemsPass {
+      await jobManager.scheduleResourceToDownload(with: relativePath, for: snapshot.uuid)
+    }
   }
 
   /// The streamed media-server link a finished download marks processed and uploads the file
