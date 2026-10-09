@@ -11,7 +11,8 @@ import SwiftUI
 struct WifiTransferView: View {
   @EnvironmentObject private var theme: ThemeViewModel
   @EnvironmentObject private var wifiTransferServer: WifiTransferServer
-  @Environment(\.networkMonitor) private var networkMonitor
+  /// Local monitor (not Environment default) so `@Observable` updates refresh this screen.
+  @State private var networkMonitor = NetworkMonitor()
 
   @AppStorage(WifiTransferFileSupport.Preferences.portKey)
   private var portStorage: Int = Int(WifiTransferFileSupport.defaultPort)
@@ -69,7 +70,6 @@ struct WifiTransferView: View {
           Text("wifi_transfer_toggle_title".localized)
             .foregroundStyle(theme.primaryColor)
         }
-        .disabled(!canStart && !isEnabled)
         .accessibilityLabel("wifi_transfer_toggle_title".localized)
       } footer: {
         Text("wifi_transfer_footer".localized)
