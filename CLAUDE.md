@@ -429,7 +429,7 @@ lines). It is the highest-risk file in the app.
   queues their files on becoming PRO. S3 is the source of truth: every run rebuilds from `GET /upload/parts` plus
   the session's tasks for the current `uploadId`, so a relaunch or a lost event resumes without re-sending. The
   resumable state (`uploadId`, `partSize`, `fileSize`, `restartCount`) lives on `UploadFileTaskModel`; parts are
-  sliced to `tmp/uploads/<uuid>/`; 64 MiB parts, 8 in flight (fewer on low disk), fresh part URLs every top-up
+  sliced to `tmp/uploads/<uuid>/`; 64 MiB parts, 8 in flight (fewer on low disk; with room for none it waits, checking again on the 30 s reconcile), fresh part URLs every top-up
   (403 = expired), up to 3 restarts (`upload_not_found`/`invalid_parts`/NoSuchUpload) before the task parks with
   the server's code — the dead upload is forgotten and the budget reset first, so a Retry starts fresh. `complete`
   answering `parts_missing` gets one pass that re-reads S3's list and re-sends the gaps; if that list shows every

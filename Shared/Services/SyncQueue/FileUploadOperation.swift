@@ -278,8 +278,8 @@ class FileUploadOperation: AsyncOperation, BPLogger, @unchecked Sendable {
     /// S3 lost or rejected the upload: forget it and start again. `cause` is the server's
     /// answer, used as the pause reason once the restart budget runs out.
     case restart(cause: Error)
-    /// A part keeps failing, or the disk has no room for one: fail the operation so the
-    /// queue retries it later, from S3's part list
+    /// A part keeps failing: fail the operation so the queue retries it later, from S3's
+    /// part list
     case retryLater(String)
 
     /// What `lastSyncError` shows
@@ -442,9 +442,10 @@ class FileUploadOperation: AsyncOperation, BPLogger, @unchecked Sendable {
           transport.startPart(uuid: uuid, uploadId: uploadId, partNumber: part.partNumber, file: partFile, url: part.url)
           active.insert(part.partNumber)
         }
-      } else if active.isEmpty {
-        throw UploadStop.retryLater("no disk space for the next part")
       }
+      // No room for a part, even with none in flight, waits like any other pass: each 30 s
+      // tick re-reads S3's list and the free space is checked again here, so the upload goes
+      // on once there's room. Failing instead meant the queue's 5 s retry, a request each time
 
       guard let event = await iterator.next() else { throw CancellationError() }
       switch event {
