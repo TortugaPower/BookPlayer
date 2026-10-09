@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		A6F006000000000000000001 /* ImportManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A6F006000000000000000002 /* ImportManagerTests.swift */; };
 		0199296D1E63EE13FC3558E6 /* WebAuthenticating.swift in Sources */ = {isa = PBXBuildFile; fileRef = 377C4C967D9AE1D471C2207C /* WebAuthenticating.swift */; };
 		0235B7EE8FA51C49AFBBBE71 /* IntegrationConnectionPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A8030B619D18CA088DAA40A /* IntegrationConnectionPayload.swift */; };
 		02C668174D24A70B4CD6FCB1 /* IntegrationConnectionStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 269BB56618B150DCAA2CA5FB /* IntegrationConnectionStoreTests.swift */; };
@@ -1072,6 +1073,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		A6F006000000000000000002 /* ImportManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportManagerTests.swift; sourceTree = "<group>"; };
 		056B7A76F1A44CEC30562382 /* IntegrationQuickConnectViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationQuickConnectViews.swift; sourceTree = "<group>"; };
 		0EA09FE5A35CEA0B87F83EF3 /* PreferencesSyncServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesSyncServiceTests.swift; sourceTree = "<group>"; };
 		0FC8B923A5506F865253B97C /* AppServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppServices.swift; sourceTree = "<group>"; };
@@ -2376,6 +2378,7 @@
 				69343D34213A079B000C425E /* Services */,
 				63833DF82AAC134600496246 /* PerformanceTests */,
 				4163E312214AC43000072AA2 /* ImportOperationTests.swift */,
+				A6F006000000000000000002 /* ImportManagerTests.swift */,
 				41C3CF7D20AEA5E5007C3EF4 /* DataManagerTests.swift */,
 				9F8A9A5D27AC3F8C0093AA1C /* PlayableItemTests.swift */,
 				689E2BCD29DC1D9253949A53 /* PlayableChapterTests.swift */,
@@ -5087,6 +5090,7 @@
 				9F8A9A5E27AC3F8C0093AA1C /* PlayableItemTests.swift in Sources */,
 				232F1DA50BB33EB5A629B8B7 /* PlayableChapterTests.swift in Sources */,
 				4163E313214AC43000072AA2 /* ImportOperationTests.swift in Sources */,
+				A6F006000000000000000001 /* ImportManagerTests.swift in Sources */,
 				0CEC6B48350FC9C0A0B7D1C0 /* SyncTasksStorageTests.swift in Sources */,
 				1A26F7D72FFD6D625A313FC5 /* AudioMetadataServiceTests.swift in Sources */,
 				466E4B7066F10717C8CE7B3E /* LibraryServiceReloadChaptersTests.swift in Sources */,
