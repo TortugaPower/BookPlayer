@@ -247,7 +247,26 @@ final class MediaServerStreamsTests: XCTestCase {
     )
   }
 
-  private func playableChapters(of folder: SimpleLibraryItem, source: ExternalStreamSource?) throws -> [PlayableChapter] {
+  /// Counts the resolves: each one reads the keychain
+  private final class CountingResolver: ExternalStreamResolving {
+    let source: ExternalStreamSource?
+    private(set) var calls = 0
+
+    init(source: ExternalStreamSource?) {
+      self.source = source
+    }
+
+    func streamSource(for resource: SimpleExternalResource) -> ExternalStreamSource? {
+      calls += 1
+      return source
+    }
+  }
+
+  private func playableChapters(
+    of folder: SimpleLibraryItem,
+    source: ExternalStreamSource?,
+    resolver: ExternalStreamResolving? = nil
+  ) throws -> [PlayableChapter] {
     let libraryService = LibraryServiceProtocolMock()
     libraryService.getChaptersFromReturnValue = [SimpleChapter(title: "Chapter", start: 0, duration: 10, index: 1)]
     libraryService.fetchContentsAtLimitOffsetReturnValue = [
@@ -255,9 +274,27 @@ final class MediaServerStreamsTests: XCTestCase {
       item("Vol/Disc 2 - 01.mp3", type: .book, uuid: "b2"),
     ]
     let sut = PlaybackService()
-    sut.setup(libraryService: libraryService, streamResolver: ResolverStub(source: source))
+    sut.setup(libraryService: libraryService, streamResolver: resolver ?? ResolverStub(source: source))
 
     return try sut.getPlayableChapters(folder: folder)
+  }
+
+  /// The volume's link is resolved once per load, not once per book
+  func testAVolumesLinkIsResolvedOncePerLoad() throws {
+    let resolver = CountingResolver(source: ExternalStreamSource(
+      location: .audiobookshelfItem(serverURL: serverURL, itemId: "li_1"),
+      headers: [:]
+    ))
+
+    let chapters = try playableChapters(
+      of: item("Vol", type: .bound, resources: [absResource()]),
+      source: nil,
+      resolver: resolver
+    )
+
+    XCTAssertEqual(chapters.count, 2)
+    XCTAssertTrue(chapters.allSatisfy(\.isStreamed))
+    XCTAssertEqual(resolver.calls, 1)
   }
 
   func testAVolumesBooksStreamThroughTheVolumesLink() throws {

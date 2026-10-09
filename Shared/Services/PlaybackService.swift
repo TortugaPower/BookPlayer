@@ -218,6 +218,9 @@ public final class PlaybackService: PlaybackServiceProtocol {
     let resource: SimpleExternalResource
     /// The volume's books in play order
     let bookUuids: [String]
+    /// `resource` resolved once for the whole load: every resolve reads the keychain, and a
+    /// volume can hold a hundred books
+    let source: ExternalStreamSource?
 
     func member(for book: SimpleLibraryItem) -> PlayableChapter.StreamLookup.Member {
       .volumeBook(
@@ -252,7 +255,12 @@ public final class PlaybackService: PlaybackServiceProtocol {
     let member: PlayableChapter.StreamLookup.Member = ownResource == nil
       ? volume?.member(for: book) ?? .item
       : .item
-    let streamSource = externalResource.flatMap { streamResolver.streamSource(for: $0) }
+    let streamSource: ExternalStreamSource?
+    if let ownResource {
+      streamSource = streamResolver.streamSource(for: ownResource)
+    } else {
+      streamSource = volume?.source
+    }
     var externalUrl: URL?
     var streamLookup: PlayableChapter.StreamLookup?
     switch streamSource?.location {
@@ -361,7 +369,11 @@ public final class PlaybackService: PlaybackServiceProtocol {
     // Only a volume lends its link: a plain folder's books are separate items
     let volume = folder.type == .bound
       ? folder.externalResources?.streamingResource.map {
-        VolumeStream(resource: $0, bookUuids: items.filter { $0.type == .book }.map(\.uuid))
+        VolumeStream(
+          resource: $0,
+          bookUuids: items.filter { $0.type == .book }.map(\.uuid),
+          source: streamResolver.streamSource(for: $0)
+        )
       }
       : nil
 
