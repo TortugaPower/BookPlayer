@@ -18,6 +18,7 @@ class MainCoordinator: NSObject {
   var mainController: UIViewController?
 
   let importManager: ImportManager
+  let transferServer: TransferServer
   let playerManager: PlayerManager
   let playerLoaderService: PlayerLoaderService
   let singleFileDownloadService: SingleFileDownloadService
@@ -47,6 +48,8 @@ class MainCoordinator: NSObject {
     self.navigationController = navigationController
     self.libraryService = coreServices.libraryService
     self.importManager = ImportManager(libraryService: coreServices.libraryService)
+    self.transferServer = TransferServer()
+    self.transferServer.configure(importManager: importManager)
     self.accountService = coreServices.accountService
     self.syncService = coreServices.syncService
     self.playbackService = coreServices.playbackService
@@ -96,6 +99,7 @@ class MainCoordinator: NSObject {
       }
       .environmentObject(singleFileDownloadService)
       .environmentObject(importManager)
+      .environmentObject(transferServer)
       .environmentObject(playerManager)
       .environmentObject(listSyncRefreshService)
       .environment(\.libraryService, libraryService)

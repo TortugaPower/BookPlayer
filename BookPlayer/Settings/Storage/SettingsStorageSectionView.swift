@@ -14,9 +14,13 @@ struct SettingsStorageSectionView: View {
   @EnvironmentObject var theme: ThemeViewModel
   
   var body: some View {
-    ThemedSection {
+      ThemedSection {
       NavigationLink(value: SettingsScreen.storage) {
         Text("settings_storage_description")
+          .bpFont(.body)
+      }
+      NavigationLink(value: SettingsScreen.transferServer) {
+        Text("transfer_server_settings_row")
           .bpFont(.body)
       }
       if accessLevel == .pro {
