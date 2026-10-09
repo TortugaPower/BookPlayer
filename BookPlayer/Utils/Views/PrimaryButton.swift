@@ -39,7 +39,11 @@ struct PrimaryButtonStyle: ButtonStyle {
       /// label looking undersized in a 48pt button next to Sign in with Apple, whose text
       /// scales with its height. It is also the conventional size for a full-width iOS button.
       .bpFont(.headline)
-      .frame(height: 48)
+      /// 48pt at the usual text sizes, taller when Dynamic Type makes the label taller: a fixed
+      /// height clipped it. The padding keeps a grown label clear of the capsule's ends.
+      .padding(.vertical, 8)
+      .padding(.horizontal, 16)
+      .frame(minHeight: 48)
       .frame(maxWidth: .infinity)
       .background(
         isEnabled

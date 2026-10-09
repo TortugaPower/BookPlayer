@@ -82,9 +82,17 @@ struct IntegrationAudiobookDetailsView<
         // gone. The entitlement question lives inside the button instead: allowStream
         // is hasStreamingEnabled() (anyone who has ever paid), and SynchronizeButton
         // routes to goToSubscribe() when it is false.
-        HStack(spacing: 12) {
-          DownloadButton
-          SynchronizeButton
+        // Side by side when both labels fit, stacked otherwise (accessibility text sizes,
+        // long translations): half the width each would truncate them
+        ViewThatFits(in: .horizontal) {
+          HStack(spacing: 12) {
+            DownloadButton
+            SynchronizeButton
+          }
+          VStack(spacing: 12) {
+            DownloadButton
+            SynchronizeButton
+          }
         }
         .padding(.horizontal)
         .padding(.vertical, 12)

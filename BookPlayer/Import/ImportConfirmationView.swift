@@ -86,6 +86,8 @@ struct ImportConfirmationView: View {
               }
               .buttonStyle(.plain)
               .accessibilityLabel("delete_button")
+              // Which file it removes: every row's button has the same label
+              .accessibilityHint(row.title)
 
               Image(systemName: row.icon)
                 .foregroundStyle(theme.linkColor)
