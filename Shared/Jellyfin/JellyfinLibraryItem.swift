@@ -71,8 +71,7 @@ extension JellyfinLibraryItem {
   /// runtime, so take it wherever it exists.
   ///
   /// Static and tick-typed rather than inline in the mapper so the resolution can be tested
-  /// without a `BaseItemDto`: `BookPlayerTests` declares no JellyfinAPI dependency, so a test
-  /// that names one of its types compiles but fails to LINK.
+  /// without building a `BaseItemDto`.
   static func resolveRuntimeSeconds(itemTicks: Int?, mediaSourceTicks: Int?) -> TimeInterval? {
     (itemTicks ?? mediaSourceTicks).map { TimeInterval($0) / 10000000.0 }
   }
@@ -81,8 +80,8 @@ extension JellyfinLibraryItem {
   /// and the last runs to the item's runtime. Without a runtime the final chapter has no
   /// end, so the whole list is dropped rather than storing one with a bogus length.
   ///
-  /// Tick-typed pairs rather than `[ChapterInfo]` so this is testable without JellyfinAPI,
-  /// which `BookPlayerTests` does not link.
+  /// Tick-typed pairs rather than `[ChapterInfo]` so this is testable without building
+  /// JellyfinAPI's types.
   static func chapterMetadata(
     from chapters: [(name: String?, startTicks: Int?)],
     runtimeSeconds: TimeInterval?

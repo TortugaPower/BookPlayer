@@ -74,7 +74,9 @@ RevenueCat (`purchases-ios`, ~5.78), Sentry (`sentry-cocoa`, **exact 8.36.0**), 
 JellyfinAPI (`jellyfin-sdk-swift`, ~1.0), Get (~2.2), MarqueeLabel (~4.0.5), DeviceKit (~5.1),
 IDZSwiftCommonCrypto (~0.13.1), Themeable (~3.0), ZipArchive (~2.3), DirectoryWatcher (~2.8.6).
 `BlurHashDecode.swift` is vendored (SwiftLint-excluded). RevenueCat + Kingfisher link into the **frameworks**;
-most others link into the **app**. SwiftLint runs as a build-phase run-script; **Sourcery is run manually** (not
+most others link into the **app**. JellyfinAPI and Get link into the app, both frameworks and `BookPlayerTests`, so
+Xcode builds each as one dynamic `…_PackageProduct.framework` that the app embeds: one copy of their types (an
+`APIError` thrown inside BookPlayerKit matches the app's `catch`), not a static copy per binary. SwiftLint runs as a build-phase run-script; **Sourcery is run manually** (not
 a build phase) and its output is committed.
 
 ---
@@ -541,7 +543,8 @@ lines). It is the highest-risk file in the app.
 - **These are client-side cached RevenueCat reads — UX gating only.** Never let `hasSyncEnabled()`/`isActive`
   become the sole gate for a server-billed resource; the server validates the entitlement. Purchases are guarded
   by `AppEnvironment.isPurchaseEnabled` (disabled on TestFlight).
-- `login(...)` stores the JWT then `Purchases.logIn(revenuecatId ?? appleUserId)` (server's RC id wins).
+- `login(with:)` stores the JWT then `Purchases.logIn(revenuecatId)`: the account's `external_id`, which every
+  login answer carries (one without it fails to decode rather than signing in to another RevenueCat customer).
   `logout()` removes the token, resets the account, `Purchases.logOut`, and posts `.logout`.
 - Auth entry points: Apple/Google sign-in (`Profile/Login/`), Passkeys/WebAuthn (`Profile/Passkey/`, relying
   party `bookplayer.app`, endpoints `/v1/passkey/*`), Watch credential transfer.
