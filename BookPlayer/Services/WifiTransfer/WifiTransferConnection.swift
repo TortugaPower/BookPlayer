@@ -109,42 +109,47 @@ final class WifiTransferConnection: @unchecked Sendable {
       buffer = Data()
       guard parseHeaders(headerData) else { return }
       headersParsed = true
-
-      if method == "GET" {
-        serveHTML()
-        return
-      }
-
-      if method == "POST" {
-        guard authorizePinIfNeeded() else { return }
-        if path.hasPrefix("/unlock") {
-          respond(status: 200, body: "OK", contentType: "text/plain; charset=utf-8")
-          return
-        }
-        if path.hasPrefix("/import") {
-          prepareImport()
-          return
-        }
-        if path.hasPrefix("/upload") {
-          guard prepareUpload() else { return }
-          if !bodyStart.isEmpty {
-            appendBody(bodyStart)
-          } else if let contentLength, contentLength == 0 {
-            completeUpload()
-          }
-          return
-        }
-        respond(status: 404, body: "Not Found", contentType: "text/plain; charset=utf-8")
-        return
-      }
-
-      respond(status: 405, body: "Method Not Allowed", contentType: "text/plain; charset=utf-8")
+      routeRequest(bodyStart: bodyStart)
       return
     }
 
     if method == "POST", !isImportRequest {
       appendBody(data)
     }
+  }
+
+  private func routeRequest(bodyStart: Data) {
+    switch method {
+    case "GET":
+      serveHTML()
+    case "POST":
+      handlePost(bodyStart: bodyStart)
+    default:
+      respond(status: 405, body: "Method Not Allowed", contentType: "text/plain; charset=utf-8")
+    }
+  }
+
+  private func handlePost(bodyStart: Data) {
+    guard authorizePinIfNeeded() else { return }
+
+    if path.hasPrefix("/unlock") {
+      respond(status: 200, body: "OK", contentType: "text/plain; charset=utf-8")
+      return
+    }
+    if path.hasPrefix("/import") {
+      prepareImport()
+      return
+    }
+    if path.hasPrefix("/upload") {
+      guard prepareUpload() else { return }
+      if !bodyStart.isEmpty {
+        appendBody(bodyStart)
+      } else if contentLength == 0 {
+        completeUpload()
+      }
+      return
+    }
+    respond(status: 404, body: "Not Found", contentType: "text/plain; charset=utf-8")
   }
 
   private func parseHeaders(_ data: Data) -> Bool {

@@ -90,14 +90,6 @@ final class WifiTransferServer: ObservableObject, BPLogger {
     tryStart(host: host, portOffset: 0)
   }
 
-  /// Restart with current preferences (port / PIN) while the user stays on the screen.
-  func restartIfRunning(isOnWiFi: Bool) {
-    guard isRunning || status == .starting else { return }
-    stop()
-    guard isOnWiFi else { return }
-    start(isOnWiFi: true)
-  }
-
   func stop() {
     for connection in connections.values {
       connection.cancel()
@@ -109,11 +101,7 @@ final class WifiTransferServer: ObservableObject, BPLogger {
     sessionPin = nil
     // Cancel closes in-flight writes; wipe the rest so partial folder trees do not linger.
     WifiTransferFileSupport.clearStagingDirectory()
-    if case .failed = status {
-      // keep failure message until next start
-    } else {
-      status = .stopped
-    }
+    status = .stopped
   }
 
   private func tryStart(host: String, portOffset: UInt16) {
