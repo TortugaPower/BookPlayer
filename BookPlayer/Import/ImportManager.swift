@@ -34,14 +34,20 @@ final class ImportManager: ObservableObject {
   }
 
   public func process(_ fileUrl: URL) {
-    // Avoid processing the creation of the Processed, Inbox and Backup folder
-    if fileUrl.lastPathComponent == DataManager.processedFolderName
-        || fileUrl.lastPathComponent == DataManager.inboxFolderName
-        || fileUrl.lastPathComponent == DataManager.backupFolderName {
+    process([fileUrl])
+  }
+
+  public func process(_ fileUrls: [URL]) {
+    let acceptedURLs = fileUrls.filter {
+      $0.lastPathComponent != DataManager.processedFolderName
+        && $0.lastPathComponent != DataManager.inboxFolderName
+        && $0.lastPathComponent != DataManager.backupFolderName
+    }
+    guard !acceptedURLs.isEmpty else {
       return
     }
 
-    self.files.value.insert(fileUrl)
+    self.files.value = self.files.value.union(acceptedURLs)
   }
 
   public func hasPendingFiles() -> Bool {

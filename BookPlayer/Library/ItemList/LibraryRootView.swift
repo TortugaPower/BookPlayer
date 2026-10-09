@@ -106,10 +106,10 @@ struct LibraryRootView: View {
         showImport()
       }
       .onReceive(documentFolderWatcher.newFilesPublisher) { files in
-        files.forEach { importManager.process($0) }
+        importManager.process(files)
       }
       .onReceive(sharedFolderWatcher.newFilesPublisher) { files in
-        files.forEach { importManager.process($0) }
+        importManager.process(files)
       }
       .onReceive(importManager.operationPublisher) { operation in
         importOperationState.isOperationActive = true
