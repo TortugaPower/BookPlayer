@@ -87,11 +87,11 @@ struct ProfileSyncTasksSectionView: View {
       .accessibilityElement(children: .combine)
       .accessibilityValue(pausedCount > 0 ? "sync_tasks_need_attention_voiceover".localized : "")
     }
-    .onReceive(syncQueueService.observeQueueCounts()) { counts in
-      if queuedCount != counts.total {
+    // Once while the section is up: `observeQueueCounts()` is a new publisher on every call, so
+    // `.onReceive` subscribed again (and took a replayed snapshot) on every render
+    .task {
+      for await counts in syncQueueService.observeQueueCounts().values {
         queuedCount = counts.total
-      }
-      if pausedCount != counts.totalPaused {
         pausedCount = counts.totalPaused
       }
     }

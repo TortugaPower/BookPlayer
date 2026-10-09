@@ -248,10 +248,14 @@ struct ItemListView: View {
         }
       }
     }
-    .onReceive(syncQueueService.observeQueueCounts()) { counts in
-      // Blocked too: an account-level pause from an upload holds this lane with none of its
-      // own tasks parked
-      syncLanePaused = counts.isBlocked(TaskQueueKey.sync) || counts.pausedCount(in: TaskQueueKey.sync) > 0
+    // Once while the list is up: `observeQueueCounts()` is a new publisher on every call, so
+    // `.onReceive` subscribed again (and took a replayed snapshot) on every render
+    .task {
+      for await counts in syncQueueService.observeQueueCounts().values {
+        // Blocked too: an account-level pause from an upload holds this lane with none of its
+        // own tasks parked
+        syncLanePaused = counts.isBlocked(TaskQueueKey.sync) || counts.pausedCount(in: TaskQueueKey.sync) > 0
+      }
     }
     .onReceive(
       model.singleFileDownloadService.eventsPublisher
