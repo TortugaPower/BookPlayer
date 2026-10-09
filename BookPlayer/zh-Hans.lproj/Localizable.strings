@@ -498,12 +498,8 @@
 "jellyfin_quick_connect_error_no_code" = "Your Jellyfin server didn't return a Quick Connect code. Make sure Quick Connect is enabled in the server's dashboard.";
 "jellyfin_quick_connect_error_generic" = "Quick Connect couldn't complete. Check that Quick Connect is enabled on your server and try again.";
 "jellyfin_quick_connect_error_timeout" = "Timed out waiting for the code to be entered. Please try again.";
-"sync_tasks_concurrent_count_title" = "并发任务 (%d)";
-"sync_tasks_running_empty_title" = "无正在运行的任务";
 "sync_tasks_empty_title" = "无排队任务";
 "sync_tasks_empty_description" = "您的所有同步任务均已完成。";
-"sync_task_update_progress_label" = "正在更新 %@ 的进度";
-"sync_task_upload_file_label" = "正在上传文件";
 "audiobook_details_narrator_label" = "讲述人：%@";
 "stream_button" = "流式传输";
 "passkey_title" = "通行密钥";

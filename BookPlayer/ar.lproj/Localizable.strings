@@ -498,12 +498,8 @@
 "jellyfin_quick_connect_error_no_code" = "Your Jellyfin server didn't return a Quick Connect code. Make sure Quick Connect is enabled in the server's dashboard.";
 "jellyfin_quick_connect_error_generic" = "Quick Connect couldn't complete. Check that Quick Connect is enabled on your server and try again.";
 "jellyfin_quick_connect_error_timeout" = "Timed out waiting for the code to be entered. Please try again.";
-"sync_tasks_concurrent_count_title" = "المهام المتزامنة (%d)";
-"sync_tasks_running_empty_title" = "لا توجد مهام قيد التشغيل";
 "sync_tasks_empty_title" = "لا توجد مهام في الانتظار";
 "sync_tasks_empty_description" = "جميع مهام المزامنة الخاصة بك محدثة.";
-"sync_task_update_progress_label" = "جاري تحديث التقدم لـ %@";
-"sync_task_upload_file_label" = "جاري رفع الملف";
 "audiobook_details_narrator_label" = "رواية %@";
 "stream_button" = "بث";
 "passkey_title" = "مفتاح المرور";

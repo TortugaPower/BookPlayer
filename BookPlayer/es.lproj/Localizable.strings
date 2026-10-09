@@ -309,7 +309,6 @@
 "choose_plan_title" = "Elige tu plan";
 "tasks_title" = "Tareas";
 "queued_sync_tasks_title" = "Tareas de sincronización en cola (%d)";
-"sync_tasks_queued_count_title" = "Tareas en cola (%d)";
 "sort_by_size_title" = "Tamaño";
 "settings_storage_sync_deleted_description" = "Archivos eliminados (operaciones de sincronización)";
 "storage_sync_deleted_recover_description" = "Puede volver a importar sus libros y carpetas locales si fueron eliminados por una operación de sincronización. Esto los moverá a todos a la carpeta de documentos, lo que desencadenará el proceso de importación. Si hay carpetas involucradas, esto podría significar que los originales todavía están en la biblioteca, y se tendrá que cambiar el nombre, disculpe las molestias.";
@@ -499,12 +498,8 @@
 "jellyfin_quick_connect_error_no_code" = "Your Jellyfin server didn't return a Quick Connect code. Make sure Quick Connect is enabled in the server's dashboard.";
 "jellyfin_quick_connect_error_generic" = "Quick Connect couldn't complete. Check that Quick Connect is enabled on your server and try again.";
 "jellyfin_quick_connect_error_timeout" = "Timed out waiting for the code to be entered. Please try again.";
-"sync_tasks_concurrent_count_title" = "Tareas simultáneas (%d)";
-"sync_tasks_running_empty_title" = "No hay tareas en curso";
 "sync_tasks_empty_title" = "No hay tareas en cola";
 "sync_tasks_empty_description" = "Todas tus tareas de sincronización están al día.";
-"sync_task_update_progress_label" = "Actualizando progreso de %@";
-"sync_task_upload_file_label" = "Subiendo archivo";
 "audiobook_details_narrator_label" = "Narrado por %@";
 "stream_button" = "Transmitir";
 "passkey_title" = "Llave de acceso";

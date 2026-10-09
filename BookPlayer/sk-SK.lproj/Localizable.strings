@@ -498,12 +498,8 @@
 "jellyfin_quick_connect_error_no_code" = "Your Jellyfin server didn't return a Quick Connect code. Make sure Quick Connect is enabled in the server's dashboard.";
 "jellyfin_quick_connect_error_generic" = "Quick Connect couldn't complete. Check that Quick Connect is enabled on your server and try again.";
 "jellyfin_quick_connect_error_timeout" = "Timed out waiting for the code to be entered. Please try again.";
-"sync_tasks_concurrent_count_title" = "Súbežné úlohy (%d)";
-"sync_tasks_running_empty_title" = "Žiadne bežiace úlohy";
 "sync_tasks_empty_title" = "Žiadne úlohy v poradí";
 "sync_tasks_empty_description" = "Všetky vaše synchronizačné úlohy sú aktuálne.";
-"sync_task_update_progress_label" = "Aktualizácia priebehu pre %@";
-"sync_task_upload_file_label" = "Nahrávanie súboru";
 "audiobook_details_narrator_label" = "Rozpráva %@";
 "stream_button" = "Streamovať";
 "passkey_title" = "Prístupový kľúč";

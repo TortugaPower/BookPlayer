@@ -314,14 +314,9 @@
 "choose_plan_title" = "Choose your plan";
 "tasks_title" = "Tasks";
 "queued_sync_tasks_title" = "Queued sync tasks (%d)";
-"sync_tasks_queued_count_title" = "Queued Tasks (%d)";
 
-"sync_tasks_concurrent_count_title" = "Concurrent Tasks (%d)";
-"sync_tasks_running_empty_title" = "No running tasks";
 "sync_tasks_empty_title" = "No queued tasks";
 "sync_tasks_empty_description" = "All your sync tasks are up to date.";
-"sync_task_update_progress_label" = "Updating progress for %@";
-"sync_task_upload_file_label" = "Uploading file";
 "audiobook_details_narrator_label" = "Narrated by %@";
 "stream_button" = "Stream";
 "integrations_title" = "Integrations";

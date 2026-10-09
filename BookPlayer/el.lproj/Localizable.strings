@@ -498,12 +498,8 @@
 "jellyfin_quick_connect_error_no_code" = "Your Jellyfin server didn't return a Quick Connect code. Make sure Quick Connect is enabled in the server's dashboard.";
 "jellyfin_quick_connect_error_generic" = "Quick Connect couldn't complete. Check that Quick Connect is enabled on your server and try again.";
 "jellyfin_quick_connect_error_timeout" = "Timed out waiting for the code to be entered. Please try again.";
-"sync_tasks_concurrent_count_title" = "Ταυτόχρονες εργασίες (%d)";
-"sync_tasks_running_empty_title" = "Δεν υπάρχουν εργασίες σε εκτέλεση";
 "sync_tasks_empty_title" = "Δεν υπάρχουν εργασίες σε αναμονή";
 "sync_tasks_empty_description" = "Όλες οι εργασίες συγχρονισμού είναι ενημερωμένες.";
-"sync_task_update_progress_label" = "Ενημέρωση προόδου για %@";
-"sync_task_upload_file_label" = "Μεταφόρτωση αρχείου";
 "audiobook_details_narrator_label" = "Αφήγηση από %@";
 "stream_button" = "Μετάδοση";
 "passkey_title" = "Κλειδί πρόσβασης";
