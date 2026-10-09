@@ -11,8 +11,8 @@ import Network
 /// Handles one HTTP connection for the Wi‑Fi transfer server.
 final class WifiTransferConnection: @unchecked Sendable {
   struct Handlers {
-    /// Session secret; every request path must start with `/<token>/…`.
-    var accessToken: String
+    /// Optional 4-digit PIN; when set, mutating routes require the pin header.
+    var pin: String?
     /// Called after a successful top-level (loose) file upload — import immediately.
     var onLooseFile: (URL) -> Void
     /// Import a staged folder (`POST /import?root=`). Must invoke `completion` exactly once.
@@ -29,6 +29,7 @@ final class WifiTransferConnection: @unchecked Sendable {
   private var method = ""
   private var path = ""
   private var contentLength: Int?
+  private var requestPin: String?
   private var bodyReceived = 0
   private var fileHandle: FileHandle?
   private var destinationURL: URL?
@@ -108,10 +109,6 @@ final class WifiTransferConnection: @unchecked Sendable {
       buffer = Data()
       guard parseHeaders(headerData) else { return }
       headersParsed = true
-      guard authorizeAndStripToken() else {
-        respond(status: 401, body: "Unauthorized", contentType: "text/plain; charset=utf-8")
-        return
-      }
 
       if method == "GET" {
         serveHTML()
@@ -119,6 +116,11 @@ final class WifiTransferConnection: @unchecked Sendable {
       }
 
       if method == "POST" {
+        guard authorizePinIfNeeded() else { return }
+        if path.hasPrefix("/unlock") {
+          respond(status: 200, body: "OK", contentType: "text/plain; charset=utf-8")
+          return
+        }
         if path.hasPrefix("/import") {
           prepareImport()
           return
@@ -163,34 +165,26 @@ final class WifiTransferConnection: @unchecked Sendable {
     method = String(parts[0]).uppercased()
     path = String(parts[1])
 
+    let pinHeaderPrefix = WifiTransferFileSupport.pinHeaderName.lowercased() + ":"
     for line in lines.dropFirst() {
       let lower = line.lowercased()
       if lower.hasPrefix("content-length:") {
         let value = line.dropFirst("content-length:".count).trimmingCharacters(in: .whitespaces)
         contentLength = Int(value)
+      } else if lower.hasPrefix(pinHeaderPrefix) {
+        requestPin = String(line.dropFirst(pinHeaderPrefix.count))
+          .trimmingCharacters(in: .whitespaces)
       }
     }
     return true
   }
 
-  /// Requires `/<accessToken>/…` and rewrites `path` to the remainder (`/`, `/upload?…`, …).
-  private func authorizeAndStripToken() -> Bool {
-    let expected = handlers.accessToken
-    guard !expected.isEmpty else { return false }
-    guard path.hasPrefix("/") else { return false }
-    let withoutSlash = path.dropFirst()
-    let token: String
-    let remainder: String
-    if let slash = withoutSlash.firstIndex(of: "/") {
-      token = String(withoutSlash[..<slash])
-      remainder = String(withoutSlash[slash...])
-    } else {
-      let split = withoutSlash.split(separator: "?", maxSplits: 1, omittingEmptySubsequences: false)
-      token = String(split[0])
-      remainder = split.count > 1 ? "/?\(split[1])" : "/"
+  private func authorizePinIfNeeded() -> Bool {
+    guard let expected = handlers.pin else { return true }
+    guard requestPin == expected else {
+      respond(status: 401, body: "Unauthorized", contentType: "text/plain; charset=utf-8")
+      return false
     }
-    guard token == expected else { return false }
-    path = remainder.isEmpty ? "/" : remainder
     return true
   }
 
@@ -303,7 +297,7 @@ final class WifiTransferConnection: @unchecked Sendable {
   }
 
   private func serveHTML() {
-    let html = WifiTransferHTML.page()
+    let html = WifiTransferHTML.page(requiresPin: handlers.pin != nil)
     respond(status: 200, body: html, contentType: "text/html; charset=utf-8")
   }
 

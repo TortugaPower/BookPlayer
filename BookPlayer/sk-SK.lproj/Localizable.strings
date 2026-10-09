@@ -204,6 +204,12 @@
 "wifi_transfer_start_failed_message" = "Could not start the transfer server. Try again.";
 "wifi_transfer_last_file_format" = "Received: %@";
 "wifi_transfer_import_failed_message" = "Could not import the uploaded folder.";
+"wifi_transfer_port_title" = "Port";
+"wifi_transfer_port_footer" = "Default is 8080. Change only if another app is already using that port.";
+"wifi_transfer_require_pin_title" = "Require password";
+"wifi_transfer_require_pin_footer" = "When enabled, the browser asks for the 4-digit PIN shown above before uploads are allowed.";
+"wifi_transfer_pin_label" = "PIN";
+"wifi_transfer_pin_regenerate" = "Regenerate PIN";
 "wifi_transfer_web_subtitle" = "Drop audiobook files or folders. They appear in the app’s import screen on your phone.";
 "wifi_transfer_web_accepted" = "Accepted: mp3, m4b, m4a, aax, flac, zip, lpf, and similar audio archives.";
 "wifi_transfer_web_folder_hint" = "Folder structure is preserved.";
@@ -220,6 +226,9 @@
 "wifi_transfer_web_queue_empty" = "Waiting for files…";
 "wifi_transfer_web_selected_count" = "Queued: %d";
 "wifi_transfer_web_skipped" = "Skipped unsupported files: %d";
+"wifi_transfer_web_pin_prompt" = "Enter the PIN shown in the BookPlayer app";
+"wifi_transfer_web_pin_submit" = "Continue";
+"wifi_transfer_web_pin_wrong" = "Incorrect PIN";
 "storage_fix_file_button" = "Opraviť";
 "storage_fix_file_description" = "Položka knihy chýba, ak sa príslušná položka nedá nájsť, vytvorí sa nová.";
 "bookmarks_title" = "Záložky";

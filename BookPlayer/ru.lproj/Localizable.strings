@@ -204,6 +204,12 @@
 "wifi_transfer_start_failed_message" = "Не удалось запустить сервер передачи. Попробуйте ещё раз.";
 "wifi_transfer_last_file_format" = "Получено: %@";
 "wifi_transfer_import_failed_message" = "Не удалось импортировать загруженную папку.";
+"wifi_transfer_port_title" = "Порт";
+"wifi_transfer_port_footer" = "По умолчанию 8080. Меняйте только если порт уже занят другим приложением.";
+"wifi_transfer_require_pin_title" = "Требовать пароль";
+"wifi_transfer_require_pin_footer" = "Если включено, браузер попросит 4-значный PIN с экрана приложения перед загрузкой файлов.";
+"wifi_transfer_pin_label" = "PIN";
+"wifi_transfer_pin_regenerate" = "Сгенерировать новый PIN";
 "wifi_transfer_web_subtitle" = "Перетащите файлы или папки аудиокниг. Они появятся на экране импорта в приложении.";
 "wifi_transfer_web_accepted" = "Поддерживаются: mp3, m4b, m4a, aax, flac, zip, lpf и похожие форматы.";
 "wifi_transfer_web_folder_hint" = "Структура папки сохранится.";
@@ -220,6 +226,9 @@
 "wifi_transfer_web_queue_empty" = "Ожидание файлов…";
 "wifi_transfer_web_selected_count" = "В очереди: %d";
 "wifi_transfer_web_skipped" = "Пропущено неподдерживаемых файлов: %d";
+"wifi_transfer_web_pin_prompt" = "Введите PIN, показанный в приложении BookPlayer";
+"wifi_transfer_web_pin_submit" = "Продолжить";
+"wifi_transfer_web_pin_wrong" = "Неверный PIN";
 "storage_fix_file_button" = "Исправить";
 "storage_fix_file_description" = "Элемент книги отсутствует, если соответствующий элемент не может быть найден, будет создан новый";
 "bookmarks_title" = "Закладки";

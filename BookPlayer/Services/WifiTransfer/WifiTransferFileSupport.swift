@@ -14,17 +14,77 @@ enum WifiTransferFileSupport {
   /// Hard cap per uploaded file (prevents a LAN peer from filling the device).
   static let maxUploadBytes = 8 * 1024 * 1024 * 1024
 
-  /// Ephemeral path segment used as a shared secret for one server session.
-  static func makeAccessToken() -> String {
-    var bytes = [UInt8](repeating: 0, count: 16)
-    _ = SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes)
-    return bytes.map { String(format: "%02x", $0) }.joined()
+  static let defaultPort: UInt16 = 8080
+  static let minimumPort: UInt16 = 1024
+  static let maximumPort: UInt16 = 65_535
+
+  /// Header browsers send when optional PIN protection is enabled.
+  static let pinHeaderName = "X-BookPlayer-Transfer-Pin"
+
+  enum Preferences {
+    static let portKey = "wifi_transfer_port"
+    static let requirePinKey = "wifi_transfer_require_pin"
+    static let pinKey = "wifi_transfer_pin"
+
+    static var port: UInt16 {
+      get {
+        let raw = UserDefaults.standard.object(forKey: portKey) as? Int
+        return clampedPort(UInt16(clamping: raw ?? Int(defaultPort)))
+      }
+      set {
+        UserDefaults.standard.set(Int(clampedPort(newValue)), forKey: portKey)
+      }
+    }
+
+    static var requirePin: Bool {
+      get { UserDefaults.standard.bool(forKey: requirePinKey) }
+      set { UserDefaults.standard.set(newValue, forKey: requirePinKey) }
+    }
+
+    /// Stored PIN when require-pin is on; `nil` otherwise.
+    static var pin: String? {
+      get {
+        guard requirePin else { return nil }
+        if let existing = UserDefaults.standard.string(forKey: pinKey),
+          isPinFormat(existing)
+        {
+          return existing
+        }
+        let created = makePin()
+        UserDefaults.standard.set(created, forKey: pinKey)
+        return created
+      }
+      set {
+        if let newValue, isPinFormat(newValue) {
+          UserDefaults.standard.set(newValue, forKey: pinKey)
+        } else {
+          UserDefaults.standard.removeObject(forKey: pinKey)
+        }
+      }
+    }
+
+    @discardableResult
+    static func regeneratePin() -> String {
+      let created = makePin()
+      UserDefaults.standard.set(created, forKey: pinKey)
+      return created
+    }
   }
 
-  /// Validates `token` shape (32 lowercase hex chars).
-  static func isAccessTokenFormat(_ token: String) -> Bool {
-    guard token.count == 32 else { return false }
-    return token.unicodeScalars.allSatisfy { CharacterSet(charactersIn: "0123456789abcdef").contains($0) }
+  static func clampedPort(_ port: UInt16) -> UInt16 {
+    min(max(port, minimumPort), maximumPort)
+  }
+
+  /// Four-digit PIN shown on the phone and typed on the web page.
+  static func makePin() -> String {
+    var bytes = [UInt8](repeating: 0, count: 2)
+    _ = SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes)
+    let value = (UInt16(bytes[0]) << 8 | UInt16(bytes[1])) % 10_000
+    return String(format: "%04d", value)
+  }
+
+  static func isPinFormat(_ pin: String) -> Bool {
+    pin.count == 4 && pin.unicodeScalars.allSatisfy { CharacterSet.decimalDigits.contains($0) }
   }
 
   /// Staging area outside Documents so DirectoryWatcher does not import files mid-upload.
