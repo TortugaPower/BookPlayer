@@ -293,6 +293,9 @@ CarPlay event bus. Declared in `Shared/Extensions/Notification+BookPlayerKit.swi
   `SyncService.canSyncListContents` gates list refresh on the `sync` lane only (repository `getTasksCount(in:)`),
   and `AppDelegate.handleAppRefresh` waits on `laneDrained(TaskQueueKey.sync)` — S3 uploads and provider pushes
   never block a refresh or hold a background window open (pushes retry forever against an unreachable server).
+  Parked tasks count toward that pull gate on purpose, as on Android: a task the server keeps refusing, a leaf
+  `update`/`uploadArtwork` included, holds every pull (and a pending first sync) until it's resolved. There is no
+  Skip (decided), so the way out is the parked row's Report, which reaches support.
   **Server-lane gate:** the BookPlayer-server lanes (`sync`, `uploadFile`) run only while
   `SyncQueueService.serverLanesEnabled` is on. It starts off (workers wake in `setup`, before `SyncService` is
   set up) and mirrors `SyncService.isActive` — `SyncService` is the ONLY writer: `setup` in the same synchronous
