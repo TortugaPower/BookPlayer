@@ -1,5 +1,5 @@
 //
-//  WifiTransferConnection.swift
+//  TransferServerConnection.swift
 //  BookPlayer
 //
 //  Copyright © 2026 BookPlayer LLC. All rights reserved.
@@ -8,8 +8,8 @@
 import Foundation
 import Network
 
-/// Handles one HTTP connection for the Wi‑Fi transfer server.
-final class WifiTransferConnection: @unchecked Sendable {
+/// Handles one HTTP connection for the Transfer server server.
+final class TransferServerConnection: @unchecked Sendable {
   struct Handlers {
     /// Optional 4-digit PIN; when set, mutating routes require the pin header.
     var pin: String?
@@ -170,7 +170,7 @@ final class WifiTransferConnection: @unchecked Sendable {
     method = String(parts[0]).uppercased()
     path = String(parts[1])
 
-    let pinHeaderPrefix = WifiTransferFileSupport.pinHeaderName.lowercased() + ":"
+    let pinHeaderPrefix = TransferServerSupport.pinHeaderName.lowercased() + ":"
     for line in lines.dropFirst() {
       let lower = line.lowercased()
       if lower.hasPrefix("content-length:") {
@@ -198,7 +198,7 @@ final class WifiTransferConnection: @unchecked Sendable {
       respond(status: 411, body: "Content-Length required", contentType: "text/plain; charset=utf-8")
       return false
     }
-    guard length <= WifiTransferFileSupport.maxUploadBytes else {
+    guard length <= TransferServerSupport.maxUploadBytes else {
       respond(status: 413, body: "File too large", contentType: "text/plain; charset=utf-8")
       return false
     }
@@ -212,9 +212,9 @@ final class WifiTransferConnection: @unchecked Sendable {
 
     let relative: String?
     if let pathItem = components.queryItems?.first(where: { $0.name == "path" })?.value {
-      relative = WifiTransferFileSupport.sanitizedRelativePath(from: pathItem)
+      relative = TransferServerSupport.sanitizedRelativePath(from: pathItem)
     } else if let nameItem = components.queryItems?.first(where: { $0.name == "name" })?.value {
-      relative = WifiTransferFileSupport.sanitizedFilename(from: nameItem)
+      relative = TransferServerSupport.sanitizedFilename(from: nameItem)
     } else {
       relative = nil
     }
@@ -224,13 +224,13 @@ final class WifiTransferConnection: @unchecked Sendable {
       return false
     }
 
-    guard let destination = WifiTransferFileSupport.uniqueFileURL(relativePath: relative, in: stagingDirectory)
+    guard let destination = TransferServerSupport.uniqueFileURL(relativePath: relative, in: stagingDirectory)
     else {
       respond(status: 500, body: "Could not create file", contentType: "text/plain; charset=utf-8")
       return false
     }
 
-    importImmediately = WifiTransferFileSupport.isLooseFilePath(relative)
+    importImmediately = TransferServerSupport.isLooseFilePath(relative)
     FileManager.default.createFile(atPath: destination.path, contents: nil)
     do {
       fileHandle = try FileHandle(forWritingTo: destination)
@@ -247,7 +247,7 @@ final class WifiTransferConnection: @unchecked Sendable {
     guard
       let components = URLComponents(string: path),
       let rootItem = components.queryItems?.first(where: { $0.name == "root" })?.value,
-      let root = WifiTransferFileSupport.sanitizedRootFolder(from: rootItem)
+      let root = TransferServerSupport.sanitizedRootFolder(from: rootItem)
     else {
       respond(status: 400, body: "Missing or invalid root folder", contentType: "text/plain; charset=utf-8")
       return
@@ -266,7 +266,7 @@ final class WifiTransferConnection: @unchecked Sendable {
 
   private func appendBody(_ data: Data) {
     let nextTotal = bodyReceived + data.count
-    if nextTotal > WifiTransferFileSupport.maxUploadBytes {
+    if nextTotal > TransferServerSupport.maxUploadBytes {
       cleanupPartialFile()
       respond(status: 413, body: "File too large", contentType: "text/plain; charset=utf-8")
       return
@@ -302,7 +302,7 @@ final class WifiTransferConnection: @unchecked Sendable {
   }
 
   private func serveHTML() {
-    let html = WifiTransferHTML.page(requiresPin: handlers.pin != nil)
+    let html = TransferServerHTML.page(requiresPin: handlers.pin != nil)
     respond(status: 200, body: html, contentType: "text/html; charset=utf-8")
   }
 

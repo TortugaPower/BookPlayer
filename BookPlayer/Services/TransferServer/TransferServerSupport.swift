@@ -1,5 +1,5 @@
 //
-//  WifiTransferFileSupport.swift
+//  TransferServerSupport.swift
 //  BookPlayer
 //
 //  Copyright © 2026 BookPlayer LLC. All rights reserved.
@@ -8,8 +8,8 @@
 import Foundation
 import Security
 
-enum WifiTransferFileSupport {
-  static let stagingFolderName = "BookPlayerWifiTransfer"
+enum TransferServerSupport {
+  static let stagingFolderName = "BookPlayerTransferServer"
 
   /// Hard cap per uploaded file (prevents a LAN peer from filling the device).
   static let maxUploadBytes = 8 * 1024 * 1024 * 1024
@@ -22,9 +22,9 @@ enum WifiTransferFileSupport {
   static let pinHeaderName = "X-BookPlayer-Transfer-Pin"
 
   enum Preferences {
-    static let portKey = "wifi_transfer_port"
-    static let requirePinKey = "wifi_transfer_require_pin"
-    static let pinKey = "wifi_transfer_pin"
+    static let portKey = "transfer_server_port"
+    static let requirePinKey = "transfer_server_require_pin"
+    static let pinKey = "transfer_server_pin"
 
     static var port: UInt16 {
       get {
@@ -109,7 +109,7 @@ enum WifiTransferFileSupport {
     return url
   }
 
-  /// Removes leftover Wi‑Fi transfer staging (crash / force-quit / aborted upload).
+  /// Removes leftover Transfer server staging (crash / force-quit / aborted upload).
   /// Safe to call at launch and whenever the transfer server stops.
   @discardableResult
   static func clearStagingDirectory() -> Bool {
@@ -132,7 +132,7 @@ enum WifiTransferFileSupport {
     }
   }
 
-  /// Extensions accepted by the Wi‑Fi transfer page (aligned with import / document types).
+  /// Extensions accepted by the Transfer server page (aligned with import / document types).
   static let allowedExtensions: Set<String> = [
     "mp3", "m4b", "m4a", "m4v", "aax", "aaxc",
     "wav", "flac", "opus", "ogg", "oga",

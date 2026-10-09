@@ -20,11 +20,11 @@ struct SettingsStorageSectionView: View {
           .bpFont(.body)
       }
       .settingsRowBackground(for: .storage)
-      NavigationLink(value: SettingsScreen.wifiTransfer) {
-        Text("wifi_transfer_settings_row")
+      NavigationLink(value: SettingsScreen.transferServer) {
+        Text("transfer_server_settings_row")
           .bpFont(.body)
       }
-      .settingsRowBackground(for: .wifiTransfer)
+      .settingsRowBackground(for: .transferServer)
       if accessLevel == .pro {
         NavigationLink(value: SettingsScreen.syncbackup) {
           Text("settings_storage_sync_deleted_description")

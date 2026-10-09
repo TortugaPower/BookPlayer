@@ -1,5 +1,5 @@
 //
-//  WifiTransferServer.swift
+//  TransferServer.swift
 //  BookPlayer
 //
 //  Copyright © 2026 BookPlayer LLC. All rights reserved.
@@ -13,7 +13,7 @@ import UIKit
 
 /// Local HTTP server that accepts audiobook uploads from a browser on the same LAN.
 @MainActor
-final class WifiTransferServer: ObservableObject, BPLogger {
+final class TransferServer: ObservableObject, BPLogger {
   enum Status: Equatable {
     case stopped
     case starting
@@ -26,16 +26,16 @@ final class WifiTransferServer: ObservableObject, BPLogger {
   @Published private(set) var lastUploadedFilename: String?
 
   /// Default preferred port when the user has not customized it.
-  static let preferredPort: UInt16 = WifiTransferFileSupport.defaultPort
+  static let preferredPort: UInt16 = TransferServerSupport.defaultPort
   static let portFallbackCount: UInt16 = 10
 
   private weak var importManager: ImportManager?
   private var listener: NWListener?
-  private var connections: [ObjectIdentifier: WifiTransferConnection] = [:]
+  private var connections: [ObjectIdentifier: TransferServerConnection] = [:]
   private var backgroundObserver: NSObjectProtocol?
   /// Optional 4-digit PIN for this session (`nil` = open while screen is active).
   private var sessionPin: String?
-  private var basePort: UInt16 = WifiTransferFileSupport.defaultPort
+  private var basePort: UInt16 = TransferServerSupport.defaultPort
 
   init() {
     backgroundObserver = NotificationCenter.default.addObserver(
@@ -65,29 +65,16 @@ final class WifiTransferServer: ObservableObject, BPLogger {
     return false
   }
 
-  /// - Parameter isOnWiFi: must be true; cellular-only starts are rejected.
-  func start(isOnWiFi: Bool) {
+  func start() {
     guard !isRunning, status != .starting else { return }
     status = .starting
     serverURL = nil
-    basePort = WifiTransferFileSupport.Preferences.port
-    sessionPin = WifiTransferFileSupport.Preferences.pin
+    basePort = TransferServerSupport.Preferences.port
+    sessionPin = TransferServerSupport.Preferences.pin
     // Drop any orphaned staging from a previous crashed / aborted session.
-    WifiTransferFileSupport.clearStagingDirectory()
+    TransferServerSupport.clearStagingDirectory()
 
-    guard isOnWiFi else {
-      sessionPin = nil
-      status = .failed("wifi_transfer_no_wifi_message".localized)
-      return
-    }
-
-    guard let host = Self.localIPv4Address() else {
-      sessionPin = nil
-      status = .failed("wifi_transfer_no_wifi_message".localized)
-      return
-    }
-
-    tryStart(host: host, portOffset: 0)
+    tryStart(host: Self.localIPv4Address(), portOffset: 0)
   }
 
   func stop() {
@@ -100,7 +87,7 @@ final class WifiTransferServer: ObservableObject, BPLogger {
     serverURL = nil
     sessionPin = nil
     // Cancel closes in-flight writes; wipe the rest so partial folder trees do not linger.
-    WifiTransferFileSupport.clearStagingDirectory()
+    TransferServerSupport.clearStagingDirectory()
     status = .stopped
   }
 
@@ -109,7 +96,7 @@ final class WifiTransferServer: ObservableObject, BPLogger {
     guard portValue >= basePort,
       let nwPort = NWEndpoint.Port(rawValue: portValue)
     else {
-      status = .failed("wifi_transfer_start_failed_message".localized)
+      status = .failed("transfer_server_start_failed_message".localized)
       return
     }
 
@@ -133,12 +120,12 @@ final class WifiTransferServer: ObservableObject, BPLogger {
 
       listener.start(queue: .main)
     } catch {
-      Self.logger.error("Wi‑Fi transfer listener failed: \(error.localizedDescription)")
+      Self.logger.error("Transfer server listener failed: \(error.localizedDescription)")
       if portOffset + 1 < Self.portFallbackCount {
         tryStart(host: host, portOffset: portOffset + 1)
       } else {
         sessionPin = nil
-        status = .failed("wifi_transfer_start_failed_message".localized)
+        status = .failed("transfer_server_start_failed_message".localized)
       }
     }
   }
@@ -153,15 +140,15 @@ final class WifiTransferServer: ObservableObject, BPLogger {
     case .ready:
       status = .running
       serverURL = URL(string: "http://\(host):\(port)/")
-      Self.logger.info("Wi‑Fi transfer listening on \(host):\(port)")
+      Self.logger.info("Transfer server listening on \(host):\(port)")
     case .failed(let error):
       listener?.cancel()
       listener = nil
-      Self.logger.error("Wi‑Fi transfer failed: \(error.localizedDescription)")
+      Self.logger.error("Transfer server failed: \(error.localizedDescription)")
       if portOffset + 1 < Self.portFallbackCount {
         tryStart(host: host, portOffset: portOffset + 1)
       } else {
-        status = .failed("wifi_transfer_start_failed_message".localized)
+        status = .failed("transfer_server_start_failed_message".localized)
         serverURL = nil
         sessionPin = nil
       }
@@ -177,10 +164,10 @@ final class WifiTransferServer: ObservableObject, BPLogger {
   }
 
   private func accept(_ connection: NWConnection) {
-    let handler = WifiTransferConnection(
+    let handler = TransferServerConnection(
       connection: connection,
-      stagingDirectory: WifiTransferFileSupport.stagingRootURL,
-      handlers: WifiTransferConnection.Handlers(
+      stagingDirectory: TransferServerSupport.stagingRootURL,
+      handlers: TransferServerConnection.Handlers(
         pin: sessionPin,
         onLooseFile: { [weak self] url in
           Task { @MainActor in
@@ -190,7 +177,7 @@ final class WifiTransferServer: ObservableObject, BPLogger {
         onImportRoot: { [weak self] root, completion in
           Task { @MainActor in
             let result = self?.importRootFolder(root)
-              ?? .failure("wifi_transfer_import_failed_message".localized)
+              ?? .failure("transfer_server_import_failed_message".localized)
             completion(result)
           }
         },
@@ -208,7 +195,7 @@ final class WifiTransferServer: ObservableObject, BPLogger {
   private func handleLooseFile(_ stagedURL: URL) {
     do {
       let documents = DataManager.getDocumentsFolderURL()
-      let destination = WifiTransferFileSupport.uniqueFileURL(
+      let destination = TransferServerSupport.uniqueFileURL(
         filename: stagedURL.lastPathComponent,
         in: documents
       )
@@ -219,22 +206,22 @@ final class WifiTransferServer: ObservableObject, BPLogger {
       lastUploadedFilename = destination.lastPathComponent
       importManager?.process(destination)
     } catch {
-      Self.logger.error("Wi‑Fi transfer loose file move failed: \(error.localizedDescription)")
+      Self.logger.error("Transfer server loose file move failed: \(error.localizedDescription)")
       try? FileManager.default.removeItem(at: stagedURL)
     }
   }
 
   private func importRootFolder(_ root: String) -> Result<Void, String> {
-    guard let root = WifiTransferFileSupport.sanitizedRootFolder(from: root) else {
-      return .failure("wifi_transfer_import_failed_message".localized)
+    guard let root = TransferServerSupport.sanitizedRootFolder(from: root) else {
+      return .failure("transfer_server_import_failed_message".localized)
     }
-    let stagedFolder = WifiTransferFileSupport.stagingRootURL
+    let stagedFolder = TransferServerSupport.stagingRootURL
       .appendingPathComponent(root, isDirectory: true)
     var isDirectory: ObjCBool = false
     guard FileManager.default.fileExists(atPath: stagedFolder.path, isDirectory: &isDirectory),
       isDirectory.boolValue
     else {
-      return .failure("wifi_transfer_import_failed_message".localized)
+      return .failure("transfer_server_import_failed_message".localized)
     }
 
     let documents = DataManager.getDocumentsFolderURL()
@@ -253,19 +240,20 @@ final class WifiTransferServer: ObservableObject, BPLogger {
       importManager?.process(destination)
       return .success(())
     } catch {
-      Self.logger.error("Wi‑Fi transfer folder import failed: \(error.localizedDescription)")
+      Self.logger.error("Transfer server folder import failed: \(error.localizedDescription)")
       // Leave nothing half-moved under staging if import cannot proceed.
       try? FileManager.default.removeItem(at: stagedFolder)
-      return .failure("wifi_transfer_import_failed_message".localized)
+      return .failure("transfer_server_import_failed_message".localized)
     }
   }
 
-  /// IPv4 on the Wi‑Fi interface (`en0`), else first non-loopback IPv4.
-  static func localIPv4Address() -> String? {
+  /// Best LAN IPv4 for the share URL (`en0` preferred). Falls back to loopback so
+  /// the server can still start on Simulator / local-only setups.
+  static func localIPv4Address() -> String {
     var address: String?
     var fallback: String?
     var ifaddr: UnsafeMutablePointer<ifaddrs>?
-    guard getifaddrs(&ifaddr) == 0, let first = ifaddr else { return nil }
+    guard getifaddrs(&ifaddr) == 0, let first = ifaddr else { return "127.0.0.1" }
     defer { freeifaddrs(first) }
 
     var pointer: UnsafeMutablePointer<ifaddrs>? = first
@@ -273,7 +261,7 @@ final class WifiTransferServer: ObservableObject, BPLogger {
       let flags = Int32(iface.pointee.ifa_flags)
       let isUp = (flags & IFF_UP) != 0
       let isLoopback = (flags & IFF_LOOPBACK) != 0
-      if isUp, !isLoopback,
+      if isUp,
         let addr = iface.pointee.ifa_addr,
         addr.pointee.sa_family == UInt8(AF_INET)
       {
@@ -289,16 +277,16 @@ final class WifiTransferServer: ObservableObject, BPLogger {
         )
         let ip = String(cString: hostname)
         let name = String(cString: iface.pointee.ifa_name)
-        if name == "en0" {
+        if !isLoopback, name == "en0" {
           address = ip
           break
         }
-        if fallback == nil {
+        if !isLoopback, fallback == nil {
           fallback = ip
         }
       }
       pointer = iface.pointee.ifa_next
     }
-    return address ?? fallback
+    return address ?? fallback ?? "127.0.0.1"
   }
 }
