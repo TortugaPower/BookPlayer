@@ -19,8 +19,8 @@ struct SettingsStorageSectionView: View {
         Text("settings_storage_description")
           .bpFont(.body)
       }
-      NavigationLink(value: SettingsScreen.wifiTransfer) {
-        Text("wifi_transfer_settings_row")
+      NavigationLink(value: SettingsScreen.transferServer) {
+        Text("transfer_server_settings_row")
           .bpFont(.body)
       }
       if accessLevel == .pro {

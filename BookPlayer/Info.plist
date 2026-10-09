@@ -400,7 +400,7 @@
 		<true/>
 	</dict>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>BookPlayer uses the local network so you can upload audiobooks from a computer on the same Wi‑Fi.</string>
+	<string>BookPlayer uses the local network so you can upload audiobooks from a computer on the same network.</string>
 	<key>NSBonjourServices</key>
 	<array>
 		<string>_http._tcp</string>

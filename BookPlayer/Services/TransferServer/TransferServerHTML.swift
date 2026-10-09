@@ -1,5 +1,5 @@
 //
-//  WifiTransferHTML.swift
+//  TransferServerHTML.swift
 //  BookPlayer
 //
 //  Copyright © 2026 BookPlayer LLC. All rights reserved.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum WifiTransferHTML {
+enum TransferServerHTML {
   struct Strings: Encodable {
     let title: String
     let subtitle: String
@@ -34,26 +34,26 @@ enum WifiTransferHTML {
   /// Page copy from the app’s `Localizable.strings` (same keys / language as Settings).
   static var strings: Strings {
     Strings(
-      title: "wifi_transfer_title".localized,
-      subtitle: "wifi_transfer_web_subtitle".localized,
-      accepted: "wifi_transfer_web_accepted".localized,
-      folderHint: "wifi_transfer_web_folder_hint".localized,
-      dropTitle: "wifi_transfer_web_drop_title".localized,
-      dropHint: "wifi_transfer_web_drop_hint".localized,
-      chooseFiles: "wifi_transfer_web_choose_files".localized,
-      chooseFolder: "wifi_transfer_web_choose_folder".localized,
-      retry: "wifi_transfer_web_retry".localized,
-      uploading: "wifi_transfer_web_uploading".localized,
-      uploaded: "wifi_transfer_web_uploaded".localized,
-      failed: "wifi_transfer_web_failed".localized,
-      importing: "wifi_transfer_web_importing".localized,
-      importDone: "wifi_transfer_web_import_done".localized,
-      queueEmpty: "wifi_transfer_web_queue_empty".localized,
-      selectedCount: "wifi_transfer_web_selected_count".localized,
-      skipped: "wifi_transfer_web_skipped".localized,
-      pinPrompt: "wifi_transfer_web_pin_prompt".localized,
-      pinSubmit: "wifi_transfer_web_pin_submit".localized,
-      pinWrong: "wifi_transfer_web_pin_wrong".localized
+      title: "transfer_server_title".localized,
+      subtitle: "transfer_server_web_subtitle".localized,
+      accepted: "transfer_server_web_accepted".localized,
+      folderHint: "transfer_server_web_folder_hint".localized,
+      dropTitle: "transfer_server_web_drop_title".localized,
+      dropHint: "transfer_server_web_drop_hint".localized,
+      chooseFiles: "transfer_server_web_choose_files".localized,
+      chooseFolder: "transfer_server_web_choose_folder".localized,
+      retry: "transfer_server_web_retry".localized,
+      uploading: "transfer_server_web_uploading".localized,
+      uploaded: "transfer_server_web_uploaded".localized,
+      failed: "transfer_server_web_failed".localized,
+      importing: "transfer_server_web_importing".localized,
+      importDone: "transfer_server_web_import_done".localized,
+      queueEmpty: "transfer_server_web_queue_empty".localized,
+      selectedCount: "transfer_server_web_selected_count".localized,
+      skipped: "transfer_server_web_skipped".localized,
+      pinPrompt: "transfer_server_web_pin_prompt".localized,
+      pinSubmit: "transfer_server_web_pin_submit".localized,
+      pinWrong: "transfer_server_web_pin_wrong".localized
     )
   }
 
@@ -71,7 +71,7 @@ enum WifiTransferHTML {
       json = "{}"
     }
     let allowedExtJSON: String = {
-      let sorted = WifiTransferFileSupport.allowedExtensions.sorted()
+      let sorted = TransferServerSupport.allowedExtensions.sorted()
       guard let data = try? JSONEncoder().encode(Array(sorted)),
         let s = String(data: data, encoding: .utf8)
       else {
@@ -81,7 +81,7 @@ enum WifiTransferHTML {
     }()
     let pageTitle = escapeHTML(strings.title)
     let requiresPinJS = requiresPin ? "true" : "false"
-    let pinHeaderName = WifiTransferFileSupport.pinHeaderName
+    let pinHeaderName = TransferServerSupport.pinHeaderName
 
     return """
     <!DOCTYPE html>
@@ -222,7 +222,7 @@ enum WifiTransferHTML {
       <main>
         <div class="brand">
           <h1 id="title"></h1>
-          <span class="pill">Wi‑Fi</span>
+          <span class="pill">Local</span>
         </div>
         <p class="lead" id="subtitle"></p>
         <p class="meta" id="accepted"></p>
@@ -265,7 +265,7 @@ enum WifiTransferHTML {
         const REQUIRES_PIN = \(requiresPinJS);
         const PIN_HEADER = '\(pinHeaderName)';
         const BASE = '/';
-        const PIN_KEY = 'bpWifiTransferPin';
+        const PIN_KEY = 'bpTransferServerPin';
         const drop = document.getElementById('drop');
         const fileInput = document.getElementById('fileInput');
         const folderInput = document.getElementById('folderInput');

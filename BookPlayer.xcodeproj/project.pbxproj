@@ -676,12 +676,12 @@
 		8A9D0D2C2CCFBEEE007A924D /* JellyfinLibraryItemImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D2B2CCFBEEE007A924D /* JellyfinLibraryItemImageView.swift */; };
 		8A9D0D2E2CCFD968007A924D /* BlurHashDecode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D2D2CCFD968007A924D /* BlurHashDecode.swift */; };
 		8A9D0D302CD0E074007A924D /* SingleFileDownloadService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A9D0D2F2CD0E06F007A924D /* SingleFileDownloadService.swift */; };
-		65A5A7FF0FC043998BDADDE5 /* WifiTransferFileSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 199B6ED6F3144D0C8C45C86C /* WifiTransferFileSupport.swift */; };
-		A9AA78701B4D4114B92F2E12 /* WifiTransferHTML.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBF15966937A405B96C3E40D /* WifiTransferHTML.swift */; };
-		BB1B738CEBD646E7A866E627 /* WifiTransferServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61C0DB4F90D04F0291A14CC9 /* WifiTransferServer.swift */; };
-		DA9FB628325C4482B7B4C2F4 /* WifiTransferConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68C3AEC654714E57AFF4F1C0 /* WifiTransferConnection.swift */; };
-		6FAB18E55DB74C0281371736 /* WifiTransferView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DFA2FAD961B4F5AA8D3C75B /* WifiTransferView.swift */; };
-		E6FD339FC041450F9FE6F262 /* WifiTransferFileSupportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0355E399DA664B43ABAE5ABF /* WifiTransferFileSupportTests.swift */; };
+		65A5A7FF0FC043998BDADDE5 /* TransferServerSupport.swift in Sources */ = {isa = PBXBuildFile; fileRef = 199B6ED6F3144D0C8C45C86C /* TransferServerSupport.swift */; };
+		A9AA78701B4D4114B92F2E12 /* TransferServerHTML.swift in Sources */ = {isa = PBXBuildFile; fileRef = BBF15966937A405B96C3E40D /* TransferServerHTML.swift */; };
+		BB1B738CEBD646E7A866E627 /* TransferServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 61C0DB4F90D04F0291A14CC9 /* TransferServer.swift */; };
+		DA9FB628325C4482B7B4C2F4 /* TransferServerConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68C3AEC654714E57AFF4F1C0 /* TransferServerConnection.swift */; };
+		6FAB18E55DB74C0281371736 /* TransferServerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0DFA2FAD961B4F5AA8D3C75B /* TransferServerView.swift */; };
+		E6FD339FC041450F9FE6F262 /* TransferServerSupportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0355E399DA664B43ABAE5ABF /* TransferServerSupportTests.swift */; };
 		8AAA4F4C2CF1FF8C009D0777 /* MockCoordinatorPresentationFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AAA4F4B2CF1FF77009D0777 /* MockCoordinatorPresentationFlow.swift */; };
 		8AAD8A4F2CEE3650000A4B4B /* View+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AAD8A4E2CEE3650000A4B4B /* View+BookPlayer.swift */; };
 		8AAD8A552CEE884F000A4B4B /* JellyfinConnectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AAD8A542CEE8849000A4B4B /* JellyfinConnectionService.swift */; };
@@ -1680,12 +1680,12 @@
 		8A9D0D2B2CCFBEEE007A924D /* JellyfinLibraryItemImageView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinLibraryItemImageView.swift; sourceTree = "<group>"; };
 		8A9D0D2D2CCFD968007A924D /* BlurHashDecode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurHashDecode.swift; sourceTree = "<group>"; };
 		8A9D0D2F2CD0E06F007A924D /* SingleFileDownloadService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleFileDownloadService.swift; sourceTree = "<group>"; };
-		199B6ED6F3144D0C8C45C86C /* WifiTransferFileSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WifiTransferFileSupport.swift; sourceTree = "<group>"; };
-		BBF15966937A405B96C3E40D /* WifiTransferHTML.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WifiTransferHTML.swift; sourceTree = "<group>"; };
-		61C0DB4F90D04F0291A14CC9 /* WifiTransferServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WifiTransferServer.swift; sourceTree = "<group>"; };
-		68C3AEC654714E57AFF4F1C0 /* WifiTransferConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WifiTransferConnection.swift; sourceTree = "<group>"; };
-		0DFA2FAD961B4F5AA8D3C75B /* WifiTransferView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WifiTransferView.swift; sourceTree = "<group>"; };
-		0355E399DA664B43ABAE5ABF /* WifiTransferFileSupportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WifiTransferFileSupportTests.swift; sourceTree = "<group>"; };
+		199B6ED6F3144D0C8C45C86C /* TransferServerSupport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferServerSupport.swift; sourceTree = "<group>"; };
+		BBF15966937A405B96C3E40D /* TransferServerHTML.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferServerHTML.swift; sourceTree = "<group>"; };
+		61C0DB4F90D04F0291A14CC9 /* TransferServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferServer.swift; sourceTree = "<group>"; };
+		68C3AEC654714E57AFF4F1C0 /* TransferServerConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferServerConnection.swift; sourceTree = "<group>"; };
+		0DFA2FAD961B4F5AA8D3C75B /* TransferServerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferServerView.swift; sourceTree = "<group>"; };
+		0355E399DA664B43ABAE5ABF /* TransferServerSupportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferServerSupportTests.swift; sourceTree = "<group>"; };
 		8AAA4F4B2CF1FF77009D0777 /* MockCoordinatorPresentationFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockCoordinatorPresentationFlow.swift; sourceTree = "<group>"; };
 		8AAD8A4E2CEE3650000A4B4B /* View+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+BookPlayer.swift"; sourceTree = "<group>"; };
 		8AAD8A542CEE8849000A4B4B /* JellyfinConnectionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JellyfinConnectionService.swift; sourceTree = "<group>"; };
@@ -1984,15 +1984,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		14541ECBF42B4EF69C5BA2B3 /* WifiTransfer */ = {
+		14541ECBF42B4EF69C5BA2B3 /* TransferServer */ = {
 			isa = PBXGroup;
 			children = (
-				68C3AEC654714E57AFF4F1C0 /* WifiTransferConnection.swift */,
-				199B6ED6F3144D0C8C45C86C /* WifiTransferFileSupport.swift */,
-				BBF15966937A405B96C3E40D /* WifiTransferHTML.swift */,
-				61C0DB4F90D04F0291A14CC9 /* WifiTransferServer.swift */,
+				68C3AEC654714E57AFF4F1C0 /* TransferServerConnection.swift */,
+				199B6ED6F3144D0C8C45C86C /* TransferServerSupport.swift */,
+				BBF15966937A405B96C3E40D /* TransferServerHTML.swift */,
+				61C0DB4F90D04F0291A14CC9 /* TransferServer.swift */,
 			);
-			path = WifiTransfer;
+			path = TransferServer;
 			sourceTree = "<group>";
 		};
 		1A3B1ADBE4710D12AF4A65BD /* GridLayout */ = {
@@ -2185,7 +2185,7 @@
 				9F2E00DD2A5C2B810001FE20 /* StorageCloudDeletedViewModel.swift */,
 				63B3B68F2B1F625B007A367C /* StorageCloudDeletedView.swift */,
 				6370433F2E2BFD6C005353D1 /* SettingsStorageSectionView.swift */,
-				0DFA2FAD961B4F5AA8D3C75B /* WifiTransferView.swift */,
+				0DFA2FAD961B4F5AA8D3C75B /* TransferServerView.swift */,
 				637043492E2C03D9005353D1 /* SettingsDataUsageSectionView.swift */,
 			);
 			path = Storage;
@@ -3255,7 +3255,7 @@
 				9F82DF9B27DFE46B001B0EA8 /* PhoneWatchConnectivityService.swift */,
 				63B50F042B692E4200BCABBA /* ListSyncRefreshService.swift */,
 				8A9D0D2F2CD0E06F007A924D /* SingleFileDownloadService.swift */,
-				14541ECBF42B4EF69C5BA2B3 /* WifiTransfer */,
+				14541ECBF42B4EF69C5BA2B3 /* TransferServer */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -3275,7 +3275,7 @@
 				6F83542FF9A240EC87E55AC8 /* ReviewPromptServiceTests.swift */,
 				9FC1E4762815F97E00522FA8 /* KeychainServiceTests.swift */,
 				700DFD61111AC10253D6EBAA /* SyncTasksStorageTests.swift */,
-				0355E399DA664B43ABAE5ABF /* WifiTransferFileSupportTests.swift */,
+				0355E399DA664B43ABAE5ABF /* TransferServerSupportTests.swift */,
 				0EA09FE5A35CEA0B87F83EF3 /* PreferencesSyncServiceTests.swift */,
 				EC40E520F644AFA46DAD76B0 /* AudioMetadataServiceTests.swift */,
 				A11C418B028982CF431C589F /* LibraryServiceReloadChaptersTests.swift */,
@@ -4965,11 +4965,11 @@
 				416A297D2568671F00605395 /* AVPlayer+BookPlayer.swift in Sources */,
 				634BA5A52C176B5A0015314D /* StoryActionView.swift in Sources */,
 				8A9D0D302CD0E074007A924D /* SingleFileDownloadService.swift in Sources */,
-				65A5A7FF0FC043998BDADDE5 /* WifiTransferFileSupport.swift in Sources */,
-				A9AA78701B4D4114B92F2E12 /* WifiTransferHTML.swift in Sources */,
-				BB1B738CEBD646E7A866E627 /* WifiTransferServer.swift in Sources */,
-				DA9FB628325C4482B7B4C2F4 /* WifiTransferConnection.swift in Sources */,
-				6FAB18E55DB74C0281371736 /* WifiTransferView.swift in Sources */,
+				65A5A7FF0FC043998BDADDE5 /* TransferServerSupport.swift in Sources */,
+				A9AA78701B4D4114B92F2E12 /* TransferServerHTML.swift in Sources */,
+				BB1B738CEBD646E7A866E627 /* TransferServer.swift in Sources */,
+				DA9FB628325C4482B7B4C2F4 /* TransferServerConnection.swift in Sources */,
+				6FAB18E55DB74C0281371736 /* TransferServerView.swift in Sources */,
 				6309F1262B0CF1C1002B86A4 /* BookPlaybackToggleIntent.swift in Sources */,
 				99329DC52F3AE9C4003F8E73 /* PlayerJumpView.swift in Sources */,
 				632D5A582E58C3CC006D10BC /* VerticalLabelStyle.swift in Sources */,
@@ -5065,7 +5065,7 @@
 				232F1DA50BB33EB5A629B8B7 /* PlayableChapterTests.swift in Sources */,
 				4163E313214AC43000072AA2 /* ImportOperationTests.swift in Sources */,
 				0CEC6B48350FC9C0A0B7D1C0 /* SyncTasksStorageTests.swift in Sources */,
-				E6FD339FC041450F9FE6F262 /* WifiTransferFileSupportTests.swift in Sources */,
+				E6FD339FC041450F9FE6F262 /* TransferServerSupportTests.swift in Sources */,
 				1A26F7D72FFD6D625A313FC5 /* AudioMetadataServiceTests.swift in Sources */,
 				466E4B7066F10717C8CE7B3E /* LibraryServiceReloadChaptersTests.swift in Sources */,
 				59384C1A0B33B9EB42AE4C75 /* ChaptersViewModelTests.swift in Sources */,

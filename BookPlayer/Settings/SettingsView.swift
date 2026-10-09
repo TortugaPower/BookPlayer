@@ -113,8 +113,8 @@ struct SettingsView: View {
                 StorageCloudDeletedViewModel(folderURL: DataManager.getBackupFolderURL())
             )
           )
-        case .wifiTransfer:
-          view = AnyView(WifiTransferView())
+        case .transferServer:
+          view = AnyView(TransferServerView())
         case .mediaServers:
           view = AnyView(
             MediaServersView(
