@@ -127,8 +127,7 @@ class AccountServiceMock: AccountServiceProtocol {
 
   func loginIfUserExists(delegate: PurchasesDelegate) {}
 
-  func login(with token: String, userId: String) async throws -> Account? {
-    self.account?.id = userId
+  func login(with token: String) async throws -> Account? {
     return self.account
   }
 

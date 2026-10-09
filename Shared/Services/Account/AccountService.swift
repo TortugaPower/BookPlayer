@@ -81,10 +81,7 @@ public protocol AccountServiceProtocol {
   func subscribe(option: PricingModel) async throws -> Bool
   func restorePurchases() async throws -> CustomerInfo
 
-  @MainActor func login(
-    with token: String,
-    userId: String
-  ) async throws -> Account?
+  @MainActor func login(with token: String) async throws -> Account?
   /// Load up stored user into RevenueCat's SDK to start listening to events
   /// - Parameter delegate: Delegate that will handle any changes to the customer info
   func loginIfUserExists(delegate: PurchasesDelegate)
@@ -466,19 +463,16 @@ public final class AccountService: AccountServiceProtocol {
   /// On the main actor, like the other sign-ins and deleteAccount(): the account is read and
   /// updated on the view context. Only the requests run off the main thread
   @MainActor
-  public func login(
-    with token: String,
-    userId: String
-  ) async throws -> Account? {
+  public func login(with token: String) async throws -> Account? {
     let response: LoginResponse = try await provider.request(.login(token: token))
 
     try self.keychain.set(response.token, key: .token)
 
     // Identify to RevenueCat with the server's canonical id (the account's
     // external_id) as the single source of truth, so a user signing in with
-    // Apple lands on the same RevenueCat user as their other credentials.
-    // Fall back to the Apple credential id only if an older response omits it.
-    let rcUserId = response.revenuecatId ?? userId
+    // Apple lands on the same RevenueCat user as their other credentials, and the
+    // server checks entitlements against the same customer
+    let rcUserId = response.revenuecatId
     let (customerInfo, _) = try await Purchases.shared.logIn(rcUserId)
     UserDefaults.sharedDefaults.set(rcUserId, forKey: "rcUserId")
 

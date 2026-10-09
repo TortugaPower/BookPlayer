@@ -37,10 +37,7 @@ struct AppleSignInLink: View {
               throw AccountError.missingToken
             }
 
-            let account = try await accountService.login(
-              with: token,
-              userId: creds.user
-            )
+            let account = try await accountService.login(with: token)
 
             loadingState.show = false
 

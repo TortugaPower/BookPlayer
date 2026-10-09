@@ -43,16 +43,13 @@ class LoginViewModel: LoginViewModelProtocol {
         return
       }
 
-      Task { [weak self, accountService, token, appleIDCredential] in
+      Task { [weak self, accountService, token] in
         await MainActor.run { [weak self] in
           self?.alertPresenter.showLoader()
         }
 
         do {
-          let account = try await accountService.login(
-            with: token,
-            userId: appleIDCredential.user
-          )
+          let account = try await accountService.login(with: token)
 
           await MainActor.run { [weak self, account] in
             self?.alertPresenter.stopLoader()

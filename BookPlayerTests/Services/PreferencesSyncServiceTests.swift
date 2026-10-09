@@ -625,7 +625,7 @@ private final class SyncToggleAccountStub: AccountServiceProtocol {
   func updateAccount(id: String?, email: String?, donationMade: Bool?, hasSubscription: Bool?) {}
   func setDelegate(_ delegate: PurchasesDelegate) {}
   func loginIfUserExists(delegate: PurchasesDelegate) {}
-  func login(with token: String, userId: String) async throws -> Account? { nil }
+  func login(with token: String) async throws -> Account? { nil }
   func loginWithTransferredCredentials(
     token: String,
     accountId: String,
