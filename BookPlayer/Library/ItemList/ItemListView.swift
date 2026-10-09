@@ -249,7 +249,9 @@ struct ItemListView: View {
       }
     }
     .onReceive(syncQueueService.observeQueueCounts()) { counts in
-      syncLanePaused = counts.pausedCount(in: TaskQueueKey.sync) > 0
+      // Blocked too: an account-level pause from an upload holds this lane with none of its
+      // own tasks parked
+      syncLanePaused = counts.isBlocked(TaskQueueKey.sync) || counts.pausedCount(in: TaskQueueKey.sync) > 0
     }
     .onReceive(
       model.singleFileDownloadService.eventsPublisher
