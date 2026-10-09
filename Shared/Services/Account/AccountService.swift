@@ -186,13 +186,16 @@ public final class AccountService: AccountServiceProtocol {
   public func refreshAccessLevel() async -> AccessLevel? {
     do {
       let customerInfo = try await Purchases.shared.customerInfo(fetchPolicy: .fetchCurrent)
-      // updateAccount works on the view context: main only, like every other caller
-      await MainActor.run { self.updateAccount(from: customerInfo) }
-      // From this answer, not the cache: pro first, as in getAccessLevel
-      let entitlements = customerInfo.entitlements.all
-      if entitlements["pro"]?.isActive == true { return .pro }
-      if entitlements["lite"]?.isActive == true { return .lite }
-      return hasPlusAccess() ? .plus : .free
+      // On main, all of it: updateAccount works on the view context, and so does
+      // hasPlusAccess when it falls back to the stored account. This method resumes off main
+      return await MainActor.run {
+        self.updateAccount(from: customerInfo)
+        // From this answer, not the cache: pro first, as in getAccessLevel
+        let entitlements = customerInfo.entitlements.all
+        if entitlements["pro"]?.isActive == true { return .pro }
+        if entitlements["lite"]?.isActive == true { return .lite }
+        return self.hasPlusAccess() ? .plus : .free
+      }
     } catch {
       return nil
     }
