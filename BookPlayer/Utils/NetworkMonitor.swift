@@ -32,10 +32,18 @@ class NetworkMonitor {
     monitor.pathUpdateHandler = { [weak self] path in
       DispatchQueue.main.async {
         self?.isConnected = path.status == .satisfied
-        self?.isConnectedViaWiFi = path.usesInterfaceType(.wifi)
+        // Treat Wi‑Fi and wired Ethernet as local-network capable (not cellular).
+        self?.isConnectedViaWiFi =
+          path.usesInterfaceType(.wifi) || path.usesInterfaceType(.wiredEthernet)
         self?.isConnectedViaCellular = path.usesInterfaceType(.cellular)
       }
     }
+    // Seed from the current path immediately; the first handler callback can lag.
+    let path = monitor.currentPath
+    isConnected = path.status == .satisfied
+    isConnectedViaWiFi =
+      path.usesInterfaceType(.wifi) || path.usesInterfaceType(.wiredEthernet)
+    isConnectedViaCellular = path.usesInterfaceType(.cellular)
     monitor.start(queue: queue)
   }
   
