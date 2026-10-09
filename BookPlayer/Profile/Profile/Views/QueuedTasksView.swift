@@ -42,7 +42,9 @@ struct QueuedTasksView: View, BPLogger {
 
   var body: some View {
     List {
-      if !allowsCellularData && !networkMonitor.isConnectedViaWiFi {
+      // Exactly when the Wi-Fi-only setting holds uploads back: the session for it uploads over
+      // any network but cellular (wired Ethernet too), and offline Wi-Fi is still the way out
+      if !allowsCellularData && !(networkMonitor.isConnected && !networkMonitor.isConnectedViaCellular) {
         Section {
           EmptyView()
         } header: {
