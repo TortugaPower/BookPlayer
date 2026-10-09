@@ -529,6 +529,19 @@ extension MissingItemsPassTests {
     try await waitUntil { queue.serverLanesEnabled }
   }
 
+  /// Artwork goes to S3 like a book's file: without S3 access (LITE) none is queued, since its
+  /// route would refuse it with tier_required
+  func testArtworkUpload_isQueuedOnlyWithS3Access() async throws {
+    queue.accessPolicy = [.uploadFile: false, .externalUpdate: true]
+    sync.scheduleUploadArtwork(relativePath: "lite.m4b", uuid: "lite-uuid")
+    queue.accessPolicy = [.uploadFile: true, .externalUpdate: true]
+    sync.scheduleUploadArtwork(relativePath: "pro.m4b", uuid: "pro-uuid")
+
+    try await waitUntil { await !self.repository.getAllTasks().isEmpty }
+    let queued = await repository.getAllTasks()
+    XCTAssertEqual(queued.map(\.relativePath), ["pro.m4b"])
+  }
+
   /// An account row with this id: blank is how a signed-out account stays behind
   private func accountRow(id: String) -> Account {
     let row = Account(context: dataManager.getContext())

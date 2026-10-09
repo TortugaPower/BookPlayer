@@ -47,6 +47,16 @@ public struct TaskPause: Equatable {
   }
 }
 
+/// What a fresh RevenueCat read says about the server's rejection of the account
+public enum AccountVerdict: Equatable {
+  /// No sync tier left: the account update runs the lapse path
+  case lapsed
+  /// LITE, at a route that needs PRO: the server was right, and the task can never run
+  case lacksPro
+  /// RevenueCat grants what the server refused, or couldn't be read
+  case disputed
+}
+
 /// What the queue does with a failed task
 public enum SyncFailureAction: Equatable {
   /// Uncoded or transient: retry after the usual delay, as always
@@ -82,6 +92,20 @@ public enum SyncFailurePolicy {
       case .networkErrorWithCode(let message, let code, let status) = error
     else { return nil }
     return CodedFailure(code: code, message: message, httpStatus: status)
+  }
+
+  /// Judged by the task, not the code: only the S3 routes (book files and artwork) need PRO,
+  /// every other route takes either sync tier, and the server's `tier_required` and
+  /// `not_subscribed` both mean "not the tier this route needs".
+  public static func accountVerdict(for jobType: SyncJobType, freshLevel: AccessLevel?) -> AccountVerdict {
+    switch freshLevel {
+    case nil, .pro?:
+      return .disputed
+    case .lite?:
+      return [.uploadFile, .uploadArtwork].contains(jobType) ? .lacksPro : .disputed
+    case .plus?, .free?:
+      return .lapsed
+    }
   }
 
   /// Only a coded failure parks: a code means the request can never succeed as sent.

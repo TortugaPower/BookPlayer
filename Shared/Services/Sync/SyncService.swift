@@ -660,7 +660,9 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
   }
 
   public func scheduleUploadArtwork(relativePath: String, uuid: String) {
-    guard isActive else { return }
+    // Artwork goes to S3 like a book's file: PRO only (its route answers LITE with
+    // tier_required, as the Android app knows)
+    guard isActive, syncQueueService.accessPolicy[.uploadFile] == true else { return }
 
     Task {
       await jobManager.scheduleArtworkUpload(with: relativePath, for: uuid)

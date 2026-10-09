@@ -182,17 +182,20 @@ public final class AccountService: AccountServiceProtocol {
     return Purchases.shared.cachedCustomerInfo?.entitlements.all["pro"]?.isActive == true || Purchases.shared.cachedCustomerInfo?.entitlements.all["lite"]?.isActive == true
   }
   
-  /// A fresh (network) RevenueCat read of the sync entitlement, for when the server rejects
-  /// the account while the cached info says otherwise. The account update it triggers
-  /// posts `.accountUpdate`, so an inactive result runs the usual lapse path. nil = the
-  /// fetch failed.
-  public func refreshSyncEntitlement() async -> Bool? {
+  /// A fresh (network) RevenueCat read of the access level, for when the server rejects the
+  /// account while the cached info says otherwise. The account update it triggers posts
+  /// `.accountUpdate`, so losing every sync tier runs the usual lapse path. nil = the fetch
+  /// failed.
+  public func refreshAccessLevel() async -> AccessLevel? {
     do {
       let customerInfo = try await Purchases.shared.customerInfo(fetchPolicy: .fetchCurrent)
       // updateAccount works on the view context: main only, like every other caller
       await MainActor.run { self.updateAccount(from: customerInfo) }
+      // From this answer, not the cache: pro first, as in getAccessLevel
       let entitlements = customerInfo.entitlements.all
-      return entitlements["pro"]?.isActive == true || entitlements["lite"]?.isActive == true
+      if entitlements["pro"]?.isActive == true { return .pro }
+      if entitlements["lite"]?.isActive == true { return .lite }
+      return hasPlusAccess() ? .plus : .free
     } catch {
       return nil
     }

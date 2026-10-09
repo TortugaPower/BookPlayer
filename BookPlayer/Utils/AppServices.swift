@@ -95,7 +95,7 @@ final class AppServices: BPLogger {
       let syncQueueService = makeSyncQueueService(
         libraryService: libraryService,
         getAccessLevel: { accountService.getAccessLevel() },
-        verifySyncEntitlement: { await accountService.refreshSyncEntitlement() },
+        verifyAccessLevel: { await accountService.refreshAccessLevel() },
         tasksDataManager: tasksDataManager,
         dataManager: dataManager
       )
@@ -309,7 +309,7 @@ final class AppServices: BPLogger {
   private func makeSyncQueueService(
     libraryService: LibraryService,
     getAccessLevel: @escaping () -> AccessLevel,
-    verifySyncEntitlement: @escaping () async -> Bool?,
+    verifyAccessLevel: @escaping () async -> AccessLevel?,
     tasksDataManager: TasksDataManager,
     dataManager: DataManager
   ) -> SyncQueueService {
@@ -317,7 +317,7 @@ final class AppServices: BPLogger {
     service.setup(
       libraryService: libraryService,
       getAccessLevel: getAccessLevel,
-      verifySyncEntitlement: verifySyncEntitlement,
+      verifyAccessLevel: verifyAccessLevel,
       tasksDataManager: tasksDataManager,
       networkClient: NetworkClient(),
       dataManager: dataManager

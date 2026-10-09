@@ -38,7 +38,7 @@ public protocol SyncQueueServiceProtocol {
   func setup(
     libraryService: LibrarySyncProtocol,
     getAccessLevel: @escaping () -> AccessLevel,
-    verifySyncEntitlement: @escaping () async -> Bool?,
+    verifyAccessLevel: @escaping () async -> AccessLevel?,
     tasksDataManager: TasksDataManager,
     networkClient: NetworkClientProtocol,
     dataManager: DataManager
@@ -168,9 +168,9 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
   /// Whether coded failures park (kept, visible, retryable) or are dropped. Off on the
   /// watch, which has no Queued Tasks screen to show or retry them from. Set before `setup`.
   public var parkingEnabled = true
-  /// Fresh RevenueCat read of the sync entitlement (nil = the check failed), for an
-  /// account-level rejection. Its update also drives the lapse path when inactive.
-  var verifySyncEntitlement: (() async -> Bool?)!
+  /// Fresh RevenueCat read of the access level (nil = the check failed), for an
+  /// account-level rejection. Its update also drives the lapse path when no sync tier is left.
+  var verifyAccessLevel: (() async -> AccessLevel?)!
   /// The book as it stands now, by uuid — for handing an upload the server doesn't
   /// recognize back to the sync lane. Internal for @testable injection.
   lazy var findSyncableItem: (String) async -> SyncableItem? = { [weak self] uuid in
@@ -217,14 +217,14 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
   public func setup(
     libraryService: LibrarySyncProtocol,
     getAccessLevel: @escaping () -> AccessLevel,
-    verifySyncEntitlement: @escaping () async -> Bool?,
+    verifyAccessLevel: @escaping () async -> AccessLevel?,
     tasksDataManager: TasksDataManager,
     networkClient: NetworkClientProtocol,
     dataManager: DataManager
   ) {
     self.libraryService = libraryService
     self.getAccessLevel = getAccessLevel
-    self.verifySyncEntitlement = verifySyncEntitlement
+    self.verifyAccessLevel = verifyAccessLevel
     self.networkClient = networkClient
     self.dataManager = dataManager
     self.taskContainer = SyncQueueRepository(tasksDataManager: tasksDataManager)
@@ -486,11 +486,23 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
       else { return }
       // Off the worker: the lanes already wait on the pause
       Task {
-        // Inactive: the fetch's account update runs the lapse path, which clears these
-        // lanes. Active, or the check failed: the server disagrees with RevenueCat, so the
-        // tasks stay held (launch retry, Retry) and it's reported.
-        guard await self.verifySyncEntitlement() != false else { return }
-        self.reportPause(of: task, pause: pause)
+        switch SyncFailurePolicy.accountVerdict(for: task.jobType, freshLevel: await self.verifyAccessLevel()) {
+        case .lapsed:
+          // The fetch's account update runs the lapse path, which clears these lanes
+          return
+        case .lacksPro:
+          // The server was right: LITE keeps nothing in S3, so the task can never run here
+          Self.logger.info("Dropping \(task.jobType.rawValue) task \(task.id): it needs PRO, and RevenueCat confirms LITE")
+          if task.jobType == .uploadFile {
+            self.cleanUpDroppedUploadTempLink(task)
+          }
+          await self.taskContainer.pop(task)
+          self.wakeUpWorkers()
+        case .disputed:
+          // RevenueCat grants what the server refused, or couldn't be read: the tasks stay
+          // held (launch retry, Retry) and it's reported
+          self.reportPause(of: task, pause: pause)
+        }
       }
     }
   }

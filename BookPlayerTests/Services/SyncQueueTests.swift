@@ -774,11 +774,11 @@ extension SyncQueueTests {
 
   private func makeParkingEngine(
     client: NetworkClientProtocol,
-    verify: @escaping () async -> Bool? = { true }
+    verify: @escaping () async -> AccessLevel? = { .pro }
   ) -> SyncQueueService {
     let service = makeGatedEngine()
     service.networkClient = client
-    service.verifySyncEntitlement = verify
+    service.verifyAccessLevel = verify
     return service
   }
 
@@ -847,7 +847,7 @@ extension SyncQueueTests {
   /// RevenueCat still says active: every server lane holds and the pause is reported
   func testAccountRejection_whileRevenueCatSaysActive_holdsTheServerLanes_andReports() async throws {
     let client = FailingNetworkClient(errors: [coded("not_subscribed", status: 400)])
-    let service = makeParkingEngine(client: client, verify: { true })
+    let service = makeParkingEngine(client: client, verify: { .pro })
     try await repository.storeTask(parameters: syncTaskParams(id: "e7m1", jobType: .delete, path: "a.mp3"))
 
     let reported = expectation(forNotification: .syncTaskPaused, object: nil) { note in
@@ -879,7 +879,7 @@ extension SyncQueueTests {
     let verified = expectation(description: "entitlement checked")
     let service = makeParkingEngine(client: client, verify: {
       verified.fulfill()
-      return false
+      return .free
     })
     try await repository.storeTask(parameters: syncTaskParams(id: "e9m1", jobType: .delete, path: "a.mp3"))
 
@@ -893,6 +893,51 @@ extension SyncQueueTests {
 
     await fulfillment(of: [verified], timeout: 2)
     await fulfillment(of: [reported], timeout: 0.5)
+  }
+
+  /// A LITE account at a route that needs PRO (artwork here): the server was right, so the
+  /// task is dropped without a report, and the lanes it held run again
+  func testTierRequired_onAProOnlyTask_whenRevenueCatSaysLite_dropsIt_andTheLanesRun() async throws {
+    let path = "tier-\(UUID().uuidString).m4b"
+    let artwork = ArtworkService.getCachedImageURL(for: path)
+    try FileManager.default.createDirectory(
+      at: artwork.deletingLastPathComponent(),
+      withIntermediateDirectories: true
+    )
+    try Data([0xFF, 0xD8]).write(to: artwork)
+    defer { try? FileManager.default.removeItem(at: artwork) }
+
+    let client = FailingNetworkClient(errors: [coded("tier_required", status: 403)])
+    let service = makeParkingEngine(client: client, verify: { .lite })
+    try await repository.storeTask(parameters: syncTaskParams(id: "e12a1", jobType: .uploadArtwork, path: path))
+    try await repository.storeTask(parameters: syncTaskParams(id: "e12m1", jobType: .delete, path: "b.mp3"))
+
+    let reported = expectation(forNotification: .syncTaskPaused, object: nil) { note in
+      (note.object as? QueuedSyncTask)?.id == "e12a1"
+    }
+    reported.isInverted = true
+    service.setServerLanesEnabled(true)
+
+    try await waitForEmptyQueue()
+    XCTAssertEqual(client.requestCount, 2, "the refused artwork, then the delete it held")
+    await fulfillment(of: [reported], timeout: 0.5)
+  }
+
+  /// The fresh read is judged by the task's route: the S3 ones (book files, artwork) need
+  /// PRO, every other one either sync tier
+  func testAccountVerdict_judgesByTheTasksRoute() {
+    for jobType in [SyncJobType.uploadFile, .uploadArtwork] {
+      XCTAssertEqual(SyncFailurePolicy.accountVerdict(for: jobType, freshLevel: .lite), .lacksPro)
+      XCTAssertEqual(SyncFailurePolicy.accountVerdict(for: jobType, freshLevel: .pro), .disputed)
+    }
+    for jobType in [SyncJobType.update, .delete, .upload] {
+      XCTAssertEqual(SyncFailurePolicy.accountVerdict(for: jobType, freshLevel: .lite), .disputed)
+    }
+    for level in [AccessLevel.free, .plus] {
+      XCTAssertEqual(SyncFailurePolicy.accountVerdict(for: .uploadFile, freshLevel: level), .lapsed)
+      XCTAssertEqual(SyncFailurePolicy.accountVerdict(for: .delete, freshLevel: level), .lapsed)
+    }
+    XCTAssertEqual(SyncFailurePolicy.accountVerdict(for: .uploadArtwork, freshLevel: nil), .disputed)
   }
 
   /// The one automatic retry: a launch resumes parked tasks before waking the lanes

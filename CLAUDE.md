@@ -308,8 +308,10 @@ CarPlay event bus. Declared in `Shared/Extensions/Notification+BookPlayerKit.swi
   `FileUploadOperation` reach it. `SyncFailurePolicy` owns the rules: leaf tasks (`update`,
   `uploadArtwork`, `uploadFile`) park alone (`TaskPauseScope.task`, the lane keeps running); every other
   sync-lane task is structural and stops its lane (`.lane`); `not_subscribed`/`tier_required` park `.account`
-  (holds every server lane) and trigger a fresh RevenueCat read — inactive runs the normal lapse path, active or
-  failed keeps the tasks held and reports; `externalUpdate` keeps its own handling. The watch sets
+  (holds every server lane) and trigger a fresh RevenueCat read of the access level, judged by the task's route
+  (`SyncFailurePolicy.accountVerdict`): no sync tier left runs the normal lapse path; LITE at a PRO-only S3 route
+  (book file, artwork) drops the task, since the server was right; PRO, LITE at any other route, or a failed read
+  keeps the tasks held and reports; `externalUpdate` keeps its own handling. The watch sets
   `parkingEnabled = false` (no UI there), so task-level coded failures drop. The pause lives on
   `QueuedTaskReferenceModel` (`pauseScope`, code, message, status, `pausedAt`, `sentryEventId`);
   `SyncQueueRepository.getNextTask` skips `.task` rows and stops at a `.lane`/`.account` head, and
@@ -482,7 +484,8 @@ lines). It is the highest-risk file in the app.
   logout→login can't let a late `resetAllJobs()` wipe freshly-scheduled jobs — preserve this ordering. Every
   `schedule*` method short-circuits on `guard isActive`.
 - **Sync = the `pro` OR `lite` entitlement** (`hasSyncEnabled()`); `lite` gets DB-backed sync only —
-  S3 file uploads are gated per-job via `SyncQueueService.accessPolicy` (`.uploadFile` is pro-only,
+  S3 file uploads are gated per-job via `SyncQueueService.accessPolicy` (`.uploadFile` is pro-only, and it also
+  gates `SyncService.scheduleUploadArtwork`, since artwork goes to S3 too and its route refuses LITE;
   `.externalUpdate` — progress pushes to the USER'S OWN media server — is available on every tier,
   matching the Android app). The policy is set in the queue's `setup`, then refreshed only by `SyncService`'s
   `.accountUpdate` listener (`refreshAccessPolicy()`), first thing as the update arrives, before the main-actor step

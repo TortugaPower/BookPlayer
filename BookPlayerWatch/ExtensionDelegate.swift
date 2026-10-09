@@ -78,7 +78,7 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate, ObservableObject {
       syncQueueService.setup(
         libraryService: libraryService,
         getAccessLevel: { accountService.getAccessLevel() },
-        verifySyncEntitlement: { await accountService.refreshSyncEntitlement() },
+        verifyAccessLevel: { await accountService.refreshAccessLevel() },
         tasksDataManager: tasksDataManager,
         networkClient: NetworkClient(),
         dataManager: dataManager
