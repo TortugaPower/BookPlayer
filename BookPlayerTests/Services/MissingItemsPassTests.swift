@@ -653,3 +653,147 @@ extension MissingItemsPassTests {
     XCTAssertNotEqual(defaults.double(forKey: Constants.UserDefaults.missingItemsPassLastRun), 0)
   }
 }
+
+// MARK: - Download source: media server first, the cloud copy as the fallback
+
+extension MissingItemsPassTests {
+  /// Answers the cloud's file request (or refuses it, without a cloud copy) and records what
+  /// was downloaded
+  private final class DownloadClient: NetworkClientMock, @unchecked Sendable {
+    private let lock = NSLock()
+    private let cloudURLs: [RemoteFileURL]?
+    private var _requestCount = 0
+    private var _downloaded: [URL] = []
+
+    var requestCount: Int { lock.withLock { _requestCount } }
+    var downloaded: [URL] { lock.withLock { _downloaded } }
+
+    init(cloudURLs: [RemoteFileURL]?) {
+      self.cloudURLs = cloudURLs
+      super.init(mockedResponse: Empty())
+    }
+
+    override func request<T: Decodable>(
+      path: String,
+      method: HTTPMethod,
+      parameters: [String: Any]?
+    ) async throws -> T {
+      lock.withLock { _requestCount += 1 }
+      guard let cloudURLs else { throw BookPlayerError.networkError("No file") }
+      // swiftlint:disable:next force_cast
+      return RemoteFileURLResponseContainer(content: cloudURLs) as! T
+    }
+
+    override func download(url: URL, taskDescription: String?, session: URLSession) async -> URLSessionTask {
+      record(URLRequest(url: url), taskDescription)
+    }
+
+    override func download(request: URLRequest, taskDescription: String?, session: URLSession) async -> URLSessionTask {
+      record(request, taskDescription)
+    }
+
+    /// Never resumed. Described like the real one: the download path files tasks by it
+    private func record(_ request: URLRequest, _ taskDescription: String?) -> URLSessionTask {
+      lock.withLock { _downloaded.append(request.url!) }
+      let task = URLSession.shared.downloadTask(with: request)
+      task.taskDescription = taskDescription
+      return task
+    }
+  }
+
+  private struct ResolverStub: ExternalStreamResolving {
+    let source: ExternalStreamSource?
+    func streamSource(for resource: SimpleExternalResource) -> ExternalStreamSource? { source }
+  }
+
+  private func downloadingSyncService(client: DownloadClient, server: ExternalStreamSource?) -> SyncService {
+    let service = SyncService()
+    service.setup(
+      isActive: true,
+      libraryService: libraryService,
+      accountService: account,
+      syncQueueService: queue,
+      client: client,
+      streamResolver: ResolverStub(source: server),
+      userDefaults: defaults
+    )
+    queue.setServerLanesEnabled(false)
+    return service
+  }
+
+  /// A book uploaded from Jellyfin: its link says the file is in the cloud too
+  private func jellyfinBook() -> SimpleLibraryItem {
+    SimpleLibraryItem(
+      title: "Streamed",
+      details: "The Author",
+      speed: 1,
+      currentTime: 0,
+      duration: 300,
+      percentCompleted: 0,
+      isFinished: false,
+      relativePath: "streamed-\(UUID().uuidString).m4b",
+      remoteURL: nil,
+      artworkURL: nil,
+      orderRank: 0,
+      parentFolder: nil,
+      originalFileName: "streamed.m4b",
+      lastPlayDate: nil,
+      type: .book,
+      uuid: UUID().uuidString,
+      externalResources: [
+        SimpleExternalResource(
+          providerName: "jellyfin",
+          providerId: "jf-1",
+          syncStatus: ExternalResource.SyncStatus.downloaded.rawValue,
+          lastSyncedAt: nil,
+          hostId: "guid-host",
+          libraryItem: nil
+        ),
+      ]
+    )
+  }
+
+  /// No saved connection to its server here (always the case on the watch): the cloud copy
+  func testDownload_withoutItsServerHere_takesTheCloudCopy() async throws {
+    let item = jellyfinBook()
+    let cloud = URL(string: "https://s3.example.com/streamed.m4b")!
+    let client = DownloadClient(cloudURLs: [
+      RemoteFileURL(url: cloud, relativePath: item.relativePath, type: .book, headers: nil),
+    ])
+
+    try await downloadingSyncService(client: client, server: nil).downloadRemoteFiles(for: item)
+
+    XCTAssertEqual(client.downloaded, [cloud])
+  }
+
+  /// Without a cloud copy either, the user still hears what to fix
+  func testDownload_withoutItsServerOrACloudCopy_saysToConnectTheServer() async {
+    let client = DownloadClient(cloudURLs: nil)
+
+    do {
+      try await downloadingSyncService(client: client, server: nil).downloadRemoteFiles(for: jellyfinBook())
+      XCTFail("expected the missing-connection error")
+    } catch {
+      XCTAssertEqual(error.localizedDescription, "integration_error_missing_connection".localized)
+    }
+    XCTAssertEqual(client.requestCount, 1, "the cloud was asked")
+    XCTAssertTrue(client.downloaded.isEmpty)
+  }
+
+  /// Its server is here: the file comes from it even with a cloud copy (S3 egress)
+  func testDownload_withItsServerHere_takesItFromTheServer() async throws {
+    let item = jellyfinBook()
+    let server = URL(string: "https://jellyfin.example.com/Items/jf-1/Download")!
+    let client = DownloadClient(cloudURLs: [
+      RemoteFileURL(url: URL(string: "https://s3.example.com/streamed.m4b")!, relativePath: item.relativePath, type: .book, headers: nil),
+    ])
+
+    try await downloadingSyncService(
+      client: client,
+      server: ExternalStreamSource(location: .url(server), headers: ["Authorization": "token"])
+    ).downloadRemoteFiles(for: item)
+
+    XCTAssertEqual(client.downloaded.map(\.host), [server.host])
+    XCTAssertEqual(client.requestCount, 0, "the cloud wasn't asked")
+  }
+}

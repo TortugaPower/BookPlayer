@@ -545,7 +545,6 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
   public func downloadRemoteFiles(for item: SimpleLibraryItem) async throws {
     var remoteURLs: [RemoteFileURL] = []
-    var isExternalItem = false
     // streamingResource, not first(where:) over an unordered set: it is provider-filtered.
     // The API's markExternalSourceUploaded marks EVERY provider row 'downloaded' for an
     // item, so a dual-linked book's Hardcover row can pass a syncStatus check — and Hardcover
@@ -553,8 +552,7 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     // whose Jellyfin connection was fine. A streamed volume's books have no link of their own:
     // they download through the volume's.
     if item.type == .book || item.type == .bound, let external = item.externalResources?.streamingResource {
-      isExternalItem = true
-      remoteURLs = try await mediaServerFileURLs(for: item, resource: external)
+      remoteURLs = try await mediaServerOrCloudFileURLs(for: item, resource: external)
     } else {
       remoteURLs = try await getRemoteFileURLs(of: item.relativePath, for: item.uuid, type: item.type)
     }
@@ -568,13 +566,6 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
         let fileURL = processedFolderURL.appendingPathComponent(remoteURL.relativePath)
         try DataManager.createBackingFolderIfNeeded(fileURL)
       }
-    }
-
-    // An external item that produced no URL means its media-server connection isn't
-    // resolvable on this device (deleted / never added) — completing silently with zero
-    // download tasks strands the user with no spinner and no explanation.
-    if isExternalItem, remoteURLs.isEmpty {
-      throw BookPlayerError.runtimeError("integration_error_missing_connection".localized)
     }
 
     let bookURLs = remoteURLs.filter({ $0.type == .book })
@@ -625,6 +616,33 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     )
     ongoingTasksParentReference.keys
       .forEach({ initiatingFolderReference[$0] = item.parentFolder })
+  }
+
+  /// Media server first, as playback does: it keeps the S3 egress down. The cloud copy when the
+  /// server can't serve the files on this device: no saved connection to it (always the case on
+  /// the watch), or it failed (unreachable, session expired, file gone, refused). As on Android.
+  /// Without a cloud copy the server's own answer stands, so the user still hears what to fix.
+  /// Never empty: no URL at all used to complete silently with nothing downloading.
+  private func mediaServerOrCloudFileURLs(
+    for item: SimpleLibraryItem,
+    resource: SimpleExternalResource
+  ) async throws -> [RemoteFileURL] {
+    let serverError: Error
+    do {
+      let serverURLs = try await mediaServerFileURLs(for: item, resource: resource)
+      if !serverURLs.isEmpty { return serverURLs }
+      serverError = BookPlayerError.runtimeError("integration_error_missing_connection".localized)
+    } catch {
+      serverError = error
+    }
+
+    guard
+      isActive,
+      let cloudURLs = try? await getRemoteFileURLs(of: item.relativePath, for: item.uuid, type: item.type),
+      cloudURLs.contains(where: { $0.type == .book })
+    else { throw serverError }
+
+    return cloudURLs
   }
 
   /// The files a streamed book or volume downloads from its media server, remembering how to

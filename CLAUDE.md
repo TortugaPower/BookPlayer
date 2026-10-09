@@ -584,6 +584,10 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
     (the download's planned AudiobookShelf lookup), since the volume's link stays `stream`: a
     cloud download, or any download on the watch, already has its file in the cloud. Single books are named
     `<title>.<ext>` (no provider prefix), with `-<uuid prefix>` when a book anywhere already has that name.
+  - **Downloads go to the media server first** (it keeps the S3 egress down), as playback does, and to the cloud
+    copy when the server can't serve them on this device: no saved connection to it (always the case on the
+    watch), or a failure (unreachable, session expired, file gone, refused). As on Android. Without a cloud copy
+    the server's error stands (`SyncService.mediaServerOrCloudFileURLs`).
   - **A stream import is created in the folder being browsed** (Android's `basePath`), and streaming a book
     already in the library makes another copy (decided; Android to follow), as a file imported again does.
     So a server's book can have several rows: find a link through its item (`findResources(for:)`), never by
