@@ -375,10 +375,10 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
     operation.onProgress = { progress in
       Task { @MainActor in
         SyncQueueProgressMonitor.shared.updateProgress(for: nextTask.id, progress: progress)
-        // Three consumers (SyncJobScheduler, the profile task views) still listen for this
-        // notification with a {uuid, relativePath, progress} payload — the old poster was
-        // removed with LibraryItemSyncOperation's upload path, silently freezing every
-        // upload progress bar.
+        // Still listened to, with this {uuid, relativePath, progress} payload: Profile's sync
+        // row, the Queued Tasks rows and the continued upload task's progress. Its old poster
+        // went with LibraryItemSyncOperation's upload path, which silently froze every upload
+        // progress bar.
         NotificationCenter.default.post(
           name: .uploadProgressUpdated,
           object: nil,

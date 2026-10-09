@@ -1142,7 +1142,10 @@ extension LibraryService {
     if let relativePath {
       // Never into the root under the path of a folder gone since the caller looked it up
       guard let folderReference = getItemReference(with: relativePath, context: context) as? Folder else {
-        throw BookPlayerError.runtimeError("Can't find the folder at \(relativePath)")
+        // Worded and localized by iOS, as `nameTakenError` is: "The file “Shelf” doesn’t exist."
+        throw CocoaError(.fileNoSuchFile, userInfo: [
+          NSFilePathErrorKey: DataManager.getProcessedFolderURL().appendingPathComponent(relativePath).path
+        ])
       }
       folder = folderReference
     }
