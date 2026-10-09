@@ -25,16 +25,17 @@ final class WifiTransferServer: ObservableObject, BPLogger {
   @Published private(set) var serverURL: URL?
   @Published private(set) var lastUploadedFilename: String?
 
-  /// Preferred port; falls back through a short range if bound.
-  static let preferredPort: UInt16 = 8080
+  /// Default preferred port when the user has not customized it.
+  static let preferredPort: UInt16 = WifiTransferFileSupport.defaultPort
   static let portFallbackCount: UInt16 = 10
 
   private weak var importManager: ImportManager?
   private var listener: NWListener?
   private var connections: [ObjectIdentifier: WifiTransferConnection] = [:]
   private var backgroundObserver: NSObjectProtocol?
-  /// Rotated every `start()`; embedded in `serverURL` so LAN peers need the copied link.
-  private var accessToken: String?
+  /// Optional 4-digit PIN for this session (`nil` = open while screen is active).
+  private var sessionPin: String?
+  private var basePort: UInt16 = WifiTransferFileSupport.defaultPort
 
   init() {
     backgroundObserver = NotificationCenter.default.addObserver(
@@ -69,23 +70,32 @@ final class WifiTransferServer: ObservableObject, BPLogger {
     guard !isRunning, status != .starting else { return }
     status = .starting
     serverURL = nil
-    accessToken = WifiTransferFileSupport.makeAccessToken()
+    basePort = WifiTransferFileSupport.Preferences.port
+    sessionPin = WifiTransferFileSupport.Preferences.pin
     // Drop any orphaned staging from a previous crashed / aborted session.
     WifiTransferFileSupport.clearStagingDirectory()
 
     guard isOnWiFi else {
-      accessToken = nil
+      sessionPin = nil
       status = .failed("wifi_transfer_no_wifi_message".localized)
       return
     }
 
     guard let host = Self.localIPv4Address() else {
-      accessToken = nil
+      sessionPin = nil
       status = .failed("wifi_transfer_no_wifi_message".localized)
       return
     }
 
     tryStart(host: host, portOffset: 0)
+  }
+
+  /// Restart with current preferences (port / PIN) while the user stays on the screen.
+  func restartIfRunning(isOnWiFi: Bool) {
+    guard isRunning || status == .starting else { return }
+    stop()
+    guard isOnWiFi else { return }
+    start(isOnWiFi: true)
   }
 
   func stop() {
@@ -96,7 +106,7 @@ final class WifiTransferServer: ObservableObject, BPLogger {
     listener?.cancel()
     listener = nil
     serverURL = nil
-    accessToken = nil
+    sessionPin = nil
     // Cancel closes in-flight writes; wipe the rest so partial folder trees do not linger.
     WifiTransferFileSupport.clearStagingDirectory()
     if case .failed = status {
@@ -107,8 +117,10 @@ final class WifiTransferServer: ObservableObject, BPLogger {
   }
 
   private func tryStart(host: String, portOffset: UInt16) {
-    let portValue = Self.preferredPort + portOffset
-    guard let nwPort = NWEndpoint.Port(rawValue: portValue) else {
+    let portValue = basePort + portOffset
+    guard portValue >= basePort,
+      let nwPort = NWEndpoint.Port(rawValue: portValue)
+    else {
       status = .failed("wifi_transfer_start_failed_message".localized)
       return
     }
@@ -137,7 +149,7 @@ final class WifiTransferServer: ObservableObject, BPLogger {
       if portOffset + 1 < Self.portFallbackCount {
         tryStart(host: host, portOffset: portOffset + 1)
       } else {
-        accessToken = nil
+        sessionPin = nil
         status = .failed("wifi_transfer_start_failed_message".localized)
       }
     }
@@ -152,11 +164,7 @@ final class WifiTransferServer: ObservableObject, BPLogger {
     switch state {
     case .ready:
       status = .running
-      if let accessToken {
-        serverURL = URL(string: "http://\(host):\(port)/\(accessToken)/")
-      } else {
-        serverURL = nil
-      }
+      serverURL = URL(string: "http://\(host):\(port)/")
       Self.logger.info("Wi‑Fi transfer listening on \(host):\(port)")
     case .failed(let error):
       listener?.cancel()
@@ -167,13 +175,13 @@ final class WifiTransferServer: ObservableObject, BPLogger {
       } else {
         status = .failed("wifi_transfer_start_failed_message".localized)
         serverURL = nil
-        accessToken = nil
+        sessionPin = nil
       }
     case .cancelled:
       if isRunning || status == .starting {
         status = .stopped
         serverURL = nil
-        accessToken = nil
+        sessionPin = nil
       }
     default:
       break
@@ -181,15 +189,11 @@ final class WifiTransferServer: ObservableObject, BPLogger {
   }
 
   private func accept(_ connection: NWConnection) {
-    guard let accessToken else {
-      connection.cancel()
-      return
-    }
     let handler = WifiTransferConnection(
       connection: connection,
       stagingDirectory: WifiTransferFileSupport.stagingRootURL,
       handlers: WifiTransferConnection.Handlers(
-        accessToken: accessToken,
+        pin: sessionPin,
         onLooseFile: { [weak self] url in
           Task { @MainActor in
             self?.handleLooseFile(url)

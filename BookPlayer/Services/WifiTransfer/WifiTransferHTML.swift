@@ -26,6 +26,9 @@ enum WifiTransferHTML {
     let queueEmpty: String
     let selectedCount: String
     let skipped: String
+    let pinPrompt: String
+    let pinSubmit: String
+    let pinWrong: String
   }
 
   /// Page copy from the app’s `Localizable.strings` (same keys / language as Settings).
@@ -47,13 +50,16 @@ enum WifiTransferHTML {
       importDone: "wifi_transfer_web_import_done".localized,
       queueEmpty: "wifi_transfer_web_queue_empty".localized,
       selectedCount: "wifi_transfer_web_selected_count".localized,
-      skipped: "wifi_transfer_web_skipped".localized
+      skipped: "wifi_transfer_web_skipped".localized,
+      pinPrompt: "wifi_transfer_web_pin_prompt".localized,
+      pinSubmit: "wifi_transfer_web_pin_submit".localized,
+      pinWrong: "wifi_transfer_web_pin_wrong".localized
     )
   }
 
   // Large embedded document: keep HTML/CSS/JS together for the transfer page.
   // swiftlint:disable:next function_body_length
-  static func page() -> String {
+  static func page(requiresPin: Bool = false) -> String {
     let strings = self.strings
     let lang = Bundle.main.preferredLocalizations.first ?? "en"
     let json: String
@@ -74,6 +80,8 @@ enum WifiTransferHTML {
       return s
     }()
     let pageTitle = escapeHTML(strings.title)
+    let requiresPinJS = requiresPin ? "true" : "false"
+    let pinHeaderName = WifiTransferFileSupport.pinHeaderName
 
     return """
     <!DOCTYPE html>
@@ -194,6 +202,20 @@ enum WifiTransferHTML {
           border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--border));
           color: var(--fg); font-size: 0.95rem;
         }
+        .pin-gate {
+          border: 1px solid var(--border); border-radius: 20px; padding: 1.5rem 1.25rem;
+          background: var(--card); box-shadow: var(--shadow); margin-bottom: 1.25rem;
+        }
+        .pin-gate label { display: block; margin-bottom: 0.6rem; color: var(--muted); }
+        .pin-row { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+        .pin-gate input {
+          flex: 1; min-width: 8rem; border: 1px solid var(--border); border-radius: 12px;
+          padding: 0.7rem 0.9rem; font-size: 1.25rem; letter-spacing: 0.2em; text-align: center;
+          background: transparent; color: var(--fg);
+        }
+        .transfer { display: none; }
+        .transfer.ready { display: block; }
+        .pin-error { color: var(--err); font-size: 0.9rem; margin-top: 0.65rem; }
       </style>
     </head>
     <body>
@@ -206,31 +228,44 @@ enum WifiTransferHTML {
         <p class="meta" id="accepted"></p>
         <p class="meta"><strong id="folderHint"></strong></p>
 
-        <div class="drop" id="drop">
-          <div class="icon" aria-hidden="true">↑</div>
-          <strong id="dropTitle"></strong>
-          <span class="meta" id="dropHint"></span>
-          <div class="actions">
-            <button type="button" class="btn btn-ghost" id="pickFiles"></button>
-            <button type="button" class="btn btn-ghost" id="pickFolder"></button>
+        <div class="pin-gate" id="pinGate" hidden>
+          <label for="pinInput" id="pinPrompt"></label>
+          <div class="pin-row">
+            <input id="pinInput" type="password" inputmode="numeric" maxlength="4" autocomplete="one-time-code" />
+            <button type="button" class="btn btn-primary" id="pinSubmit"></button>
           </div>
-          <input class="hidden-input" id="fileInput" type="file" multiple />
-          <input class="hidden-input" id="folderInput" type="file" webkitdirectory multiple />
+          <div class="pin-error" id="pinError" hidden></div>
         </div>
 
-        <div class="toolbar">
-          <div class="count" id="count"></div>
-          <button type="button" class="btn btn-primary" id="retry" hidden></button>
+        <div class="transfer" id="transfer">
+          <div class="drop" id="drop">
+            <div class="icon" aria-hidden="true">↑</div>
+            <strong id="dropTitle"></strong>
+            <span class="meta" id="dropHint"></span>
+            <div class="actions">
+              <button type="button" class="btn btn-ghost" id="pickFiles"></button>
+              <button type="button" class="btn btn-ghost" id="pickFolder"></button>
+            </div>
+            <input class="hidden-input" id="fileInput" type="file" multiple />
+            <input class="hidden-input" id="folderInput" type="file" webkitdirectory multiple />
+          </div>
+
+          <div class="toolbar">
+            <div class="count" id="count"></div>
+            <button type="button" class="btn btn-primary" id="retry" hidden></button>
+          </div>
+          <div class="banner" id="banner" hidden></div>
+          <ul id="log"></ul>
         </div>
-        <div class="banner" id="banner" hidden></div>
-        <ul id="log"></ul>
       </main>
       <script>
         const I18N = \(json);
         const ALLOWED = new Set(\(allowedExtJSON));
         const CONCURRENCY = 3;
-        // Session lives under /<token>/ — keep relative API calls inside that prefix.
-        const BASE = (location.pathname.replace(/\\/+$/, '') + '/').replace(/\\/+/g, '/');
+        const REQUIRES_PIN = \(requiresPinJS);
+        const PIN_HEADER = '\(pinHeaderName)';
+        const BASE = '/';
+        const PIN_KEY = 'bpWifiTransferPin';
         const drop = document.getElementById('drop');
         const fileInput = document.getElementById('fileInput');
         const folderInput = document.getElementById('folderInput');
@@ -240,6 +275,11 @@ enum WifiTransferHTML {
         const banner = document.getElementById('banner');
         const pickFiles = document.getElementById('pickFiles');
         const pickFolder = document.getElementById('pickFolder');
+        const transfer = document.getElementById('transfer');
+        const pinGate = document.getElementById('pinGate');
+        const pinInput = document.getElementById('pinInput');
+        const pinSubmit = document.getElementById('pinSubmit');
+        const pinError = document.getElementById('pinError');
 
         document.getElementById('title').textContent = I18N.title;
         document.getElementById('subtitle').textContent = I18N.subtitle;
@@ -247,9 +287,84 @@ enum WifiTransferHTML {
         document.getElementById('folderHint').textContent = I18N.folderHint;
         document.getElementById('dropTitle').textContent = I18N.dropTitle;
         document.getElementById('dropHint').textContent = I18N.dropHint;
+        document.getElementById('pinPrompt').textContent = I18N.pinPrompt;
+        pinSubmit.textContent = I18N.pinSubmit;
         pickFiles.textContent = I18N.chooseFiles;
         pickFolder.textContent = I18N.chooseFolder;
         retryBtn.textContent = I18N.retry;
+
+        let sessionPin = sessionStorage.getItem(PIN_KEY) || '';
+
+        function showTransfer() {
+          pinGate.hidden = true;
+          transfer.classList.add('ready');
+        }
+
+        function showPinGate() {
+          pinGate.hidden = false;
+          transfer.classList.remove('ready');
+          pinInput.focus();
+        }
+
+        function applyPinHeader(xhr) {
+          if (REQUIRES_PIN && sessionPin) {
+            xhr.setRequestHeader(PIN_HEADER, sessionPin);
+          }
+        }
+
+        if (!REQUIRES_PIN) {
+          showTransfer();
+        } else if (sessionPin) {
+          const probe = new XMLHttpRequest();
+          probe.open('POST', BASE + 'unlock');
+          probe.setRequestHeader(PIN_HEADER, sessionPin);
+          probe.onload = () => {
+            if (probe.status >= 200 && probe.status < 300) showTransfer();
+            else {
+              sessionStorage.removeItem(PIN_KEY);
+              sessionPin = '';
+              showPinGate();
+            }
+          };
+          probe.onerror = () => showPinGate();
+          probe.send();
+        } else {
+          showPinGate();
+        }
+
+        function unlockWithPin() {
+          const value = (pinInput.value || '').trim();
+          if (!/^\\d{4}$/.test(value)) {
+            pinError.hidden = false;
+            pinError.textContent = I18N.pinWrong;
+            return;
+          }
+          const xhr = new XMLHttpRequest();
+          xhr.open('POST', BASE + 'unlock');
+          xhr.setRequestHeader(PIN_HEADER, value);
+          xhr.onload = () => {
+            if (xhr.status >= 200 && xhr.status < 300) {
+              sessionPin = value;
+              sessionStorage.setItem(PIN_KEY, sessionPin);
+              pinError.hidden = true;
+              showTransfer();
+            } else {
+              sessionStorage.removeItem(PIN_KEY);
+              sessionPin = '';
+              pinError.hidden = false;
+              pinError.textContent = I18N.pinWrong;
+            }
+          };
+          xhr.onerror = () => {
+            pinError.hidden = false;
+            pinError.textContent = I18N.failed;
+          };
+          xhr.send();
+        }
+        pinSubmit.addEventListener('click', unlockWithPin);
+        pinInput.addEventListener('keydown', e => {
+          if (e.key === 'Enter') unlockWithPin();
+        });
 
         /** @type {{path: string, file: File, root: string|null}[]} */
         let pending = [];
@@ -426,6 +541,16 @@ enum WifiTransferHTML {
               if (e.lengthComputable) ui.setProgress((e.loaded / e.total) * 100);
             };
             xhr.onload = () => {
+              if (xhr.status === 401) {
+                sessionStorage.removeItem(PIN_KEY);
+                sessionPin = '';
+                showPinGate();
+                pinError.hidden = false;
+                pinError.textContent = I18N.pinWrong;
+                ui.setStatus(I18N.pinWrong, 'err');
+                reject(new Error(I18N.pinWrong));
+                return;
+              }
               if (xhr.status >= 200 && xhr.status < 300) {
                 ui.setProgress(100);
                 ui.setStatus(I18N.uploaded, 'ok');
@@ -441,6 +566,7 @@ enum WifiTransferHTML {
             };
             ui.setStatus(I18N.uploading);
             xhr.setRequestHeader('Content-Type', 'application/octet-stream');
+            applyPinHeader(xhr);
             xhr.send(item.file);
           });
         }
@@ -450,10 +576,20 @@ enum WifiTransferHTML {
             const xhr = new XMLHttpRequest();
             xhr.open('POST', BASE + 'import?root=' + encodeURIComponent(root));
             xhr.onload = () => {
+              if (xhr.status === 401) {
+                sessionStorage.removeItem(PIN_KEY);
+                sessionPin = '';
+                showPinGate();
+                pinError.hidden = false;
+                pinError.textContent = I18N.pinWrong;
+                reject(new Error(I18N.pinWrong));
+                return;
+              }
               if (xhr.status >= 200 && xhr.status < 300) resolve();
               else reject(new Error(xhr.responseText || String(xhr.status)));
             };
             xhr.onerror = () => reject(new Error('network'));
+            applyPinHeader(xhr);
             xhr.send();
           });
         }

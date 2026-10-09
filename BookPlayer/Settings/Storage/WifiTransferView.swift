@@ -13,11 +13,34 @@ struct WifiTransferView: View {
   @EnvironmentObject private var wifiTransferServer: WifiTransferServer
   @Environment(\.networkMonitor) private var networkMonitor
 
+  @AppStorage(WifiTransferFileSupport.Preferences.portKey)
+  private var portStorage: Int = Int(WifiTransferFileSupport.defaultPort)
+
+  @AppStorage(WifiTransferFileSupport.Preferences.requirePinKey)
+  private var requirePin = false
+
   @State private var isEnabled = false
   @State private var copied = false
+  @State private var displayedPin = ""
+  @State private var isRestarting = false
 
   private var canStart: Bool {
     networkMonitor.isConnectedViaWiFi
+  }
+
+  private var clampedPortBinding: Binding<String> {
+    Binding(
+      get: { String(WifiTransferFileSupport.clampedPort(UInt16(clamping: portStorage))) },
+      set: { newValue in
+        let digits = newValue.filter(\.isNumber)
+        guard let value = UInt16(digits), value > 0 else { return }
+        let clamped = Int(WifiTransferFileSupport.clampedPort(value))
+        guard clamped != portStorage else { return }
+        portStorage = clamped
+        WifiTransferFileSupport.Preferences.port = UInt16(clamped)
+        restartServerIfNeeded()
+      }
+    )
   }
 
   var body: some View {
@@ -37,6 +60,7 @@ struct WifiTransferView: View {
                 wifiTransferServer.start(isOnWiFi: false)
                 return
               }
+              syncPrefsToStorage()
               isEnabled = true
               wifiTransferServer.start(isOnWiFi: true)
             }
@@ -49,6 +73,57 @@ struct WifiTransferView: View {
         .accessibilityLabel("wifi_transfer_toggle_title".localized)
       } footer: {
         Text("wifi_transfer_footer".localized)
+          .foregroundStyle(theme.secondaryColor)
+      }
+
+      ThemedSection {
+        HStack {
+          Text("wifi_transfer_port_title".localized)
+            .foregroundStyle(theme.primaryColor)
+          Spacer()
+          TextField("8080", text: clampedPortBinding)
+            .keyboardType(.numberPad)
+            .multilineTextAlignment(.trailing)
+            .frame(maxWidth: 100)
+            .foregroundStyle(theme.primaryColor)
+            .accessibilityLabel("wifi_transfer_port_title".localized)
+        }
+      } footer: {
+        Text("wifi_transfer_port_footer".localized)
+          .foregroundStyle(theme.secondaryColor)
+      }
+
+      ThemedSection {
+        Toggle(isOn: requirePinBinding) {
+          Text("wifi_transfer_require_pin_title".localized)
+            .foregroundStyle(theme.primaryColor)
+        }
+        .accessibilityLabel("wifi_transfer_require_pin_title".localized)
+
+        if requirePin {
+          HStack {
+            Text("wifi_transfer_pin_label".localized)
+              .foregroundStyle(theme.secondaryColor)
+            Spacer()
+            Text(displayedPin.isEmpty ? "----" : displayedPin)
+              .bpFont(.title2)
+              .monospacedDigit()
+              .foregroundStyle(theme.primaryColor)
+              .accessibilityLabel("wifi_transfer_pin_label".localized)
+              .accessibilityValue(displayedPin)
+          }
+
+          Button {
+            displayedPin = WifiTransferFileSupport.Preferences.regeneratePin()
+            restartServerIfNeeded()
+          } label: {
+            Text("wifi_transfer_pin_regenerate".localized)
+              .bpFont(.body)
+          }
+          .accessibilityLabel("wifi_transfer_pin_regenerate".localized)
+        }
+      } footer: {
+        Text("wifi_transfer_require_pin_footer".localized)
           .foregroundStyle(theme.secondaryColor)
       }
 
@@ -108,6 +183,8 @@ struct WifiTransferView: View {
     .navigationTitle("wifi_transfer_title".localized)
     .navigationBarTitleDisplayMode(.inline)
     .onAppear {
+      syncPrefsToStorage()
+      refreshDisplayedPin()
       if isEnabled, canStart, !wifiTransferServer.isRunning {
         wifiTransferServer.start(isOnWiFi: true)
       }
@@ -124,14 +201,60 @@ struct WifiTransferView: View {
     }
     .onChange(of: wifiTransferServer.status) { _, newStatus in
       switch newStatus {
-      case .failed, .stopped:
+      case .failed:
         isEnabled = false
+      case .stopped:
+        if !isRestarting {
+          isEnabled = false
+        }
       case .running:
         copied = false
+        isRestarting = false
       case .starting:
         break
       }
     }
+    .onChange(of: requirePin) { _, _ in
+      refreshDisplayedPin()
+    }
+  }
+
+  private var requirePinBinding: Binding<Bool> {
+    Binding(
+      get: { requirePin },
+      set: { newValue in
+        requirePin = newValue
+        WifiTransferFileSupport.Preferences.requirePin = newValue
+        if newValue {
+          displayedPin = WifiTransferFileSupport.Preferences.pin ?? WifiTransferFileSupport.Preferences.regeneratePin()
+        } else {
+          displayedPin = ""
+        }
+        restartServerIfNeeded()
+      }
+    )
+  }
+
+  private func syncPrefsToStorage() {
+    WifiTransferFileSupport.Preferences.port = WifiTransferFileSupport.clampedPort(
+      UInt16(clamping: portStorage)
+    )
+    WifiTransferFileSupport.Preferences.requirePin = requirePin
+    if requirePin {
+      _ = WifiTransferFileSupport.Preferences.pin
+    }
+  }
+
+  private func refreshDisplayedPin() {
+    displayedPin = requirePin ? (WifiTransferFileSupport.Preferences.pin ?? "") : ""
+  }
+
+  private func restartServerIfNeeded() {
+    guard isEnabled, canStart else { return }
+    syncPrefsToStorage()
+    isRestarting = true
+    wifiTransferServer.stop()
+    wifiTransferServer.start(isOnWiFi: true)
   }
 }
 

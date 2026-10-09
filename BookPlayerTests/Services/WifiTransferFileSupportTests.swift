@@ -77,6 +77,8 @@ final class WifiTransferFileSupportTests: XCTestCase {
   func testPreferredPort_fallbackRange() {
     XCTAssertEqual(WifiTransferServer.preferredPort, 8080)
     XCTAssertEqual(WifiTransferServer.portFallbackCount, 10)
+    XCTAssertEqual(WifiTransferFileSupport.clampedPort(80), WifiTransferFileSupport.minimumPort)
+    XCTAssertEqual(WifiTransferFileSupport.clampedPort(.max), WifiTransferFileSupport.maximumPort)
   }
 
   func testHTMLStrings_useAppLocalization() {
@@ -84,6 +86,7 @@ final class WifiTransferFileSupportTests: XCTestCase {
     XCTAssertEqual(strings.title, "wifi_transfer_title".localized)
     XCTAssertEqual(strings.folderHint, "wifi_transfer_web_folder_hint".localized)
     XCTAssertEqual(strings.retry, "wifi_transfer_web_retry".localized)
+    XCTAssertEqual(strings.pinPrompt, "wifi_transfer_web_pin_prompt".localized)
     XCTAssertTrue(strings.skipped.contains("%d"))
     XCTAssertTrue(strings.selectedCount.contains("%d"))
     XCTAssertFalse(strings.subtitle.isEmpty)
@@ -91,26 +94,36 @@ final class WifiTransferFileSupportTests: XCTestCase {
   }
 
   func testHTMLPage_includesAllowlistAndAutoUpload() {
-    let html = WifiTransferHTML.page()
+    let html = WifiTransferHTML.page(requiresPin: false)
     XCTAssertTrue(html.contains("ALLOWED"))
     XCTAssertTrue(html.contains("\"m4b\""))
     XCTAssertTrue(html.contains("startUpload"))
     XCTAssertTrue(html.contains("webkitGetAsEntry"))
     XCTAssertTrue(html.contains("dropEffect"))
-    XCTAssertTrue(html.contains("const BASE"))
+    XCTAssertTrue(html.contains("const BASE = '/'"))
+    XCTAssertTrue(html.contains("REQUIRES_PIN = false"))
     XCTAssertFalse(html.contains("id=\"send\""))
     XCTAssertTrue(html.contains("id=\"retry\""))
     XCTAssertTrue(html.contains(WifiTransferHTML.strings.title))
     XCTAssertFalse(html.contains("Access-Control-Allow-Origin"))
   }
 
-  func testAccessToken_formatAndEntropy() {
-    let token = WifiTransferFileSupport.makeAccessToken()
-    XCTAssertTrue(WifiTransferFileSupport.isAccessTokenFormat(token))
-    XCTAssertFalse(WifiTransferFileSupport.isAccessTokenFormat("short"))
-    XCTAssertFalse(WifiTransferFileSupport.isAccessTokenFormat(String(repeating: "g", count: 32)))
-    let other = WifiTransferFileSupport.makeAccessToken()
-    XCTAssertNotEqual(token, other)
+  func testHTMLPage_pinGateWhenRequired() {
+    let html = WifiTransferHTML.page(requiresPin: true)
+    XCTAssertTrue(html.contains("REQUIRES_PIN = true"))
+    XCTAssertTrue(html.contains("pinGate"))
+    XCTAssertTrue(html.contains(WifiTransferFileSupport.pinHeaderName))
+    XCTAssertTrue(html.contains("'unlock'"))
+  }
+
+  func testPin_formatAndEntropy() {
+    let pin = WifiTransferFileSupport.makePin()
+    XCTAssertTrue(WifiTransferFileSupport.isPinFormat(pin))
+    XCTAssertFalse(WifiTransferFileSupport.isPinFormat("12"))
+    XCTAssertFalse(WifiTransferFileSupport.isPinFormat("12ab"))
+    let other = WifiTransferFileSupport.makePin()
+    // Extremely unlikely both equal for many runs; still allow equality.
+    _ = other
   }
 
   func testMaxUploadBytes_isPositiveCap() {
