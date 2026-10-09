@@ -114,17 +114,24 @@ struct QueuedTasksView: View, BPLogger {
       guard phase == .active else { return }
       Task { await uploadContinuation.refreshState() }
     }
+    // Subscribed once while the screen is up, not in `.onReceive`: `observeQueueCounts()` is a
+    // new publisher on every call, so `.onReceive` subscribed again on every render, the replayed
+    // snapshot reloaded the list, the reload rendered again, and that looped (tens of thousands
+    // of times a second, each a repository read).
     // Replays the current snapshot on subscribe, so this is the initial load as well.
-    .onReceive(syncQueueService.observeQueueCounts()) { snapshot in
-      counts = snapshot
+    .task {
+      for await snapshot in syncQueueService.observeQueueCounts().values {
+        counts = snapshot
+      }
     }
     // The list at most twice a second: a first sync stores its tasks one at a time, and every
     // store sends a snapshot. The replayed one still loads at once, and the last one still lands
-    .onReceive(
-      syncQueueService.observeQueueCounts()
+    .task {
+      for await _ in syncQueueService.observeQueueCounts()
         .throttle(for: .milliseconds(500), scheduler: DispatchQueue.main, latest: true)
-    ) { _ in
-      reloadTasks()
+        .values {
+        reloadTasks()
+      }
     }
   }
 
