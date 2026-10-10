@@ -60,6 +60,7 @@ struct JellyfinRootView: View {
         JellyfinEntityTabRoot<JellyfinPersonsListViewModel>(
           connectionService: connectionService,
           singleFileDownloadService: singleFileDownloadService,
+          accountService: accountService,
           onImportConfirmed: { externalImportEvents.send($0) },
           onDismiss: { listState.activeIntegrationSheet = nil },
           onSwitchLibrary: switchLibraryAction,
@@ -487,6 +488,7 @@ struct JellyfinEntityTabRoot<ViewModel: IntegrationLibraryViewModelProtocol>: Vi
 where ViewModel.Item == JellyfinLibraryItem {
   let connectionService: JellyfinConnectionService
   let singleFileDownloadService: SingleFileDownloadService
+  let accountService: AccountService
   let onImportConfirmed: ([SimpleExternalResource]) -> Void
   let onDismiss: () -> Void
   var onSwitchLibrary: (() -> Void)?
@@ -502,6 +504,7 @@ where ViewModel.Item == JellyfinLibraryItem {
   init(
     connectionService: JellyfinConnectionService,
     singleFileDownloadService: SingleFileDownloadService,
+    accountService: AccountService,
     onImportConfirmed: @escaping ([SimpleExternalResource]) -> Void,
     onDismiss: @escaping () -> Void,
     onSwitchLibrary: (() -> Void)? = nil,
@@ -510,6 +513,7 @@ where ViewModel.Item == JellyfinLibraryItem {
   ) {
     self.connectionService = connectionService
     self.singleFileDownloadService = singleFileDownloadService
+    self.accountService = accountService
     self.onImportConfirmed = onImportConfirmed
     self.onDismiss = onDismiss
     self.onSwitchLibrary = onSwitchLibrary
@@ -531,7 +535,7 @@ where ViewModel.Item == JellyfinLibraryItem {
             connectionService: connectionService,
             singleFileDownloadService: singleFileDownloadService,
             onImportConfirmed: onImportConfirmed,
-            accountService: viewModel.accountService,
+            accountService: accountService,
             navigation: navigation,
             onDismiss: onDismiss
           )

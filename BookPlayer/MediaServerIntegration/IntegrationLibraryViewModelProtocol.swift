@@ -33,9 +33,7 @@ protocol IntegrationLibraryViewModelProtocol: ObservableObject {
   /// Drives the whole-level download confirmation. List-only screens inherit the
   /// no-op default below so the dialog can never present over them.
   var showingDownloadConfirmation: Bool { get set }
-  
-  var accountService: AccountService { get set }
-  
+
   var searchQuery: String { get set }
   var isSearchable: Bool { get }
 

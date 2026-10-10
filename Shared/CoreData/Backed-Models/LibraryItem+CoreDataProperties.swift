@@ -55,10 +55,6 @@ extension LibraryItem {
   public var resourcesArray: [ExternalResource] {
     return externalResources?.allObjects as? [ExternalResource] ?? []
   }
-  
-  public var jellyfinResource: ExternalResource? {
-    return resourcesArray.first { $0.providerName == ExternalResource.ProviderName.jellyfin.rawValue }
-  }
 }
 
 // MARK: Generated accessors for bookmarks
