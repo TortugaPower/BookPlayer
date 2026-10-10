@@ -27,7 +27,7 @@ struct AudiobookShelfRootView: View {
   @EnvironmentObject private var theme: ThemeViewModel
 
   @Environment(\.dismiss) var dismiss
-  @Environment(\.listState) private var listState
+  @Environment(\.closeMediaServers) private var closeMediaServers
   @Environment(\.accountService) private var accountService
   
   init(connectionService: AudiobookShelfConnectionService) {
@@ -60,7 +60,7 @@ struct AudiobookShelfRootView: View {
           singleFileDownloadService: singleFileDownloadService,
           accountService: accountService,
           onImportConfirmed: { externalImportEvents.send($0) },
-          onDismiss: { listState.activeIntegrationSheet = nil },
+          onDismiss: { closeMediaServers() },
           onSwitchLibrary: switchLibraryAction,
           dismissAll: dismiss
         )
@@ -76,7 +76,7 @@ struct AudiobookShelfRootView: View {
           singleFileDownloadService: singleFileDownloadService,
           accountService: accountService,
           onImportConfirmed: { externalImportEvents.send($0) },
-          onDismiss: { listState.activeIntegrationSheet = nil },
+          onDismiss: { closeMediaServers() },
           onSwitchLibrary: switchLibraryAction,
           dismissAll: dismiss
         )
@@ -92,7 +92,7 @@ struct AudiobookShelfRootView: View {
           singleFileDownloadService: singleFileDownloadService,
           accountService: accountService,
           onImportConfirmed: { externalImportEvents.send($0) },
-          onDismiss: { listState.activeIntegrationSheet = nil },
+          onDismiss: { closeMediaServers() },
           onSwitchLibrary: switchLibraryAction,
           dismissAll: dismiss
         )
@@ -108,7 +108,7 @@ struct AudiobookShelfRootView: View {
           singleFileDownloadService: singleFileDownloadService,
           accountService: accountService,
           onImportConfirmed: { externalImportEvents.send($0) },
-          onDismiss: { listState.activeIntegrationSheet = nil },
+          onDismiss: { closeMediaServers() },
           onSwitchLibrary: switchLibraryAction,
           dismissAll: dismiss
         )
@@ -124,7 +124,7 @@ struct AudiobookShelfRootView: View {
           singleFileDownloadService: singleFileDownloadService,
           accountService: accountService,
           onImportConfirmed: { externalImportEvents.send($0) },
-          onDismiss: { listState.activeIntegrationSheet = nil },
+          onDismiss: { closeMediaServers() },
           onSwitchLibrary: switchLibraryAction,
           dismissAll: dismiss
         )

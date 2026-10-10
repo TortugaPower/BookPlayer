@@ -441,10 +441,6 @@
 "settings_support_discord_title" = "Discordサーバーに参加する";
 "hours" = "時間";
 "minutes" = "分";
-"provider_title" = "プロバイダ";
-"provider_id_title" = "項目ID";
-"host_title" = "ホスト";
-"external_resources_title" = "外部リソース";
 
 // Passkey Authentication
 "passkey_unnamed_device" = "名前のないデバイス";

@@ -441,10 +441,6 @@
 "settings_support_discord_title" = "Приєднуйтесь до нашого Discord-сервера";
 "hours" = "Години";
 "minutes" = "Хвилини";
-"provider_title" = "Постачальник";
-"provider_id_title" = "ID елемента";
-"host_title" = "Хост";
-"external_resources_title" = "Зовнішні ресурси";
 
 // Passkey Authentication
 "passkey_unnamed_device" = "Пристрій без назви";

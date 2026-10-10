@@ -441,10 +441,6 @@
 "settings_support_discord_title" = "Unisciti al nostro server Discord";
 "hours" = "Ore";
 "minutes" = "Minuti";
-"provider_title" = "Provider";
-"provider_id_title" = "ID elemento";
-"host_title" = "Host";
-"external_resources_title" = "Risorse esterne";
 
 // Passkey Authentication
 "passkey_unnamed_device" = "Dispositivo senza nome";

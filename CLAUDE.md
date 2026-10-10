@@ -562,6 +562,16 @@ All three store secrets in the **Keychain** (never `UserDefaults`), persist cust
 data, and share the error type `MediaServerIntegration/IntegrationError.swift` (note `sessionExpired(serverName:)`
 + `isSessionExpired`). Jellyfin & AudiobookShelf share the `MediaServerIntegration/` protocol + UI layer.
 
+- **Media Servers opens from two places:** the Library tab (`MainView`'s sheet) and an item's details, stacked over
+  the editor so unsaved edits survive; both use the `.libraryEntry` style. The details' **Integrations** section
+  (`ItemDetailsIntegrationsSectionView`, titled as in Settings) holds the Hardcover row and one "<integration>
+  <host>" row per media server the item streams from. Tapping that row opens the Media Servers list only, never a
+  server's library directly (decided: landing in a library there looks like picking another book for the item).
+  The server browsers end the flow (their Close, and the close after a confirmed import) through the
+  `closeMediaServers` environment action, which each presenter supplies; never through `listState` directly. A new
+  presenter must set it and, as a cover over the library, register `.mediaServers` in `coversOnScreen` (see the
+  import placement prompt).
+
 - **Session-expiry contract:** a 401/403 from an **authenticated** call maps to `sessionExpired(serverName:)` (a
   recoverable "sign in again" path that **preserves** the connection). Pre-sign-in probes (`findServer`/`ping`)
   must **bypass** this mapping — otherwise an unrelated saved server gets mis-thrown into re-auth, and users land

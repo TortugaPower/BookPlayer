@@ -441,10 +441,6 @@
 "settings_support_discord_title" = "Discord sunucumuza katılın";
 "hours" = "Saatler";
 "minutes" = "Dakikalar";
-"provider_title" = "Sağlayıcı";
-"provider_id_title" = "Öğe Kimliği";
-"host_title" = "Ana makine";
-"external_resources_title" = "Harici Kaynaklar";
 
 // Passkey Authentication
 "passkey_unnamed_device" = "Adsız Cihaz";

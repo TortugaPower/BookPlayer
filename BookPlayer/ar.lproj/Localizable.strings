@@ -441,10 +441,6 @@
 "settings_support_discord_title" = "انضم إلى خادم Discord الخاص بنا";
 "hours" = "ساعات";
 "minutes" = "دقائق";
-"provider_title" = "المزوّد";
-"provider_id_title" = "معرّف العنصر";
-"host_title" = "المضيف";
-"external_resources_title" = "الموارد الخارجية";
 
 // Passkey Authentication
 "passkey_unnamed_device" = "جهاز بدون اسم";

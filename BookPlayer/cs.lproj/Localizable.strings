@@ -441,10 +441,6 @@
 "settings_support_discord_title" = "Připojte se k našemu Discord serveru";
 "hours" = "Hodiny";
 "minutes" = "Minuty";
-"provider_title" = "Poskytovatel";
-"provider_id_title" = "ID položky";
-"host_title" = "Hostitel";
-"external_resources_title" = "Externí zdroje";
 
 // Passkey Authentication
 "passkey_unnamed_device" = "Nepojmenované zařízení";

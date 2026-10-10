@@ -442,10 +442,6 @@
 "hours" = "Hours";
 "minutes" = "Minutes";
 
-"provider_title" = "Provider";
-"provider_id_title" = "Item ID";
-"host_title" = "Host";
-"external_resources_title" = "External Resources";
 
 // Passkey Authentication
 "passkey_unnamed_device" = "Unnamed Device";

@@ -441,10 +441,6 @@
 "settings_support_discord_title" = "Liity Discord-palvelimellemme";
 "hours" = "Tunnit";
 "minutes" = "Minuutit";
-"provider_title" = "Palveluntarjoaja";
-"provider_id_title" = "Kohteen tunnus";
-"host_title" = "Isäntä";
-"external_resources_title" = "Ulkoiset resurssit";
 
 // Passkey Authentication
 "passkey_unnamed_device" = "Nimetön laite";

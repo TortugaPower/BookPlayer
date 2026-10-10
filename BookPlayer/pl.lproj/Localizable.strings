@@ -441,10 +441,6 @@
 "settings_support_discord_title" = "Dołącz do naszego serwera Discord";
 "hours" = "Godziny";
 "minutes" = "Minuty";
-"provider_title" = "Dostawca";
-"provider_id_title" = "ID elementu";
-"host_title" = "Host";
-"external_resources_title" = "Zasoby zewnętrzne";
 
 // Passkey Authentication
 "passkey_unnamed_device" = "Urządzenie bez nazwy";

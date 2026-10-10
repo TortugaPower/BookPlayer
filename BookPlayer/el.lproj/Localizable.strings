@@ -441,10 +441,6 @@
 "settings_support_discord_title" = "Συμμετάσχετε στον διακομιστή Discord μας";
 "hours" = "Ώρες";
 "minutes" = "Λεπτά";
-"provider_title" = "Πάροχος";
-"provider_id_title" = "ID στοιχείου";
-"host_title" = "Κεντρικός υπολογιστής";
-"external_resources_title" = "Εξωτερικοί πόροι";
 
 // Passkey Authentication
 "passkey_unnamed_device" = "Ανώνυμη συσκευή";

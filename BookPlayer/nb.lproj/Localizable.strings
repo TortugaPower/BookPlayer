@@ -441,10 +441,6 @@
 "settings_support_discord_title" = "Bli med på vår Discord-server";
 "hours" = "Timer";
 "minutes" = "Minutter";
-"provider_title" = "Leverandør";
-"provider_id_title" = "Element-ID";
-"host_title" = "Vert";
-"external_resources_title" = "Eksterne ressurser";
 
 // Passkey Authentication
 "passkey_unnamed_device" = "Enhet uten navn";

@@ -99,6 +99,7 @@ struct MainView: View {
             style: .libraryEntry
           )
         }
+        .environment(\.closeMediaServers, CloseMediaServersAction { listState.activeIntegrationSheet = nil })
         .onAppear { listState.coversOnScreen.insert(.mediaServers) }
       }
     }

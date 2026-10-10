@@ -441,10 +441,6 @@
 "settings_support_discord_title" = "Uneix-te al nostre servidor de Discord";
 "hours" = "Hores";
 "minutes" = "Minuts";
-"provider_title" = "Proveïdor";
-"provider_id_title" = "ID de l'element";
-"host_title" = "Amfitrió";
-"external_resources_title" = "Recursos externs";
 
 // Passkey Authentication
 "passkey_unnamed_device" = "Dispositiu sense nom";

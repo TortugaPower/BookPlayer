@@ -441,10 +441,6 @@
 "settings_support_discord_title" = "Alătură-te serverului nostru Discord";
 "hours" = "Ore";
 "minutes" = "Minute";
-"provider_title" = "Furnizor";
-"provider_id_title" = "ID element";
-"host_title" = "Gazdă";
-"external_resources_title" = "Resurse externe";
 
 // Passkey Authentication
 "passkey_unnamed_device" = "Dispozitiv fără nume";
