@@ -306,6 +306,11 @@ CarPlay event bus. Declared in `Shared/Extensions/Notification+BookPlayerKit.swi
   a running lane after its current task. Gated tasks are **held, never cleared**: RevenueCat's cached info is nil
   before the first fetch, so a paying subscriber can read inactive at launch. Provider lanes ignore the gate, and
   `handleAppRefresh` completes immediately while it's off (a gated lane never drains).
+  On a cold launch into the refresh task, `handleAppRefresh` first awaits the core services and only then sets its
+  expiration handler. That's deliberate: `BGTask.h` says a task without an expiration handler is marked complete
+  and unsuccessful by the system when its time runs out (the app isn't killed for it), so the only cost of a load
+  that outlasts the window (a big migration, once per model version) is one skipped resubmit. A provisional handler
+  would need a cross-thread once-flag so the refresh can't complete the task twice: decided not worth it.
   **Parking:** a failed task parks ONLY on a coded failure — `SyncFailurePolicy.codedFailure` returns a
   `CodedFailure` for the server's coded 4xx (`BookPlayerError.networkErrorWithCode`, its `error` key) and for the
   app's own `UploadFileError.fileTooLarge` (`file_too_large`, no HTTP status); anything uncoded (network, 5xx,
