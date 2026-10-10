@@ -16,6 +16,8 @@ struct ArtworkView: View {
   var title: String
   var author: String
   var imagePath: String?
+  /// Item to offer SharePlay for; the button is hidden when nil.
+  var sharePlayItem: PlayableItem?
   
   var body: some View {
     ZStack(alignment: .top) {
@@ -86,6 +88,12 @@ struct ArtworkView: View {
         VStack {
           HStack(spacing: 12) {
             Spacer()
+            if let sharePlayItem {
+              SharePlayButton(currentItem: sharePlayItem)
+                .frame(width: 44, height: 44)
+                .padding(.top, 5)
+                .shadow(color: .black.opacity(0.5), radius: 3, x: 0, y: 2)
+            }
             AirplayPicker()
               .frame(width: 44, height: 44) // Standard touch target size
               .padding(.trailing, 5)

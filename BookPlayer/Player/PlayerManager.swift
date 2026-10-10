@@ -10,6 +10,7 @@ import AVFoundation
 @preconcurrency import BookPlayerKit
 import Combine
 import Foundation
+import GroupActivities
 import MediaPlayer
 import Sentry
 
@@ -25,6 +26,12 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   private let widgetReloadService: WidgetReloadServiceProtocol
 
   private var audioPlayer = AVPlayer()
+
+  // SharePlay session state
+  private var activeGroupSession: GroupSession<AudioBookActivity>?
+  private var coordinationContentIdentifier: String?
+  private var coordinatedItemRelativePath: String?
+  private var groupPlaybackSubscription: AnyCancellable?
 
   private var fadeTimer: Timer?
 
@@ -157,6 +164,10 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     }
 
     audioPlayer = AVPlayer()
+
+    if let activeGroupSession, let coordinatedItemRelativePath {
+      coordinatePlayback(with: activeGroupSession, for: coordinatedItemRelativePath)
+    }
 
     let interval = CMTime(seconds: 1.0, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
     periodicTimeObserver = audioPlayer.addPeriodicTimeObserver(
@@ -544,6 +555,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     else {
       return
     }
+
+    reconcileGroupPlaybackRate()
 
     /// A seek back is in flight, and its target is the position we already hold
     if case .recovering = clockState { return }
@@ -1120,7 +1133,11 @@ extension PlayerManager {
       if playerTime.isFinite && Int(currentItem.duration) == Int(playerTime) { return }
 
       restorePlayerTimeIfNeeded()
-      handleSmartRewind(currentItem)
+
+      // Skip smart rewind during SharePlay; the seek would drag every participant back
+      if activeGroupSession == nil {
+        handleSmartRewind(currentItem)
+      }
 
       if !autoPlayed {
         handleAutoTimer()
@@ -1632,5 +1649,109 @@ extension PlayerManager {
       SleepTimer.shared.restartTimer()
       self?.play()
     }
+  }
+}
+
+// MARK: - SharePlay coordination
+
+extension PlayerManager: SharePlayCoordinating {
+  /// Re-applied whenever `audioPlayer` is recreated (see `setupPlayerInstance`)
+  func coordinatePlayback(with session: GroupSession<AudioBookActivity>, for relativePath: String) {
+    activeGroupSession = session
+    coordinationContentIdentifier = session.activity.bookFingerprint.identifier
+    coordinatedItemRelativePath = relativePath
+    observeGroupTransportChanges()
+    audioPlayer.playbackCoordinator.delegate = self
+    audioPlayer.playbackCoordinator.coordinateWithSession(session)
+  }
+
+  func stopCoordinatingPlayback() {
+    activeGroupSession = nil
+    coordinationContentIdentifier = nil
+    coordinatedItemRelativePath = nil
+    groupPlaybackSubscription = nil
+    // no explicit "uncoordinate" API; coordination tears down with the GroupSession
+    audioPlayer.playbackCoordinator.delegate = nil
+  }
+
+  /// Keep local speed state in sync when a remote participant changes the group's rate
+  func reconcileGroupPlaybackRate() {
+    guard activeGroupSession != nil else { return }
+
+    let groupRate = audioPlayer.rate
+    guard groupRate > 0, abs(groupRate - currentSpeed) > 0.01 else { return }
+
+    // session state only; deliberately not persisted through `SpeedService`
+    currentSpeed = groupRate
+  }
+
+  /// Remote participants resume playback without going through `play()`; restore
+  /// what it would have: cancel a sleep-timer fade and reactivate the audio session
+  private func observeGroupTransportChanges() {
+    guard groupPlaybackSubscription == nil else { return }
+
+    groupPlaybackSubscription = timeControlPassthroughPublisher
+      .removeDuplicates()
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] timeControlStatus in
+        guard let self, self.activeGroupSession != nil, timeControlStatus != .paused else { return }
+
+        self.fadeTimer?.invalidate()
+        self.boostVolume = UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled)
+        try? AVAudioSession.sharedInstance().setActive(true)
+        self.bindInterruptObserver()
+      }
+  }
+}
+
+extension PlayerManager: AVPlayerPlaybackCoordinatorDelegate {
+  func playbackCoordinator(
+    _ coordinator: AVPlayerPlaybackCoordinator,
+    identifierFor playerItem: AVPlayerItem
+  ) -> String {
+    // The pinned identifier keeps tolerance-matched copies reporting the same content,
+    // but only for the matched item; anything else must report its own identity
+    if let coordinationContentIdentifier,
+      let currentItem,
+      currentItem.relativePath == coordinatedItemRelativePath
+    {
+      return groupContentIdentifier(coordinationContentIdentifier, for: playerItem, in: currentItem)
+    }
+
+    return currentItem.map(BookFingerprint.init(from:))?.identifier
+      ?? (playerItem.asset as? AVURLAsset)?.url.absoluteString
+      ?? "bookplayer.shareplay.unidentified-content"
+  }
+
+  /// Bound books play one `AVPlayerItem` per file; append the file's ordinal so
+  /// participants on different files wait for each other instead of being seeked
+  /// onto another file's timeline. Ordinals, not paths: file names differ across devices
+  private func groupContentIdentifier(
+    _ baseIdentifier: String,
+    for playerItem: AVPlayerItem,
+    in item: PlayableItem
+  ) -> String {
+    var files = [String]()
+    for chapter in item.chapters where !files.contains(chapter.relativePath) {
+      files.append(chapter.relativePath)
+    }
+
+    guard files.count > 1 else { return baseIdentifier }
+
+    guard let ordinal = fileOrdinal(for: playerItem, files: files, in: item) else {
+      return baseIdentifier + "|file:unknown"
+    }
+
+    return baseIdentifier + "|file:\(ordinal)"
+  }
+
+  private func fileOrdinal(for playerItem: AVPlayerItem, files: [String], in item: PlayableItem) -> Int? {
+    if let assetURL = (playerItem.asset as? AVURLAsset)?.url,
+      let chapter = item.chapters.first(where: { $0.fileURL == assetURL || $0.remoteURL == assetURL })
+    {
+      return files.firstIndex(of: chapter.relativePath)
+    }
+
+    return files.firstIndex(of: item.currentChapter.relativePath)
   }
 }

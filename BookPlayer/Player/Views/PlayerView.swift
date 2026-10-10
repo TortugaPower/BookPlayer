@@ -46,7 +46,8 @@ struct PlayerView: View {
             ArtworkView(
               title: viewModel.title,
               author: viewModel.author,
-              imagePath: viewModel.relativePath
+              imagePath: viewModel.relativePath,
+              sharePlayItem: viewModel.playerManager.currentItem
             )
           }
         }
