@@ -45,7 +45,8 @@ struct DynamicAccessibilityLabelModifier: ViewModifier {
     self._accessibilityLabel = State(
       initialValue: VoiceOverService.getAccessibilityLabel(
         for: item,
-        useOriginalFileName: initialUseOriginalFileName
+        useOriginalFileName: initialUseOriginalFileName,
+        includeSource: true
       )
     )
   }
@@ -97,12 +98,14 @@ struct DynamicAccessibilityLabelModifier: ViewModifier {
           originalFileName: item.originalFileName,
           lastPlayDate: item.lastPlayDate,
           type: item.type,
-          uuid: item.uuid
+          uuid: item.uuid,
+          externalResources: item.externalResources
         )
 
         accessibilityLabel = VoiceOverService.getAccessibilityLabel(
           for: updatedItem,
-          useOriginalFileName: useOriginalFileName
+          useOriginalFileName: useOriginalFileName,
+          includeSource: true
         )
       }
       .onChange(of: useOriginalFileName) {
@@ -113,7 +116,8 @@ struct DynamicAccessibilityLabelModifier: ViewModifier {
         // overwrite this with the current playback state.
         accessibilityLabel = VoiceOverService.getAccessibilityLabel(
           for: item,
-          useOriginalFileName: useOriginalFileName
+          useOriginalFileName: useOriginalFileName,
+          includeSource: true
         )
       }
       .onChange(of: playerManager.currentItem?.relativePath) { oldPath, newPath in
@@ -162,10 +166,12 @@ struct DynamicAccessibilityLabelModifier: ViewModifier {
           lastPlayDate: item.lastPlayDate,
           type: item.type,
           uuid: item.uuid,
+          externalResources: item.externalResources
         )
         accessibilityLabel = VoiceOverService.getAccessibilityLabel(
           for: updatedItem,
-          useOriginalFileName: useOriginalFileName
+          useOriginalFileName: useOriginalFileName,
+          includeSource: true
         )
       }
   }

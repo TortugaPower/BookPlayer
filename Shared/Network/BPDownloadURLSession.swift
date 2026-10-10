@@ -21,8 +21,6 @@ public class BPDownloadURLSession {
     downloadProgressUpdated: @escaping ((URLSessionDownloadTask, Double) -> Void),
     didFinishDownloadingTask: @escaping ((URLSessionTask, URL?, Error?) -> Void)
   ) {
-    let bundleIdentifier: String = Bundle.main.configurationValue(for: .bundleIdentifier)
-
     let delegate = BPTaskDownloadDelegate()
     
     delegate.downloadProgressUpdated = downloadProgressUpdated
@@ -30,10 +28,11 @@ public class BPDownloadURLSession {
 
     self.backgroundSession = URLSession(
       configuration: URLSessionConfiguration.background(
-        withIdentifier: "\(bundleIdentifier).background.download"
+        withIdentifier: BackgroundTransferSessions.downloadIdentifier
       ),
       delegate: delegate,
-      delegateQueue: OperationQueue()
+      // Serial, so "finished events" follows the last download's callbacks
+      delegateQueue: BPURLSession.serialDelegateQueue()
     )
   }
 }

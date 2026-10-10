@@ -37,10 +37,7 @@ struct AppleSignInLink: View {
               throw AccountError.missingToken
             }
 
-            let account = try await accountService.login(
-              with: token,
-              userId: creds.user
-            )
+            let account = try await accountService.login(with: token)
 
             loadingState.show = false
 
@@ -58,6 +55,9 @@ struct AppleSignInLink: View {
     }
     .frame(height: 46)
     .signInWithAppleButtonStyle(theme.useDarkVariant ? .white : .black)
+    /// Apple's default corner radius is its own, not a house choice — clipping it to the same
+    /// capsule the rest of our buttons use keeps one shape language on these screens.
+    .clipShape(Capsule())
     .padding(.horizontal, Spacing.M)
   }
 }

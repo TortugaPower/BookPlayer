@@ -46,6 +46,13 @@ extension UploadTaskModel: DictionaryConvertible {
       dict["lastPlayDateTimestamp"] = lastPlayDateTimestamp
     }
 
+    /// Media-server books upload no file from this job's answer: it goes up once
+    /// downloaded, through the `externalResourceToDownload` job — see
+    /// `SyncQueueService.handleFinishedOperation`
+    if let provider {
+      dict["provider"] = provider
+    }
+
     return dict
   }
 }
@@ -173,5 +180,108 @@ extension MatchUuidsTaskModel: DictionaryConvertible {
       "id": id,
       "uuids": uuids
     ]
+  }
+}
+
+extension UploadExternalResourceTaskModel: DictionaryConvertible {
+  public func toDictionaryPayload() -> [String: Any] {
+    var dictionary: [String: Any] = [
+      "id": id,
+      "uuid": uuid,
+      "providerId": providerId,
+      "providerName": providerName,
+      "processedFile": processedFile,
+      "syncStatus": syncStatus,
+    ]
+    // A raw Date is NOT a valid JSONSerialization object — including it crashes the upload
+    // with an uncatchable NSInvalidArgumentException. Epoch seconds travel instead; nil is
+    // simply omitted (the server owns the authoritative lastSyncedAt anyway).
+    if let lastSyncedAt {
+      dictionary["lastSyncedAt"] = lastSyncedAt.timeIntervalSince1970
+    }
+    if let hostId {
+      dictionary["hostId"] = hostId
+    }
+    return dictionary
+  }
+}
+
+extension ExternalResourceToDownloadTaskModel: DictionaryConvertible {
+  public func toDictionaryPayload() -> [String: Any] {
+    return [
+      "id": id,
+      "uuid": uuid,
+    ]
+  }
+}
+
+extension DeleteExternalResourceTaskModel: DictionaryConvertible {
+  public func toDictionaryPayload() -> [String: Any] {
+    return [
+      "id": id,
+      "uuid": uuid,
+      "relativePath": relativePath,
+      "providerName": providerName,
+      "providerId": providerId
+    ]
+  }
+}
+
+extension ExternalUpdateTaskModel: DictionaryConvertible {
+  public func toDictionaryPayload() -> [String: Any] {
+    var dictionary: [String: Any] = [
+      "id": id,
+      "providerId": providerId,
+      "providerName": providerName
+    ]
+
+    if let hostId {
+      dictionary["hostId"] = hostId
+    }
+    
+    if let title {
+      dictionary["title"] = title
+    }
+    
+    if let details {
+      dictionary["details"] = details
+    }
+    
+    if let currentTime {
+      dictionary["currentTime"] = currentTime
+    }
+    
+    if let percentCompleted {
+      dictionary["percentCompleted"] = percentCompleted
+    }
+    
+    if let isFinished {
+      dictionary["isFinished"] = isFinished
+    }
+    
+    if let lastPlayDateTimestamp {
+      dictionary["lastPlayDateTimestamp"] = lastPlayDateTimestamp
+    }
+    
+    return dictionary
+  }
+}
+
+extension UploadFileTaskModel: DictionaryConvertible {
+  public func toDictionaryPayload() -> [String: Any] {
+    var dictionary: [String: Any] = [
+      "id": id,
+      "uuid": uuid,
+      "filePath": filePath,
+      "partSize": partSize,
+      "fileSize": fileSize,
+      "restartCount": restartCount,
+    ]
+
+    if let uploadId {
+      dictionary["uploadId"] = uploadId
+    }
+
+    return dictionary
   }
 }

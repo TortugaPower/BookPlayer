@@ -22,7 +22,7 @@ import WatchConnectivity
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
-  static weak var shared: AppDelegate?
+  static weak var shared: AppDelegate?    
 
   var window: UIWindow?
 
@@ -48,6 +48,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
   /// Database backup task identifier
   private lazy var databaseBackupTaskIdentifier =
     "\(Bundle.main.configurationString(for: .bundleIdentifier)).background.database.backup"
+  /// Answers iOS's relaunches and wakes for the background transfer sessions
+  private lazy var backgroundSessionWakes = BackgroundSessionWakeCoordinator()
 
   func application(
     _ application: UIApplication,
@@ -63,6 +65,14 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
       Constants.UserDefaults.videoPictureInPictureEnabled: false,
     ])
 
+    // Hardcover settings live in the shared (app group) suite. Register their defaults
+    // there so the service (`bool/object(forKey:)`) and the settings UI (`@AppStorage`)
+    // resolve to the same value before the user explicitly saves anything.
+    UserDefaults.sharedDefaults.register(defaults: [
+      Constants.UserDefaults.hardcoverAutoAddWantToRead: true,
+      Constants.UserDefaults.hardcoverReadingThreshold: 1.0,
+    ])
+
     NotificationCenter.default.addObserver(
       self,
       selector: #selector(self.messageReceived),
@@ -70,6 +80,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
       object: nil
     )
 
+    // Before anything can wake a session: a session's "finished events" may arrive before
+    // iOS hands over its handler, and must not find no one listening
+    _ = backgroundSessionWakes
     // register background refresh tasks
     self.setupBackgroundRefreshTasks()
     // register for remote events
@@ -81,7 +94,27 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
     // Setup core services
     AppServices.shared.setupCoreServices()
 
+    // The extension-safe framework can't reach UIApplication.shared itself; the SSO flow's
+    // presentation anchor comes from here, the one process that owns windows.
+    WebAuthenticationSession.foregroundWindowProvider = {
+      let scenes = UIApplication.shared.connectedScenes.compactMap { $0 as? UIWindowScene }
+      guard let scene = scenes.first(where: { $0.activationState == .foregroundActive }) else {
+        return nil
+      }
+      return scene.keyWindow ?? scene.windows.first
+    }
+
     return true
+  }
+
+  /// Stays on the app delegate with scenes (TN3187). The handler is called once the
+  /// session's events are handled — for uploads, once the next parts are queued.
+  func application(
+    _ application: UIApplication,
+    handleEventsForBackgroundURLSession identifier: String,
+    completionHandler: @escaping () -> Void
+  ) {
+    backgroundSessionWakes.handleEvents(forSession: identifier, completionHandler: completionHandler)
   }
 
   func application(
@@ -411,6 +444,9 @@ extension AppDelegate {
       self.handleAppRefresh(task: refreshTask)
     }
 
+    // At launch, so a task iOS runs for an earlier submit finds its handler
+    UploadContinuationController.register { AppServices.shared.uploadContinuation }
+
     BGTaskScheduler.shared.register(
       forTaskWithIdentifier: databaseBackupTaskIdentifier,
       using: nil
@@ -428,13 +464,57 @@ extension AppDelegate {
     let request = BGAppRefreshTaskRequest(identifier: refreshTaskIdentifier)
     request.earliestBeginDate = Date(timeIntervalSinceNow: 15 * 60)
 
-    try? BGTaskScheduler.shared.submit(request)
+    Self.submitBackgroundTask(request)
+  }
+
+  /// `submit(_:)` is deprecated from iOS 27 in favor of `submitTaskRequest`.
+  static func submitBackgroundTask(
+    _ request: BGTaskRequest,
+    completion: @escaping @Sendable ((any Error)?) -> Void = { _ in }
+  ) {
+    if #available(iOS 27, *) {
+      // Its header: not from the main thread
+      DispatchQueue.global(qos: .utility).async {
+        BGTaskScheduler.shared.submitTaskRequest(request, completionHandler: completion)
+      }
+    } else {
+      do {
+        try BGTaskScheduler.shared.submit(request)
+        completion(nil)
+      } catch {
+        completion(error)
+      }
+    }
   }
 
   func handleAppRefresh(task: BGAppRefreshTask) {
-    guard let syncService = AppServices.shared.coreServices?.syncService else { return }
+    // On a cold launch into this task the services can still be loading, and returning
+    // without them would leave the task never completed
+    Task { @MainActor in
+      guard let syncQueueService = try? await AppServices.shared.awaitCoreServices().syncQueueService else {
+        self.scheduleAppRefresh()
+        task.setTaskCompleted(success: false)
+        return
+      }
 
-    let refreshOperation = RefreshTaskOperation(syncService: syncService)
+      self.runAppRefresh(task, syncQueueService: syncQueueService)
+    }
+  }
+
+  private func runAppRefresh(_ task: BGAppRefreshTask, syncQueueService: SyncQueueService) {
+    // A gated sync lane (sync off) never drains, so waiting on it would only hold the
+    // window open until expiration
+    guard syncQueueService.serverLanesEnabled else {
+      task.setTaskCompleted(success: true)
+      return
+    }
+
+    // Sync lane only: metadata pushes are what the refresh window is for. Provider pushes
+    // retry forever against an unreachable home server, and S3 uploads already run on a
+    // background URLSession — neither should keep the process awake until expiration.
+    let refreshOperation = RefreshTaskOperation(
+      queueDrained: syncQueueService.observeQueueCounts().laneDrained(TaskQueueKey.sync)
+    )
 
     refreshOperation.completionBlock = { [weak self] in
       let success = !refreshOperation.isCancelled
@@ -485,11 +565,13 @@ extension AppDelegate {
       request.earliestBeginDate = Date(timeIntervalSinceNow: 24 * 60 * 60)
     }
 
-    do {
-      try BGTaskScheduler.shared.submit(request)
-      Self.logger.info("Database backup scheduled for: \(request.earliestBeginDate?.description ?? "unknown")")
-    } catch {
-      Self.logger.error("Failed to schedule database backup: \(error.localizedDescription)")
+    let scheduledFor = request.earliestBeginDate?.description ?? "unknown"
+    Self.submitBackgroundTask(request) { error in
+      if let error {
+        Self.logger.error("Failed to schedule database backup: \(error.localizedDescription)")
+      } else {
+        Self.logger.info("Database backup scheduled for: \(scheduledFor)")
+      }
     }
   }
 

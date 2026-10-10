@@ -21,8 +21,13 @@ struct ItemDetailsView: View {
   @State private var showingEmptyPasteboardAlert = false
 
   @State private var loadingState = LoadingOverlayState()
+  /// Media Servers, presented on top of the editor so its edits stay
+  @State private var showingMediaServers = false
 
   @Environment(\.hardcoverService) private var hardcoverService
+  @Environment(\.jellyfinService) private var jellyfinService
+  @Environment(\.audiobookshelfService) private var audiobookshelfService
+  @Environment(\.listState) private var listState
   @Environment(\.dismiss) private var dismiss
   @EnvironmentObject private var theme: ThemeViewModel
 
@@ -44,8 +49,15 @@ struct ItemDetailsView: View {
         showingArtworkOptions = true
       }
 
-      if let viewModel = viewModel.hardcoverSectionViewModel {
-        ItemDetailsHardcoverSectionView(viewModel: viewModel)
+      // The gate lives HERE: the section renders what it's given, the caller decides presence
+      let mediaServerResources = viewModel.hostedExternalResources
+      if viewModel.hardcoverSectionViewModel != nil || !mediaServerResources.isEmpty {
+        ItemDetailsIntegrationsSectionView(
+          hardcover: viewModel.hardcoverSectionViewModel,
+          mediaServerResources: mediaServerResources,
+          resolvedHosts: viewModel.resolvedExternalHosts,
+          onOpenMediaServers: { showingMediaServers = true }
+        )
       }
 
       ItemDetailsFooterSectionView(
@@ -54,11 +66,29 @@ struct ItemDetailsView: View {
         lastPlayedDate: viewModel.lastPlayedDate
       )
     }
+    .task {
+      await viewModel.load()
+    }
     .onChange(of: viewModel.selectedImage) {
       viewModel.artworkIsUpdated = true
     }
     .sheet(isPresented: $showingImagePicker) {
       ImagePicker(image: $viewModel.selectedImage)
+    }
+    // Registered as a cover like the library's own Media Servers sheet: an import confirmed in
+    // the browser waits for it to close before its placement prompt
+    .sheet(isPresented: $showingMediaServers, onDismiss: {
+      listState.coversOnScreen.remove(.mediaServers)
+    }) {
+      NavigationStack {
+        MediaServersView(
+          jellyfinService: jellyfinService,
+          audiobookshelfService: audiobookshelfService,
+          style: .libraryEntry
+        )
+      }
+      .environment(\.closeMediaServers, CloseMediaServersAction { showingMediaServers = false })
+      .onAppear { listState.coversOnScreen.insert(.mediaServers) }
     }
     .alert(
       "hardcover_remove_confirmation_title",

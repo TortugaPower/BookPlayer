@@ -32,11 +32,18 @@ public protocol PlaybackServiceProtocol {
 @Observable
 public final class PlaybackService: PlaybackServiceProtocol {
   var libraryService: LibraryServiceProtocol!
+  /// Injected in `setup`, whose default keeps watchOS on its one-argument call — the watch
+  /// stores no media-server connections, so resolution there correctly finds nothing.
+  var streamResolver: ExternalStreamResolving!
 
   public init() {}
 
-  public func setup(libraryService: LibraryServiceProtocol) {
+  public func setup(
+    libraryService: LibraryServiceProtocol,
+    streamResolver: ExternalStreamResolving = ExternalStreamResolver()
+  ) {
     self.libraryService = libraryService
+    self.streamResolver = streamResolver
   }
 
   public func updatePlaybackTime(item: PlayableItem, time: Double) {
@@ -206,7 +213,26 @@ public final class PlaybackService: PlaybackServiceProtocol {
     )
   }
 
-  func getPlayableChapters(book: SimpleLibraryItem) throws -> [PlayableChapter] {
+  /// A streamed volume's link, lent to its books: they have none of their own.
+  struct VolumeStream {
+    let resource: SimpleExternalResource
+    /// The volume's books in play order
+    let bookUuids: [String]
+    /// `resource` resolved once for the whole load: every resolve reads the keychain, and a
+    /// volume can hold a hundred books
+    let source: ExternalStreamSource?
+
+    func member(for book: SimpleLibraryItem) -> PlayableChapter.StreamLookup.Member {
+      .volumeBook(
+        originalFileName: book.originalFileName,
+        relativePath: book.relativePath,
+        uuid: book.uuid,
+        bookUuids: bookUuids
+      )
+    }
+  }
+
+  func getPlayableChapters(book: SimpleLibraryItem, volume: VolumeStream? = nil) throws -> [PlayableChapter] {
     guard
       var chapters = self.libraryService.getChapters(from: book.relativePath)
     else {
@@ -221,6 +247,41 @@ public final class PlaybackService: PlaybackServiceProtocol {
     /// Ignore chapters that don't have the duration set properly
     chapters = chapters.filter { $0.duration > 0 }
 
+    // Resolution — which server, which URL, which auth headers — belongs to the resolver;
+    // this only records the outcome onto the chapters. A book streams through its own link,
+    // or, inside a streamed volume, through the volume's.
+    let ownResource = book.externalResources?.streamingResource
+    let externalResource = ownResource ?? volume?.resource
+    let member: PlayableChapter.StreamLookup.Member = ownResource == nil
+      ? volume?.member(for: book) ?? .item
+      : .item
+    let streamSource: ExternalStreamSource?
+    if let ownResource {
+      streamSource = streamResolver.streamSource(for: ownResource)
+    } else {
+      streamSource = volume?.source
+    }
+    var externalUrl: URL?
+    var streamLookup: PlayableChapter.StreamLookup?
+    switch streamSource?.location {
+    case .url(let url):
+      // One URL serves a whole item, so only the item's own book plays it
+      externalUrl = member == .item ? url : nil
+    case .audiobookshelfItem(let serverURL, let itemId):
+      streamLookup = PlayableChapter.StreamLookup(serverURL: serverURL, itemId: itemId, member: member)
+    case nil:
+      break
+    }
+    let externalHeaders = streamSource?.headers ?? [:]
+
+    // The resource exists but no stream source could be built for it — in practice because
+    // no saved connection matched its host. Either way the file can't be streamed or
+    // re-downloaded on this device until its server is added.
+    let unresolvedHost = streamSource == nil
+      ? externalResource.map(PlayableChapter.UnresolvedHost.init(resource:))
+      : nil
+
+    // If no chapters, create a single one using the book metadata
     guard !chapters.isEmpty else {
       return [
         PlayableChapter(
@@ -230,11 +291,16 @@ public final class PlaybackService: PlaybackServiceProtocol {
           duration: book.duration,
           relativePath: book.relativePath,
           remoteURL: book.remoteURL,
-          index: 1
+          externalURL: externalUrl,
+          index: 1,
+          externalHeaders: externalHeaders,
+          streamLookup: streamLookup,
+          unresolvedHost: unresolvedHost
         )
       ]
     }
 
+    // Map existing chapters and apply resolved connection info
     return chapters.enumerated()
       .map({ (index, chapter) in
         return PlayableChapter(
@@ -244,7 +310,11 @@ public final class PlaybackService: PlaybackServiceProtocol {
           duration: chapter.duration,
           relativePath: book.relativePath,
           remoteURL: book.remoteURL,
-          index: Int16(index + 1)
+          externalURL: externalUrl,
+          index: Int16(index + 1),
+          externalHeaders: externalHeaders,
+          streamLookup: streamLookup,
+          unresolvedHost: unresolvedHost
         )
       })
   }
@@ -296,9 +366,20 @@ public final class PlaybackService: PlaybackServiceProtocol {
     var currentDuration = 0.0
     var index: Int16 = 0
 
+    // Only a volume lends its link: a plain folder's books are separate items
+    let volume = folder.type == .bound
+      ? folder.externalResources?.streamingResource.map {
+        VolumeStream(
+          resource: $0,
+          bookUuids: items.filter { $0.type == .book }.map(\.uuid),
+          source: streamResolver.streamSource(for: $0)
+        )
+      }
+      : nil
+
     var chapters = [PlayableChapter]()
     for book in items {
-      let nestedChapters = try getPlayableChapters(book: book)
+      let nestedChapters = try getPlayableChapters(book: book, volume: volume)
       /// Nested chapters need to calculate the offset they'll use as a reference
       var localDuration: TimeInterval = 0
       var localCurrentDuration: TimeInterval = 0
@@ -325,8 +406,14 @@ public final class PlaybackService: PlaybackServiceProtocol {
           duration: truncatedDuration,
           relativePath: nestedChapter.relativePath,
           remoteURL: nestedChapter.remoteURL,
+          externalURL: nestedChapter.externalUrl,
           index: index,
-          chapterOffset: nestedChapters.count == 1 ? 0 : localCurrentDuration
+          chapterOffset: nestedChapters.count == 1 ? 0 : localCurrentDuration,
+          // Without the headers a streamed chapter inside a bound book hits the media
+          // server unauthenticated and 401s.
+          externalHeaders: nestedChapter.externalHeaders,
+          streamLookup: nestedChapter.streamLookup,
+          unresolvedHost: nestedChapter.unresolvedHost
         )
         currentDuration = TimeParser.truncateTime(currentDuration + truncatedDuration)
         localCurrentDuration = TimeParser.truncateTime(localCurrentDuration + localDuration)

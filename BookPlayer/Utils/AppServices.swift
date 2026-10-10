@@ -7,6 +7,7 @@
 //
 
 import AppIntents
+import BackgroundTasks
 import BookPlayerKit
 import Combine
 import CoreData
@@ -26,11 +27,24 @@ final class AppServices: BPLogger {
 
   var pendingURLActions = [Action]()
 
-  let playerState = PlayerState()
+  let playerState: PlayerState
+  /// Eager, like playerState: CarPlay registers here from connect(), which on a cold launch
+  /// into the car runs before CoreServices exist. Its subscription is bound in setup below.
+  let promptSurfaceArbiter: PromptSurfaceArbiter
 
   let reviewPromptService = ReviewPromptService()
+  /// Reports parked sync tasks to Sentry; lives as long as the services it observes
+  private var syncPauseReporter: SyncPauseReporter?
+  /// Keeps book uploads going in the background (a continued processing task)
+  let uploadContinuation = UploadContinuationController()
+  /// The Wi-Fi-only transfer setting needs to know the current network
+  private let networkMonitor = NetworkMonitor()
 
-  private init() {}
+  private init() {
+    let playerState = PlayerState()
+    self.playerState = playerState
+    self.promptSurfaceArbiter = PromptSurfaceArbiter(playerState: playerState)
+  }
 
   // MARK: - Core Services Setup
 
@@ -77,10 +91,23 @@ final class AppServices: BPLogger {
       let accountService = makeAccountService(dataManager: dataManager)
       let audioMetadataService = makeAudioMetadataService()
       let libraryService = makeLibraryService(dataManager: dataManager, audioMetadataService: audioMetadataService)
+      let tasksDataManager = TasksDataManager()
+      let syncQueueService = makeSyncQueueService(
+        libraryService: libraryService,
+        getAccessLevel: { accountService.getAccessLevel() },
+        verifyAccessLevel: { await accountService.refreshAccessLevel() },
+        tasksDataManager: tasksDataManager,
+        dataManager: dataManager
+      )
+      // Not in the unit-test host: tests post `.syncTaskPaused` themselves, and those must
+      // never reach the real Sentry project
+      if ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] == nil {
+        syncPauseReporter = SyncPauseReporter(syncQueueService: syncQueueService)
+      }
       let syncService = makeSyncService(
         accountService: accountService,
         libraryService: libraryService,
-        dataManager: dataManager
+        syncQueueService: syncQueueService
       )
       let playbackService = makePlaybackService(libraryService: libraryService)
       let playerManager = PlayerManager(
@@ -89,7 +116,12 @@ final class AppServices: BPLogger {
         syncService: syncService,
         speedService: SpeedService(libraryService: libraryService),
         shakeMotionService: ShakeMotionService(),
-        widgetReloadService: WidgetReloadService()
+        widgetReloadService: WidgetReloadService(),
+        hasStreamingEnabled: { accountService.hasStreamingEnabled() },
+        /// Already on main: `PlayerManager` routes every failure through `presentOnMain`.
+        presentFailure: { [promptSurfaceArbiter] failure in
+          promptSurfaceArbiter.routeFailure(failure)
+        }
       )
       let watchService = PhoneWatchConnectivityService(
         libraryService: libraryService,
@@ -102,7 +134,7 @@ final class AppServices: BPLogger {
         playbackService: playbackService,
         playerManager: playerManager
       )
-      let hardcoverService = makeHardcoverService(libraryService: libraryService)
+      let hardcoverService = makeHardcoverService(libraryService: libraryService, syncService: syncService)
 
       let preferencesService = PreferencesSyncService()
       preferencesService.setup(
@@ -111,6 +143,9 @@ final class AppServices: BPLogger {
       )
       libraryService.preferencesService = preferencesService
       Task { await preferencesService.bootstrap() }
+
+      let mediaServerChapterService = MediaServerChapterRefreshService()
+      mediaServerChapterService.setup(libraryService: libraryService, accountService: accountService)
 
       let coreServices = CoreServices(
         accountService: accountService,
@@ -122,16 +157,51 @@ final class AppServices: BPLogger {
         playerManager: playerManager,
         preferencesService: preferencesService,
         syncService: syncService,
+        syncQueueService: syncQueueService,
+        mediaServerChapterService: mediaServerChapterService,
         watchService: watchService
       )
 
       self.coreServices = coreServices
+      setupUploadContinuation(syncQueueService: syncQueueService)
 
       // Wire up accountService for Watch auth transfer
       watchService.setAccountService(accountService)
 
       return coreServices
     }
+  }
+
+  private func setupUploadContinuation(syncQueueService: SyncQueueService) {
+    let networkMonitor = networkMonitor
+    uploadContinuation.setup(dependencies: .init(
+      canUpload: { syncQueueService.serverLanesEnabled && syncQueueService.accessPolicy[.uploadFile] == true },
+      // Wi-Fi-only means "not over cellular", as the non-cellular session does (wired
+      // Ethernet counts)
+      networkAllowsUploads: {
+        UserDefaults.standard.bool(forKey: Constants.UserDefaults.allowCellularData)
+          || (networkMonitor.isConnected && !networkMonitor.isConnectedViaCellular)
+      },
+      isForeground: { UIApplication.shared.applicationState == .active },
+      pendingUploads: { await syncQueueService.pendingBookUploads() },
+      submit: { request in
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+          AppDelegate.submitBackgroundTask(request) { error in
+            if let error {
+              continuation.resume(throwing: error)
+            } else {
+              continuation.resume()
+            }
+          }
+        }
+      },
+      hasPendingRequest: {
+        await BGTaskScheduler.shared.pendingTaskRequests()
+          .contains { $0.identifier == UploadContinuationController.identifier }
+      },
+      queueChanges: { syncQueueService.observeQueueCounts() },
+      currentCounts: { syncQueueService.queueCounts }
+    ))
   }
 
   // MARK: - Convenience Methods
@@ -223,13 +293,33 @@ final class AppServices: BPLogger {
   private func makeSyncService(
     accountService: AccountService,
     libraryService: LibraryService,
-    dataManager: DataManager
+    syncQueueService: SyncQueueService
   ) -> SyncService {
     let service = SyncService()
     service.setup(
       isActive: accountService.hasSyncEnabled(),
       libraryService: libraryService,
       accountService: accountService,
+      syncQueueService: syncQueueService,
+      runsMissingItemsPass: true
+    )
+    return service
+  }
+
+  private func makeSyncQueueService(
+    libraryService: LibraryService,
+    getAccessLevel: @escaping () -> AccessLevel,
+    verifyAccessLevel: @escaping () async -> AccessLevel?,
+    tasksDataManager: TasksDataManager,
+    dataManager: DataManager
+  ) -> SyncQueueService {
+    let service = SyncQueueService()
+    service.setup(
+      libraryService: libraryService,
+      getAccessLevel: getAccessLevel,
+      verifyAccessLevel: verifyAccessLevel,
+      tasksDataManager: tasksDataManager,
+      networkClient: NetworkClient(),
       dataManager: dataManager
     )
     return service
@@ -257,9 +347,9 @@ final class AppServices: BPLogger {
     return service
   }
 
-  private func makeHardcoverService(libraryService: LibraryService) -> HardcoverService {
+  private func makeHardcoverService(libraryService: LibraryService, syncService: SyncService) -> HardcoverService {
     let service = HardcoverService()
-    service.setup(libraryService: libraryService)
+    service.setup(libraryService: libraryService, syncService: syncService)
     return service
   }
 }

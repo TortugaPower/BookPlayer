@@ -10,7 +10,7 @@ import BookPlayerKit
 import SwiftUI
 
 @MainActor
-final class ItemListViewModel: ObservableObject {
+final class ItemListViewModel: ObservableObject, BPLogger {
   let libraryNode: LibraryNode
   private let libraryService: LibraryService
   private let playbackService: PlaybackService
@@ -23,10 +23,9 @@ final class ItemListViewModel: ObservableObject {
   }
   private let listState: ListStateManager
   let singleFileDownloadService: SingleFileDownloadService
-
   /// Reference to ongoing library fetch task
   var contentsFetchTask: Task<(), Error>?
-
+  
   @Published var items: [SimpleLibraryItem] = []
   @Published var isLoading: Bool = false
   @Published var canLoadMore: Bool = true
@@ -371,6 +370,7 @@ final class ItemListViewModel: ObservableObject {
       isUnfinished: true
     )
 
+    // loadPlayer's contract is a RELATIVE PATH — a uuid silently no-ops the lookup.
     return nextPlayableItem?.relativePath
   }
 }
@@ -423,13 +423,10 @@ extension ItemListViewModel {
 
   func handleMoveIntoLibrary() {
     let selectedItemPaths = selectedItems.compactMap({ LibraryItemRef(relativePath: $0.relativePath, uuid: $0.uuid) })
-    let parentFolder = selectedItems.first?.parentFolder
 
     do {
+      // The folder they left is refreshed by the move itself
       try organizer.move(selectedItemPaths, into: nil)
-      if let parentFolder {
-        libraryService.rebuildFolderDetails(parentFolder)
-      }
     } catch {
       loadingState.error = error
     }
@@ -454,6 +451,10 @@ extension ItemListViewModel {
         editMode = .inactive
       } catch {
         loadingState.error = error
+        // A clash is reported after the folder was made and the rest moved into it: the selection
+        // still holds their old paths
+        listState.reloadAll(padding: 1)
+        editMode = .inactive
       }
     }
   }
@@ -704,7 +705,7 @@ extension ItemListViewModel {
         if item.type == .folder || item.type == .bound {
           try DataManager.createBackingFolderIfNeeded(fileURL)
         }
-
+        
         try await syncService.downloadRemoteFiles(for: item)
         loadingState.show = false
       } catch {

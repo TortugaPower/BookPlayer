@@ -37,26 +37,6 @@ public struct SyncTask: Identifiable {
   }
 }
 
-public struct SyncTaskReference: Identifiable {
-  public let id: String
-  public let uuid: String
-  public let relativePath: String
-  public let jobType: SyncJobType
-  public let progress: Double
-
-  public init(id: String, uuid: String, relativePath: String, jobType: SyncJobType, progress: Double) {
-    self.id = id
-    self.uuid = uuid
-    self.relativePath = relativePath
-    self.jobType = jobType
-    self.progress = progress
-  }
-
-  public var progressKey: String {
-    SyncProgressKey.resolve(uuid: uuid, relativePath: relativePath)
-  }
-}
-
 /// Information about the last sync error for debugging purposes
 public struct SyncErrorInfo {
   public let taskId: String

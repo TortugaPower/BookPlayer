@@ -45,7 +45,19 @@ struct IntegrationLibraryView<
           .scrollContentBackground(.hidden)
       }
     }
+    .sheet(item: $viewModel.pendingImportBatch) { batch in
+      ExternalImportView(
+        initModel: {
+          ExternalImportViewModel(batch: batch) { resources in
+            viewModel.confirmExternalImport(resources)
+          }
+        }
+      )
+      .presentationBackground(.clear)
+      .environmentObject(theme)
+    }
     .scrollDismissesKeyboard(.interactively)
+    .loadingOverlay(viewModel.isPreparingDownload)
     .background(theme.systemBackgroundColor)
     .modifier(IntegrationSearchableModifier(
       isSearchable: viewModel.isSearchable,
@@ -55,12 +67,10 @@ struct IntegrationLibraryView<
     .onAppear { viewModel.fetchInitialItems() }
     .onDisappear { viewModel.cancelFetchItems() }
     .errorAlert(error: $viewModel.error)
-    .environment(\.editMode, $viewModel.editMode)
-    .onChange(of: viewModel.editMode) { _, newValue in
-      tabEditing.wrappedValue = newValue.isEditing
-    }
+    // Whole-level download only: an explicit selection needs no second confirmation,
+    // and Stream is already confirmed downstream by ExternalImportView.
     .confirmationDialog(
-      "download_folder_confirmation_title".localized,
+      "download_title".localized,
       isPresented: $viewModel.showingDownloadConfirmation
     ) {
       Button("download_title".localized) {
@@ -68,7 +78,16 @@ struct IntegrationLibraryView<
       }
       Button("cancel_button".localized, role: .cancel) {}
     } message: {
-      Text(String.localizedStringWithFormat("download_folder_confirmation_message".localized, viewModel.totalItems))
+      Text(
+        String.localizedStringWithFormat(
+          "download_folder_confirmation_message".localized,
+          viewModel.downloadableItemCount
+        )
+      )
+    }
+    .environment(\.editMode, $viewModel.editMode)
+    .onChange(of: viewModel.editMode) { _, newValue in
+      tabEditing.wrappedValue = newValue.isEditing
     }
     .toolbar {
       ToolbarItem(placement: .principal) {
@@ -99,9 +118,23 @@ struct IntegrationLibraryView<
             Button(action: viewModel.onEditToggleSelectTapped) {
               Label("select_title".localized, systemImage: "checkmark.circle")
             }
+            
+            // Both fire OUTSIDE edit mode, where the selection is empty — they
+            // always mean "everything at this level".
+            Button {
+              viewModel.onStreamTapped(useSelectedItems: false)
+            } label: {
+              Label("stream_button", systemImage: "waveform")
+            }
+            .disabled(viewModel.downloadableItemCount == 0)
+
             Button(action: viewModel.onDownloadFolderTapped) {
               Label("download_title".localized, systemImage: "arrow.down.to.line")
             }
+            // Conservative: on a Jellyfin folder whose loaded page is all subfolders this
+            // reads 0 while the server has audiobooks, so Download is briefly unavailable
+            // until another page lands. A false negative — never the wrong action.
+            .disabled(viewModel.downloadableItemCount == 0 || viewModel.isPreparingDownload)
           }
         }
 
@@ -120,9 +153,9 @@ struct IntegrationLibraryView<
   var layoutPreferences: some View {
     if viewModel.showsLayoutPreferences {
       ThemedSection {
-        Picker(selection: $viewModel.layout, label: Text("Layout options".localized)) {
-          Label("Grid".localized, systemImage: "square.grid.2x2").tag(IntegrationLayout.Options.grid)
-          Label("List".localized, systemImage: "list.bullet").tag(IntegrationLayout.Options.list)
+        Picker(selection: $viewModel.layout, label: Text("layout_options_title")) {
+          Label("layout_grid_option", systemImage: "square.grid.2x2").tag(IntegrationLayout.Options.grid)
+          Label("layout_list_option", systemImage: "list.bullet").tag(IntegrationLayout.Options.list)
         }
       }
     }
@@ -141,8 +174,17 @@ struct IntegrationLibraryView<
 
     Spacer()
 
+    Button {
+      viewModel.onStreamTapped(useSelectedItems: true)
+    } label: {
+      Image(systemName: "waveform")
+        .accessibilityLabel("stream_button")
+    }
+    .disabled(viewModel.selectedItems.isEmpty)
+
     Button(action: viewModel.onDownloadTapped) {
       Image(systemName: "arrow.down.to.line")
+        .accessibilityLabel("download_title")
     }
     .disabled(viewModel.selectedItems.isEmpty)
   }

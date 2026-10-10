@@ -9,7 +9,6 @@
 import SwiftUI
 import WidgetKit
 
-@available(iOSApplicationExtension 16.1, *)
 struct CornerView: View {
   let title: String
   let fillFraction: Double
@@ -22,12 +21,8 @@ struct CornerView: View {
           .widgetAccentable()
       }
 
-    if #available(iOSApplicationExtension 17.0, watchOS 10.0, *) {
-      return view
-        .widgetCurvesContent()
-    } else {
-      return view
-    }
+    return view
+      .widgetCurvesContent()
   }
 }
 

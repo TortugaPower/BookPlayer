@@ -11,6 +11,11 @@ import Combine
 import CoreData
 import Foundation
 
+public enum ImportSource {
+  case local(files: [URL])
+  case external(files: [SimpleExternalResource])
+}
+
 /// sourcery: AutoMockable
 public protocol LibraryServiceProtocol: AnyObject {
   /// Metadata publisher that collects changes during 10 seconds before normalizing the payload
@@ -39,7 +44,9 @@ public protocol LibraryServiceProtocol: AnyObject {
   /// can be deleted later. URLs already registered are skipped.
   @MainActor func registerExistingProcessedItems(at urls: [URL]) async -> [SimpleLibraryItem]
   /// Move items between folders
-  func moveItems(_ items: [LibraryItemRef], inside relativePath: String?) throws
+  /// - Returns: what moved, and what was left where it was because its name is taken there
+  @discardableResult
+  func moveItems(_ items: [LibraryItemRef], inside relativePath: String?) throws -> MoveOutcome
   /// Delete items
   func delete(_ items: [SimpleLibraryItem], mode: DeleteMode) throws
 
@@ -58,6 +65,7 @@ public protocol LibraryServiceProtocol: AnyObject {
   func getSimpleItem(with relativePath: String) -> SimpleLibraryItem?
   /// Where the items with these uuids are now, in the uuids' order; uuids no item has are left out
   func getItemRefs(forUuids uuids: [String]) -> [LibraryItemRef]
+  func getSimpleItem(for uuid: String) -> SimpleLibraryItem?
   /// Get items not included in a specific set
   func getItems(notIn relativePaths: [String], parentFolder: String?) -> [SimpleLibraryItem]?
   /// Fetch a property from a stored library item
@@ -89,9 +97,13 @@ public protocol LibraryServiceProtocol: AnyObject {
 
   /// Update metadata
   /// Create book core data object
-  func createBook(from url: URL) async -> Book
+  @MainActor func createBook(from url: URL) async -> Book
   /// Load metadata chapters if needed
   func loadChaptersIfNeeded(relativePath: String, asset: AVAsset) async
+  /// Store chapters a media server reported for an item whose file is never opened here.
+  /// Same empty-guard as `loadChaptersIfNeeded(relativePath:asset:)`: an existing list is
+  /// never replaced, so this can run on every refresh without fighting the parsed one.
+  func storeChaptersIfNeeded(relativePath: String, chapters: [ChapterMetadata]) async
   /// Re-parse chapters from the file with our manual parsers, replacing the stored list only
   /// when more chapters are found. Returns the new chapter count, or nil if nothing changed.
   func reloadChapters(relativePath: String) async -> Int?
@@ -164,11 +176,46 @@ public protocol LibraryServiceProtocol: AnyObject {
   func setHardcoverBook(_ hardcoverBook: SimpleHardcoverBook?, for relativePath: String) async
   /// Get hardcover book for an item
   func getHardcoverBook(for relativePath: String) async -> SimpleHardcoverBook?
+  /// Create an external resource linking the item (by uuid) to a provider's resource.
+  /// Returns the syncable representation to upload, or nil if it already exists or the item is missing.
+  func setExternalResource(providerName: String, providerId: String, for uuid: String) async -> SyncableExternalResource?
+  /// Remove the external resource of the given provider from the item (by uuid).
+  /// Returns the deleted resource's providerId, or nil if there was nothing to delete.
+  func removeExternalResource(providerName: String, for uuid: String) async -> String?
+  /// Returns the item's external resources as lightweight values.
+  func getExternalResources(for relativePath: String) async -> [SimpleExternalResource]
+
+  /// Snapshots, not managed objects: services never hand NSManagedObjects out (repo invariant).
+  /// Found through the item: a server's book can be in the library more than once.
+  func findResources(for uuid: String) -> [SimpleExternalResource]?
+
+  /// Media-server links of the books at one library level (root when nil) that still have no
+  /// chapters, the way the chapter refresh needs them: one background fetch of the small
+  /// resource rows, filtered to media servers in the predicate, with no item snapshots built.
+  /// Direct children only, like the list itself — a book inside a subfolder belongs to that
+  /// folder's level.
+  func findChapterlessMediaServerResources(at relativePath: String?) async -> [SimpleExternalResource]
+
+  // fromResources (not from:): overloading insertItems(from: [URL]) collides in the
+  // Sourcery-generated mock property names.
+  /// Creates the streamed items in the folder at `parentPath` (the one being browsed; the library
+  /// root when nil, or when that folder is gone), as Android's `basePath` does
+  @MainActor func insertItems(
+    fromResources resources: [SimpleExternalResource],
+    inside parentPath: String?
+  ) async -> [SimpleLibraryItem]
+  
+  /// Store the chapters a provider's servers reported for the books linked to them, keyed by
+  /// providerId, on the books that still have none.
+  @MainActor func storeMediaServerChapters(
+    providerName: String,
+    chaptersByProviderId: [String: [ChapterMetadata]]
+  )
 }
 
 // swiftlint:disable force_cast
 @Observable
-public final class LibraryService: LibraryServiceProtocol, @unchecked Sendable {
+public final class LibraryService: LibraryServiceProtocol, BPLogger, @unchecked Sendable {
   var dataManager: DataManager!
   var audioMetadataService: AudioMetadataServiceProtocol!
   /// Sticky-sort preference resolver. Injected after construction to break the
@@ -241,15 +288,13 @@ public final class LibraryService: LibraryServiceProtocol, @unchecked Sendable {
     context: NSManagedObjectContext
   ) {
     let originalPath = item.relativePath!
+    // Its current name, at the root too: a streamed copy's (`-<uuid prefix>`) differs from its
+    // originalFileName, and the file on disk moves under the current name
+    let newPath = Self.path(of: Self.name(of: originalPath), inside: parentFolder)
 
     switch item {
     case let book as Book:
-      if let parentPath = parentFolder {
-        let itemRelativePath = book.relativePath.split(separator: "/").map({ String($0) }).last ?? book.relativePath
-        book.relativePath = "\(parentPath)/\(itemRelativePath!)"
-      } else {
-        book.relativePath = book.originalFileName
-      }
+      book.relativePath = newPath
 
       ArtworkService.moveCachedImage(from: originalPath, to: book.relativePath)
     case let folder as Folder:
@@ -264,12 +309,7 @@ public final class LibraryService: LibraryServiceProtocol, @unchecked Sendable {
           context: context
         ) ?? []
 
-      if let parentPath = parentFolder {
-        let itemRelativePath = folder.relativePath.split(separator: "/").map({ String($0) }).last ?? folder.relativePath
-        folder.relativePath = "\(parentPath)/\(itemRelativePath!)"
-      } else {
-        folder.relativePath = folder.originalFileName
-      }
+      folder.relativePath = newPath
 
       ArtworkService.moveCachedImage(from: originalPath, to: folder.relativePath)
 
@@ -279,18 +319,6 @@ public final class LibraryService: LibraryServiceProtocol, @unchecked Sendable {
     default:
       break
     }
-  }
-
-  func getItemReference(with relativePath: String, context: NSManagedObjectContext) -> LibraryItem? {
-    let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
-    fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.relativePath), relativePath)
-    fetchRequest.fetchLimit = 1
-    fetchRequest.propertiesToFetch = [
-      #keyPath(LibraryItem.relativePath),
-      #keyPath(LibraryItem.originalFileName),
-    ]
-
-    return try? context.fetch(fetchRequest).first
   }
 
   public func getItemReference(with relativePath: String) -> LibraryItem? {
@@ -403,7 +431,21 @@ public final class LibraryService: LibraryServiceProtocol, @unchecked Sendable {
     return fetchRequest
   }
 
+  /// One grouped fetch for every row's external resources — a per-row fetch here is an
+  /// N+1 on the main library list path.
+  func findResourcesGrouped(forUuids uuids: [String], context: NSManagedObjectContext) -> [String: [ExternalResource]] {
+    guard !uuids.isEmpty else { return [:] }
+    let fetch: NSFetchRequest<ExternalResource> = ExternalResource.fetchRequest()
+    fetch.predicate = NSPredicate(format: "%K IN %@", #keyPath(ExternalResource.libraryItem.uuid), uuids)
+    guard let resources = try? context.fetch(fetch) else { return [:] }
+    return Dictionary(grouping: resources) { $0.libraryItem?.uuid ?? "" }
+  }
+
   func parseFetchedItems(from results: [[String: Any]]?, context: NSManagedObjectContext) -> [SimpleLibraryItem]? {
+    let resourcesByUuid = findResourcesGrouped(
+      forUuids: results?.compactMap { $0["uuid"] as? String } ?? [],
+      context: context
+    )
     return results?.compactMap({ [weak self] dictionary -> SimpleLibraryItem? in
       guard
         let uuid = dictionary["uuid"] as? String,
@@ -426,6 +468,8 @@ public final class LibraryService: LibraryServiceProtocol, @unchecked Sendable {
         self?.rebuildFolderDetails(relativePath, context: context)
       }
 
+      let externalResources = resourcesByUuid[uuid]
+
       return SimpleLibraryItem(
         title: title,
         details: dictionary["details"] as? String ?? "",
@@ -443,6 +487,7 @@ public final class LibraryService: LibraryServiceProtocol, @unchecked Sendable {
         lastPlayDate: dictionary["lastPlayDate"] as? Date,
         type: type,
         uuid: uuid,
+        externalResources: externalResources?.map({ SimpleExternalResource(from: $0, ignoreLibraryItem: true) })
       )
     })
   }
@@ -578,7 +623,9 @@ extension LibraryService {
       return nil
     }
 
-    return SimpleLibraryItem(from: item)
+    return SimpleLibraryItem(
+      from: item,
+    )
   }
 
   public func getLibraryCurrentTheme() -> SimpleTheme? {
@@ -1012,6 +1059,22 @@ extension LibraryService {
     }
   }
 
+  /// The media-server rule, in one place: chapters are only ever ADDED. A list the parser
+  /// produced for a downloaded copy is never replaced by a later server refresh, and an empty
+  /// answer never clears one.
+  /// - Returns: whether anything was written, so a caller can skip a pointless save.
+  @discardableResult
+  private func storeChaptersIfEmpty(
+    _ chapters: [ChapterMetadata],
+    for book: Book,
+    context: NSManagedObjectContext
+  ) -> Bool {
+    guard !chapters.isEmpty, book.chapters?.count == 0 else { return false }
+
+    storeChapters(chapters, for: book, context: context)
+    return true
+  }
+
   /// Overload for backwards compatibility when we need to query by relativePath
   private func storeChapters(_ chapters: [ChapterMetadata], for relativePath: String, context: NSManagedObjectContext) {
     guard let book = getItem(with: relativePath, context: context) as? Book else {
@@ -1051,42 +1114,58 @@ extension LibraryService {
     )
   }
 
-  public func moveItems(_ items: [LibraryItemRef], inside relativePath: String?) throws {
+  @discardableResult
+  public func moveItems(_ items: [LibraryItemRef], inside relativePath: String?) throws -> MoveOutcome {
     let context = dataManager.getContext()
 
-    try moveItems(items, inside: relativePath, context: context)
+    return try moveItems(items, inside: relativePath, context: context)
   }
 
+  /// Moves each item under its current name into the folder at `relativePath` (the library root
+  /// when nil), as Android's `moveItems` does.
+  ///
+  /// - Parameter rebuildsSourceFolders: refresh the details of the folders the items left; not when
+  ///   that folder is deleted next, which would sync an update for a deleted item
+  /// - Returns: what moved, and the items left where they were: another item, or a file, already
+  ///   has their name there (a streamed item has no file, so the library is asked too). One gone
+  ///   from the library is in neither.
+  @discardableResult
   public func moveItems(
     _ items: [LibraryItemRef],
     inside relativePath: String?,
-    context: NSManagedObjectContext
-  ) throws {
+    context: NSManagedObjectContext,
+    rebuildsSourceFolders: Bool = true
+  ) throws -> MoveOutcome {
     var folder: Folder?
     let library = self.getLibraryReference(context: context)
 
-    if let relativePath = relativePath,
-      let folderReference = getItemReference(with: relativePath, context: context) as? Folder
-    {
+    if let relativePath {
+      // Never into the root under the path of a folder gone since the caller looked it up
+      guard let folderReference = getItemReference(with: relativePath, context: context) as? Folder else {
+        // Worded and localized by iOS, as `nameTakenError` is: "The file “Shelf” doesn’t exist."
+        throw CocoaError(.fileNoSuchFile, userInfo: [
+          NSFilePathErrorKey: DataManager.getProcessedFolderURL().appendingPathComponent(relativePath).path
+        ])
+      }
       folder = folderReference
     }
 
-    /// Preserve original parent path to rebuild order rank later
-    var originalParentPath: String?
-    if let firstPath = items.first {
-      originalParentPath =
-        getItemProperty(
-          #keyPath(LibraryItem.folder.relativePath),
-          relativePath: firstPath.relativePath,
-          context: context
-        ) as? String
-    }
-
     let processedFolderURL = DataManager.getProcessedFolderURL()
-    let startingIndex = getNextOrderRank(in: relativePath, context: context)
+    var nextOrderRank = getNextOrderRank(in: relativePath, context: context)
+    var moved = [LibraryItemRef]()
+    var notMoved = [LibraryItemRef]()
+    /// The folders items left, to rank and refresh afterwards: each moved item's own, not the first
+    /// item's (it may be gone, and the items may come from different folders)
+    var sourceFolders = Set<String>()
 
-    for (index, itemPath) in items.enumerated() {
+    for itemPath in items {
       guard let libraryItem = getItemReference(with: itemPath.relativePath, context: context) else {
+        continue
+      }
+
+      let destinationPath = Self.path(of: Self.name(of: itemPath.relativePath), inside: relativePath)
+      guard !isTaken(destinationPath, by: libraryItem, processedFolderURL: processedFolderURL, context: context) else {
+        notMoved.append(itemPath)
         continue
       }
 
@@ -1100,7 +1179,11 @@ extension LibraryService {
         parentPath: folder?.relativePath
       )
 
-      libraryItem.orderRank = startingIndex + Int16(index)
+      if let sourceFolder = libraryItem.folder?.relativePath {
+        sourceFolders.insert(sourceFolder)
+      }
+      libraryItem.orderRank = nextOrderRank
+      nextOrderRank += 1
 
       /// Perform relationship lookups BEFORE rebuildRelativePaths changes the entity's relativePath
       if let folder = folder {
@@ -1144,6 +1227,8 @@ extension LibraryService {
         }
         library.addToItems(libraryItem)
       }
+
+      moved.append(itemPath)
     }
 
     self.dataManager.saveSyncContext(context)
@@ -1153,15 +1238,8 @@ extension LibraryService {
     }
 
     /// Also rebuild details for any moved folders to ensure correct counts
-    for itemPath in items {
-      let movedPath: String
-      if let relativePath {
-        let itemName = itemPath.relativePath.split(separator: "/").last.map(String.init) ?? itemPath.relativePath
-        movedPath = "\(relativePath)/\(itemName)"
-      } else {
-        let itemName = itemPath.relativePath.split(separator: "/").last.map(String.init) ?? itemPath.relativePath
-        movedPath = itemName
-      }
+    for itemPath in moved {
+      let movedPath = Self.path(of: Self.name(of: itemPath.relativePath), inside: relativePath)
       if let movedItem = getItemReference(with: movedPath, context: context),
         movedItem is Folder
       {
@@ -1169,14 +1247,67 @@ extension LibraryService {
       }
     }
 
-    if let originalParentPath {
-      rebuildOrderRank(in: originalParentPath)
+    for sourceFolder in sourceFolders.sorted() {
+      rebuildOrderRank(in: sourceFolder)
+      // Its count, duration and progress, here for every caller: one whose move reports a clash
+      // afterwards would skip its own
+      if rebuildsSourceFolders {
+        rebuildFolderDetails(sourceFolder, context: context)
+      }
     }
 
     /// The moved items' stored relativePaths (and any folder descendants, via the
     /// path-prefix rule) are now stale, so prune them from the Last Played widget
     /// snapshot. They reappear once played again at the new location.
-    SharedWidgetStore.removeItems(matching: items.map(\.relativePath))
+    SharedWidgetStore.removeItems(matching: moved.map(\.relativePath))
+
+    return MoveOutcome(moved: moved, notMoved: notMoved)
+  }
+
+  /// Whether another item, or a file, already has `destinationPath`
+  private func isTaken(
+    _ destinationPath: String,
+    by item: LibraryItem,
+    processedFolderURL: URL,
+    context: NSManagedObjectContext
+  ) -> Bool {
+    guard destinationPath != item.relativePath else { return false }
+
+    if let other = getItemReference(with: destinationPath, context: context), other != item {
+      return true
+    }
+
+    return FileManager.default.fileExists(atPath: processedFolderURL.appendingPathComponent(destinationPath).path)
+  }
+
+  /// The error `FileManager` throws for a move onto a taken name, worded and localized by iOS
+  /// ("“Dune.m4b” couldn’t be moved to “Shelf” because an item with the same name already
+  /// exists"): a streamed item has no file whose move would throw it. The library root is named
+  /// by its title rather than the Processed folder.
+  public static func nameTakenError(moving relativePath: String, into parentPath: String?) -> Error {
+    let processedFolderURL = DataManager.getProcessedFolderURL()
+    let name = Self.name(of: relativePath)
+    let destinationURL = parentPath.map {
+      processedFolderURL.appendingPathComponent($0).appendingPathComponent(name)
+    } ?? processedFolderURL.deletingLastPathComponent()
+      .appendingPathComponent("library_title".localized)
+      .appendingPathComponent(name)
+
+    return CocoaError(.fileWriteFileExists, userInfo: [
+      NSFilePathErrorKey: processedFolderURL.appendingPathComponent(relativePath).path,
+      "NSDestinationFilePath": destinationURL.path,
+      // What makes it the move's wording
+      "NSUserStringVariant": ["Move"],
+    ])
+  }
+
+  /// An item's name: the last component of its path
+  static func name(of relativePath: String) -> String {
+    relativePath.split(separator: "/").last.map(String.init) ?? relativePath
+  }
+
+  static func path(of name: String, inside parentPath: String?) -> String {
+    parentPath.map { "\($0)/\(name)" } ?? name
   }
 
   func rebuildOrderRank(in folderRelativePath: String?) {
@@ -1186,15 +1317,20 @@ extension LibraryService {
         propertiesToFetch: [
           #keyPath(LibraryItem.relativePath),
           #keyPath(LibraryItem.orderRank),
+          #keyPath(LibraryItem.uuid),
         ]
       )
     else { return }
 
-    for (index, item) in contents.enumerated() {
+    // Only the ranks that change, as a reorder sends them: each is a sync request
+    for (index, item) in contents.enumerated() where item.orderRank != Int16(index) {
       item.orderRank = Int16(index)
+      // With its uuid, which the update task needs: without one, the rest of a folder an item
+      // left never had its order synced (and the branch's task storage trapped on it)
       metadataPassthroughPublisher.send([
         #keyPath(LibraryItem.relativePath): item.relativePath!,
         #keyPath(LibraryItem.orderRank): item.orderRank,
+        #keyPath(LibraryItem.uuid): item.uuid,
       ])
     }
 
@@ -1225,7 +1361,23 @@ extension LibraryService {
           if let items = getItemPair(in: item.relativePath, context: context),
             !items.isEmpty
           {
-            try moveItems(items, inside: item.parentFolder, context: context)
+            // Refused when a child's name is taken where they go (as on Android): nothing moves,
+            // and the folder isn't deleted, which would take that child with it
+            let processedFolderURL = DataManager.getProcessedFolderURL()
+            let taken = items.filter { child in
+              guard let entity = getItemReference(with: child.relativePath, context: context) else { return false }
+              let destinationPath = Self.path(of: Self.name(of: child.relativePath), inside: item.parentFolder)
+              return isTaken(destinationPath, by: entity, processedFolderURL: processedFolderURL, context: context)
+            }
+            if let clash = taken.first {
+              throw Self.nameTakenError(moving: clash.relativePath, into: item.parentFolder)
+            }
+
+            // Never delete the folder with a child still in it. Not refreshed: it's deleted next
+            let outcome = try moveItems(items, inside: item.parentFolder, context: context, rebuildsSourceFolders: false)
+            if let clash = outcome.notMoved.first {
+              throw Self.nameTakenError(moving: clash.relativePath, into: item.parentFolder)
+            }
           }
         }
 
@@ -1295,6 +1447,50 @@ extension LibraryService {
 
     try self.delete(items, mode: .deep, context: context)
   }
+  
+  @MainActor
+  @discardableResult
+  public func insertItems(
+    fromResources resources: [SimpleExternalResource],
+    inside parentPath: String?
+  ) async -> [SimpleLibraryItem] {
+    // Phase 2: Create CoreData entities on the main thread using pre-extracted data
+    let library = getLibraryReference()
+    // A folder a sync pull deleted since the import started: the root
+    let parentFolder = parentPath.flatMap { getItemReference(with: $0, context: dataManager.getContext()) as? Folder }
+    let parentPath = parentFolder?.relativePath
+    var processedFiles = [SimpleLibraryItem]()
+    var nextOrderRank = getNextOrderRank(in: parentPath)
+    for resource in resources {
+      // libraryItem is optional by construction (ignoreLibraryItem paths) — a resource
+      // without one cannot become a book row; skip it instead of crashing.
+      guard let simpleItem = resource.libraryItem else { continue }
+      // A book already in the library gets another copy, as a file imported again does (a user
+      // can keep one in several folders). Its own row, link and name; each copy pushes its
+      // progress to the same server item.
+      // An item made of several files is a volume of them; Jellyfin serves one file per item
+      let libraryItem: LibraryItem = resource.files.count > 1
+        ? createExternalVolume(simpleItem: simpleItem, externalResource: resource, inside: parentPath)
+        : await createExternalBook(simpleItem: simpleItem, externalResource: resource, inside: parentPath)
+      libraryItem.orderRank = nextOrderRank
+      nextOrderRank += 1
+
+      if let parentFolder {
+        parentFolder.addToItems(libraryItem)
+      } else {
+        library.addToItems(libraryItem)
+      }
+      processedFiles.append(SimpleLibraryItem(from: libraryItem))
+    }
+
+    dataManager.saveContext()
+
+    if let parentPath, !processedFiles.isEmpty {
+      rebuildFolderDetails(parentPath)
+    }
+
+    return processedFiles
+  }
 }
 
 // MARK: - Fetch library items
@@ -1312,6 +1508,31 @@ extension LibraryService {
     let results = (try? self.dataManager.getContext().fetch(fetchRequest)) ?? []
 
     return results.map { $0.relativePath }
+  }
+
+  /// Every item's path with its uuid, in `fetchIdentifiers` order (a sync report pairs the
+  /// local tree with the server's records by uuid). View context: call on main.
+  ///
+  /// Two columns as dictionaries, not managed objects: a report or an export lists the whole
+  /// library, thousands of items for some. Like every dictionary fetch it reads the saved store.
+  public func fetchIdentifiersWithUuids() -> [(relativePath: String, uuid: String)] {
+    let fetchRequest = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
+    fetchRequest.propertiesToFetch = [#keyPath(LibraryItem.relativePath), #keyPath(LibraryItem.uuid)]
+    fetchRequest.resultType = .dictionaryResultType
+    fetchRequest.sortDescriptors = [
+      NSSortDescriptor(
+        key: #keyPath(LibraryItem.relativePath),
+        ascending: true,
+        selector: #selector(NSString.localizedStandardCompare(_:))
+      )
+    ]
+
+    let rows = (try? self.dataManager.getContext().fetch(fetchRequest)) ?? []
+
+    return rows.compactMap { row in
+      guard let relativePath = row[#keyPath(LibraryItem.relativePath)] as? String else { return nil }
+      return (relativePath, row[#keyPath(LibraryItem.uuid)] as? String ?? "")
+    }
   }
 
   public func fetchContents(at relativePath: String?, limit: Int?, offset: Int?) -> [SimpleLibraryItem]? {
@@ -1436,6 +1657,22 @@ extension LibraryService {
     let results = try? context.fetch(fetchRequest) as? [[String: Any]]
 
     return parseFetchedItems(from: results, context: context)?.first
+  }
+  
+  public func getSimpleItem(for uuid: String) -> SimpleLibraryItem? {
+    let fetchRequest: NSFetchRequest<NSDictionary> = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
+    fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.uuid), uuid)
+    fetchRequest.fetchLimit = 1
+    fetchRequest.propertiesToFetch = SimpleLibraryItem.fetchRequestProperties
+    fetchRequest.resultType = .dictionaryResultType
+
+    let context = dataManager.getContext()
+    // performAndWait like the sibling find* methods: safe on the main-thread callers
+    // of today, correct if a background caller ever appears
+    return context.performAndWait {
+      let results = try? context.fetch(fetchRequest) as? [[String: Any]]
+      return parseFetchedItems(from: results, context: context)?.first
+    }
   }
 
   public func getItemRefs(forUuids uuids: [String]) -> [LibraryItemRef] {
@@ -1757,6 +1994,8 @@ extension LibraryService {
 
 // MARK: - Metadata update
 extension LibraryService {
+  /// On the main actor: it creates the book on the view context
+  @MainActor
   public func createBook(from url: URL) async -> Book {
     let context = dataManager.getContext()
     
@@ -1773,6 +2012,162 @@ extension LibraryService {
     
     self.dataManager.saveSyncContext(context)
     return newBook
+  }
+  
+  /// @MainActor: creates/mutates managed objects on the main-queue viewContext — running
+  /// this off the main thread is the CoreData threading violation the repo bans.
+  @MainActor
+  /// Internal (not public, not on the protocol): returns a managed object, which must
+  /// never cross the service boundary — the sole caller insertItems(fromResources:)
+  /// snapshots it to SimpleLibraryItem on the same context.
+  func createExternalBook(
+    simpleItem: SimpleLibraryItem,
+    externalResource: SimpleExternalResource,
+    inside parentPath: String?
+  ) async -> LibraryItem {
+    let context = dataManager.getContext()
+
+    let entity = NSEntityDescription.entity(forEntityName: "Book", in: context)!
+    let book = Book(entity: entity, insertInto: context)
+    book.uuid = UUID().uuidString
+    // `<title>.<ext>`, as Android names it (`MediaServerFileNames.importFileName`). relativePath is
+    // the library's primary key, and an offloaded book is restored by its file name, so a name
+    // another book already has anywhere in the library gets part of this one's uuid.
+    let fileName = simpleItem.originalFileName
+    let name = bookExists(withFileName: fileName, context: context)
+      ? Self.disambiguated(fileName, uuid: book.uuid)
+      : fileName
+    book.relativePath = parentPath.map { "\($0)/\(name)" } ?? name
+    book.remoteURL = nil
+    book.artworkURL = simpleItem.artworkURL
+    let title = simpleItem.title
+    // The fallback must derive from the FILENAME — re-reading the same empty title
+    // made the underscore-replacement branch a no-op and showed a blank row
+    book.title = title.isEmpty
+      ? (simpleItem.originalFileName as NSString).deletingPathExtension.replacingOccurrences(of: "_", with: " ")
+      : title
+    let artist = simpleItem.details
+    book.details = artist.isEmpty ? "voiceover_unknown_author".localized : artist
+    book.duration = simpleItem.duration
+    book.currentTime = simpleItem.currentTime
+    book.percentCompleted = simpleItem.percentCompleted
+    book.originalFileName = simpleItem.originalFileName
+    book.isFinished = simpleItem.isFinished
+    book.type = .book
+
+    self.dataManager.saveSyncContext(context)
+
+    attachExternalResource(externalResource, to: book, context: context)
+
+    // The server's chapters, if the hydration carried any. Written here rather than left
+    // to the chapter refresh so the FIRST play already has chapter navigation — nothing
+    // opens the file later to recover them.
+    storeChaptersIfEmpty(externalResource.chapters, for: book, context: context)
+
+    self.dataManager.saveSyncContext(context)
+    return book
+  }
+
+  /// A media-server item made of several audio files, as a volume: a bound folder named after
+  /// the title, holding the media-server link, with one book per file in the server's order,
+  /// named by its flattened path (`MediaServerFileNames.volumeChildFileNames`). The books have
+  /// no link of their own: each plays its file through the volume's (`PlaybackService`).
+  /// Mirrors Android's `VirtualImportManager.importStreamVolume`.
+  ///
+  /// Internal for the same reason as `createExternalBook`: it returns a managed object.
+  @MainActor
+  func createExternalVolume(
+    simpleItem: SimpleLibraryItem,
+    externalResource: SimpleExternalResource,
+    inside parentPath: String?
+  ) -> LibraryItem {
+    let context = dataManager.getContext()
+
+    let folderName = MediaServerFileNames.sanitize(simpleItem.title)
+    // The volume's path is its books' parent; an item may already own it (and a streamed volume
+    // has no folder on disk to collide with, so the library is what's checked)
+    let path = { (name: String) in parentPath.map { "\($0)/\(name)" } ?? name }
+    let isTaken = getItemReference(with: path(folderName), context: context) != nil
+    let volume = Folder(title: folderName, context: context)
+    let name = isTaken ? "\(folderName)-\(volume.uuid.prefix(8))" : folderName
+    volume.relativePath = path(name)
+    volume.title = simpleItem.title
+    volume.originalFileName = name
+    volume.type = .bound
+    volume.artworkURL = simpleItem.artworkURL
+    volume.currentTime = simpleItem.currentTime
+    volume.percentCompleted = simpleItem.percentCompleted
+    volume.isFinished = simpleItem.isFinished
+
+    let author = simpleItem.details.isEmpty ? "voiceover_unknown_author".localized : simpleItem.details
+    let bookEntity = NSEntityDescription.entity(forEntityName: "Book", in: context)!
+    let names = MediaServerFileNames.volumeChildFileNames(externalResource.files.map(\.name))
+    for (index, file) in externalResource.files.enumerated() {
+      let book = Book(entity: bookEntity, insertInto: context)
+      book.uuid = UUID().uuidString
+      book.relativePath = "\(volume.relativePath!)/\(names[index])"
+      book.originalFileName = names[index]
+      book.title = MediaServerFileNames.splitExtension(names[index]).stem
+      book.details = author
+      book.duration = file.duration
+      book.orderRank = Int16(index)
+      book.type = .book
+      volume.addToItems(book)
+    }
+
+    // What `rebuildFolderDetails` would compute, set directly: that one also publishes a metadata
+    // update, which must not reach the sync queue ahead of the volume's registration
+    volume.details = String.localizedStringWithFormat("files_title".localized, externalResource.files.count)
+    volume.duration = externalResource.files.reduce(0) { $0 + $1.duration }
+
+    attachExternalResource(externalResource, to: volume, context: context)
+    dataManager.saveSyncContext(context)
+
+    return volume
+  }
+
+  private func attachExternalResource(
+    _ externalResource: SimpleExternalResource,
+    to item: LibraryItem,
+    context: NSManagedObjectContext
+  ) {
+    let resourceEntity = NSEntityDescription.entity(forEntityName: "ExternalResource", in: context)!
+    let external = ExternalResource(entity: resourceEntity, insertInto: context)
+
+    external.providerId = externalResource.providerId
+    external.providerName = externalResource.providerName
+    external.syncStatus = externalResource.syncStatus
+    external.lastSyncedAt = externalResource.lastSyncedAt
+    external.processedFile = externalResource.processedFile
+    external.hostId = externalResource.hostId
+
+    external.libraryItem = item
+    item.addToExternalResources(external)
+  }
+
+  /// Whether a book anywhere in the library already has `fileName` as its file name. Android's
+  /// `LibraryDao.existsWithFileName`.
+  private func bookExists(withFileName fileName: String, context: NSManagedObjectContext) -> Bool {
+    let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
+    // Case-insensitive, as the restore-by-name lookup (`findBooks(containing:)`) is: a book
+    // differing only in case would be filled by the other's file. (Android's equality check is
+    // case-sensitive; only its suffix match isn't.)
+    fetchRequest.predicate = NSPredicate(
+      format: "%K == %d AND (%K ==[c] %@ OR %K ENDSWITH[c] %@)",
+      #keyPath(LibraryItem.type), ItemType.book.rawValue,
+      #keyPath(LibraryItem.relativePath), fileName,
+      #keyPath(LibraryItem.relativePath), "/\(fileName)"
+    )
+    fetchRequest.fetchLimit = 1
+
+    return ((try? context.count(for: fetchRequest)) ?? 0) > 0
+  }
+
+  /// `<stem>-<first 8 of uuid>.<ext>`: Android's suffix for a taken name.
+  static func disambiguated(_ fileName: String, uuid: String) -> String {
+    let (stem, fileExtension) = MediaServerFileNames.splitExtension(fileName)
+
+    return fileExtension.isEmpty ? "\(stem)-\(uuid.prefix(8))" : "\(stem)-\(uuid.prefix(8)).\(fileExtension)"
   }
 
   public func loadChaptersIfNeeded(relativePath: String, asset: AVAsset) async {
@@ -1794,13 +2189,21 @@ extension LibraryService {
       return
     }
 
-    // Store chapters in the context, re-checking if still needed to avoid race conditions
+    await storeChaptersIfNeeded(relativePath: relativePath, chapters: chapters)
+  }
+
+  public func storeChaptersIfNeeded(relativePath: String, chapters: [ChapterMetadata]) async {
+    guard !chapters.isEmpty else { return }
+
+    let context = dataManager.getBackgroundContext()
+
+    // The guard lives inside `perform` so it re-reads the book under the context that will
+    // write it — a caller's earlier check may have raced another writer.
     await context.perform { [unowned self] in
       guard let book = self.getItem(with: relativePath, context: context) as? Book,
-            book.chapters?.count == 0 else {
-        return
-      }
-      self.storeChapters(chapters, for: book, context: context)
+            self.storeChaptersIfEmpty(chapters, for: book, context: context)
+      else { return }
+
       self.dataManager.saveSyncContext(context)
     }
   }
@@ -2154,10 +2557,18 @@ extension LibraryService {
       newRelativePath = newTitle
     }
 
-    try FileManager.default.moveItem(
-      at: sourceUrl,
-      to: destinationUrl
-    )
+    // Another item there would share its path (and its books theirs). Moving the folder on disk
+    // used to be the only guard, and a streamed volume has no folder on disk until its books
+    // are downloaded
+    if let existing = getItemReference(with: newRelativePath), existing != folder {
+      throw CocoaError(.fileWriteFileExists, userInfo: [NSFilePathErrorKey: destinationUrl.path])
+    }
+    if FileManager.default.fileExists(atPath: sourceUrl.path) {
+      try FileManager.default.moveItem(
+        at: sourceUrl,
+        to: destinationUrl
+      )
+    }
 
     folder.originalFileName = newTitle
     folder.relativePath = newRelativePath
@@ -2421,14 +2832,26 @@ extension LibraryService {
     } else {
       dataManager.saveContext()
     }
-
-    progressPassthroughPublisher.send([
+    
+    var params = [
       #keyPath(LibraryItem.relativePath): relativePath,
       #keyPath(LibraryItem.currentTime): time,
       #keyPath(LibraryItem.lastPlayDate): date.timeIntervalSince1970,
       #keyPath(LibraryItem.percentCompleted): percentCompleted,
       #keyPath(LibraryItem.uuid): item.uuid
-    ])
+    ] as [String : Any]
+    
+    // The link the player streams from. Not just the first: the set is unordered, and a Hardcover
+    // link (any matched book has one) would queue the push in a lane that drops it
+    if let externalResource = item.resourcesArray
+      .map({ SimpleExternalResource(from: $0, ignoreLibraryItem: true) })
+      .streamingResource {
+      params[#keyPath(ExternalResource.providerId)] = externalResource.providerId
+      params[#keyPath(ExternalResource.providerName)] = externalResource.providerName
+      params["hostId"] = externalResource.hostId
+    }
+    
+    progressPassthroughPublisher.send(params)
   }
 
   func recursiveFolderLastPlayedDateUpdate(from relativePath: String, date: Date) {
@@ -2779,6 +3202,128 @@ extension LibraryService {
   }
 }
 
+extension LibraryService {
+  func findResourceEntities(for uuid: String, context: NSManagedObjectContext? = nil) -> [ExternalResource]? {
+    let fetch: NSFetchRequest<ExternalResource> = ExternalResource.fetchRequest()
+    fetch.predicate = NSPredicate(format: "%K == %@", #keyPath(ExternalResource.libraryItem.uuid), uuid)
+    let context = context ?? self.dataManager.getContext()
+
+    let result = try? context.fetch(fetch)
+    
+    return result
+  }
+
+  public func findResources(for uuid: String) -> [SimpleExternalResource]? {
+    let context = dataManager.getContext()
+    var snapshots: [SimpleExternalResource]?
+    context.performAndWait {
+      snapshots = findResourceEntities(for: uuid, context: context)?
+        .map { SimpleExternalResource(from: $0, ignoreLibraryItem: true) }
+    }
+    return snapshots
+  }
+
+  public func findChapterlessMediaServerResources(at relativePath: String?) async -> [SimpleExternalResource] {
+    // The background context is the one the cloud sync writes a level on, so the links it just
+    // reconciled are visible here directly, and the main thread does nothing for this query.
+    let context = dataManager.getBackgroundContext()
+
+    return await context.perform { [unowned self] in
+      let fetch: NSFetchRequest<ExternalResource> = ExternalResource.fetchRequest()
+      let level: NSPredicate
+      if let relativePath {
+        level = NSPredicate(
+          format: "%K == %@",
+          #keyPath(ExternalResource.libraryItem.folder.relativePath),
+          relativePath
+        )
+      } else {
+        level = NSPredicate(format: "%K != nil", #keyPath(ExternalResource.libraryItem.library))
+      }
+      let mediaServers = NSPredicate(
+        format: "%K IN %@",
+        #keyPath(ExternalResource.providerName),
+        ExternalResource.ProviderName.mediaServerRawValues
+      )
+      fetch.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [level, mediaServers])
+      // The snapshot already reads `libraryItem` for the uuid and title, and the chapter
+      // lookup below needs its relativePath — one prefetch instead of a fault per row.
+      fetch.relationshipKeyPathsForPrefetching = [#keyPath(ExternalResource.libraryItem)]
+
+      let resources = (try? context.fetch(fetch)) ?? []
+      let chapterless = self.relativePathsWithoutChapters(
+        among: resources.compactMap { $0.libraryItem?.relativePath },
+        context: context
+      )
+
+      // Chapters are written once and never replaced, so in the steady state this is empty and
+      // the refresh asks nothing. A book whose server has none stays in it: one small request
+      return resources
+        .filter { resource in resource.libraryItem?.relativePath.map(chapterless.contains) ?? false }
+        .map { SimpleExternalResource(from: $0, ignoreLibraryItem: true) }
+    }
+  }
+
+  /// Which of these books still have no chapters, answered SQL-side in one fetch.
+  ///
+  /// Asks `Book` directly rather than reaching through `ExternalResource.libraryItem`:
+  /// `chapters` is declared on `Book`, and that relationship's destination is the abstract
+  /// `LibraryItem`, so the keypath would not resolve.
+  private func relativePathsWithoutChapters(
+    among relativePaths: [String],
+    context: NSManagedObjectContext
+  ) -> Set<String> {
+    guard !relativePaths.isEmpty else { return [] }
+
+    let fetch = NSFetchRequest<NSDictionary>(entityName: "Book")
+    fetch.resultType = .dictionaryResultType
+    fetch.propertiesToFetch = [#keyPath(Book.relativePath)]
+    fetch.predicate = NSPredicate(
+      format: "%K IN %@ AND %K.@count == 0",
+      #keyPath(Book.relativePath),
+      relativePaths,
+      #keyPath(Book.chapters)
+    )
+
+    let results = (try? context.fetch(fetch)) ?? []
+    return Set(results.compactMap { $0[#keyPath(Book.relativePath)] as? String })
+  }
+
+  /// Every row linked to a reported item gets its chapters (copies of a book share a server
+  /// item). Only ever adds: an empty list isn't a statement that the server has none.
+  @MainActor public func storeMediaServerChapters(
+    providerName: String,
+    chaptersByProviderId: [String: [ChapterMetadata]]
+  ) {
+    let remoteKeys = Array(chaptersByProviderId.keys)
+
+    let fetch: NSFetchRequest<ExternalResource> = ExternalResource.fetchRequest()
+    fetch.predicate = NSPredicate(
+      format: "%K == %@ AND %K IN %@",
+      #keyPath(ExternalResource.providerName), providerName,
+      #keyPath(ExternalResource.providerId), remoteKeys
+    )
+    let context = self.dataManager.getContext()
+    
+    do {
+      let localResources = try context.fetch(fetch)
+      
+      for localResource in localResources {
+        guard
+          let book = localResource.libraryItem as? Book,
+          let chapters = chaptersByProviderId[localResource.providerId]
+        else { continue }
+
+        self.storeChaptersIfEmpty(chapters, for: book, context: context)
+      }
+      
+      dataManager.saveSyncContext(context)
+    } catch {
+      Self.logger.error("Failed to batch fetch ExternalResources: \(error)")
+    }
+  }
+}
+
 // MARK: - HardcoverBook operations
 extension LibraryService {
   public func setHardcoverBook(_ hardcoverBook: SimpleHardcoverBook?, for relativePath: String) async {
@@ -2805,6 +3350,97 @@ extension LibraryService {
         dataManager.saveSyncContext(context)
 
         continuation.resume()
+      }
+    }
+  }
+
+  public func setExternalResource(
+    providerName: String,
+    providerId: String,
+    for uuid: String
+  ) async -> SyncableExternalResource? {
+    return await withCheckedContinuation { continuation in
+      let context = dataManager.getBackgroundContext()
+
+      context.perform { [unowned self, context] in
+        let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.uuid), uuid)
+        fetchRequest.fetchLimit = 1
+
+        guard let item = try? context.fetch(fetchRequest).first else {
+          continuation.resume(returning: nil)
+          return
+        }
+
+        /// Skip if the same resource is already linked
+        if item.resourcesArray.contains(where: {
+          $0.providerName == providerName && $0.providerId == providerId
+        }) {
+          continuation.resume(returning: nil)
+          return
+        }
+
+        let syncable = SyncableExternalResource(
+          providerName: providerName,
+          providerId: providerId,
+          syncStatus: ExternalResource.SyncStatus.notSynced.rawValue,
+          lastSyncedAt: nil,
+          processedFile: true,
+          hostId: nil
+        )
+
+        _ = ExternalResource.create(syncable, libraryItem: item, in: context)
+
+        dataManager.saveSyncContext(context)
+        continuation.resume(returning: syncable)
+      }
+    }
+  }
+
+  public func removeExternalResource(
+    providerName: String,
+    for uuid: String
+  ) async -> String? {
+    return await withCheckedContinuation { continuation in
+      let context = dataManager.getBackgroundContext()
+
+      context.perform { [unowned self, context] in
+        let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(LibraryItem.uuid), uuid)
+        fetchRequest.fetchLimit = 1
+
+        guard
+          let item = try? context.fetch(fetchRequest).first,
+          let resource = item.resourcesArray.first(where: { $0.providerName == providerName })
+        else {
+          continuation.resume(returning: nil)
+          return
+        }
+
+        let providerId = resource.providerId
+        item.removeFromExternalResources(resource)
+        context.delete(resource)
+
+        dataManager.saveSyncContext(context)
+        continuation.resume(returning: providerId)
+      }
+    }
+  }
+
+  public func getExternalResources(for relativePath: String) async -> [SimpleExternalResource] {
+    return await withCheckedContinuation { continuation in
+      let context = dataManager.getBackgroundContext()
+
+      context.perform { [unowned self, context] in
+        guard let item = getItemReference(with: relativePath, context: context) else {
+          continuation.resume(returning: [])
+          return
+        }
+
+        let resources = item.resourcesArray.map {
+          SimpleExternalResource(from: $0, ignoreLibraryItem: true)
+        }
+        continuation.resume(returning: resources)
       }
     }
   }
@@ -2855,6 +3491,6 @@ extension LibraryService {
     }
   }
 }
-// swiftlint:enable force_cast
 
-extension LibraryService: BPLogger {}
+
+// swiftlint:enable force_cast
