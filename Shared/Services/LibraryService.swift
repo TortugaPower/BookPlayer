@@ -1512,9 +1512,13 @@ extension LibraryService {
 
   /// Every item's path with its uuid, in `fetchIdentifiers` order (a sync report pairs the
   /// local tree with the server's records by uuid). View context: call on main.
+  ///
+  /// Two columns as dictionaries, not managed objects: a report or an export lists the whole
+  /// library, thousands of items for some. Like every dictionary fetch it reads the saved store.
   public func fetchIdentifiersWithUuids() -> [(relativePath: String, uuid: String)] {
-    let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
+    let fetchRequest = NSFetchRequest<NSDictionary>(entityName: "LibraryItem")
     fetchRequest.propertiesToFetch = [#keyPath(LibraryItem.relativePath), #keyPath(LibraryItem.uuid)]
+    fetchRequest.resultType = .dictionaryResultType
     fetchRequest.sortDescriptors = [
       NSSortDescriptor(
         key: #keyPath(LibraryItem.relativePath),
@@ -1523,9 +1527,12 @@ extension LibraryService {
       )
     ]
 
-    let results = (try? self.dataManager.getContext().fetch(fetchRequest)) ?? []
+    let rows = (try? self.dataManager.getContext().fetch(fetchRequest)) ?? []
 
-    return results.map { ($0.relativePath, $0.uuid) }
+    return rows.compactMap { row in
+      guard let relativePath = row[#keyPath(LibraryItem.relativePath)] as? String else { return nil }
+      return (relativePath, row[#keyPath(LibraryItem.uuid)] as? String ?? "")
+    }
   }
 
   public func fetchContents(at relativePath: String?, limit: Int?, offset: Int?) -> [SimpleLibraryItem]? {

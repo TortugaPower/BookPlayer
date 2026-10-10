@@ -31,6 +31,21 @@ class LibraryServiceTests: XCTestCase {
     _ = self.sut.getLibrary()
   }
 
+  /// Every item's path with its uuid, in path order (what a sync report and the Debug export list)
+  func testFetchIdentifiersWithUuids_listsEveryItemInPathOrder() {
+    let second = StubFactory.book(dataManager: self.sut.dataManager, title: "b-book", duration: 100)
+    let first = StubFactory.book(dataManager: self.sut.dataManager, title: "a-book", duration: 100)
+    let library = self.sut.getLibraryReference()
+    library.addToItems(second)
+    library.addToItems(first)
+    self.sut.dataManager.saveContext()
+
+    let identifiers = self.sut.fetchIdentifiersWithUuids()
+
+    XCTAssertEqual(identifiers.map(\.relativePath), [first.relativePath, second.relativePath])
+    XCTAssertEqual(identifiers.map(\.uuid), [first.uuid, second.uuid])
+  }
+
   func testGetExistingLibrary() {
     let book = StubFactory.book(
       dataManager: self.sut.dataManager,
