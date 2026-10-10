@@ -601,10 +601,10 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
     the title holding the link, one book per file named by its flattened path
     (`MediaServerFileNames.volumeChildFileNames`). The books have no link of their own: playback
     (`PlaybackService.VolumeStream`), downloads (`MediaServerDownloadPlanner`, one more lookup after a 404), sync
-    registration (`SyncableItem.volumeMediaServerProviderName`, so no file is asked for) and the post-download
-    upload all go through the volume's. That upload is queued only when the book just came from its server
-    (the download's planned AudiobookShelf lookup), since the volume's link stays `stream`: a
-    cloud download, or any download on the watch, already has its file in the cloud. Single books are named
+    registration (`SyncableItem.volumeMediaServerProviderName`, so no file is asked for) all go through the
+    volume's. A downloaded volume book's file is NOT queued for upload on download: it goes up through the weekly
+    missing-items pass, which doesn't skip it (it has no link of its own). Decided: the volume's link stays
+    `stream`, so queuing on download would repeat on every later download from the server. Single books are named
     `<title>.<ext>` (no provider prefix), with `-<uuid prefix>` when a book anywhere already has that name.
   - **Downloads go to the media server first** (it keeps the S3 egress down), as playback does, and to the cloud
     copy when the server can't serve them on this device: no saved connection to it (always the case on the

@@ -1167,32 +1167,16 @@ extension SyncService {
       self.downloadCompletedPublisher.send((relativePath, startingItemPath, parentFolderPath))
     }
 
-    // Taken whatever happens next: the lookup was only needed while the file downloaded
-    let cameFromMediaServer = mediaServerDownloadsLock.withLock {
-      mediaServerDownloads.removeValue(forKey: relativePath) != nil
-    }
-
     guard let snapshot = libraryService.getItemResourcesSnapshot(for: relativePath) else { return }
 
-    // Neither branch is gated on `isActive`, unlike the other `schedule*` paths: the missing-items
-    // pass skips a book with its own media-server link, so for one this job is the only way its
-    // file reaches the cloud. A download made while sync is off (a lapsed subscriber can still
-    // stream) waits in the paused sync lane and uploads once sync is back on.
-    guard let externalResource = Self.streamedMediaServerLink(in: snapshot.resources) else {
-      // A streamed volume's book has no link of its own: its file goes up like a linked book's,
-      // but only when it just came from its server. The volume's link stays `stream` (the server
-      // only marks an uploaded book's own links downloaded), so it can't tell a server download
-      // from a cloud one; the planned AudiobookShelf lookup can (volumes only come from
-      // AudiobookShelf). A cloud download, or any download on the watch, has none
-      if cameFromMediaServer,
-        let volumePath = LibraryService.parentPath(of: relativePath),
-        let volume = libraryService.getItemResourcesSnapshot(for: volumePath),
-        volume.resources.contains(where: { ExternalResource.ProviderName(rawValue: $0.providerName)?.isMediaServer == true })
-      {
-        await jobManager.scheduleResourceToDownload(with: relativePath, for: snapshot.uuid)
-      }
-      return
-    }
+    // Not gated on `isActive`, unlike the other `schedule*` paths: the missing-items pass skips a
+    // book with its own media-server link, so for one this job is the only way its file reaches
+    // the cloud. A download made while sync is off (a lapsed subscriber can still stream) waits in
+    // the paused sync lane and uploads once sync is back on.
+    // A streamed volume's book has no link of its own, so its file goes up through the weekly
+    // missing-items pass instead (decided): the volume's link stays `stream`, so queuing it here
+    // would repeat on every later download from the server.
+    guard let externalResource = Self.streamedMediaServerLink(in: snapshot.resources) else { return }
 
     let externalSyncItem = SyncableExternalResource(
       providerName: externalResource.providerName,
