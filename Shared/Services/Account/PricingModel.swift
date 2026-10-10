@@ -74,9 +74,9 @@ public enum PricingOption: String, Identifiable, Codable, CaseIterable {
     case .supportTier10:
       return "$9.99"
     case .liteMonthly:
-      return "$2.99"
+      return "$1.99"
     case .liteYearly:
-      return "$29.99"
+      return "$19.99"
     }
   }
 
@@ -99,9 +99,9 @@ public enum PricingOption: String, Identifiable, Codable, CaseIterable {
     case .supportTier10:
       return 9.99
     case .liteMonthly:
-      return 2.99
+      return 1.99
     case .liteYearly:
-      return 29.99
+      return 19.99
     }
   }
 }
