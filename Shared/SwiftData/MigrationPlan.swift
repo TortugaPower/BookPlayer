@@ -212,11 +212,15 @@ public enum MigrationPlan: SchemaMigrationPlan, BPLogger {
 
         do {
           try coreDataContext.save()
-          // Enqueue ONLY rows that actually persisted: a save failure is self-healing
-          // (the resource returns on the next sync), but an upload task pointing at a
-          // resource that never persisted locally would fail/retry pointlessly.
+          // Enqueue ONLY rows that actually persisted: an upload task for a resource that
+          // never saved locally would point at nothing.
           resourcesToUpload.append(contentsOf: pageResources)
         } catch {
+          // Not self-healing: this stage runs once and nothing else recreates a link made before
+          // it, so these books keep no Hardcover resource (no reading/read updates, no link on the
+          // server). Rolled back so the rows don't stay pending in the shared background context,
+          // where its next save would retry them and crash in `saveContext`.
+          coreDataContext.rollback()
           Self.logger.error("v2ToV3 external-resource backfill save failed; skipping \(pageResources.count) enqueue(s): \(error)")
         }
       }
