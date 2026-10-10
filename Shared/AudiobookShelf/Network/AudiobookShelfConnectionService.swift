@@ -19,17 +19,19 @@ public class AudiobookShelfConnectionService: BPLogger {
   private let store: IntegrationConnectionStore<AudiobookShelfConnectionData>
 
   public var connections: [AudiobookShelfConnectionData] { store.connections }
-  /// A connection pinned by the sync/stream engine for a specific external resource —
-  /// overrides the UI's active selection until cleared. Set via ``useConnection(_:)``.
+  /// The server this instance was pinned to with ``useConnection(_:)``: it overrides the UI's
+  /// active selection for the rest of the instance's life (there is no unpin).
   private var manualConnection: AudiobookShelfConnectionData?
   public var connection: AudiobookShelfConnectionData? {
     if let manualConnection { return manualConnection }
     return store.active
   }
 
-  /// Pins `connection` (used when consuming a stream for a resource whose host resolved
-  /// to a non-active saved server). ABS clients are stateless, so no rebuild is needed.
-  public func useConnection(_ connection: AudiobookShelfConnectionData) {
+  /// Pins `connection` for the rest of this instance's life. Only for the per-call instances
+  /// BookPlayerKit builds to reach one specific server (progress pushes, chapter lookups);
+  /// `internal` so the app's shared instance, which the UI reads, can't be redirected. ABS
+  /// clients are stateless, so no rebuild is needed.
+  func useConnection(_ connection: AudiobookShelfConnectionData) {
     manualConnection = connection
   }
   private let urlSession: URLSession

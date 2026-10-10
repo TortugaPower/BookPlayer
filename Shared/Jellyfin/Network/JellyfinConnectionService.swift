@@ -63,17 +63,19 @@ public class JellyfinConnectionService: BPLogger {
   private static let quickConnectMaxPolls = 200
 
   public var connections: [JellyfinConnectionData] { store.connections }
-  /// A connection pinned by the sync/stream engine for a specific external resource —
-  /// overrides the UI's active selection until cleared. Set via ``useConnection(_:)``.
+  /// The server this instance was pinned to with ``useConnection(_:)``: it overrides the UI's
+  /// active selection for the rest of the instance's life (there is no unpin).
   private var manualConnection: JellyfinConnectionData?
   public var connection: JellyfinConnectionData? {
     if let manualConnection { return manualConnection }
     return store.active
   }
 
-  /// Pins `connection` and rebuilds the client against it (used when consuming a stream
-  /// for a resource whose host resolved to a non-active saved server).
-  public func useConnection(_ connection: JellyfinConnectionData) {
+  /// Pins `connection` for the rest of this instance's life and rebuilds the client against it.
+  /// Only for the per-call instances BookPlayerKit builds to reach one specific server (progress
+  /// pushes, chapter lookups); `internal` so the app's shared instance, which the UI reads, can't
+  /// be redirected.
+  func useConnection(_ connection: JellyfinConnectionData) {
     manualConnection = connection
     rebuildClient(for: connection)
   }
