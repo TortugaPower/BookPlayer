@@ -46,8 +46,9 @@ extension UploadTaskModel: DictionaryConvertible {
       dict["lastPlayDateTimestamp"] = lastPlayDateTimestamp
     }
 
-    /// Provider-backed items skip the device file upload (the server pulls the file
-    /// from the provider instead) — see `SyncQueueService.handleFinishedOperation`
+    /// Media-server books upload no file from this job's answer: it goes up once
+    /// downloaded, through the `externalResourceToDownload` job — see
+    /// `SyncQueueService.handleFinishedOperation`
     if let provider {
       dict["provider"] = provider
     }
