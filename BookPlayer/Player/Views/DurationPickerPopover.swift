@@ -1,11 +1,12 @@
 //
-//  DurationPickerSheet.swift
+//  DurationPickerPopover.swift
 //  BookPlayer
 //
 //  Created by Pedro Iñiguez on 12/2/26.
 //  Copyright © 2026 BookPlayer LLC. All rights reserved.
 //
 
+import BookPlayerKit
 import SwiftUI
 
 struct NativeDurationPicker: View {
@@ -58,55 +59,49 @@ struct NativeDurationPicker: View {
   }
 }
 
-struct DurationPickerSheet: View {
+/// The custom sleep timer, shown as a popover from the player's sleep timer button. A popover sizes
+/// itself to its content, so it grows with Dynamic Type instead of clipping, and on iPad and iPhone Duo
+/// it stays next to the button rather than across the screen. Tapping outside cancels.
+struct DurationPickerPopover: View {
   @Environment(\.dismiss) var dismiss
   @EnvironmentObject private var theme: ThemeViewModel
 
-  // The "handle" for the OK button
   var onConfirm: (TimeInterval) -> Void
-  
-  // Internal state for the picker
+
   @State private var selectedDuration: TimeInterval
-  
+
   init(initialDuration: TimeInterval = 3600, onConfirm: @escaping (TimeInterval) -> Void) {
     self.onConfirm = onConfirm
-    // Initialize state with the passed-in duration
     self._selectedDuration = State(initialValue: initialDuration)
   }
-  
+
   var body: some View {
-    VStack(spacing: 20) {
+    VStack(spacing: Spacing.S) {
       Text("sleeptimer_custom_alert_title".localized)
         .bpFont(.headline)
-        .padding(.top, 24)
-      
-      // Reusing the DurationPicker from the previous step
+        .accessibilityAddTraits(.isHeader)
+
       NativeDurationPicker(duration: $selectedDuration)
-        .frame(height: 200)
-      
-      VStack(spacing: 12) {
-        Button {
-          onConfirm(selectedDuration)
-          dismiss()
-        } label: {
-          Text("ok_button".localized)
-            .fontWeight(.semibold)
-            .frame(maxWidth: .infinity)
-            .padding()
-            .background(theme.systemGroupedBackgroundColor)
-            .foregroundColor(theme.primaryColor)
-            .cornerRadius(12)
-        }
-        
-        Button("cancel_button".localized) {
-          dismiss()
-        }
-        .foregroundColor(theme.primaryColor)
-        .padding(.bottom, 10)
+        .frame(width: 300)
+        /// Wheels are shorter in landscape; a fixed height would leave the gap below them
+        .frame(maxHeight: 200)
+
+      Button {
+        onConfirm(selectedDuration)
+        dismiss()
+      } label: {
+        Text("ok_button".localized)
+          .fontWeight(.semibold)
+          .frame(maxWidth: .infinity)
       }
-      .padding(.horizontal, 20)
+      .buttonStyle(.glassProminent)
+      .controlSize(.large)
+      .tint(theme.linkColor)
+      /// A zero-length countdown has nothing to time
+      .disabled(selectedDuration == 0)
     }
-    .presentationDetents([.height(400)]) // Fixed height for a neat look
-    .presentationDragIndicator(.hidden)
+    .padding(Spacing.S)
+    /// Stays a popover on iPhone instead of turning into a sheet
+    .presentationCompactAdaptation(.popover)
   }
 }
