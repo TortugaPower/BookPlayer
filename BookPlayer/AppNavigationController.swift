@@ -28,7 +28,7 @@ class AppNavigationController: UINavigationController, Storyboarded {
   }
 
   override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
-    OrientationLock.supportedOrientations
+    OrientationLock.supportedOrientations()
   }
 
   override func viewDidLoad() {

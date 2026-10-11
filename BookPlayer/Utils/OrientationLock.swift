@@ -15,10 +15,10 @@ import UIKit
 enum OrientationLock {
   private static let key = Constants.UserDefaults.orientationLock
 
-  static var supportedOrientations: UIInterfaceOrientationMask {
+  static func supportedOrientations(in defaults: UserDefaults = .standard) -> UIInterfaceOrientationMask {
     guard
-      UserDefaults.standard.object(forKey: key) != nil,
-      let orientation = UIDeviceOrientation(rawValue: UserDefaults.standard.integer(forKey: key))
+      defaults.object(forKey: key) != nil,
+      let orientation = UIDeviceOrientation(rawValue: defaults.integer(forKey: key))
     else { return .all }
 
     return orientation.isLandscape ? .landscape : .portrait
@@ -26,13 +26,13 @@ enum OrientationLock {
 
   /// Saves the interface's orientation, not the device's: a phone lying flat reports face up,
   /// which would lock a landscape interface to portrait
-  static func save(_ interfaceOrientation: UIInterfaceOrientation?) {
+  static func save(_ interfaceOrientation: UIInterfaceOrientation?, in defaults: UserDefaults = .standard) {
     /// Stored as a device orientation, the format earlier versions saved
     let orientation: UIDeviceOrientation = interfaceOrientation?.isLandscape == true ? .landscapeLeft : .portrait
-    UserDefaults.standard.set(orientation.rawValue, forKey: key)
+    defaults.set(orientation.rawValue, forKey: key)
   }
 
-  static func clear() {
-    UserDefaults.standard.removeObject(forKey: key)
+  static func clear(in defaults: UserDefaults = .standard) {
+    defaults.removeObject(forKey: key)
   }
 }

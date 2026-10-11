@@ -10,6 +10,6 @@ import SwiftUI
 
 final class AppHostingViewController<Content: View>: UIHostingController<Content> {
   override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
-    OrientationLock.supportedOrientations
+    OrientationLock.supportedOrientations()
   }
 }
