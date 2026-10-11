@@ -539,7 +539,6 @@
 		639AC98B2AD9F2840053AFC6 /* BPTaskDownloadDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB20EA229A1BB750021663B /* BPTaskDownloadDelegate.swift */; };
 		639AC98C2AD9F2840053AFC6 /* BPTaskDownloadDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB20EA229A1BB750021663B /* BPTaskDownloadDelegate.swift */; };
 		639DF4982E634C8600B29BBB /* MiniPlayerArtworkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639DF4972E634C8600B29BBB /* MiniPlayerArtworkView.swift */; };
-		639DF49A2E6350D700B29BBB /* MiniPlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639DF4992E6350D700B29BBB /* MiniPlayerView.swift */; };
 		63AB64EB2E371FCE00EF6866 /* SettingsThemesView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63AB64EA2E371FCE00EF6866 /* SettingsThemesView.swift */; };
 		63AD93D22E3C1BA70077E73A /* SimpleAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63AD93D12E3C1BA70077E73A /* SimpleAccount.swift */; };
 		63AD93D32E3C1BA70077E73A /* SimpleAccount.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63AD93D12E3C1BA70077E73A /* SimpleAccount.swift */; };
@@ -1685,7 +1684,6 @@
 		6399F94C2AA03C6C00A5C8EA /* BPSKANManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPSKANManager.swift; sourceTree = "<group>"; };
 		639AC9882AD9F1D50053AFC6 /* BPDownloadURLSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPDownloadURLSession.swift; sourceTree = "<group>"; };
 		639DF4972E634C8600B29BBB /* MiniPlayerArtworkView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiniPlayerArtworkView.swift; sourceTree = "<group>"; };
-		639DF4992E6350D700B29BBB /* MiniPlayerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MiniPlayerView.swift; sourceTree = "<group>"; };
 		63AB64EA2E371FCE00EF6866 /* SettingsThemesView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsThemesView.swift; sourceTree = "<group>"; };
 		63AD93D12E3C1BA70077E73A /* SimpleAccount.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleAccount.swift; sourceTree = "<group>"; };
 		63AD93D42E3C72830077E73A /* ProfileScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileScreen.swift; sourceTree = "<group>"; };
@@ -3978,7 +3976,6 @@
 			isa = PBXGroup;
 			children = (
 				639DF4972E634C8600B29BBB /* MiniPlayerArtworkView.swift */,
-				639DF4992E6350D700B29BBB /* MiniPlayerView.swift */,
 				630494832E6D1DF000C72387 /* MiniPlayerAccessoryView.swift */,
 			);
 			path = MiniPlayer;
@@ -5102,7 +5099,6 @@
 				9FA7C61D280B0E1200A0C136 /* LoadingUtils.swift in Sources */,
 				C318DDBC20A48D4700C3A17B /* BPMarqueeLabel.swift in Sources */,
 				6370433D2E2BFB2F005353D1 /* SettingsPlaybackSectionView.swift in Sources */,
-				639DF49A2E6350D700B29BBB /* MiniPlayerView.swift in Sources */,
 				63C48D3E2E3E7F9E005FBB96 /* LoginViewModel.swift in Sources */,
 				41B30A33230232D200025D69 /* CarPlayManager.swift in Sources */,
 				637043502E2C0491005353D1 /* SettingsCreditsSectionView.swift in Sources */,
