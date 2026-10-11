@@ -12,17 +12,29 @@ import SwiftUI
 struct LoginDisclaimerSectionView: View {
   @EnvironmentObject private var theme: ThemeViewModel
 
+  /// The bullets under the shared heading. The default is the cloud pitch, where we do host
+  /// the files; the media-server screen hosts nothing of theirs and says something different.
+  let descriptions: [LocalizedStringKey]
+
+  init(
+    descriptions: [LocalizedStringKey] = [
+      "benefits_disclaimer_account_description",
+      "benefits_disclaimer_subscription_description",
+    ]
+  ) {
+    self.descriptions = descriptions
+  }
+
   var body: some View {
     Section {
       VStack(alignment: .leading, spacing: 10) {
         Text("benefits_disclaimer_title")
           .bpFont(.title)
-        Text("benefits_disclaimer_account_description")
-          .bpFont(.body)
-          .foregroundStyle(theme.secondaryColor)
-        Text("benefits_disclaimer_subscription_description")
-          .bpFont(.body)
-          .foregroundStyle(theme.secondaryColor)
+        ForEach(descriptions.indices, id: \.self) { index in
+          Text(descriptions[index])
+            .bpFont(.body)
+            .foregroundStyle(theme.secondaryColor)
+        }
       }
     }
     .listRowBackground(Color.clear)

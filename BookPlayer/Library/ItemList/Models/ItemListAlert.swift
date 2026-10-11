@@ -11,7 +11,9 @@ import Foundation
 
 /// Represents all possible alert types in ItemListView
 enum ItemListAlert: Identifiable, Equatable {
-  case queuedTasks
+  /// A refresh is blocked by queued sync tasks; `paused` when one of them is parked and
+  /// needs the user (Retry or Report) rather than just time
+  case queuedTasks(paused: Bool)
   case moveOptions
   case delete
   case cancelDownload(SimpleLibraryItem)

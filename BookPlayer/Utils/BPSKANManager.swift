@@ -41,7 +41,6 @@ class BPSKANManager: BPLogger {
     }
 
     /// Value received if there are low installs
-    @available(iOS 16.1, *)
     var coarseValue: SKAdNetwork.CoarseConversionValue {
       switch self {
       case .install, .import, .account:

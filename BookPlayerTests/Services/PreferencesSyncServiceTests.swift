@@ -615,6 +615,7 @@ private final class SyncToggleAccountStub: AccountServiceProtocol {
 
   func hasSyncEnabled() -> Bool { syncEnabled }
   func hasPlusAccess() -> Bool { syncEnabled }
+  func hasEverSubscribed() -> Bool { false }
   func hasAccount() -> Bool { false }
   func getAccountId() -> String? { nil }
   func getAccount() -> Account? { nil }
@@ -624,7 +625,7 @@ private final class SyncToggleAccountStub: AccountServiceProtocol {
   func updateAccount(id: String?, email: String?, donationMade: Bool?, hasSubscription: Bool?) {}
   func setDelegate(_ delegate: PurchasesDelegate) {}
   func loginIfUserExists(delegate: PurchasesDelegate) {}
-  func login(with token: String, userId: String) async throws -> Account? { nil }
+  func login(with token: String) async throws -> Account? { nil }
   func loginWithTransferredCredentials(
     token: String,
     accountId: String,
@@ -641,4 +642,7 @@ private final class SyncToggleAccountStub: AccountServiceProtocol {
   func restorePurchases() async throws -> CustomerInfo { try await Purchases.shared.customerInfo() }
   func logout() throws {}
   func deleteAccount() async throws -> String { "" }
+  func getAccessLevel() -> BookPlayerKit.AccessLevel {
+    return .plus
+  }
 }

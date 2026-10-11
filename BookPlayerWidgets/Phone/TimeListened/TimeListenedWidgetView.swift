@@ -184,6 +184,6 @@ struct TimeListenedWidget: Widget {
     .configurationDisplayName("Time Listened")
     .description("See how much time you have spent listening to audiobooks in the last few days")
     .supportedFamilies([.systemSmall, .systemMedium])
-    .contentMarginsDisabledIfAvailable()
+    .contentMarginsDisabled()
   }
 }

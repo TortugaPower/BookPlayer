@@ -11,8 +11,13 @@ import Foundation
 @testable import BookPlayer
 @testable import BookPlayerKit
 import Combine
+import UIKit
 import XCTest
 
+/// Main actor: the service's view context is a main-queue context. An async test runs off the main
+/// thread otherwise, and its view-context reads and saves raced the main thread (the flaky
+/// InsertBooksTests crashes; Core Data's concurrency checking traps on them). Subclasses inherit it.
+@MainActor
 class LibraryServiceTests: XCTestCase {
   // swiftlint:disable force_cast
   var sut: LibraryService!
@@ -24,6 +29,21 @@ class LibraryServiceTests: XCTestCase {
     self.sut = LibraryService()
     self.sut.setup(dataManager: dataManager, audioMetadataService: audioMetadataService)
     _ = self.sut.getLibrary()
+  }
+
+  /// Every item's path with its uuid, in path order (what a sync report and the Debug export list)
+  func testFetchIdentifiersWithUuids_listsEveryItemInPathOrder() {
+    let second = StubFactory.book(dataManager: self.sut.dataManager, title: "b-book", duration: 100)
+    let first = StubFactory.book(dataManager: self.sut.dataManager, title: "a-book", duration: 100)
+    let library = self.sut.getLibraryReference()
+    library.addToItems(second)
+    library.addToItems(first)
+    self.sut.dataManager.saveContext()
+
+    let identifiers = self.sut.fetchIdentifiersWithUuids()
+
+    XCTAssertEqual(identifiers.map(\.relativePath), [first.relativePath, second.relativePath])
+    XCTAssertEqual(identifiers.map(\.uuid), [first.uuid, second.uuid])
   }
 
   func testGetExistingLibrary() {
@@ -955,6 +975,80 @@ class ModifyLibraryTests: LibraryServiceTests {
     XCTAssert(folder2.items?.count == 0)
   }
 
+  /// A move never lands on a taken name (as on Android): that item stays where it is, the rest move
+  func testAMoveLeavesAnItemWhoseNameIsTakenThere() throws {
+    let folder = try StubFactory.folder(dataManager: sut.dataManager, title: "shelf")
+    let shelfDune = StubFactory.book(dataManager: sut.dataManager, title: "dune", duration: 100)
+    let emma = StubFactory.book(dataManager: sut.dataManager, title: "emma", duration: 100)
+    try sut.moveItems(
+      [LibraryItemRef(relativePath: shelfDune.relativePath, uuid: shelfDune.uuid), LibraryItemRef(relativePath: emma.relativePath, uuid: emma.uuid)],
+      inside: folder.relativePath
+    )
+    let rootDune = StubFactory.book(dataManager: sut.dataManager, title: "dune", duration: 100)
+    sut.dataManager.saveContext()
+
+    let outcome = try sut.moveItems(
+      [LibraryItemRef(relativePath: shelfDune.relativePath, uuid: shelfDune.uuid), LibraryItemRef(relativePath: emma.relativePath, uuid: emma.uuid)],
+      inside: nil
+    )
+
+    XCTAssertEqual(outcome.notMoved.map(\.uuid), [shelfDune.uuid])
+    XCTAssertEqual(outcome.moved.map(\.uuid), [emma.uuid])
+    XCTAssertEqual(shelfDune.relativePath, "shelf/dune.txt")
+    XCTAssertEqual(emma.relativePath, "emma.txt")
+    XCTAssertEqual(rootDune.relativePath, "dune.txt")
+  }
+
+  /// Never into the root under the path of a folder that's gone
+  func testAMoveIntoAFolderThatIsGoneThrows() throws {
+    let book = StubFactory.book(dataManager: sut.dataManager, title: "book", duration: 100)
+    sut.dataManager.saveContext()
+
+    XCTAssertThrowsError(try sut.moveItems([LibraryItemRef(relativePath: book.relativePath, uuid: book.uuid)], inside: "gone"))
+    XCTAssertEqual(book.relativePath, "book.txt")
+  }
+
+  /// The rest of a folder an item left is ranked again, each rank update naming its item: the
+  /// update task needs the uuid (without one that order never synced, and the queue trapped)
+  func testMovingOutOfAFolderRanksTheRestWithTheirUuids() throws {
+    let book1 = StubFactory.book(dataManager: sut.dataManager, title: "book1", duration: 100)
+    let book2 = StubFactory.book(dataManager: sut.dataManager, title: "book2", duration: 100)
+    let folder = try StubFactory.folder(dataManager: sut.dataManager, title: "folder")
+    try sut.moveItems(
+      [LibraryItemRef(relativePath: book1.relativePath, uuid: book1.uuid), LibraryItemRef(relativePath: book2.relativePath, uuid: book2.uuid)],
+      inside: folder.relativePath
+    )
+
+    var emissions: [[String: Any]] = []
+    let subscription = sut.immediateProgressUpdatePublisher.sink { emissions.append($0) }
+    try sut.moveItems([LibraryItemRef(relativePath: book1.relativePath, uuid: book1.uuid)], inside: nil)
+    subscription.cancel()
+
+    let remainingRanks = emissions.filter {
+      $0["relativePath"] as? String == book2.relativePath && $0["orderRank"] != nil
+    }
+    XCTAssertFalse(remainingRanks.isEmpty)
+    XCTAssertTrue(remainingRanks.allSatisfy { $0["uuid"] as? String == book2.uuid })
+  }
+
+  /// Only the ranks that change are sent: each is a sync request
+  func testMovingTheLastItemOutSendsNoRankForTheRest() throws {
+    let book1 = StubFactory.book(dataManager: sut.dataManager, title: "book1", duration: 100)
+    let book2 = StubFactory.book(dataManager: sut.dataManager, title: "book2", duration: 100)
+    let folder = try StubFactory.folder(dataManager: sut.dataManager, title: "folder")
+    try sut.moveItems(
+      [LibraryItemRef(relativePath: book1.relativePath, uuid: book1.uuid), LibraryItemRef(relativePath: book2.relativePath, uuid: book2.uuid)],
+      inside: folder.relativePath
+    )
+
+    var emissions: [[String: Any]] = []
+    let subscription = sut.immediateProgressUpdatePublisher.sink { emissions.append($0) }
+    try sut.moveItems([LibraryItemRef(relativePath: book2.relativePath, uuid: book2.uuid)], inside: nil)
+    subscription.cancel()
+
+    XCTAssertFalse(emissions.contains { $0["relativePath"] as? String == book1.relativePath && $0["orderRank"] != nil })
+  }
+
   func testFolderShallowDeleteWithOneBook() throws {
     let library = self.sut.getLibrary()
     let book1 = StubFactory.book(dataManager: self.sut.dataManager, title: "book1", duration: 100)
@@ -1337,18 +1431,27 @@ class ModifyLibraryTests: LibraryServiceTests {
     XCTAssert(fetchedChapters?.last?.index == 2)
   }
 
-  func testGetItemsNotIncluded() async throws {
-    let emptyResult = await self.sut.getItemsToSync(remoteIdentifiers: [])
-    XCTAssert(emptyResult?.isEmpty == true)
+  /// The missing-items pass reads every uuid, then the items the server asked about
+  func testUuidFetches_readTheWholeLibraryAndRegisterParentsFirst() async throws {
+    let emptyUuids = await self.sut.fetchAllUuids()
+    XCTAssertEqual(emptyUuids, [])
 
-    _ = try! self.sut.createFolder(with: "test-folder", inside: nil)
-    _ = try! self.sut.createFolder(with: "test-folder2", inside: nil)
+    let folder = try self.sut.createFolder(with: "test-folder", inside: nil)
+    let nested = try self.sut.createFolder(with: "nested", inside: folder.relativePath)
+    let other = try self.sut.createFolder(with: "test-folder2", inside: nil)
 
-    let secondResult = await self.sut.getItemsToSync(remoteIdentifiers: [])
-    XCTAssert(secondResult?.count == 2)
+    let uuids = await self.sut.fetchAllUuids()
+    XCTAssertEqual(Set(uuids ?? []), [folder.uuid, nested.uuid, other.uuid])
 
-    let thirdResult = await self.sut.getItemsToSync(remoteIdentifiers: ["test-folder"])
-    XCTAssert(thirdResult?.count == 1)
+    let items = await self.sut.getSyncableItems(forUuids: [nested.uuid, folder.uuid])
+    XCTAssertEqual(items?.map(\.relativePath), ["test-folder", "test-folder/nested"])
+    let none = await self.sut.getSyncableItems(forUuids: [])
+    XCTAssertEqual(none?.isEmpty, true)
+
+    // Read 500 uuids per fetch: items in different chunks all come back
+    let spread = [folder.uuid] + (0..<600).map { _ in UUID().uuidString } + [other.uuid]
+    let found = await self.sut.getSyncableItems(forUuids: spread)
+    XCTAssertEqual(found?.map(\.relativePath), ["test-folder", "test-folder2"])
   }
 
   func testGetItemProperty() {
@@ -1666,7 +1769,6 @@ class ImportDirectoryTests: LibraryServiceTests {
 
   /// Test that importing a directory and then moving it into another folder works correctly
   /// (no ghost folder at root, correct file count)
-  @MainActor
   func testImportDirectoryThenMoveToFolder() async throws {
     let library = self.sut.getLibrary()
     let processedFolder = DataManager.getProcessedFolderURL()
@@ -2133,5 +2235,759 @@ class RegisterExistingProcessedItemsTests: LibraryServiceTests {
     XCTAssertEqual(registered.first?.relativePath, "orphan.txt")
     XCTAssertNotNil(book.getLibrary())
     XCTAssertEqual(library.items?.count, 1)
+  }
+}
+
+/// External-resource service logic: link/dedup, removal, provider-scoped lookup,
+/// and the two-way progress sync (add/remove/reconcile paths for the media-server
+/// ExternalResource entity added in model v12).
+@MainActor
+class LibraryServiceExternalResourceTests: XCTestCase {
+  var sut: LibraryService!
+
+  override func setUp() {
+    DataTestUtils.clearFolderContents(url: DataManager.getProcessedFolderURL())
+    let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
+    self.sut = LibraryService()
+    self.sut.setup(dataManager: dataManager, audioMetadataService: AudioMetadataService())
+    _ = self.sut.getLibrary()
+  }
+
+  private func makeBook(_ title: String, duration: Double = 100) -> Book {
+    let book = StubFactory.book(dataManager: sut.dataManager, title: title, duration: duration)
+    sut.getLibraryReference().addToItems(book)
+    sut.dataManager.saveContext()
+    return book
+  }
+
+  func testSetExternalResourceLinksAndSkipsDuplicates() async {
+    let book = makeBook("external-1")
+
+    let linked = await sut.setExternalResource(providerName: "jellyfin", providerId: "prov-1", for: book.uuid)
+    XCTAssertEqual(linked?.providerId, "prov-1")
+
+    // Linking the same (provider, providerId) again is a no-op
+    let duplicate = await sut.setExternalResource(providerName: "jellyfin", providerId: "prov-1", for: book.uuid)
+    XCTAssertNil(duplicate)
+
+    let resources = await sut.getExternalResources(for: book.relativePath)
+    XCTAssertEqual(resources.count, 1)
+    XCTAssertEqual(resources.first?.providerName, "jellyfin")
+  }
+
+  func testSetExternalResourceForUnknownUuidReturnsNil() async {
+    let missing = await sut.setExternalResource(providerName: "jellyfin", providerId: "prov-x", for: UUID().uuidString)
+    XCTAssertNil(missing)
+  }
+
+  func testRemoveExternalResource() async {
+    let book = makeBook("external-2")
+    _ = await sut.setExternalResource(providerName: "audiobookshelf", providerId: "abs-1", for: book.uuid)
+
+    let removedId = await sut.removeExternalResource(providerName: "audiobookshelf", for: book.uuid)
+    XCTAssertEqual(removedId, "abs-1")
+
+    let resources = await sut.getExternalResources(for: book.relativePath)
+    XCTAssertTrue(resources.isEmpty)
+
+    // Removing again is a no-op
+    let second = await sut.removeExternalResource(providerName: "audiobookshelf", for: book.uuid)
+    XCTAssertNil(second)
+  }
+
+  // MARK: - Media-server chapters
+
+  private func chapters(_ spans: [(TimeInterval, TimeInterval)]) -> [ChapterMetadata] {
+    spans.enumerated().map { index, span in
+      ChapterMetadata(title: "Chapter \(index + 1)", start: span.0, duration: span.1, index: index + 1)
+    }
+  }
+
+  func testStoreChaptersIfNeededFillsABookWithNone() async {
+    let book = makeBook("external-chapters-1", duration: 1500)
+
+    await sut.storeChaptersIfNeeded(relativePath: book.relativePath, chapters: chapters([(0, 600), (600, 900)]))
+
+    sut.dataManager.getContext().refresh(book, mergeChanges: true)
+    XCTAssertEqual(sut.getChapters(from: book.relativePath)?.map(\.title), ["Chapter 1", "Chapter 2"])
+  }
+
+  func testStoreChaptersIfNeededNeverReplacesAList() async {
+    let book = makeBook("external-chapters-2", duration: 1500)
+    await sut.storeChaptersIfNeeded(relativePath: book.relativePath, chapters: chapters([(0, 1500)]))
+
+    await sut.storeChaptersIfNeeded(relativePath: book.relativePath, chapters: chapters([(0, 600), (600, 900)]))
+
+    sut.dataManager.getContext().refresh(book, mergeChanges: true)
+    XCTAssertEqual(
+      sut.getChapters(from: book.relativePath)?.count,
+      1,
+      "a parsed list on a downloaded copy must not be overwritten by a later server refresh"
+    )
+  }
+
+  func testStoreChaptersIfNeededNeverClearsAListWithAnEmptyAnswer() async {
+    let book = makeBook("external-chapters-3", duration: 1500)
+    await sut.storeChaptersIfNeeded(relativePath: book.relativePath, chapters: chapters([(0, 600), (600, 900)]))
+
+    // A server that reports no chapters must not wipe what the item already has.
+    await sut.storeChaptersIfNeeded(relativePath: book.relativePath, chapters: [])
+
+    sut.dataManager.getContext().refresh(book, mergeChanges: true)
+    XCTAssertEqual(sut.getChapters(from: book.relativePath)?.count, 2)
+  }
+
+  func testFindChapterlessMediaServerResourcesSkipsTheBooksWithChapters() async {
+    let chaptered = makeBook("needs-nothing", duration: 1500)
+    let bare = makeBook("needs-chapters", duration: 1500)
+    _ = await sut.setExternalResource(providerName: "jellyfin", providerId: "jf-chaptered", for: chaptered.uuid)
+    _ = await sut.setExternalResource(providerName: "jellyfin", providerId: "jf-bare", for: bare.uuid)
+    await sut.storeChaptersIfNeeded(relativePath: chaptered.relativePath, chapters: chapters([(0, 1500)]))
+
+    let resources = await sut.findChapterlessMediaServerResources(at: nil)
+
+    XCTAssertEqual(
+      resources.map(\.providerId),
+      ["jf-bare"],
+      "a book that already has chapters must not make the refresh ask for them again"
+    )
+  }
+
+  func testStoreMediaServerChaptersFillsTheLinkedBook() async {
+    let book = makeBook("external-chapters-4", duration: 1500)
+    _ = await sut.setExternalResource(providerName: "jellyfin", providerId: "jelly-ch", for: book.uuid)
+    sut.dataManager.getContext().refreshAllObjects()
+
+    sut.storeMediaServerChapters(
+      providerName: "jellyfin",
+      chaptersByProviderId: ["jelly-ch": chapters([(0, 600), (600, 900)])]
+    )
+
+    sut.dataManager.getContext().refresh(book, mergeChanges: true)
+    XCTAssertEqual(sut.getChapters(from: book.relativePath)?.map(\.title), ["Chapter 1", "Chapter 2"])
+  }
+
+  /// The predicate filters on the provider name it was handed, so one provider's answers can
+  /// never land on another provider's rows — a provider id only means something to the server
+  /// that issued it.
+  func testStoreMediaServerChaptersOnlyTouchesTheNamedProvider() async {
+    let book = makeBook("external-7", duration: 200)
+    _ = await sut.setExternalResource(providerName: "jellyfin", providerId: "shared-id", for: book.uuid)
+    sut.dataManager.getContext().refreshAllObjects()
+
+    // Same providerId, different provider: an ABS batch must not fill the Jellyfin-linked book
+    sut.storeMediaServerChapters(
+      providerName: "audiobookshelf",
+      chaptersByProviderId: ["shared-id": chapters([(0, 100), (100, 100)])]
+    )
+
+    sut.dataManager.getContext().refresh(book, mergeChanges: true)
+    XCTAssertEqual(sut.getChapters(from: book.relativePath)?.count ?? 0, 0, "another provider's answer is not ours")
+  }
+
+  func testInsertItemsFromResourcesCreatesExternalBooks() async throws {
+    let simpleItem = SimpleLibraryItem(
+      title: "remote-book",
+      details: "remote-author",
+      speed: 1.0,
+      currentTime: 0,
+      duration: 300,
+      percentCompleted: 0,
+      isFinished: false,
+      relativePath: "jellyfin/remote-book.m4b",
+      remoteURL: nil,
+      artworkURL: nil,
+      orderRank: 0,
+      parentFolder: nil,
+      originalFileName: "remote-book.m4b",
+      lastPlayDate: nil,
+      type: .book,
+      uuid: UUID().uuidString
+    )
+    let resource = SimpleExternalResource(
+      providerName: "jellyfin",
+      providerId: "insert-1",
+      syncStatus: ExternalResource.SyncStatus.notSynced.rawValue,
+      lastSyncedAt: nil,
+      libraryItem: simpleItem
+    )
+    // A resource without a libraryItem cannot become a book row and must be skipped
+    let orphan = SimpleExternalResource(
+      providerName: "jellyfin",
+      providerId: "insert-orphan",
+      syncStatus: ExternalResource.SyncStatus.notSynced.rawValue,
+      lastSyncedAt: nil
+    )
+
+    let inserted = await sut.insertItems(fromResources: [resource, orphan], inside: nil)
+
+    XCTAssertEqual(inserted.count, 1)
+    XCTAssertEqual(inserted.first?.title, "remote-book")
+
+    // createExternalBook deliberately mints a fresh local uuid (matchUuid reconciles
+    // against the server later) and names the book `<title>.<ext>`, as Android does
+    XCTAssertEqual(inserted.first?.relativePath, "remote-book.m4b")
+    let book = try XCTUnwrap(inserted.first)
+    XCTAssertEqual(sut.findResources(for: book.uuid)?.map(\.providerId), ["insert-1"])
+  }
+
+  /// Streaming a book already in the library makes another copy, as importing a file again does:
+  /// its own row, link and name (a name never has two rows: relativePath is the library's key)
+  func testStreamingABookAgainMakesASeparateCopy() async throws {
+    let simpleItem = SimpleLibraryItem(
+      title: "twin-book",
+      details: "author",
+      speed: 1.0,
+      currentTime: 0,
+      duration: 300,
+      percentCompleted: 0,
+      isFinished: false,
+      relativePath: "jellyfin/twin-book.m4b",
+      remoteURL: nil,
+      artworkURL: nil,
+      orderRank: 0,
+      parentFolder: nil,
+      originalFileName: "twin-book.m4b",
+      lastPlayDate: nil,
+      type: .book,
+      uuid: UUID().uuidString
+    )
+    let resource = SimpleExternalResource(
+      providerName: "jellyfin",
+      providerId: "twin-1",
+      syncStatus: ExternalResource.SyncStatus.notSynced.rawValue,
+      lastSyncedAt: nil,
+      libraryItem: simpleItem
+    )
+
+    let firstImport = await sut.insertItems(fromResources: [resource], inside: nil)
+    let secondImport = await sut.insertItems(fromResources: [resource], inside: nil)
+    let first = try XCTUnwrap(firstImport.first)
+    let second = try XCTUnwrap(secondImport.first)
+
+    XCTAssertNotEqual(second.uuid, first.uuid)
+    XCTAssertEqual(first.relativePath, "twin-book.m4b")
+    XCTAssertEqual(second.relativePath, "twin-book-\(second.uuid.prefix(8)).m4b")
+    XCTAssertEqual(sut.findResources(for: first.uuid)?.map(\.providerId), ["twin-1"])
+    XCTAssertEqual(sut.findResources(for: second.uuid)?.map(\.providerId), ["twin-1"])
+  }
+
+  // MARK: - Stream imports: names and volumes (Android's VirtualImportManagerTest)
+
+  private func streamResource(
+    providerId: String,
+    title: String,
+    fileName: String,
+    files: [ExternalStreamFile] = [],
+    providerName: String = "audiobookshelf"
+  ) -> SimpleExternalResource {
+    SimpleExternalResource(
+      providerName: providerName,
+      providerId: providerId,
+      syncStatus: ExternalResource.SyncStatus.stream.rawValue,
+      lastSyncedAt: nil,
+      hostId: "https://abs.example.com",
+      libraryItem: SimpleLibraryItem(
+        title: title,
+        details: "The Author",
+        speed: 1,
+        currentTime: 0,
+        duration: 300,
+        percentCompleted: 0,
+        isFinished: false,
+        relativePath: "",
+        remoteURL: nil,
+        artworkURL: nil,
+        orderRank: 0,
+        parentFolder: nil,
+        originalFileName: fileName,
+        lastPlayDate: nil,
+        type: .book,
+        uuid: UUID().uuidString
+      ),
+      files: files
+    )
+  }
+
+  /// Two copies of a server's book (streamed twice), and the same id under the other provider
+  private func streamCopies() async throws -> (copy1: SimpleLibraryItem, copy2: SimpleLibraryItem, jellyfin: SimpleLibraryItem) {
+    let resource = streamResource(providerId: "li_d", title: "Dune", fileName: "Dune.m4b")
+    let first = await sut.insertItems(fromResources: [resource], inside: nil)
+    let second = await sut.insertItems(fromResources: [resource], inside: nil)
+    let jellyfin = await sut.insertItems(
+      fromResources: [streamResource(providerId: "li_d", title: "Emma", fileName: "Emma.m4b", providerName: "jellyfin")],
+      inside: nil
+    )
+    return (try XCTUnwrap(first.first), try XCTUnwrap(second.first), try XCTUnwrap(jellyfin.first))
+  }
+
+  /// A finished download marks its own book's link, not another copy's or the other provider's
+  func testADownloadMarksOnlyItsOwnBooksLink() async throws {
+    let (copy1, copy2, jellyfin) = try await streamCopies()
+
+    await sut.updateExternalResource(
+      for: SyncableExternalResource(
+        providerName: "audiobookshelf",
+        providerId: "li_d",
+        syncStatus: ExternalResource.SyncStatus.stream.rawValue,
+        lastSyncedAt: nil,
+        processedFile: true,
+        hostId: nil
+      ),
+      itemUuid: copy2.uuid
+    )
+
+    // Read where the update saved: the view context merges it a moment later
+    let context = sut.dataManager.getBackgroundContext()
+    let service: LibraryService = sut
+    let processed = { (uuid: String) in
+      context.performAndWait { (service.findResourceEntities(for: uuid, context: context) ?? []).map(\.processedFile) }
+    }
+    XCTAssertEqual(processed(copy2.uuid), [true])
+    XCTAssertEqual(processed(copy1.uuid), [false])
+    XCTAssertEqual(processed(jellyfin.uuid), [false])
+  }
+
+  /// Copies of a server's book share its server item, so its chapters reach every copy
+  func testServerChaptersReachEveryCopy() async throws {
+    let (copy1, copy2, jellyfin) = try await streamCopies()
+
+    sut.storeMediaServerChapters(
+      providerName: "audiobookshelf",
+      chaptersByProviderId: ["li_d": chapters([(0, 150), (150, 150)])]
+    )
+
+    XCTAssertEqual(sut.getChapters(from: copy1.relativePath)?.count, 2)
+    XCTAssertEqual(sut.getChapters(from: copy2.relativePath)?.count, 2)
+    XCTAssertEqual(sut.getChapters(from: jellyfin.relativePath)?.count ?? 0, 0, "the same id under the other provider")
+  }
+
+  /// relativePath is the library's key, and an offloaded book is restored by its file name, so
+  /// a name a book already has anywhere gets part of the new book's uuid.
+  func testAStreamedBookWhoseNameIsTakenGetsPartOfItsUuid() async throws {
+    let folder = try sut.createFolder(with: "Shelf", inside: nil)
+    let first = await sut.insertItems(fromResources: [streamResource(providerId: "li_1", title: "Dune", fileName: "Dune.m4b")], inside: nil)
+    try sut.moveItems([LibraryItemRef(relativePath: "Dune.m4b", uuid: first[0].uuid)], inside: folder.relativePath)
+
+    let second = await sut.insertItems(fromResources: [streamResource(providerId: "li_2", title: "Dune", fileName: "Dune.m4b")], inside: nil)
+
+    let path = try XCTUnwrap(second.first?.relativePath)
+    XCTAssertEqual(path, "Dune-\(second[0].uuid.prefix(8)).m4b")
+    XCTAssertEqual(second.first?.originalFileName, "Dune.m4b")
+  }
+
+  /// Android compares names ignoring case, and so does the restore-by-name lookup
+  func testANameTakenInAnotherCaseIsTaken() async throws {
+    _ = await sut.insertItems(fromResources: [streamResource(providerId: "li_a", title: "dune", fileName: "dune.m4b")], inside: nil)
+
+    let second = await sut.insertItems(fromResources: [streamResource(providerId: "li_b", title: "Dune", fileName: "Dune.m4b")], inside: nil)
+
+    XCTAssertEqual(second.first?.relativePath, "Dune-\(second[0].uuid.prefix(8)).m4b")
+  }
+
+  /// A streamed volume has no folder on disk: renaming it must still move its books' paths.
+  func testAStreamedVolumeCanBeRenamed() async throws {
+    let files = [
+      ExternalStreamFile(path: "api/items/li_r/file/1", name: "01.mp3", duration: 10),
+      ExternalStreamFile(path: "api/items/li_r/file/2", name: "02.mp3", duration: 10),
+    ]
+    let inserted = await sut.insertItems(
+      fromResources: [streamResource(providerId: "li_r", title: "Old", fileName: "Old.mp3", files: files)],
+      inside: nil
+    )
+    let volume = try XCTUnwrap(inserted.first)
+
+    let newPath = try sut.renameFolder(at: volume.relativePath, with: "New")
+
+    XCTAssertEqual(newPath, "New")
+    XCTAssertEqual(
+      sut.fetchContents(at: "New", limit: nil, offset: nil)?.map(\.relativePath),
+      ["New/01.mp3", "New/02.mp3"]
+    )
+
+    // Without a folder on disk to clash with, the library is what stops a twin path
+    _ = try sut.createFolder(with: "Taken", inside: nil)
+    XCTAssertThrowsError(try sut.renameFolder(at: "New", with: "Taken"))
+    XCTAssertEqual(sut.fetchContents(at: "New", limit: nil, offset: nil)?.count, 2)
+  }
+
+  /// An item made of several files is a volume: a bound folder named after the title holding
+  /// the link, one book per file in the server's order, named by its flattened path.
+  func testAnItemWithSeveralFilesImportsAsAVolume() async throws {
+    let files = [
+      ExternalStreamFile(path: "api/items/li_v/file/1", name: "Disc 1/01.mp3", duration: 10),
+      ExternalStreamFile(path: "api/items/li_v/file/2", name: "Disc 2/01.mp3", duration: 20),
+      ExternalStreamFile(path: "api/items/li_v/file/3", name: "Disc 1 - 01.mp3", duration: 5),
+    ]
+
+    let inserted = await sut.insertItems(
+      fromResources: [streamResource(providerId: "li_v", title: "Big: Book", fileName: "Big: Book.mp3", files: files)],
+      inside: nil
+    )
+
+    let volume = try XCTUnwrap(inserted.first)
+    XCTAssertEqual(volume.type, .bound)
+    XCTAssertEqual(volume.relativePath, "Big_ Book")
+    XCTAssertEqual(volume.title, "Big: Book")
+    XCTAssertEqual(volume.duration, 35, accuracy: 0.01)
+    XCTAssertEqual(sut.findResources(for: volume.uuid)?.map(\.providerId), ["li_v"])
+
+    let books = try XCTUnwrap(sut.fetchContents(at: volume.relativePath, limit: nil, offset: nil))
+    XCTAssertEqual(books.map(\.relativePath), [
+      "Big_ Book/Disc 1 - 01.mp3",
+      "Big_ Book/Disc 2 - 01.mp3",
+      "Big_ Book/Disc 1 - 01-2.mp3",
+    ])
+    XCTAssertEqual(books.map(\.title), ["Disc 1 - 01", "Disc 2 - 01", "Disc 1 - 01-2"])
+    XCTAssertEqual(books.map(\.duration), [10, 20, 5])
+    XCTAssertEqual(books.map(\.details), ["The Author", "The Author", "The Author"])
+    XCTAssertTrue(books.allSatisfy { $0.externalResources?.isEmpty ?? true }, "the link is on the volume only")
+  }
+
+  func testAVolumeWhosePathIsTakenGetsPartOfItsUuid() async throws {
+    _ = try sut.createFolder(with: "Golf", inside: nil)
+    let files = [
+      ExternalStreamFile(path: "api/items/li_g/file/1", name: "01.mp3", duration: 10),
+      ExternalStreamFile(path: "api/items/li_g/file/2", name: "02.mp3", duration: 10),
+    ]
+
+    let inserted = await sut.insertItems(
+      fromResources: [streamResource(providerId: "li_g", title: "Golf", fileName: "Golf.mp3", files: files)],
+      inside: nil
+    )
+
+    let volume = try XCTUnwrap(inserted.first)
+    XCTAssertEqual(volume.relativePath, "Golf-\(volume.uuid.prefix(8))")
+    XCTAssertEqual(sut.fetchContents(at: volume.relativePath, limit: nil, offset: nil)?.count, 2)
+  }
+
+  /// A stream import made inside a folder is created there (Android's `basePath`), not at the
+  /// root and then moved: one registration each, and the folder's count includes it.
+  func testAStreamedBookIsCreatedInTheBrowsedFolder() async throws {
+    let shelf = try sut.createFolder(with: "Shelf", inside: nil)
+
+    let inserted = await sut.insertItems(
+      fromResources: [streamResource(providerId: "li_f", title: "Dune", fileName: "Dune.m4b")],
+      inside: shelf.relativePath
+    )
+
+    XCTAssertEqual(inserted.map(\.relativePath), ["Shelf/Dune.m4b"])
+    XCTAssertEqual(sut.fetchContents(at: "Shelf", limit: nil, offset: nil)?.map(\.relativePath), ["Shelf/Dune.m4b"])
+    XCTAssertNil(sut.getSimpleItem(with: "Dune.m4b"))
+    XCTAssertEqual(
+      sut.getSimpleItem(with: "Shelf")?.details,
+      String.localizedStringWithFormat("files_title".localized, 1)
+    )
+  }
+
+  /// A file name is still unique across the whole library (an offloaded book is restored by it)
+  func testABookNameTakenElsewhereIsTakenInTheFolderToo() async throws {
+    let shelf = try sut.createFolder(with: "Shelf", inside: nil)
+    _ = await sut.insertItems(
+      fromResources: [streamResource(providerId: "li_1", title: "Dune", fileName: "Dune.m4b")],
+      inside: nil
+    )
+
+    let inserted = await sut.insertItems(
+      fromResources: [streamResource(providerId: "li_2", title: "Dune", fileName: "Dune.m4b")],
+      inside: shelf.relativePath
+    )
+
+    XCTAssertEqual(inserted.first?.relativePath, "Shelf/Dune-\(inserted[0].uuid.prefix(8)).m4b")
+  }
+
+  /// A volume's path is checked where it's created: a same-named item elsewhere doesn't matter
+  func testAStreamedVolumeIsCreatedInTheBrowsedFolder() async throws {
+    let shelf = try sut.createFolder(with: "Shelf", inside: nil)
+    _ = try sut.createFolder(with: "Golf", inside: nil)
+    let files = [
+      ExternalStreamFile(path: "api/items/li_g/file/1", name: "01.mp3", duration: 10),
+      ExternalStreamFile(path: "api/items/li_g/file/2", name: "02.mp3", duration: 10),
+    ]
+
+    let first = await sut.insertItems(
+      fromResources: [streamResource(providerId: "li_g", title: "Golf", fileName: "Golf.mp3", files: files)],
+      inside: shelf.relativePath
+    )
+    let second = await sut.insertItems(
+      fromResources: [streamResource(providerId: "li_h", title: "Golf", fileName: "Golf.mp3", files: files)],
+      inside: shelf.relativePath
+    )
+
+    let volume = try XCTUnwrap(first.first)
+    XCTAssertEqual(volume.relativePath, "Shelf/Golf")
+    XCTAssertEqual(volume.originalFileName, "Golf")
+    XCTAssertEqual(
+      sut.fetchContents(at: "Shelf/Golf", limit: nil, offset: nil)?.map(\.relativePath),
+      ["Shelf/Golf/01.mp3", "Shelf/Golf/02.mp3"]
+    )
+    let twin = try XCTUnwrap(second.first)
+    XCTAssertEqual(twin.relativePath, "Shelf/Golf-\(twin.uuid.prefix(8))")
+    XCTAssertEqual(sut.fetchContents(at: "Shelf", limit: nil, offset: nil)?.count, 2)
+  }
+
+  /// A streamed copy moves to the root under its own name, not its originalFileName (the name the
+  /// first copy has there)
+  func testAStreamedCopyMovesToTheRootUnderItsOwnName() async throws {
+    let shelf = try sut.createFolder(with: "Shelf", inside: nil)
+    let resource = streamResource(providerId: "li_m", title: "Dune", fileName: "Dune.m4b")
+    _ = await sut.insertItems(fromResources: [resource], inside: nil)
+    let shelfImport = await sut.insertItems(fromResources: [resource], inside: shelf.relativePath)
+    let copy = try XCTUnwrap(shelfImport.first)
+
+    let outcome = try sut.moveItems([LibraryItemRef(relativePath: copy.relativePath, uuid: copy.uuid)], inside: nil)
+
+    XCTAssertTrue(outcome.notMoved.isEmpty)
+    XCTAssertEqual(sut.getItemRefs(forUuids: [copy.uuid]).first?.relativePath, "Dune-\(copy.uuid.prefix(8)).m4b")
+  }
+
+  /// Two streamed volumes named Golf: one at the root, one inside `parent`
+  private func golfVolumes(inside parent: String) async throws -> SimpleLibraryItem {
+    let files = [
+      ExternalStreamFile(path: "api/items/li_g/file/1", name: "01.mp3", duration: 10),
+      ExternalStreamFile(path: "api/items/li_g/file/2", name: "02.mp3", duration: 10),
+    ]
+    _ = await sut.insertItems(
+      fromResources: [streamResource(providerId: "li_g", title: "Golf", fileName: "Golf.mp3", files: files)],
+      inside: nil
+    )
+    let inner = await sut.insertItems(
+      fromResources: [streamResource(providerId: "li_h", title: "Golf", fileName: "Golf.mp3", files: files)],
+      inside: parent
+    )
+    return try XCTUnwrap(inner.first)
+  }
+
+  /// A streamed item has no file in the way: the library is asked whether its name is taken
+  func testAStreamedVolumeWhoseNameIsTakenAtTheRootStaysWhereItIs() async throws {
+    let shelf = try sut.createFolder(with: "Shelf", inside: nil)
+    let volume = try await golfVolumes(inside: shelf.relativePath)
+    XCTAssertEqual(volume.relativePath, "Shelf/Golf")
+
+    let outcome = try sut.moveItems([LibraryItemRef(relativePath: volume.relativePath, uuid: volume.uuid)], inside: nil)
+
+    XCTAssertEqual(outcome.notMoved.map(\.uuid), [volume.uuid])
+    XCTAssertEqual(sut.getItemRefs(forUuids: [volume.uuid]).first?.relativePath, "Shelf/Golf")
+  }
+
+  /// "Delete folder only" is refused when a child's name is taken where they go: nothing moves, and
+  /// the folder, which would take that child with it, isn't deleted
+  func testDeleteFolderOnlyIsRefusedWhenAChildsNameIsTaken() async throws {
+    let box = try sut.createFolder(with: "Box", inside: nil)
+    _ = try await golfVolumes(inside: box.relativePath)
+    let boxItem = try XCTUnwrap(sut.getSimpleItem(with: "Box"))
+
+    XCTAssertThrowsError(try sut.delete([boxItem], mode: .shallow)) { error in
+      XCTAssertEqual((error as? CocoaError)?.code, .fileWriteFileExists)
+    }
+    XCTAssertNotNil(sut.getSimpleItem(with: "Box"))
+    XCTAssertNotNil(sut.getSimpleItem(with: "Box/Golf"))
+  }
+
+  /// The browsed folder deleted by a sync pull while the import ran: the root
+  func testAStreamImportIntoAFolderThatIsGoneLandsAtTheRoot() async throws {
+    let inserted = await sut.insertItems(
+      fromResources: [streamResource(providerId: "li_x", title: "Dune", fileName: "Dune.m4b")],
+      inside: "Gone"
+    )
+
+    XCTAssertEqual(inserted.map(\.relativePath), ["Dune.m4b"])
+    XCTAssertNotNil(sut.getSimpleItem(with: "Dune.m4b"))
+  }
+
+  /// A volume's books have no link of their own, but their files come from its media server:
+  /// their registration must not ask for a file, as a linked book's doesn't.
+  func testAVolumesBooksAreMediaServerBooksForSync() async throws {
+    let files = [
+      ExternalStreamFile(path: "api/items/li_s/file/1", name: "01.mp3", duration: 10),
+      ExternalStreamFile(path: "api/items/li_s/file/2", name: "02.mp3", duration: 10),
+    ]
+    let insertedVolume = await sut.insertItems(
+      fromResources: [streamResource(providerId: "li_s", title: "Sync", fileName: "Sync.mp3", files: files)],
+      inside: nil
+    )
+    let volume = try XCTUnwrap(insertedVolume.first)
+    let plainFolder = try sut.createFolder(with: "Plain", inside: nil)
+    let plainBook = await sut.insertItems(fromResources: [streamResource(providerId: "li_p", title: "Plain Book", fileName: "Plain Book.mp3")], inside: nil)
+    try sut.moveItems([LibraryItemRef(relativePath: plainBook[0].relativePath, uuid: plainBook[0].uuid)], inside: plainFolder.relativePath)
+    let localBook = StubFactory.book(dataManager: sut.dataManager, title: "Local", duration: 10)
+    sut.dataManager.saveContext()
+    try sut.moveItems([LibraryItemRef(relativePath: localBook.relativePath, uuid: localBook.uuid)], inside: plainFolder.relativePath)
+    // The sync records are read on the background context
+    sut.dataManager.saveContext()
+
+    let volumeBooks = try XCTUnwrap(sut.getAllNestedItems(inside: volume.relativePath))
+    XCTAssertEqual(volumeBooks.map(\.mediaServerProviderName), ["audiobookshelf", "audiobookshelf"])
+
+    // A plain folder lends nothing: its streamed book has its own link, its local book none
+    let folderBooks = try XCTUnwrap(sut.getAllNestedItems(inside: plainFolder.relativePath))
+    XCTAssertEqual(folderBooks.first { $0.title == "Plain Book" }?.mediaServerProviderName, "audiobookshelf")
+    XCTAssertNil(folderBooks.first { $0.title == "Local" }?.mediaServerProviderName)
+  }
+
+  // MARK: - findChapterlessMediaServerResources(at:) — the level query behind the chapter refresh
+
+  /// Root level: every media-server link on a root item, Hardcover filtered out in the query.
+  func testFindChapterlessMediaServerResourcesAtRootSkipsHardcover() async {
+    let first = makeBook("root-a")
+    let second = makeBook("root-b")
+    _ = await sut.setExternalResource(providerName: "jellyfin", providerId: "jf-1", for: first.uuid)
+    _ = await sut.setExternalResource(providerName: "hardcover", providerId: "hc-1", for: first.uuid)
+    _ = await sut.setExternalResource(providerName: "audiobookshelf", providerId: "abs-1", for: second.uuid)
+
+    let resources = await sut.findChapterlessMediaServerResources(at: nil)
+
+    XCTAssertEqual(Set(resources.map(\.providerId)), ["jf-1", "abs-1"])
+    XCTAssertFalse(resources.contains { $0.providerName == "hardcover" })
+  }
+
+  /// A level is its direct children only, like the list: a book moved into a folder leaves the
+  /// root result and appears in the folder's, and the folder row itself has no links.
+  func testFindChapterlessMediaServerResourcesAtFolderReturnsDirectChildrenOnly() async throws {
+    let inFolder = makeBook("folder-book")
+    let atRoot = makeBook("root-book")
+    // Structure first, on the view context; the links after, on the background context.
+    // No merge policy is set anywhere, so a view-context save over a row the background
+    // context just changed is a hard crash, not a conflict to resolve (CLAUDE.md hotlist #1).
+    let folder = try sut.createFolder(with: "Series", inside: nil)
+    try sut.moveItems([LibraryItemRef(relativePath: inFolder.relativePath, uuid: inFolder.uuid)], inside: folder.relativePath)
+    _ = await sut.setExternalResource(providerName: "jellyfin", providerId: "in-folder", for: inFolder.uuid)
+    _ = await sut.setExternalResource(providerName: "jellyfin", providerId: "at-root", for: atRoot.uuid)
+
+    let folderResources = await sut.findChapterlessMediaServerResources(at: folder.relativePath)
+    let rootResources = await sut.findChapterlessMediaServerResources(at: nil)
+
+    XCTAssertEqual(folderResources.map(\.providerId), ["in-folder"])
+    XCTAssertEqual(rootResources.map(\.providerId), ["at-root"], "the moved book no longer belongs to root")
+  }
+
+  func testFindChapterlessMediaServerResourcesAtEmptyLevelIsEmpty() async {
+    _ = makeBook("unlinked")
+
+    let resources = await sut.findChapterlessMediaServerResources(at: nil)
+    let missingFolder = await sut.findChapterlessMediaServerResources(at: "Nowhere")
+
+    XCTAssertTrue(resources.isEmpty)
+    XCTAssertTrue(missingFolder.isEmpty)
+  }
+
+  // MARK: - The progress push names the media-server link
+
+  /// A matched book also has a Hardcover link. Picking it (the links are an unordered set) queued
+  /// the push in a lane that drops it, so the server never got the position.
+  func testProgressOfADualLinkedBookIsPushedToItsMediaServer() async throws {
+    let inserted = await sut.insertItems(
+      fromResources: [streamResource(providerId: "jf-dual", title: "Dual", fileName: "dual.m4b", providerName: "jellyfin")],
+      inside: nil
+    )
+    let book = try XCTUnwrap(inserted.first)
+    _ = await sut.setExternalResource(providerName: "hardcover", providerId: "hc-dual", for: book.uuid)
+
+    let params = try await publishedProgress(afterPlaying: book.relativePath)
+
+    XCTAssertEqual(params["providerName"] as? String, "jellyfin")
+    XCTAssertEqual(params["providerId"] as? String, "jf-dual")
+    XCTAssertEqual(params["hostId"] as? String, "https://abs.example.com")
+  }
+
+  /// A book linked only to Hardcover has no server to push to, so its progress names no provider
+  func testProgressOfAHardcoverOnlyBookNamesNoProvider() async throws {
+    let book = makeBook("hardcover-only")
+    _ = await sut.setExternalResource(providerName: "hardcover", providerId: "hc-only", for: book.uuid)
+
+    let params = try await publishedProgress(afterPlaying: book.relativePath)
+
+    XCTAssertNil(params["providerName"])
+    XCTAssertNil(params["providerId"])
+  }
+
+  /// Plays `relativePath` to 10 s and returns the progress the push is scheduled from
+  private func publishedProgress(afterPlaying relativePath: String) async throws -> [String: Any] {
+    // The links were written on the background context. No merge policy is set, so saving the
+    // view context over that change before it merged would crash
+    sut.dataManager.getContext().refreshAllObjects()
+
+    var received: [String: Any]?
+    let published = expectation(description: "progress published")
+    let subscription = sut.progressUpdatePublisher.sink { params in
+      received = params
+      published.fulfill()
+    }
+    defer { subscription.cancel() }
+
+    sut.updatePlaybackTime(relativePath: relativePath, time: 10, date: Date(), scheduleSave: false)
+
+    await fulfillment(of: [published], timeout: 2)
+    return try XCTUnwrap(received)
+  }
+}
+
+// MARK: - Hardcover stub repair
+
+@MainActor
+final class SimpleHardcoverBookRepairTests: XCTestCase {
+  /// The merge rule behind the device-B stub repair: metadata comes from the fetched
+  /// copy, monotonic state stays local. getBook(id:) always returns status .local and
+  /// no userBookID (metadata-only query), so taking state from the fetch would regress
+  /// reading progress already pushed to Hardcover and break the unlink flow's
+  /// userBookID check.
+  func testRepairKeepsLocalMonotonicStateAndTakesFetchedMetadata() {
+    let stub = SimpleHardcoverBook(
+      id: 445742,
+      artworkURL: nil,
+      title: "",
+      author: "",
+      status: .reading,
+      userBookID: 99
+    )
+    let fetched = SimpleHardcoverBook(
+      id: 445742,
+      artworkURL: URL(string: "https://assets.hardcover.app/books/445742/cover.jpg"),
+      title: "Awaken Online: Catharsis",
+      author: "Travis Bagwell",
+      status: .local,
+      userBookID: nil
+    )
+
+    let repaired = stub.repairingMetadata(from: fetched)
+
+    XCTAssertEqual(repaired.title, "Awaken Online: Catharsis")
+    XCTAssertEqual(repaired.author, "Travis Bagwell")
+    XCTAssertNotNil(repaired.artworkURL)
+    XCTAssertEqual(repaired.status, .reading, "repair must not regress the pushed reading status")
+    XCTAssertEqual(repaired.userBookID, 99, "losing userBookID would break the unlink removal call")
+  }
+}
+
+// MARK: - Hardcover cover download
+
+/// The cache stores whatever bytes it's given, so only a real image may become a book's cover
+final class HardcoverCoverDownloadTests: XCTestCase {
+  private let url = URL(string: "https://assets.hardcover.app/cover.jpg")!
+
+  private func response(_ status: Int) -> HTTPURLResponse {
+    HTTPURLResponse(url: url, statusCode: status, httpVersion: nil, headerFields: nil)!
+  }
+
+  private var imageData: Data {
+    UIGraphicsImageRenderer(size: CGSize(width: 2, height: 2)).pngData { context in
+      UIColor.red.setFill()
+      context.fill(CGRect(x: 0, y: 0, width: 2, height: 2))
+    }
+  }
+
+  func testAnImageThatDownloadedIsTheCover() {
+    XCTAssertEqual(HardcoverService.coverImageData(imageData, response: response(200)), imageData)
+  }
+
+  /// An expired URL or a CDN error: the page's HTML must not become the cover
+  func testAnErrorAnswerIsNotACover() {
+    XCTAssertNil(HardcoverService.coverImageData(Data("<html>Forbidden</html>".utf8), response: response(403)))
+    XCTAssertNil(HardcoverService.coverImageData(imageData, response: response(404)))
+  }
+
+  /// A proxy or captive portal can answer 200 with a page of its own
+  func testASuccessfulAnswerThatIsntAnImageIsNotACover() {
+    XCTAssertNil(HardcoverService.coverImageData(Data("<html>Sign in</html>".utf8), response: response(200)))
   }
 }

@@ -13,38 +13,90 @@ public extension URL {
     return self.deletingPathExtension().lastPathComponent
   }
 
-  /// Canonical form used for media-server connection deduplication. Two URLs that point at the
-  /// same server but differ only in trivial ways — scheme/host case, default ports, trailing
-  /// slash — collapse to the same canonical string here.
+  /// Canonical form of a media-server address. Two URLs that point at the same server but
+  /// differ only in trivial ways — scheme/host case, default ports, trailing slash — collapse
+  /// to the same string here.
   ///
   /// Used by `JellyfinConnectionService` and `AudiobookShelfConnectionService` to dedupe saved
   /// connections so the user doesn't end up with two entries for one server when they re-type
   /// the URL after a token expiry (or add the same server from two slightly-different inputs).
+  ///
+  /// It is also the `hostId` synced on every AudiobookShelf book (and a Jellyfin book whose
+  /// server never reported an id), so it is a cross-platform contract: Android's
+  /// `ExternalServiceUtils.canonicalServerKey` must produce the same key from the same address.
+  /// Android's keys are already stored, so this mirrors its algorithm, including how Android's
+  /// own `java.net.URI` parses a host:
+  /// - lowercase scheme and host; no user info, query or fragment; no default port;
+  /// - the path percent-DECODED, with trailing slashes trimmed;
+  /// - an address that URI gives no host (a label starting with `_`, say) keeps its whole
+  ///   string, lowercased, minus trailing slashes.
   var canonicalDedupKey: String {
-    guard var components = URLComponents(url: self, resolvingAgainstBaseURL: false) else {
-      return absoluteString
-    }
-    components.scheme = components.scheme?.lowercased()
-    components.host = components.host?.lowercased()
-    components.user = nil
-    components.password = nil
-    components.fragment = nil
-    components.query = nil
-
-    if let port = components.port,
-       (components.scheme == "http" && port == 80)
-       || (components.scheme == "https" && port == 443) {
-      components.port = nil
+    let raw = absoluteString.trimmingCharacters(in: .whitespacesAndNewlines)
+    var fallback = raw.lowercased()
+    while fallback.hasSuffix("/") {
+      fallback.removeLast()
     }
 
-    // Trim any trailing slash, including the root "/". Without this, `https://example.com`
-    // and `https://example.com/` produced different canonical keys, defeating dedup for
-    // the most common user variation.
-    while components.path.hasSuffix("/") {
-      components.path.removeLast()
+    guard
+      let components = URLComponents(string: raw),
+      let scheme = components.scheme?.lowercased(),
+      // Punycode, as Foundation stores an internationalized host. Android keeps such a host
+      // as typed, so only an address typed there in punycode gets the same key; one typed in
+      // Unicode keys its whole string on Android and won't match (accepted: rare for a server).
+      let host = components.encodedHost,
+      Self.isServerBasedHost(host)
+    else {
+      return fallback
     }
 
-    return components.url?.absoluteString ?? absoluteString
+    // Android's rule exactly: 443 for https, 80 for anything else.
+    let defaultPort = scheme == "https" ? 443 : 80
+    let port = components.port.map { $0 == defaultPort ? "" : ":\($0)" } ?? ""
+
+    var path = components.path
+    while path.hasSuffix("/") {
+      path.removeLast()
+    }
+
+    return "\(scheme)://\(host.lowercased())\(port)\(path)"
+  }
+
+  /// Whether Android's `java.net.URI` parses `host` as a server-based host, the only kind it
+  /// reports a host for: an IPv6 literal, an IPv4 address, or a hostname. Android's hostname is
+  /// RFC 2396's plus underscores: each label starts with an ASCII letter or digit, goes on with
+  /// letters, digits, `-` and `_`, and doesn't end in `-`; when there are several, the last
+  /// starts with a letter; one trailing dot is allowed. (The desktop JVM rejects underscores,
+  /// so a JVM unit test of Android's function can't show this.) Anything else, like a
+  /// percent-escape, it reads as a registry name with no host.
+  private static func isServerBasedHost(_ host: String) -> Bool {
+    if host.hasPrefix("[") {
+      return true
+    }
+
+    let isDigit = { (character: Character) in character.isASCII && character.isNumber }
+    let isLetter = { (character: Character) in character.isASCII && character.isLetter }
+
+    let octets = host.split(separator: ".", omittingEmptySubsequences: false)
+    if octets.count == 4,
+      octets.allSatisfy({ !$0.isEmpty && $0.allSatisfy(isDigit) && (Int($0) ?? 256) <= 255 })
+    {
+      return true
+    }
+
+    var labels = octets
+    if labels.count > 1, labels.last?.isEmpty == true {
+      labels.removeLast()
+    }
+
+    let labelsAreValid = labels.allSatisfy { label in
+      guard let first = label.first, let last = label.last else { return false }
+      return (isDigit(first) || isLetter(first)) && last != "-"
+        && label.allSatisfy { isDigit($0) || isLetter($0) || $0 == "-" || $0 == "_" }
+    }
+
+    guard labelsAreValid, let lastLabel = labels.last else { return false }
+
+    return labels.count == 1 || lastLabel.first.map(isLetter) == true
   }
 
   func relativePath(to baseURL: URL) -> String {

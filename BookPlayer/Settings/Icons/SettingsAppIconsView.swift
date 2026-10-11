@@ -67,20 +67,16 @@ extension Bundle {
 
     var icons = [Icon]()
 
-    if  #available(iOS 26.0, *) {
-      for var icon in decodedIcons {
-        if icon.title == "Pride" {
-          icon.id += "26"
-          icon.imageName += "-26"
-        } else if icon.title == "Fruit Based" {
-          icon.id += "26"
-          icon.title = "Books"
-          icon.imageName += "-26"
-        }
-        icons.append(icon)
+    for var icon in decodedIcons {
+      if icon.title == "Pride" {
+        icon.id += "26"
+        icon.imageName += "-26"
+      } else if icon.title == "Fruit Based" {
+        icon.id += "26"
+        icon.title = "Books"
+        icon.imageName += "-26"
       }
-    } else {
-      icons = decodedIcons
+      icons.append(icon)
     }
 
     return icons

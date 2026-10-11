@@ -12,30 +12,88 @@ import SwiftUI
 
 struct ProfileSyncTasksSectionView: View {
   @State private var statusMessage: String = ""
-  @State private var jobsCount = 0
+  /// Every lane, summed by the engine that owns them all
+  @State private var queuedCount = 0
+  /// Parked tasks across every lane: the title turns into a warning while any need the user
+  @State private var pausedCount = 0
 
   private var buttonText: String {
-    String(format: "queued_sync_tasks_title".localized, jobsCount)
+    String(format: "queued_sync_tasks_title".localized, queuedCount)
   }
 
-  @Environment(\.syncService) private var syncService
+  @Environment(\.syncQueueService) private var syncQueueService
+  @Environment(\.uploadContinuation) private var uploadContinuation
+  @Environment(\.scenePhase) private var scenePhase
+  /// Read so the button follows the setting (the offer checks it, but can't observe it)
+  @AppStorage(Constants.UserDefaults.allowCellularData) private var allowsCellularData = false
   @EnvironmentObject private var theme: ThemeViewModel
 
+  /// The offer checks the cellular setting through a closure SwiftUI can't observe: reading
+  /// the setting here makes the button follow it
+  private var showsContinueButton: Bool {
+    _ = allowsCellularData
+    return uploadContinuation.isOfferAvailable
+  }
+
+  /// While the continued task runs, its progress replaces the sync status
+  private var caption: String {
+    if uploadContinuation.state == .running, let percent = uploadContinuation.runningPercent {
+      return String(format: "uploads_running_background_caption".localized, percent)
+    }
+    return statusMessage
+  }
+
   var body: some View {
-    NavigationLink(value: ProfileScreen.tasks) {
+    VStack(spacing: Spacing.S2) {
+      queuedTasksLink
+      if showsContinueButton {
+        Button {
+          uploadContinuation.continueInBackground()
+        } label: {
+          Text("continue_uploads_background_button")
+            .frame(minHeight: 44)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.borderless)
+        .bpFont(.subheadline)
+        .foregroundStyle(theme.linkColor)
+      }
+    }
+    .task { await uploadContinuation.refreshState() }
+    // iOS may drop the request while the app is away
+    .onChange(of: scenePhase) { _, phase in
+      guard phase == .active else { return }
+      Task { await uploadContinuation.refreshState() }
+    }
+  }
+
+  private var queuedTasksLink: some View {
+    NavigationLink(value: ProfileScreen.queueTasks) {
       VStack {
-        Text(buttonText)
-          .bpFont(.body)
-          .foregroundStyle(theme.linkColor)
-        Text(statusMessage)
+        HStack(spacing: Spacing.S4) {
+          if pausedCount > 0 {
+            Image(systemName: "exclamationmark.triangle.fill")
+              .accessibilityHidden(true)
+          }
+          Text(buttonText)
+        }
+        .bpFont(.body)
+        .foregroundStyle(pausedCount > 0 ? .red : theme.linkColor)
+        Text(caption)
           .bpFont(.caption)
           .foregroundStyle(theme.secondaryColor)
       }
+      // Not by colour alone: VoiceOver hears it too
+      .accessibilityElement(children: .combine)
+      .accessibilityValue(pausedCount > 0 ? "sync_tasks_need_attention_voiceover".localized : "")
     }
-    .onReceive(syncService.observeTasksCount()) { count in
-      guard jobsCount != count else { return }
-
-      jobsCount = count
+    // Once while the section is up: `observeQueueCounts()` is a new publisher on every call, so
+    // `.onReceive` subscribed again (and took a replayed snapshot) on every render
+    .task {
+      for await counts in syncQueueService.observeQueueCounts().values {
+        queuedCount = counts.total
+        pausedCount = counts.totalPaused
+      }
     }
     .onReceive(
       NotificationCenter.default.publisher(for: .uploadProgressUpdated)
@@ -90,21 +148,30 @@ struct ProfileSyncTasksSectionView: View {
   }
 }
 
+// Environment defaults are un-setup() placeholders whose count methods trap (see
+// CLAUDE.md's DI section) — previews must construct + setup() + inject.
 #Preview {
-  @Previewable var syncService: SyncService = {
+  @Previewable var syncQueueService: SyncQueueService = {
     let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: ""))
     let audioMetadataService = AudioMetadataService()
     let libraryService = LibraryService()
     libraryService.setup(dataManager: dataManager, audioMetadataService: audioMetadataService)
     let accountService = AccountService()
     accountService.setup(dataManager: dataManager)
-    let syncService = SyncService()
-    syncService.setup(isActive: true, libraryService: libraryService, accountService: accountService, dataManager: dataManager)
+    let syncQueueService = SyncQueueService()
+    syncQueueService.setup(
+      libraryService: libraryService,
+      getAccessLevel: { accountService.getAccessLevel() },
+      verifyAccessLevel: { nil },
+      tasksDataManager: TasksDataManager(),
+      networkClient: NetworkClient(),
+      dataManager: dataManager
+    )
 
-    return syncService
+    return syncQueueService
   }()
 
   ProfileSyncTasksSectionView()
     .environmentObject(ThemeViewModel())
-    .environment(\.syncService, syncService)
+    .environment(\.syncQueueService, syncQueueService)
 }

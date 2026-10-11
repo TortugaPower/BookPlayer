@@ -15,7 +15,6 @@ class PlayAndSleepActionHandler: NSObject, PlayAndSleepActionIntentHandling {
     completion(PlayAndSleepActionIntentResponse(code: .continueInApp, userActivity: nil))
   }
 
-  @available(iOSApplicationExtension 13.0, *)
   func resolveSleepTimer(for intent: PlayAndSleepActionIntent, with completion: @escaping (TimerOptionResolutionResult) -> Void) {
     if intent.sleepTimer == .unknown {
       completion(TimerOptionResolutionResult.needsValue())
@@ -24,7 +23,6 @@ class PlayAndSleepActionHandler: NSObject, PlayAndSleepActionIntentHandling {
     }
   }
 
-  @available(iOSApplicationExtension 13.0, *)
   func resolveAutoplay(for intent: PlayAndSleepActionIntent, with completion: @escaping (INBooleanResolutionResult) -> Void) {
     completion(INBooleanResolutionResult.notRequired())
   }

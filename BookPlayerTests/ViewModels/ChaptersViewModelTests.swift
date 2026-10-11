@@ -30,6 +30,7 @@ final class ChaptersViewModelTests: XCTestCase {
         duration: 10,
         relativePath: relativePath,
         remoteURL: nil,
+        externalURL: nil,
         index: Int16(index)
       )
     }

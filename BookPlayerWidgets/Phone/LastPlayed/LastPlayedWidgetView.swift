@@ -45,6 +45,6 @@ struct LastPlayedWidget: Widget {
     .configurationDisplayName("Last Played Books")
     .description("See and play your last played books")
     .supportedFamilies([.systemSmall, .systemMedium])
-    .contentMarginsDisabledIfAvailable()
+    .contentMarginsDisabled()
   }
 }

@@ -15,6 +15,12 @@ public enum Constants {
     public static let syncTasksQueue = "userSyncTasksQueue"
     public static let lastSyncTimestamp = "lastSyncTimestamp"
     public static let hasScheduledLibraryContents = "hasScheduledLibraryContents"
+    /// When the missing-items pass last completed (the weekly run)
+    public static let missingItemsPassLastRun = "missingItemsPassLastRun"
+    /// The account became PRO: the next pass runs right away and starts the continued task
+    public static let missingItemsPassPending = "missingItemsPassPending"
+    /// The tier the last account update reported, to notice LITE → PRO
+    public static let lastKnownProAccess = "lastKnownProAccess"
 
     /// Armed when a book finishes playing; consumed on the next review-prompt evaluation
     public static let pendingReviewPrompt = "userPendingReviewPrompt"

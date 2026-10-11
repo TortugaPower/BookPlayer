@@ -40,6 +40,9 @@ class CarPlayManager: NSObject {
   func connect(_ interfaceController: CPInterfaceController) {
     self.interfaceController = interfaceController
     self.interfaceController?.delegate = self
+    // The arbiter exists from launch, so this can't race CoreServices on a cold start into
+    // the car — the subscription this replaced lived in init and silently never bound there.
+    AppServices.shared.promptSurfaceArbiter.carPlayPresenter = self
     /// Reset connect-scoped state so a re-connect without a paired disconnect doesn't act on a stale flag
     self.shouldShowPlayerOnConnect = false
     self.setupNowPlayingTemplate()
@@ -106,6 +109,7 @@ class CarPlayManager: NSObject {
   }
 
   func disconnect() {
+    AppServices.shared.promptSurfaceArbiter.carPlayPresenter = nil
     self.interfaceController = nil
     self.recentTemplate = nil
     self.libraryTemplate = nil
@@ -138,7 +142,8 @@ class CarPlayManager: NSObject {
           playerManager: coreServices.playerManager,
           syncService: coreServices.syncService,
           playerLoaderService: coreServices.playerLoaderService,
-          preferencesService: coreServices.preferencesService
+          preferencesService: coreServices.preferencesService,
+          chapterRefreshService: coreServices.mediaServerChapterService
         )
         self?.listSyncRefreshService = listRefreshService
 
@@ -747,5 +752,34 @@ extension CarPlayManager: CPTabBarTemplateDelegate {
 extension CarPlayManager: PlaybackSyncProgressDelegate {
   func waitForSyncInProgress() async {
     _ = await contentsFetchTask?.result
+  }
+}
+
+extension CarPlayManager {
+  /// Whether a modal template would actually reach the screen: connected, and nothing already
+  /// presented. Reporting an optimistic `true` here would drop the prompt entirely, which is
+  /// the failure the surface arbiter exists to prevent.
+  var canPresentTemplate: Bool {
+    guard let interfaceController else { return false }
+
+    return interfaceController.presentedTemplate == nil
+  }
+}
+
+extension CarPlayManager: PlaybackFailurePresenting {
+  /// One line and an OK. The phone's copy prints the underlying error and offers the Media
+  /// Servers shortcut; neither belongs on a dashboard, so the car points at the phone instead.
+  func presentPlaybackFailure(_ failure: PlaybackFailure) -> Bool {
+    guard canPresentTemplate else { return false }
+
+    showAlert(
+      BPAlertContent(
+        title: failure.carPlayMessage,
+        style: .alert,
+        actionItems: [BPActionItem.okAction]
+      )
+    )
+
+    return true
   }
 }

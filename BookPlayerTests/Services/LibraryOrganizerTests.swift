@@ -48,7 +48,7 @@ final class LibraryOrganizerTests: XCTestCase {
     PlayableItem(
       title: "playing",
       author: "author",
-      chapters: [PlayableChapter(title: "c", author: "a", start: 0, duration: 10, relativePath: relativePath, remoteURL: nil, index: 1)],
+      chapters: [PlayableChapter(title: "c", author: "a", start: 0, duration: 10, relativePath: relativePath, remoteURL: nil, externalURL: nil, index: 1)],
       currentTime: 0,
       duration: 10,
       relativePath: relativePath,
@@ -75,6 +75,35 @@ final class LibraryOrganizerTests: XCTestCase {
 
     XCTAssertNotNil(libraryService.getSimpleItem(with: item.relativePath))
     XCTAssertNil(syncService.scheduleMoveItemsToReceivedArguments?.parentFolder)
+  }
+
+  /// One whose name is taken where it goes stays put: the rest move and sync, and the clash is
+  /// reported as a move onto a taken name is
+  func testAMoveSyncsOnlyWhatMovedAndReportsTheClash() throws {
+    let folder = try libraryService.createFolder(with: "Shelf", inside: nil)
+    let dune = book("Dune")
+    let emma = book("Emma")
+    try libraryService.moveItems([dune, emma], inside: folder.relativePath)
+    _ = book("Dune")
+    let shelfDune = LibraryItemRef(relativePath: "Shelf/\(dune.relativePath)", uuid: dune.uuid)
+    let shelfEmma = LibraryItemRef(relativePath: "Shelf/\(emma.relativePath)", uuid: emma.uuid)
+
+    XCTAssertThrowsError(try sut.move([shelfDune, shelfEmma], into: nil)) { error in
+      XCTAssertEqual((error as? CocoaError)?.code, .fileWriteFileExists)
+    }
+    XCTAssertEqual(syncService.scheduleMoveItemsToReceivedArguments?.items, [shelfEmma])
+  }
+
+  /// An item gone from the library (a sync pull deleted it) isn't moved, so no move is queued for
+  /// it: the server would answer Item not found
+  func testAMoveQueuesNothingForAnItemThatIsGone() throws {
+    let folder = try libraryService.createFolder(with: "Shelf", inside: nil)
+    let emma = book("Emma")
+    let gone = LibraryItemRef(relativePath: "Gone.txt", uuid: "gone")
+
+    try sut.move([gone, emma], into: LibraryItemRef(relativePath: folder.relativePath, uuid: folder.uuid))
+
+    XCTAssertEqual(syncService.scheduleMoveItemsToReceivedArguments?.items, [emma])
   }
 
   func testANewVolumeHoldsTheItemsAndRegistersBeforeTheMove() async throws {

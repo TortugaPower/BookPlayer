@@ -9,7 +9,7 @@
 import AVFoundation
 import CoreMedia
 
-public struct ChapterMetadata {
+public struct ChapterMetadata: Codable, Equatable, Hashable, Sendable {
   public let title: String
   public let start: TimeInterval
   public let duration: TimeInterval

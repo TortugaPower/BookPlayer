@@ -38,6 +38,7 @@ struct LibraryRootView: View {
 
   @EnvironmentObject private var playerManager: PlayerManager
   @EnvironmentObject private var importManager: ImportManager
+  @EnvironmentObject private var externalImportEvents: ExternalImportEvents
   @EnvironmentObject private var singleFileDownloadService: SingleFileDownloadService
   @EnvironmentObject private var listSyncRefreshService: ListSyncRefreshService
 
@@ -121,11 +122,16 @@ struct LibraryRootView: View {
           DispatchQueue.main.async {
             self.importOperationState.isOperationActive = false
             self.importOperationState.processingTitle = ""
-            self.handleOperationCompletion(operation.processedFiles, suggestedFolderName: operation.suggestedFolderName)
+            self.handleOperationCompletion(.local(files: operation.processedFiles), suggestedFolderName: operation.suggestedFolderName)
           }
         }
 
         importManager.start(operation)
+      }
+      .onReceive(externalImportEvents.confirmedBatches) { externalResources in
+        Task {
+          self.handleOperationCompletion(.external(files: externalResources), suggestedFolderName: nil)
+        }
       }
     }
     .modifier(
@@ -200,26 +206,95 @@ struct LibraryRootView: View {
     }
   }
 
-  func handleOperationCompletion(_ files: [URL], suggestedFolderName: String?) {
-    guard !files.isEmpty else {
+  func handleOperationCompletion(_ importSource: ImportSource, suggestedFolderName: String?) {
+    let filesCount: Int
+    switch importSource {
+    case .local(let files):
+      filesCount = files.count
+    case .external(let externals):
+      filesCount = externals.count
+    }
+    
+    guard filesCount > 0 else {
       return
     }
 
     /// Where the import lands: the location browsed now, not after the network calls below
     let importNode = path.last ?? .root
 
+    let isStream: Bool = {
+      if case .external = importSource { return true }
+      return false
+    }()
+    let streamTitle = String.localizedStringWithFormat("import_processing_description".localized, filesCount)
+    if isStream {
+      // A file import shows its copying; a stream import has none, so its insert and Hardcover's
+      // match get the same spinner
+      importOperationState.isOperationActive = true
+      importOperationState.processingTitle = streamTitle
+    }
+
     Task { @MainActor in
-      let processedItems = await libraryService.insertItems(from: files)
+      defer {
+        // Unless a file import or a download has taken the spinner over since
+        if isStream, importOperationState.processingTitle == streamTitle {
+          importOperationState.isOperationActive = false
+          importOperationState.processingTitle = ""
+        }
+      }
+
+      /// The browsed folder as it is now: a sync pull can rename it while it's open, or replace it
+      /// (the folder at its path then has another uuid, which the sync move must name), or delete
+      /// it, which lands the import at the root
+      func currentFolder(uuid: String, path: String) -> SimpleLibraryItem? {
+        let currentPath = libraryService.getItemRefs(forUuids: [uuid]).first?.relativePath ?? path
+        return libraryService.getSimpleItem(with: currentPath).flatMap { $0.type == .folder ? $0 : nil }
+      }
+      let landing = importNode.folderRelativePath.flatMap { currentFolder(uuid: importNode.uuid, path: $0) }
+      /// Where the import ends up: a stream is created there, a file import is moved there below
+      var landed = isStream ? landing : nil
+
+      let processedItems: [SimpleLibraryItem]
+      switch importSource {
+      case .local(let files):
+        processedItems = await libraryService.insertItems(from: files)
+      case .external(let externals):
+        // Created in the browsed folder; file imports are copied to the root and moved there below
+        processedItems = await libraryService.insertItems(
+          fromResources: externals,
+          inside: landing?.relativePath
+        )
+      }
+
+      /// Nothing created (no item in the batch could become a book): nothing to place
+      guard !processedItems.isEmpty else { return }
+
       var itemIdentifiers = processedItems.map({ $0.relativePath })
       let itemIdentifiersPairs = processedItems.map({ LibraryItemRef(relativePath: $0.relativePath, uuid: $0.uuid) })
+      var nameTakenError: Error?
       do {
         await syncService.scheduleUpload(items: processedItems)
-        /// Move imported files to current selected folder so the user can see them
-        if let folderRelativePath = importNode.folderRelativePath {
-          try libraryService.moveItems(itemIdentifiersPairs, inside: folderRelativePath)
-          syncService.scheduleMove(items: itemIdentifiersPairs, to: LibraryItemRef(relativePath: folderRelativePath, uuid: importNode.uuid))
+        /// Move imported files to current selected folder so the user can see them. Found again
+        /// here, with nothing awaited before the moves: the copy and insert above can take seconds
+        if !isStream,
+          let landing,
+          let destination = currentFolder(uuid: landing.uuid, path: landing.relativePath) {
+          let folderRelativePath = destination.relativePath
+          // One whose name is taken in that folder stays at the root
+          let outcome = try libraryService.moveItems(itemIdentifiersPairs, inside: folderRelativePath)
+          if !outcome.moved.isEmpty {
+            syncService.scheduleMove(
+              items: outcome.moved,
+              to: LibraryItemRef(relativePath: folderRelativePath, uuid: destination.uuid)
+            )
+          }
           /// Update identifiers after moving for the follow up action alert
-          itemIdentifiers = itemIdentifiers.map({ "\(folderRelativePath)/\($0)" })
+          let movedPaths = Set(outcome.moved.map(\.relativePath))
+          itemIdentifiers = itemIdentifiers.map { movedPaths.contains($0) ? "\(folderRelativePath)/\($0)" : $0 }
+          nameTakenError = outcome.notMoved.first.map {
+            LibraryService.nameTakenError(moving: $0.relativePath, into: folderRelativePath)
+          }
+          landed = destination
         }
       } catch {
         loadingState.error = error
@@ -231,10 +306,17 @@ struct LibraryRootView: View {
 
       await hardcoverService.processAutoMatch(for: processedItems)
 
+      /// Some names were taken in the folder, so the batch is split between it and the root: said
+      /// instead of the placement prompt
+      if let nameTakenError {
+        loadingState.error = nameTakenError
+        return
+      }
+
       let availableFolders =
         self.libraryService.getItems(
           notIn: itemIdentifiers,
-          parentFolder: importNode.folderRelativePath
+          parentFolder: landed?.relativePath
         )?.filter({ $0.type == .folder }) ?? []
 
       let singleFolder: SimpleLibraryItem? =
@@ -260,7 +342,7 @@ struct LibraryRootView: View {
         singleFolderUuid: singleFolder?.uuid,
         availableFolders: availableFolders,
         suggestedFolderName: firstTitle,
-        node: importNode
+        node: landed.map { .folder(title: $0.title, relativePath: $0.relativePath, uuid: $0.uuid) } ?? .root
       )
     }
   }
