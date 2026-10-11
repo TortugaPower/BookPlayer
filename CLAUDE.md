@@ -133,7 +133,7 @@ a build phase) and its output is committed.
    `MainCoordinator`, retains it, and calls `start()`.
 5. `MainCoordinator.start()` hosts SwiftUI `MainView` inside `AppHostingViewController` (a `UIHostingController`
    subclass that only overrides orientation) and **modally presents it full-screen** over the loading nav
-   controller. `MainView` is a `TabView` (Library / Profile / Settings [+ Search on iPhone]) with the mini
+   controller. `MainView` is a `TabView` (Library / Profile / Settings / Search, on every device) with the mini
    player as the native tab bottom accessory and a `.fullScreenCover` for the player. From iOS 26.1 an
    accessory with empty content still shows as an empty bar, so its visibility goes through
    `tabViewBottomAccessory(isEnabled:)` (`MiniPlayerModifier`), never through emptying the content.
@@ -683,7 +683,11 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
   is taken in the folder's parent: nothing moves and the folder stays.
 - **Search** (`Search/`): **local-only** CoreData search (`LibraryService.searchAllBooks`), 0.3s debounce,
   results grouped by parent folder. Remote search lives in the integration view models, **not** here — don't
-  expect network calls in `Search/`.
+  expect network calls in `Search/`. The Search tab finds books only, across the library; selecting it focuses
+  its field (`tabViewSearchActivation(.searchTabSelection)`). Each library level also has its own search with
+  All / Books / Folders scopes (`bpSearchable`, `LibraryService.filterContents`, recursive over the folder's
+  subtree). Closing that search resets the scope to All: the scope bar hides with search, so a leftover scope
+  would keep the list filtered with nothing on screen saying so.
 - **Settings** (`Settings/`): SwiftUI `Form` + `SettingsScreen` route enum; gating reads
   `accountService.accessLevel`. Integrations entry is `SettingsIntegrationsSectionView` → `MediaServersView` /
   Hardcover.

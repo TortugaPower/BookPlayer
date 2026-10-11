@@ -104,22 +104,17 @@ struct ItemListSearchableModifier: ViewModifier {
   @Binding var selectedScope: ItemListSearchScope
 
   func body(content: Content) -> some View {
-    if UIDevice.current.userInterfaceIdiom == .phone {
-      /// New tab bar role handles searches
-      content
-    } else {
-      content
-        .searchable(
-          text: $text,
-          isPresented: $isSearchFocused,
-          prompt: prompt
-        )
-        .searchScopes($selectedScope) {
-          ForEach(ItemListSearchScope.allCases) { scope in
-            Text(scope.title).tag(scope)
-          }
+    content
+      .searchable(
+        text: $text,
+        isPresented: $isSearchFocused,
+        prompt: prompt
+      )
+      .searchScopes($selectedScope) {
+        ForEach(ItemListSearchScope.allCases) { scope in
+          Text(scope.title).tag(scope)
         }
-    }
+      }
   }
 }
 
