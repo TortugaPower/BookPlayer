@@ -13,13 +13,14 @@ struct PlayerView: View {
   @Environment(\.colorScheme) private var scheme
   @Environment(\.dismiss) private var dismiss
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
+  @Environment(\.displayScale) private var displayScale
   
   @StateObject private var viewModel: PlayerViewModel
   @StateObject private var theme = ThemeViewModel()
   @State private var noteText: String = ""
   @State private var dragOffset: CGSize = .zero
   @State private var dragThresholdReached = false
-  let dismissThreshold: CGFloat = 44.0 * UIScreen.main.nativeScale
+  private var dismissThreshold: CGFloat { 44.0 * displayScale }
   
   init(initModel: @escaping () -> PlayerViewModel) {
     self._viewModel = .init(wrappedValue: initModel())

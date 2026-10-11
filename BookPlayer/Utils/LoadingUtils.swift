@@ -17,13 +17,16 @@ public class LoadingUtils {
   }
 
   public class func createActivityIndicator(parentView: UIView) -> UIView {
-    let screenSize = UIScreen.main.bounds
+    let container = parentView.window ?? parentView
     let backgroundView = UIView(frame: CGRect(
-      x: screenSize.width / 2 - 30,
-      y: screenSize.height / 2 - 30,
+      x: container.bounds.midX - 30,
+      y: container.bounds.midY - 30,
       width: 60,
       height: 60
     ))
+    /// Centered on the window, not the screen: they differ in Split View and on iPhone Duo,
+    /// and the flexible margins keep it centered when the window resizes (opening/closing Duo)
+    backgroundView.autoresizingMask = [.flexibleLeftMargin, .flexibleRightMargin, .flexibleTopMargin, .flexibleBottomMargin]
     backgroundView.backgroundColor = .black.withAlpha(newAlpha: 0.8)
     backgroundView.layer.cornerRadius = 10
 
@@ -39,11 +42,7 @@ public class LoadingUtils {
     backgroundView.addSubview(indicatorView)
     backgroundView.tag = loaderViewTag
 
-    if let window = parentView.window {
-      window.addSubview(backgroundView)
-    } else {
-      parentView.addSubview(backgroundView)
-    }
+    container.addSubview(backgroundView)
 
     indicatorView.startAnimating()
     return backgroundView

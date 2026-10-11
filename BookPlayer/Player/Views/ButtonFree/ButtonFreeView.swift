@@ -21,6 +21,8 @@ struct GestureConfig {
 struct ButtonFreeView: View {
   @StateObject var model: Self.Model
   @State private var message: String?
+  /// Width of the gesture area, in the drag's local coordinates; no trailing-edge exclusion until measured
+  @State private var gestureAreaWidth: CGFloat = .infinity
   @StateObject private var theme = ThemeViewModel()
   let config = GestureConfig()
 
@@ -70,6 +72,11 @@ struct ButtonFreeView: View {
             .onEnded { value in handleDrag(value) }
         )
       )
+      .onGeometryChange(for: CGFloat.self) { proxy in
+        proxy.size.width
+      } action: { width in
+        gestureAreaWidth = width
+      }
       .onChange(of: message) {
         guard message != nil else { return }
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
@@ -102,10 +109,11 @@ struct ButtonFreeView: View {
   }
 
   private func handleDrag(_ value: DragGesture.Value) {
-    // Ignore drags that start too close to the screen edges to avoid fighting with
-    // the navigation controller back-swipe and system gestures.
+    // Ignore drags that start too close to the edges to avoid fighting with
+    // the navigation controller back-swipe and system gestures. The trailing edge is
+    // the view's, not the screen's: they differ in Split View and on iPhone Duo.
     if value.startLocation.x < config.edgeExclusion
-      || value.startLocation.x > UIScreen.main.bounds.width - config.edgeExclusion
+      || value.startLocation.x > gestureAreaWidth - config.edgeExclusion
     {
       return
     }
