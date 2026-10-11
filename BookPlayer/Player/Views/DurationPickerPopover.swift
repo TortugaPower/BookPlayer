@@ -70,9 +70,11 @@ struct DurationPickerPopover: View {
 
   @State private var selectedDuration: TimeInterval
 
-  init(initialDuration: TimeInterval = 3600, onConfirm: @escaping (TimeInterval) -> Void) {
+  init(initialDuration: TimeInterval, onConfirm: @escaping (TimeInterval) -> Void) {
     self.onConfirm = onConfirm
-    self._selectedDuration = State(initialValue: initialDuration)
+    /// Nothing is stored until a custom timer is set once (and the old sheet could store 0);
+    /// start at an hour rather than at 0, where OK is disabled
+    self._selectedDuration = State(initialValue: initialDuration > 0 ? initialDuration : 3600)
   }
 
   var body: some View {
