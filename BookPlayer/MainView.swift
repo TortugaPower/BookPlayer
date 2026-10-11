@@ -27,8 +27,6 @@ struct MainView: View {
   @Environment(\.playbackService) private var playbackService
   @Environment(\.colorScheme) private var scheme
 
-  @State private var tabBarContentHeight: CGFloat = 49
-
   @EnvironmentObject private var listSyncRefreshService: ListSyncRefreshService
   @EnvironmentObject private var playerManager: PlayerManager
 
@@ -39,13 +37,6 @@ struct MainView: View {
           showSecondOnboarding: showSecondOnboarding,
           showImport: showImport
         )
-        .background {
-          TabBarHeightReader { height in
-            if tabBarContentHeight != height {
-              tabBarContentHeight = height
-            }
-          }
-        }
         .toolbarBackground(.visible, for: .tabBar)
         .toolbarBackground(theme.systemBackgroundColor, for: .tabBar)
         .toolbar(listState.isEditing ? .hidden : .visible, for: .tabBar)
@@ -72,18 +63,8 @@ struct MainView: View {
       }
 
     }
-    .miniPlayer {
-      if !listState.isSearching && !listState.isEditing && !keyboardObserver.isKeyboardVisible,
-        let relativePath = playerState.loadedBookRelativePath
-      {
-        MiniPlayerView(relativePath: relativePath, showPlayer: showPlayer)
-          .transition(.move(edge: .bottom).combined(with: .opacity))
-          .animation(.spring(), value: playerState.loadedBookRelativePath != nil)
-      }
-    } accessoryContent: {
-      if !listState.isSearching && !listState.isEditing && !keyboardObserver.isKeyboardVisible,
-        let relativePath = playerState.loadedBookRelativePath
-      {
+    .miniPlayer(isEnabled: showsMiniPlayer) {
+      if let relativePath = playerState.loadedBookRelativePath {
         MiniPlayerAccessoryView(relativePath: relativePath, showPlayer: showPlayer)
       }
     }
@@ -149,7 +130,6 @@ struct MainView: View {
     .accessibilityAction(.magicTap) {
       playerManager.playPause()
     }
-    .environment(\.tabBarContentHeight, tabBarContentHeight)
     .environmentObject(theme)
     .environmentObject(externalImportEvents)
     .environment(\.listState, listState)
@@ -175,6 +155,13 @@ struct MainView: View {
     }
   }
   
+  private var showsMiniPlayer: Bool {
+    playerState.loadedBookRelativePath != nil
+      && !listState.isSearching
+      && !listState.isEditing
+      && !keyboardObserver.isKeyboardVisible
+  }
+
   func showPlayer() {
     playerState.isShowingPlayer = true
   }

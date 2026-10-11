@@ -62,6 +62,7 @@ struct MiniPlayerAccessoryView: View {
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(.isHeader)
         .accessibilityLabel(voiceOverLabel)
+        .accessibilityIdentifier("miniPlayer.info")
         Button {
           UIImpactFeedbackGenerator(style: .medium).impactOccurred()
           playerManager.rewind()
