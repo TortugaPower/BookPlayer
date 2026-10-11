@@ -92,6 +92,10 @@ final class ItemListViewModel: ObservableObject, BPLogger {
       listState.isSearching = isSearchFocused
       if isSearchFocused {
         editMode = .inactive
+      } else {
+        /// Closing search clears the text but not the scope, and a scope other than All would keep
+        /// the list filtered with the scope bar hidden
+        scope = .all
       }
     }
   }

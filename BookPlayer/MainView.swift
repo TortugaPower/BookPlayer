@@ -54,15 +54,15 @@ struct MainView: View {
       Tab("settings_title", systemImage: "gearshape") {
         SettingsView()
       }
-      if UIDevice.current.userInterfaceIdiom == .phone {
-        Tab("search_title", systemImage: "magnifyingglass", role: .search) {
-          SearchView {
-            SearchViewModel(libraryService: libraryService)
-          }
+      Tab("search_title", systemImage: "magnifyingglass", role: .search) {
+        SearchView {
+          SearchViewModel(libraryService: libraryService)
         }
       }
 
     }
+    /// Selecting the Search tab focuses its field right away; dismissing search returns to the previous tab
+    .tabViewSearchActivation(.searchTabSelection)
     .miniPlayer(isEnabled: showsMiniPlayer) {
       if let relativePath = playerState.loadedBookRelativePath {
         MiniPlayerAccessoryView(relativePath: relativePath, showPlayer: showPlayer)
