@@ -118,9 +118,18 @@ struct PlayerView: View {
         sleepText: viewModel.sleepText,
         sleepAccessibilityLabel: viewModel.sleepAccessibilityLabel,
         currentAlert: $viewModel.currentAlert,
+        showsTimerPopover: $viewModel.showsCustomSleepTimer,
         currentAlertOrigin: viewModel.currentAlertOrigin,
         onActionTapped: { viewModel.handleButtonTap(media: $0) }
-      )
+      ) {
+        DurationPickerPopover(
+          initialDuration: UserDefaults.standard.double(forKey: Constants.UserDefaults.customSleepTimerDuration)
+        ) { seconds in
+          UserDefaults.standard.set(seconds, forKey: Constants.UserDefaults.customSleepTimerDuration)
+          SleepTimer.shared.setTimer(.countdown(seconds))
+        }
+        .environmentObject(theme)
+      }
       .frame(height: 48)
       .frame(maxWidth: .infinity)
       .padding(.horizontal, 8)
@@ -187,14 +196,6 @@ struct PlayerView: View {
             libraryService: viewModel.libraryService,
             syncService: viewModel.syncService
           )
-        }
-        .environmentObject(theme)
-      case .sleep:
-        DurationPickerSheet(
-          initialDuration: UserDefaults.standard.double(forKey: Constants.UserDefaults.customSleepTimerDuration)
-        ) { seconds in
-          UserDefaults.standard.set(seconds, forKey: Constants.UserDefaults.customSleepTimerDuration)
-          SleepTimer.shared.setTimer(.countdown(seconds))
         }
         .environmentObject(theme)
       }
