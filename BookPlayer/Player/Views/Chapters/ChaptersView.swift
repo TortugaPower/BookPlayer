@@ -13,29 +13,50 @@ struct ChaptersView: View {
   @StateObject private var model: Self.Model
   @StateObject private var theme = ThemeViewModel()
   @Environment(\.dismiss) private var dismiss
+  /// Beside the player instead of over it, inside the panel's navigation stack: there's
+  /// nothing to close, and picking a chapter keeps the list on screen
+  private let isBesidePlayer: Bool
 
-  init(initModel: @escaping () -> Self.Model) {
+  init(isBesidePlayer: Bool = false, initModel: @escaping () -> Self.Model) {
+    self.isBesidePlayer = isBesidePlayer
     self._model = .init(wrappedValue: initModel())
   }
 
   var body: some View {
-    NavigationStack {
-      ScrollViewReader { proxy in
-        List {
-          ForEach(Array(model.chapters.enumerated()), id: \.element.id) { index, chapter in
-            rowView(chapter, index: index)
-          }
+    if isBesidePlayer {
+      list
+    } else {
+      NavigationStack {
+        list
+      }
+    }
+  }
+
+  private var list: some View {
+    ScrollViewReader { proxy in
+      List {
+        ForEach(Array(model.chapters.enumerated()), id: \.element.id) { index, chapter in
+          rowView(chapter, index: index)
         }
-        .onAppear {
-          if let currentChapter = model.currentChapter {
+      }
+      .onAppear {
+        if let currentChapter = model.currentChapter {
+          proxy.scrollTo(currentChapter.id, anchor: .center)
+        }
+      }
+      .onChange(of: model.currentChapter) { _, currentChapter in
+        if let currentChapter {
+          withAnimation {
             proxy.scrollTo(currentChapter.id, anchor: .center)
           }
         }
-        .listStyle(.plain)
-        .applyListStyle(with: theme, background: theme.systemBackgroundColor)
-        .navigationTitle("chapters_title")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
+      }
+      .listStyle(.plain)
+      .applyListStyle(with: theme, background: theme.systemBackgroundColor)
+      .navigationTitle("chapters_title")
+      .navigationBarTitleDisplayMode(.inline)
+      .toolbar {
+        if !isBesidePlayer {
           ToolbarItem(placement: .cancellationAction) {
             Button {
               dismiss()
@@ -44,14 +65,14 @@ struct ChaptersView: View {
             }
             .foregroundStyle(theme.linkColor)
           }
-          if model.canReloadChapters {
-            ToolbarItem(placement: .confirmationAction) {
-              reloadButton
-            }
+        }
+        if model.canReloadChapters {
+          ToolbarItem(placement: .confirmationAction) {
+            reloadButton
           }
         }
-        .bpAlert($model.currentAlert)
       }
+      .bpAlert($model.currentAlert)
     }
   }
 
@@ -88,7 +109,9 @@ struct ChaptersView: View {
     )
     Button {
       model.handleChapterSelected(chapter)
-      dismiss()
+      if !isBesidePlayer {
+        dismiss()
+      }
     } label: {
       HStack {
         VStack(alignment: .leading, spacing: Spacing.S4) {

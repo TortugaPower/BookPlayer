@@ -58,9 +58,18 @@ struct MediaActionRow<TimerPopover: View>: View {
   }
   
   var body: some View {
-    HStack(spacing: buttonSpacing) {
+    PlayerListPanelReader { isPanelShown in
+      row(isPanelShown: isPanelShown)
+    }
+  }
+
+  /// Without the list button while the panel beside the player shows the lists it opens
+  private func row(isPanelShown: Bool) -> some View {
+    let actions = MediaAction.allCases.filter { !isPanelShown || $0 != .chapters }
+
+    return HStack(spacing: buttonSpacing) {
       Spacer()
-      ForEach(MediaAction.allCases) { ma in
+      ForEach(actions) { ma in
         BubbleButton(
           iconImage: iconImage(ma),
           imageOffset: ma.iconOffset,

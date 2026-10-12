@@ -151,6 +151,12 @@ struct PlayerView: View {
       .frame(maxWidth: .infinity)
       .padding(.horizontal, 8)
     }
+    .playerListPanel(
+      playerManager: viewModel.playerManager,
+      libraryService: viewModel.libraryService,
+      syncService: viewModel.syncService
+    )
+    /// Behind the panel too when it shows
     .background(
       RoundedRectangle(cornerRadius: 24)
         .fill(theme.systemBackgroundColor)

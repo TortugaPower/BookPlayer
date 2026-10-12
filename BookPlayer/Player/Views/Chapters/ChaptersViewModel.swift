@@ -13,6 +13,8 @@ import Foundation
 final class ChaptersViewModel: ChaptersView.Model {
   private let playerManager: PlayerManagerProtocol
   private let libraryService: LibraryServiceProtocol
+  private var currentItemSubscription: AnyCancellable?
+  private var currentChapterSubscription: AnyCancellable?
 
   init(playerManager: PlayerManagerProtocol, libraryService: LibraryServiceProtocol) {
     self.playerManager = playerManager
@@ -21,6 +23,30 @@ final class ChaptersViewModel: ChaptersView.Model {
       chapters: playerManager.currentItem?.chapters ?? [],
       currentChapter: playerManager.currentItem?.currentChapter
     )
+    bindCurrentItem()
+  }
+
+  /// Follows playback while the list is on screen, which beside the player can be for as long
+  /// as the player is open: the rows change with the book, the checkmark with the chapter
+  private func bindCurrentItem() {
+    currentItemSubscription = playerManager.currentItemPublisher()
+      .removeDuplicates()
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] item in
+        guard let self else { return }
+
+        self.chapters = item?.chapters ?? []
+        self.currentChapterSubscription?.cancel()
+        self.currentChapterSubscription = item?.$currentChapter
+          .receive(on: DispatchQueue.main)
+          .sink { [weak self] chapter in
+            self?.currentChapter = chapter
+          }
+
+        if item == nil {
+          self.currentChapter = nil
+        }
+      }
   }
 
   override func handleChapterSelected(_ chapter: PlayableChapter) {
