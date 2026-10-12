@@ -21,6 +21,8 @@ struct MediaActionRow<TimerPopover: View>: View {
   /// A fixed gap that keeps the buttons together in the middle; without one they spread
   /// evenly across the row
   var buttonSpacing: CGFloat? = nil
+  /// Off while the lists it opens are already on screen
+  var showsListButton = true
   let onActionTapped: (MediaAction) -> Void
   @ViewBuilder let timerPopover: () -> TimerPopover
     
@@ -57,17 +59,12 @@ struct MediaActionRow<TimerPopover: View>: View {
     }
   }
   
-  var body: some View {
-    PlayerListPanelReader { isPanelShown in
-      row(isPanelShown: isPanelShown)
-    }
+  private var actions: [MediaAction] {
+    MediaAction.allCases.filter { showsListButton || $0 != .chapters }
   }
 
-  /// Without the list button while the panel beside the player shows the lists it opens
-  private func row(isPanelShown: Bool) -> some View {
-    let actions = MediaAction.allCases.filter { !isPanelShown || $0 != .chapters }
-
-    return HStack(spacing: buttonSpacing) {
+  var body: some View {
+    HStack(spacing: buttonSpacing) {
       Spacer()
       ForEach(actions) { ma in
         BubbleButton(

@@ -127,29 +127,33 @@ struct PlayerView: View {
     .safeAreaPadding([.top, .horizontal])
     /// Side by side, the artwork runs down to the row, so it gets some room
     .safeAreaInset(edge: .bottom, spacing: isSideBySide ? 16 : nil) {
-      MediaActionRow(
-        speedText: viewModel.formattedSpeed(),
-        sleepText: viewModel.sleepText,
-        sleepAccessibilityLabel: viewModel.sleepAccessibilityLabel,
-        currentAlert: $viewModel.currentAlert,
-        showsTimerPopover: $viewModel.showsCustomSleepTimer,
-        currentAlertOrigin: viewModel.currentAlertOrigin,
-        /// Side by side, the buttons stay together in the middle instead of spreading across
-        /// the screen's full width
-        buttonSpacing: isSideBySide ? 24 : nil,
-        onActionTapped: { viewModel.handleButtonTap(media: $0) }
-      ) {
-        DurationPickerPopover(
-          initialDuration: UserDefaults.standard.double(forKey: Constants.UserDefaults.customSleepTimerDuration)
-        ) { seconds in
-          UserDefaults.standard.set(seconds, forKey: Constants.UserDefaults.customSleepTimerDuration)
-          SleepTimer.shared.setTimer(.countdown(seconds))
+      PlayerListPanelReader { isPanelShown in
+        MediaActionRow(
+          speedText: viewModel.formattedSpeed(),
+          sleepText: viewModel.sleepText,
+          sleepAccessibilityLabel: viewModel.sleepAccessibilityLabel,
+          currentAlert: $viewModel.currentAlert,
+          showsTimerPopover: $viewModel.showsCustomSleepTimer,
+          currentAlertOrigin: viewModel.currentAlertOrigin,
+          /// Side by side, the buttons stay together in the middle instead of spreading across
+          /// the screen's full width
+          buttonSpacing: isSideBySide ? 24 : nil,
+          /// The panel beside the player already shows the lists this button opens
+          showsListButton: !isPanelShown,
+          onActionTapped: { viewModel.handleButtonTap(media: $0, isListPanelShown: isPanelShown) }
+        ) {
+          DurationPickerPopover(
+            initialDuration: UserDefaults.standard.double(forKey: Constants.UserDefaults.customSleepTimerDuration)
+          ) { seconds in
+            UserDefaults.standard.set(seconds, forKey: Constants.UserDefaults.customSleepTimerDuration)
+            SleepTimer.shared.setTimer(.countdown(seconds))
+          }
+          .environmentObject(theme)
         }
-        .environmentObject(theme)
+        .frame(height: 48)
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, 8)
       }
-      .frame(height: 48)
-      .frame(maxWidth: .infinity)
-      .padding(.horizontal, 8)
     }
     .playerListPanel(
       playerManager: viewModel.playerManager,

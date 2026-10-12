@@ -488,12 +488,13 @@ final class PlayerViewModel: ObservableObject {
     return self.playerManager.hasLoadedBook()
   }
   
-  func handleButtonTap(media: MediaAction) {
+  /// - Parameter isListPanelShown: the chapters and bookmarks are in the panel beside the player
+  func handleButtonTap(media: MediaAction, isListPanelShown: Bool) {
     switch media {
       case .bookmark:
         createBookmark()
       case .more:
-        setMoreAlert()
+        setMoreAlert(includesListAction: !isListPanelShown)
       case .chapters:
         if UserDefaults.standard.bool(forKey: Constants.UserDefaults.playerListPrefersBookmarks) {
           displaySheet(style: .bookmark)
@@ -660,7 +661,7 @@ final class PlayerViewModel: ObservableObject {
     }
   }
   
-  func setMoreAlert() {
+  func setMoreAlert(includesListAction: Bool) {
     guard self.hasLoadedBook() else { return }
 
     let markTitle = self.isBookFinished()
@@ -669,12 +670,14 @@ final class PlayerViewModel: ObservableObject {
     
     var actions = [BPActionItem]()
 
-    actions.append(
-      BPActionItem(
-        title: self.getListTitleForMoreAction(),
-        handler: { [weak self] in self?.showListFromMoreAction() }
+    if includesListAction {
+      actions.append(
+        BPActionItem(
+          title: self.getListTitleForMoreAction(),
+          handler: { [weak self] in self?.showListFromMoreAction() }
+        )
       )
-    )
+    }
     
     actions.append(
       BPActionItem(

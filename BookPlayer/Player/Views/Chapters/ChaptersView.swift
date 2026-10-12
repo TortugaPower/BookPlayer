@@ -16,6 +16,9 @@ struct ChaptersView: View {
   /// Beside the player instead of over it, inside the panel's navigation stack: there's
   /// nothing to close, and picking a chapter keeps the list on screen
   private let isBesidePlayer: Bool
+  /// Whether the playing chapter's row is on screen. The list follows playback only while it is,
+  /// so it doesn't scroll away from chapters someone is browsing
+  @State private var isCurrentChapterVisible = true
 
   init(isBesidePlayer: Bool = false, initModel: @escaping () -> Self.Model) {
     self.isBesidePlayer = isBesidePlayer
@@ -37,6 +40,11 @@ struct ChaptersView: View {
       List {
         ForEach(Array(model.chapters.enumerated()), id: \.element.id) { index, chapter in
           rowView(chapter, index: index)
+            .onScrollVisibilityChange { isVisible in
+              if chapter == model.currentChapter {
+                isCurrentChapterVisible = isVisible
+              }
+            }
         }
       }
       .onAppear {
@@ -45,7 +53,7 @@ struct ChaptersView: View {
         }
       }
       .onChange(of: model.currentChapter) { _, currentChapter in
-        if let currentChapter {
+        if let currentChapter, isCurrentChapterVisible {
           withAnimation {
             proxy.scrollTo(currentChapter.id, anchor: .center)
           }
