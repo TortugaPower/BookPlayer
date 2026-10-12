@@ -17,7 +17,11 @@ struct NavigationRowView: View {
   var onNextTap: (() -> Void)?
   var onTitleToggle: (() -> Void)?
   var onPreviousTap: (() -> Void)?
-  
+  /// Keeps the row as tall for a one-line title as for two. Off beside the artwork, where the
+  /// row lines up with the artwork's top and the extra height would sit as empty space above
+  /// a one-line title
+  var keepsTitleHeight = true
+
   var body: some View {
     HStack(spacing: 4) {
       Button {
@@ -41,7 +45,7 @@ struct NavigationRowView: View {
           .bpFont(.playerTitle)
           .foregroundColor(theme.primaryColor)
           .multilineTextAlignment(.center)
-          .frame(height: 56)
+          .frame(height: keepsTitleHeight ? 56 : nil)
       }
       .layoutPriority(1)
       
