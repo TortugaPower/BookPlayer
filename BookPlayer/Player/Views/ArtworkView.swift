@@ -16,7 +16,9 @@ struct ArtworkView: View {
   var title: String
   var author: String
   var imagePath: String?
-  
+  /// Where the square sits when it's narrower than the space it's given
+  var alignment: Alignment = .center
+
   var body: some View {
     ZStack(alignment: .top) {
       ZStack {
@@ -103,7 +105,7 @@ struct ArtworkView: View {
       .cornerRadius(12)
       .clipped()
     }
-    .frame(maxWidth: .infinity, maxHeight: .infinity)
+    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: alignment)
   }
 }
 

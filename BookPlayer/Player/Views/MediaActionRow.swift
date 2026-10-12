@@ -18,6 +18,9 @@ struct MediaActionRow<TimerPopover: View>: View {
   @Binding var showsTimerPopover: Bool
 
   let currentAlertOrigin: MediaAction?
+  /// A fixed gap that keeps the buttons together in the middle; without one they spread
+  /// evenly across the row
+  var buttonSpacing: CGFloat? = nil
   let onActionTapped: (MediaAction) -> Void
   @ViewBuilder let timerPopover: () -> TimerPopover
     
@@ -55,7 +58,7 @@ struct MediaActionRow<TimerPopover: View>: View {
   }
   
   var body: some View {
-    HStack {
+    HStack(spacing: buttonSpacing) {
       Spacer()
       ForEach(MediaAction.allCases) { ma in
         BubbleButton(
@@ -77,6 +80,12 @@ struct MediaActionRow<TimerPopover: View>: View {
           content: timerPopover
         )
 
+        if buttonSpacing == nil {
+          Spacer()
+        }
+      }
+
+      if buttonSpacing != nil {
         Spacer()
       }
     }

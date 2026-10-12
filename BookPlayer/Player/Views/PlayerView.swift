@@ -14,19 +14,29 @@ struct PlayerView: View {
   @Environment(\.dismiss) private var dismiss
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
   @Environment(\.displayScale) private var displayScale
-  
+  @Environment(\.verticalSizeClass) private var verticalSizeClass
+
   @StateObject private var viewModel: PlayerViewModel
   @StateObject private var theme = ThemeViewModel()
   @State private var noteText: String = ""
   @State private var dragOffset: CGSize = .zero
   @State private var dragThresholdReached = false
-  private var dismissThreshold: CGFloat { 44.0 * displayScale }
-  
+  /// Side by side, the screen is about half as tall, so half the distance closes the player
+  private var dismissThreshold: CGFloat { (isSideBySide ? 22.0 : 44.0) * displayScale }
+  /// The artwork beside the controls on a short screen, like iPhone in landscape
+  private var isSideBySide: Bool { verticalSizeClass == .compact }
+  /// Side by side, the artwork sits against the controls; it fills less than its half when
+  /// the height is what limits it
+  private var artworkAlignment: Alignment { isSideBySide ? .trailing : .center }
+
   init(initModel: @escaping () -> PlayerViewModel) {
     self._viewModel = .init(wrappedValue: initModel())
   }
-  
-  var body: some View {    
+
+  var body: some View {
+    /// Switching the layout keeps its views, so rotating moves them instead of rebuilding them
+    let layout = isSideBySide ? AnyLayout(HStackLayout(spacing: 40)) : AnyLayout(VStackLayout())
+
     VStack {
       DismissableRegionView()
         .simultaneousGesture(
@@ -38,81 +48,85 @@ struct PlayerView: View {
               handleDragEnded(gesture)
             }
         )
-      
-      VStack {
-        Group {
-          if viewModel.isVideoItem {
-            VideoArtworkView()
-          } else {
-            ArtworkView(
-              title: viewModel.title,
-              author: viewModel.author,
-              imagePath: viewModel.relativePath
-            )
-          }
+
+      layout {
+        VStack {
+          ArtworkView(
+            title: viewModel.title,
+            author: viewModel.author,
+            imagePath: viewModel.relativePath,
+            alignment: artworkAlignment
+          )
+          .simultaneousGesture(
+            DragGesture(minimumDistance: 15)
+              .onChanged { gesture in
+                handleDragChanged(gesture)
+              }
+              .onEnded { gesture in
+                handleDragEnded(gesture)
+              }
+          )
+
+          /// Side by side, the artwork spans the controls' full height
+          Spacer(minLength: isSideBySide ? 0 : nil)
         }
+        .frame(maxWidth: .infinity, alignment: artworkAlignment)
+        /// VoiceOver reads by position, which side by side would mix the artwork's elements
+        /// into the controls
+        .accessibilityElement(children: .contain)
+
+        VStack(spacing: 4) {
+          NavigationRowView(
+            playerTitle: viewModel.progressData.chapterTitle,
+            hasNextChapter: viewModel.hasNextChapter,
+            hasPreviousChapter: viewModel.hasPreviousChapter,
+            onNextTap: viewModel.handleNextTap,
+            onTitleToggle: viewModel.processToggleProgressState,
+            onPreviousTap: viewModel.handlePreviousTap,
+            keepsTitleHeight: !isSideBySide
+          )
+
+          ListeningProgressView(
+            progress: $viewModel.progressData.sliderValue,
+            remainingTime: viewModel.progressData.formattedMaxTime ?? "00:00",
+            remainingTimeAccessLabel: viewModel.remainingTimeAccessLabel,
+            currentTime: viewModel.progressData.formattedCurrentTime,
+            currentTimeAccessLabel: viewModel.currentTimeAccessLabel,
+            progressLabel: viewModel.progressData.progress ?? "",
+            onSliderDragChanged: { value in
+              viewModel.handleSliderDragChanged(value: value)
+            },
+            onSliderChange: { progress in
+              viewModel.handleSliderUpEvent(with: Float(progress))
+            },
+            onProgressToggle: {
+              viewModel.processToggleProgressState()
+            },
+            onRemainingToggle: {
+              viewModel.processToggleMaxTime()
+            }
+          )
+
+          Spacer()
+
+          PlayControlsRowView(isPlaying: viewModel.isPlaying)
+
+          Spacer()
+        }
+        .contentShape(Rectangle())
         .simultaneousGesture(
           DragGesture(minimumDistance: 15)
-            .onChanged { gesture in
-              handleDragChanged(gesture)
-            }
-            .onEnded { gesture in
-              handleDragEnded(gesture)
-            }
+            .onChanged(handleDragChanged)
+            .onEnded(handleDragEnded)
         )
-
-        Spacer()
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .accessibilityElement(children: .contain)
       }
-      .frame(maxWidth: .infinity)
-
-      VStack(spacing: 4) {
-        NavigationRowView(
-          playerTitle: viewModel.progressData.chapterTitle,
-          hasNextChapter: viewModel.hasNextChapter,
-          hasPreviousChapter: viewModel.hasPreviousChapter,
-          onNextTap: viewModel.handleNextTap,
-          onTitleToggle: viewModel.processToggleProgressState,
-          onPreviousTap: viewModel.handlePreviousTap
-        )
-
-        ListeningProgressView(
-          progress: $viewModel.progressData.sliderValue,
-          remainingTime: viewModel.progressData.formattedMaxTime ?? "00:00",
-          remainingTimeAccessLabel: viewModel.remainingTimeAccessLabel,
-          currentTime: viewModel.progressData.formattedCurrentTime,
-          currentTimeAccessLabel: viewModel.currentTimeAccessLabel,
-          progressLabel: viewModel.progressData.progress ?? "",
-          onSliderDragChanged: { value in
-            viewModel.handleSliderDragChanged(value: value)
-          },
-          onSliderChange: { progress in
-            viewModel.handleSliderUpEvent(with: Float(progress))
-          },
-          onProgressToggle: {
-            viewModel.processToggleProgressState()
-          },
-          onRemainingToggle: {
-            viewModel.processToggleMaxTime()
-          }
-        )
-
-        Spacer()
-
-        PlayControlsRowView(isPlaying: viewModel.isPlaying)
-
-        Spacer()
-      }
-      .contentShape(Rectangle())
-      .simultaneousGesture(
-        DragGesture(minimumDistance: 15)
-          .onChanged(handleDragChanged)
-          .onEnded(handleDragEnded)
-      )
-      .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     .padding(.horizontal, 8)
     .safeAreaPadding([.top, .horizontal])
-    .safeAreaInset(edge: .bottom) {
+    /// Side by side, the artwork runs down to the row, so it gets some room
+    .safeAreaInset(edge: .bottom, spacing: isSideBySide ? 16 : nil) {
       MediaActionRow(
         speedText: viewModel.formattedSpeed(),
         sleepText: viewModel.sleepText,
@@ -120,6 +134,9 @@ struct PlayerView: View {
         currentAlert: $viewModel.currentAlert,
         showsTimerPopover: $viewModel.showsCustomSleepTimer,
         currentAlertOrigin: viewModel.currentAlertOrigin,
+        /// Side by side, the buttons stay together in the middle instead of spreading across
+        /// the screen's full width
+        buttonSpacing: isSideBySide ? 24 : nil,
         onActionTapped: { viewModel.handleButtonTap(media: $0) }
       ) {
         DurationPickerPopover(
@@ -145,7 +162,6 @@ struct PlayerView: View {
       viewModel.bindBookObservers()
       viewModel.handleAutolockStatus(forceDisable: false)
       viewModel.recalculateProgress()
-      viewModel.refreshVideoState()
     }
     .onDisappear {
       viewModel.handleAutolockStatus(forceDisable: true)
@@ -211,7 +227,7 @@ struct PlayerView: View {
       .environmentObject(theme)
     }
   }
-  
+
   private func handleDragChanged(_ gesture: DragGesture.Value) {
     if gesture.translation.height > 0 {
       dragOffset = gesture.translation
