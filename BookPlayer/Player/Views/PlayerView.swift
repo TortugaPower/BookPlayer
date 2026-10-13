@@ -127,33 +127,29 @@ struct PlayerView: View {
     .safeAreaPadding([.top, .horizontal])
     /// Side by side, the artwork runs down to the row, so it gets some room
     .safeAreaInset(edge: .bottom, spacing: isSideBySide ? 16 : nil) {
-      PlayerListPanelReader { isPanelShown in
-        MediaActionRow(
-          speedText: viewModel.formattedSpeed(),
-          sleepText: viewModel.sleepText,
-          sleepAccessibilityLabel: viewModel.sleepAccessibilityLabel,
-          currentAlert: $viewModel.currentAlert,
-          showsTimerPopover: $viewModel.showsCustomSleepTimer,
-          currentAlertOrigin: viewModel.currentAlertOrigin,
-          /// Side by side, the buttons stay together in the middle instead of spreading across
-          /// the screen's full width
-          buttonSpacing: isSideBySide ? 24 : nil,
-          /// The panel beside the player already shows the lists this button opens
-          showsListButton: !isPanelShown,
-          onActionTapped: { viewModel.handleButtonTap(media: $0, isListPanelShown: isPanelShown) }
-        ) {
-          DurationPickerPopover(
-            initialDuration: UserDefaults.standard.double(forKey: Constants.UserDefaults.customSleepTimerDuration)
-          ) { seconds in
-            UserDefaults.standard.set(seconds, forKey: Constants.UserDefaults.customSleepTimerDuration)
-            SleepTimer.shared.setTimer(.countdown(seconds))
-          }
-          .environmentObject(theme)
+      MediaActionRow(
+        speedText: viewModel.formattedSpeed(),
+        sleepText: viewModel.sleepText,
+        sleepAccessibilityLabel: viewModel.sleepAccessibilityLabel,
+        currentAlert: $viewModel.currentAlert,
+        showsTimerPopover: $viewModel.showsCustomSleepTimer,
+        currentAlertOrigin: viewModel.currentAlertOrigin,
+        /// Side by side, the buttons stay together in the middle instead of spreading across
+        /// the screen's full width
+        buttonSpacing: isSideBySide ? 24 : nil,
+        onActionTapped: { viewModel.handleButtonTap(media: $0) }
+      ) {
+        DurationPickerPopover(
+          initialDuration: UserDefaults.standard.double(forKey: Constants.UserDefaults.customSleepTimerDuration)
+        ) { seconds in
+          UserDefaults.standard.set(seconds, forKey: Constants.UserDefaults.customSleepTimerDuration)
+          SleepTimer.shared.setTimer(.countdown(seconds))
         }
-        .frame(height: 48)
-        .frame(maxWidth: .infinity)
-        .padding(.horizontal, 8)
+        .environmentObject(theme)
       }
+      .frame(height: 48)
+      .frame(maxWidth: .infinity)
+      .padding(.horizontal, 8)
     }
     .playerListPanel(
       playerManager: viewModel.playerManager,
@@ -208,20 +204,24 @@ struct PlayerView: View {
         .presentationDetents([.medium])
         .environmentObject(theme)
       case .chapters:
-        ChaptersView{
-          ChaptersViewModel(
-            playerManager: viewModel.playerManager,
-            libraryService: viewModel.libraryService
-          )
+        PlayerListSheet { close in
+          ChaptersView(onSelect: close) {
+            ChaptersViewModel(
+              playerManager: viewModel.playerManager,
+              libraryService: viewModel.libraryService
+            )
+          }
         }
         .environmentObject(theme)
       case .bookmark:
-        BookmarksView{
-          BookmarksViewModel(
-            playerManager: viewModel.playerManager,
-            libraryService: viewModel.libraryService,
-            syncService: viewModel.syncService
-          )
+        PlayerListSheet { close in
+          BookmarksView(onSelect: close) {
+            BookmarksViewModel(
+              playerManager: viewModel.playerManager,
+              libraryService: viewModel.libraryService,
+              syncService: viewModel.syncService
+            )
+          }
         }
         .environmentObject(theme)
       }
@@ -256,6 +256,30 @@ struct PlayerView: View {
       dismiss()
     } else {
       dragOffset = .zero
+    }
+  }
+}
+
+/// A player list (chapters or bookmarks) as a sheet over the player: the list goes in a navigation
+/// stack with a close button, and picking a row closes the sheet
+private struct PlayerListSheet<Content: View>: View {
+  @EnvironmentObject private var theme: ThemeViewModel
+  @Environment(\.dismiss) private var dismiss
+  @ViewBuilder let content: (_ close: @escaping () -> Void) -> Content
+
+  var body: some View {
+    NavigationStack {
+      content { dismiss() }
+        .toolbar {
+          ToolbarItem(placement: .cancellationAction) {
+            Button {
+              dismiss()
+            } label: {
+              Label("voiceover_close_button", systemImage: "xmark")
+            }
+            .foregroundStyle(theme.linkColor)
+          }
+        }
     }
   }
 }

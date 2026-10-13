@@ -21,8 +21,6 @@ struct MediaActionRow<TimerPopover: View>: View {
   /// A fixed gap that keeps the buttons together in the middle; without one they spread
   /// evenly across the row
   var buttonSpacing: CGFloat? = nil
-  /// Off while the lists it opens are already on screen
-  var showsListButton = true
   let onActionTapped: (MediaAction) -> Void
   @ViewBuilder let timerPopover: () -> TimerPopover
     
@@ -59,14 +57,10 @@ struct MediaActionRow<TimerPopover: View>: View {
     }
   }
   
-  private var actions: [MediaAction] {
-    MediaAction.allCases.filter { showsListButton || $0 != .chapters }
-  }
-
   var body: some View {
     HStack(spacing: buttonSpacing) {
       Spacer()
-      ForEach(actions) { ma in
+      ForEach(MediaAction.allCases) { ma in
         BubbleButton(
           iconImage: iconImage(ma),
           imageOffset: ma.iconOffset,

@@ -27,13 +27,14 @@ struct PlayerListPanel: View {
   var body: some View {
     NavigationStack {
       Group {
+        /// Picking a row keeps the panel: there's nothing to close beside the player
         switch list {
         case .chapters:
-          ChaptersView(isBesidePlayer: true) {
+          ChaptersView {
             ChaptersViewModel(playerManager: playerManager, libraryService: libraryService)
           }
         case .bookmarks:
-          BookmarksView(isBesidePlayer: true) {
+          BookmarksView {
             BookmarksViewModel(
               playerManager: playerManager,
               libraryService: libraryService,
@@ -100,35 +101,5 @@ private struct PlayerListPanelModifier: ViewModifier {
     } else {
       content
     }
-  }
-}
-
-/// Tells a view inside the player whether `PlayerListPanel` is beside it. Only views inside the
-/// player can tell: `ArrangementView` doesn't pass the arrangement to the player's outermost view
-/// or its modifiers
-struct PlayerListPanelReader<Content: View>: View {
-  @ViewBuilder let content: (_ isPanelShown: Bool) -> Content
-
-  var body: some View {
-    if #available(iOS 27.1, *) {
-      SplitAxisReader { axis in
-        /// Horizontal while the panel shows; with the player alone (iPhone Duo closed, or open
-        /// in portrait) it reads vertical
-        content(axis == .horizontal)
-      }
-    } else {
-      content(false)
-    }
-  }
-}
-
-/// Passes on how `ArrangementView` placed its two sides
-@available(iOS 27.1, *)
-private struct SplitAxisReader<Content: View>: View {
-  @Environment(\.splitArrangementAxis) private var axis
-  @ViewBuilder let content: (Axis?) -> Content
-
-  var body: some View {
-    content(axis)
   }
 }

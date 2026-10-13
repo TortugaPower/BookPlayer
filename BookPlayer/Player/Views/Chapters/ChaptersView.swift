@@ -9,30 +9,20 @@
 import BookPlayerKit
 import SwiftUI
 
+/// The current book's chapters. Whatever shows it (a sheet, the panel beside the player)
+/// provides the navigation stack and the way out
 struct ChaptersView: View {
   @StateObject private var model: Self.Model
   @StateObject private var theme = ThemeViewModel()
-  @Environment(\.dismiss) private var dismiss
-  /// Beside the player instead of over it, inside the panel's navigation stack: there's
-  /// nothing to close, and picking a chapter keeps the list on screen
-  private let isBesidePlayer: Bool
+  /// Called after a chapter is picked, e.g. to close the sheet the list is in
+  private let onSelect: () -> Void
 
-  init(isBesidePlayer: Bool = false, initModel: @escaping () -> Self.Model) {
-    self.isBesidePlayer = isBesidePlayer
+  init(onSelect: @escaping () -> Void = {}, initModel: @escaping () -> Self.Model) {
+    self.onSelect = onSelect
     self._model = .init(wrappedValue: initModel())
   }
 
   var body: some View {
-    if isBesidePlayer {
-      list
-    } else {
-      NavigationStack {
-        list
-      }
-    }
-  }
-
-  private var list: some View {
     ScrollViewReader { proxy in
       List {
         ForEach(Array(model.chapters.enumerated()), id: \.element.id) { index, chapter in
@@ -49,16 +39,6 @@ struct ChaptersView: View {
       .navigationTitle("chapters_title")
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
-        if !isBesidePlayer {
-          ToolbarItem(placement: .cancellationAction) {
-            Button {
-              dismiss()
-            } label: {
-              Label("voiceover_close_button", systemImage: "xmark")
-            }
-            .foregroundStyle(theme.linkColor)
-          }
-        }
         if model.canReloadChapters {
           ToolbarItem(placement: .confirmationAction) {
             reloadButton
@@ -102,9 +82,7 @@ struct ChaptersView: View {
     )
     Button {
       model.handleChapterSelected(chapter)
-      if !isBesidePlayer {
-        dismiss()
-      }
+      onSelect()
     } label: {
       HStack {
         VStack(alignment: .leading, spacing: Spacing.S4) {

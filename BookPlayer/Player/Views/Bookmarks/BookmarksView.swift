@@ -9,6 +9,8 @@
 import BookPlayerKit
 import SwiftUI
 
+/// The current book's bookmarks. Whatever shows it (a sheet, the panel beside the player)
+/// provides the navigation stack and the way out
 struct BookmarksView: View {
   @AppStorage(Constants.UserDefaults.isAutomaticBookmarksSectionCollapsed)
   private var isAutomaticBookmarksSectionCollapsed: Bool = false
@@ -19,10 +21,8 @@ struct BookmarksView: View {
   @State private var bookmarkToDelete: SimpleBookmark?
   @State private var noteText: String = ""
 
-  @Environment(\.dismiss) private var dismiss
-  /// Beside the player instead of over it, inside the panel's navigation stack: there's
-  /// nothing to close, and picking a bookmark keeps the list on screen
-  private let isBesidePlayer: Bool
+  /// Called after a bookmark is picked, e.g. to close the sheet the list is in
+  private let onSelect: () -> Void
 
   var deleteAlertTitle: String {
     if let bookmarkToDelete {
@@ -32,22 +32,12 @@ struct BookmarksView: View {
     }
   }
 
-  init(isBesidePlayer: Bool = false, initModel: @escaping () -> Self.Model) {
-    self.isBesidePlayer = isBesidePlayer
+  init(onSelect: @escaping () -> Void = {}, initModel: @escaping () -> Self.Model) {
+    self.onSelect = onSelect
     self._model = .init(wrappedValue: initModel())
   }
 
   var body: some View {
-    if isBesidePlayer {
-      list
-    } else {
-      NavigationStack {
-        list
-      }
-    }
-  }
-
-  private var list: some View {
     List {
       // Automatic bookmarks section
       Section(
@@ -110,17 +100,6 @@ struct BookmarksView: View {
     .navigationTitle("bookmarks_title")
     .navigationBarTitleDisplayMode(.inline)
     .toolbar {
-      if !isBesidePlayer {
-        ToolbarItem(placement: .cancellationAction) {
-          Button {
-            dismiss()
-          } label: {
-            Image(systemName: "xmark")
-              .foregroundStyle(theme.linkColor)
-          }
-        }
-      }
-
       ToolbarItem(placement: .confirmationAction) {
         if let currentItem = model.currentItem {
           ShareLink(
@@ -174,9 +153,7 @@ struct BookmarksView: View {
   private func bookmarkRow(_ bookmark: SimpleBookmark) -> some View {
     Button {
       model.handleBookmarkSelected(bookmark)
-      if !isBesidePlayer {
-        dismiss()
-      }
+      onSelect()
     } label: {
       HStack(spacing: Spacing.S2) {
         Text(TimeParser.formatTime(bookmark.time))
