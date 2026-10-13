@@ -14,7 +14,6 @@ final class ChaptersViewModel: ChaptersView.Model {
   private let playerManager: PlayerManagerProtocol
   private let libraryService: LibraryServiceProtocol
   private var currentItemSubscription: AnyCancellable?
-  private var currentChapterSubscription: AnyCancellable?
 
   init(playerManager: PlayerManagerProtocol, libraryService: LibraryServiceProtocol) {
     self.playerManager = playerManager
@@ -27,25 +26,23 @@ final class ChaptersViewModel: ChaptersView.Model {
   }
 
   /// Follows playback while the list is on screen, which beside the player can be for as long
-  /// as the player is open: the rows change with the book, the checkmark with the chapter
+  /// as the player is open: the rows change with the book, the checkmark with the chapter.
+  /// `switchToLatest` drops the previous book's chapter updates when the book changes
   private func bindCurrentItem() {
     currentItemSubscription = playerManager.currentItemPublisher()
       .removeDuplicates()
+      .map { item -> AnyPublisher<([PlayableChapter], PlayableChapter?), Never> in
+        guard let item else { return Just(([], nil)).eraseToAnyPublisher() }
+        return item.$currentChapter
+          .map { (item.chapters, $0) }
+          .eraseToAnyPublisher()
+      }
+      .switchToLatest()
       .receive(on: DispatchQueue.main)
-      .sink { [weak self] item in
-        guard let self else { return }
-
-        self.chapters = item?.chapters ?? []
-        self.currentChapterSubscription?.cancel()
-        self.currentChapterSubscription = item?.$currentChapter
-          .receive(on: DispatchQueue.main)
-          .sink { [weak self] chapter in
-            self?.currentChapter = chapter
-          }
-
-        if item == nil {
-          self.currentChapter = nil
-        }
+      .sink { [weak self] chapters, chapter in
+        /// The same rows on a chapter change; set together with the checkmark, it's one update
+        self?.chapters = chapters
+        self?.currentChapter = chapter
       }
   }
 
