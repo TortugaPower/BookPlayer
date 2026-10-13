@@ -151,6 +151,12 @@ struct PlayerView: View {
       .frame(maxWidth: .infinity)
       .padding(.horizontal, 8)
     }
+    .playerListPanel(
+      playerManager: viewModel.playerManager,
+      libraryService: viewModel.libraryService,
+      syncService: viewModel.syncService
+    )
+    /// Behind the panel too when it shows
     .background(
       RoundedRectangle(cornerRadius: 24)
         .fill(theme.systemBackgroundColor)
@@ -198,20 +204,24 @@ struct PlayerView: View {
         .presentationDetents([.medium])
         .environmentObject(theme)
       case .chapters:
-        ChaptersView{
-          ChaptersViewModel(
-            playerManager: viewModel.playerManager,
-            libraryService: viewModel.libraryService
-          )
+        PlayerListSheet { close in
+          ChaptersView(onSelect: close) {
+            ChaptersViewModel(
+              playerManager: viewModel.playerManager,
+              libraryService: viewModel.libraryService
+            )
+          }
         }
         .environmentObject(theme)
       case .bookmark:
-        BookmarksView{
-          BookmarksViewModel(
-            playerManager: viewModel.playerManager,
-            libraryService: viewModel.libraryService,
-            syncService: viewModel.syncService
-          )
+        PlayerListSheet { close in
+          BookmarksView(onSelect: close) {
+            BookmarksViewModel(
+              playerManager: viewModel.playerManager,
+              libraryService: viewModel.libraryService,
+              syncService: viewModel.syncService
+            )
+          }
         }
         .environmentObject(theme)
       }
@@ -246,6 +256,30 @@ struct PlayerView: View {
       dismiss()
     } else {
       dragOffset = .zero
+    }
+  }
+}
+
+/// A player list (chapters or bookmarks) as a sheet over the player: the list goes in a navigation
+/// stack with a close button, and picking a row closes the sheet
+private struct PlayerListSheet<Content: View>: View {
+  @EnvironmentObject private var theme: ThemeViewModel
+  @Environment(\.dismiss) private var dismiss
+  @ViewBuilder let content: (_ close: @escaping () -> Void) -> Content
+
+  var body: some View {
+    NavigationStack {
+      content { dismiss() }
+        .toolbar {
+          ToolbarItem(placement: .cancellationAction) {
+            Button {
+              dismiss()
+            } label: {
+              Label("voiceover_close_button", systemImage: "xmark")
+            }
+            .foregroundStyle(theme.linkColor)
+          }
+        }
     }
   }
 }

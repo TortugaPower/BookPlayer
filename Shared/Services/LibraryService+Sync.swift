@@ -499,15 +499,22 @@ extension LibraryService: LibrarySyncProtocol {
     return await withCheckedContinuation { continuation in
       let context = dataManager.getBackgroundContext()
       context.perform { [unowned self, context] in
+        /// A listing mostly repeats what's here already, which isn't news to anyone watching
+        var isChanged = false
         if let fetchedBookmark = getBookmarkReference(from: bookmark, context: context) {
+          isChanged = fetchedBookmark.note != bookmark.note
           fetchedBookmark.note = bookmark.note
         } else if let item = getItemReference(with: bookmark.relativePath, context: context) {
           let newBookmark = Bookmark(with: bookmark.time, type: bookmark.type, context: context)
           newBookmark.note = bookmark.note
           item.addToBookmarks(newBookmark)
+          isChanged = true
         }
 
         dataManager.saveSyncContext(context)
+        if isChanged {
+          bookmarksPassthroughPublisher.send(bookmark.relativePath)
+        }
         continuation.resume()
       }
     }

@@ -83,13 +83,14 @@ a build phase) and its output is committed.
 
 ## Build, CI & tooling (what the tools own — don't hand-police it)
 
-- **CI** (`.github/workflows/ci.yml`): runner `xcode-27` (GitHub's preview image), **Xcode 27.0**
-  (`/Applications/Xcode_27.0.app`, set with `xcode-select`). Xcode 27 is required: the upload code calls iOS 27
-  SDK APIs behind `#available` (`BGTaskScheduler.submitTaskRequest`), which Xcode 26 can't compile. It copies
+- **CI** (`.github/workflows/ci.yml`): runner `xcode-27` (GitHub's preview image), **Xcode 27.1**
+  (`/Applications/Xcode_27.1.app`, set with `xcode-select`). Xcode 27.1 is required: the upload code calls iOS 27
+  SDK APIs behind `#available` (`BGTaskScheduler.submitTaskRequest`), which Xcode 26 can't compile, and the player
+  uses the iOS 27.1 SDK's `ArrangementView` (`PlayerListPanel`), which Xcode 27.0 can't. It copies
   `Debug.template.xcconfig` → `Debug.xcconfig`, resolves SPM, resets the simulators, then `build-for-testing` and
   `test-without-building` with the **`Unit Tests`** test plan, `-only-testing:BookPlayerTests`, simulator
   `iPhone 17`. Triggers on push to `main`/`develop` and PRs to `develop`. Release builds come from Xcode Cloud
-  (`ci_scripts/`), whose Xcode version is set in App Store Connect and must be 27 too.
+  (`ci_scripts/`), whose Xcode version is set in App Store Connect and must be 27.1 too.
 - **Release check** (`scripts/release-check/release_check.py`): run locally by the iOS release skill before a
   release is tagged, **never by CI**. It builds the **Release** configuration for the simulator through the shared
   `ReleaseCheck` scheme (CI's `BookPlayer` scheme and `Unit Tests` plan don't include `BookPlayerUITests`) and runs

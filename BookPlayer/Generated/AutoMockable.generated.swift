@@ -28,6 +28,11 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
         set(value) { underlyingImmediateProgressUpdatePublisher = value }
     }
     var underlyingImmediateProgressUpdatePublisher: AnyPublisher<[String: Any], Never>!
+    var bookmarksUpdatePublisher: AnyPublisher<String, Never> {
+        get { return underlyingBookmarksUpdatePublisher }
+        set(value) { underlyingBookmarksUpdatePublisher = value }
+    }
+    var underlyingBookmarksUpdatePublisher: AnyPublisher<String, Never>!
     //MARK: - getLibrary
 
     var getLibraryCallsCount = 0
