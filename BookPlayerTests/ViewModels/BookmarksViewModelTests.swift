@@ -82,6 +82,24 @@ final class BookmarksViewModelTests: XCTestCase {
     XCTAssertEqual(sut.userBookmarks.map(\.time), [10])
   }
 
+  func testBurstOfBookmarkWrites_reloadsOnce() async throws {
+    let sut = makeSUT()
+    let callsAfterLoading = libraryServiceMock.getBookmarksOfRelativePathCallsCount
+    let bookmark = SimpleBookmark(time: 10, note: nil, type: .user, relativePath: "book.m4b", uuid: "uuid")
+    libraryServiceMock.getBookmarksOfRelativePathClosure = { type, _ in
+      type == .user ? [bookmark] : []
+    }
+
+    for _ in 0..<5 {
+      bookmarksUpdates.send("book.m4b")
+    }
+
+    try await waitUntil { sut.userBookmarks.count == 1 }
+    try await Task.sleep(for: .milliseconds(300))
+    /// One reload reads the four bookmark types once each
+    XCTAssertEqual(libraryServiceMock.getBookmarksOfRelativePathCallsCount, callsAfterLoading + 4)
+  }
+
   func testBookmarkWrittenForAnotherBook_doesNotReload() async throws {
     let sut = makeSUT()
     let callsAfterLoading = libraryServiceMock.getBookmarksOfRelativePathCallsCount

@@ -57,6 +57,10 @@ final class BookmarksViewModel: BookmarksView.Model {
   func bindBookmarkChangesObserver() {
     libraryService.bookmarksUpdatePublisher
       .receive(on: DispatchQueue.main)
+      .filter { [weak self] relativePath in relativePath == self?.currentItem?.relativePath }
+      /// Writes come in bursts (a sync pull adds a book's bookmarks one by one, an automatic
+      /// bookmark is a delete, a create and a note): one reload after the last of them
+      .debounce(for: .milliseconds(100), scheduler: DispatchQueue.main)
       .sink { [weak self] relativePath in
         guard let self, relativePath == self.currentItem?.relativePath else { return }
 
