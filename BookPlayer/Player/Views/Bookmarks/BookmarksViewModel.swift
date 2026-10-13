@@ -8,7 +8,6 @@
 
 import BookPlayerKit
 import Combine
-import CoreData
 import Foundation
 
 final class BookmarksViewModel: BookmarksView.Model {
@@ -53,26 +52,13 @@ final class BookmarksViewModel: BookmarksView.Model {
   }
 
   /// Beside the player, the list stays on screen while bookmarks are added from outside it (the
-  /// player's bookmark button, automatic bookmarks, sync), so it reloads after any save that
-  /// touches one. Object IDs are safe to read on whichever thread the save posts from
+  /// player's bookmark button, automatic bookmarks, sync), so it reloads whenever the library
+  /// writes one of the book's bookmarks
   func bindBookmarkChangesObserver() {
-    let bookmarkEntityName = Bookmark.fetchRequest().entityName
-    let changeKeys = [
-      NSManagedObjectContext.NotificationKey.insertedObjectIDs,
-      NSManagedObjectContext.NotificationKey.updatedObjectIDs,
-      NSManagedObjectContext.NotificationKey.deletedObjectIDs,
-    ]
-
-    NotificationCenter.default.publisher(for: NSManagedObjectContext.didSaveObjectIDsNotification)
-      .filter { notification in
-        changeKeys.contains { key in
-          let objectIDs = notification.userInfo?[key.rawValue] as? Set<NSManagedObjectID> ?? []
-          return objectIDs.contains { $0.entity.name == bookmarkEntityName }
-        }
-      }
+    libraryService.bookmarksUpdatePublisher
       .receive(on: DispatchQueue.main)
-      .sink { [weak self] _ in
-        guard let self, let relativePath = self.currentItem?.relativePath else { return }
+      .sink { [weak self] relativePath in
+        guard let self, relativePath == self.currentItem?.relativePath else { return }
 
         self.automaticBookmarks = self.getAutomaticBookmarks(for: relativePath)
         self.userBookmarks = self.getUserBookmarks(for: relativePath)

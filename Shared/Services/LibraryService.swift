@@ -24,6 +24,9 @@ public protocol LibraryServiceProtocol: AnyObject {
   var progressUpdatePublisher: AnyPublisher<[String: Any], Never> { get }
   /// Immediate progress publisher for real-time UI updates (no throttling)
   var immediateProgressUpdatePublisher: AnyPublisher<[String: Any], Never> { get }
+  /// The path of a book whose bookmarks were just created, changed or deleted, sent from the
+  /// thread that wrote them
+  var bookmarksUpdatePublisher: AnyPublisher<String, Never> { get }
 
   /// Gets (or create) the library for the App. There should be only one Library object at all times
   func getLibrary() -> Library
@@ -235,6 +238,12 @@ public final class LibraryService: LibraryServiceProtocol, BPLogger, @unchecked 
   /// Immediate progress publisher for real-time UI updates (no throttling)
   public var immediateProgressUpdatePublisher = PassthroughSubject<[String: Any], Never>()
     .eraseToAnyPublisher()
+  /// Internal passthrough publisher for the paths of books whose bookmarks were written (not
+  /// private: sync writes bookmarks too)
+  let bookmarksPassthroughPublisher = PassthroughSubject<String, Never>()
+  public var bookmarksUpdatePublisher: AnyPublisher<String, Never> {
+    bookmarksPassthroughPublisher.eraseToAnyPublisher()
+  }
 
   public init() {}
 
@@ -3173,6 +3182,7 @@ extension LibraryService {
     item.addToBookmarks(bookmark)
 
     self.dataManager.saveContext()
+    bookmarksPassthroughPublisher.send(relativePath)
 
     return SimpleBookmark(
       time: finalTime,
@@ -3189,6 +3199,7 @@ extension LibraryService {
     else { return }
     bookmarkReference.note = note
     self.dataManager.saveContext()
+    bookmarksPassthroughPublisher.send(bookmark.relativePath)
   }
 
   public func deleteBookmark(_ bookmark: SimpleBookmark) {
@@ -3199,6 +3210,7 @@ extension LibraryService {
     let item = getItemReference(with: bookmark.relativePath)
     item?.removeFromBookmarks(bookmarkReference)
     self.dataManager.delete(bookmarkReference)
+    bookmarksPassthroughPublisher.send(bookmark.relativePath)
   }
 }
 

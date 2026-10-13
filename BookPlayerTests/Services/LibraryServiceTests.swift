@@ -629,6 +629,55 @@ class LibraryServiceTests: XCTestCase {
     XCTAssert(fetchedBookmark == nil)
   }
 
+  /// The paths `bookmarksUpdatePublisher` sends while `body` runs
+  private func bookmarkUpdates(during body: () async -> Void) async -> [String] {
+    var paths = [String]()
+    let subscription = self.sut.bookmarksUpdatePublisher.sink { paths.append($0) }
+    await body()
+    subscription.cancel()
+    return paths
+  }
+
+  func testBookmarkWrites_sendTheBookPath() async {
+    let book = StubFactory.book(
+      dataManager: self.sut.dataManager,
+      title: "test-book1",
+      duration: 100
+    )
+
+    let paths = await bookmarkUpdates {
+      let bookmark = self.sut.createBookmark(at: 5, relativePath: book.relativePath, uuid: book.uuid, type: .user)!
+      /// Already there: nothing written
+      _ = self.sut.createBookmark(at: 5, relativePath: book.relativePath, uuid: book.uuid, type: .user)
+      self.sut.addNote("note", bookmark: bookmark)
+      self.sut.deleteBookmark(bookmark)
+    }
+
+    XCTAssertEqual(paths, Array(repeating: book.relativePath, count: 3))
+  }
+
+  func testSyncedBookmark_sendsTheBookPathOnlyWhenItChangesSomething() async {
+    let book = StubFactory.book(
+      dataManager: self.sut.dataManager,
+      title: "test-book1",
+      duration: 100
+    )
+    /// Sync writes on the background context, which only sees what's saved
+    self.sut.dataManager.saveContext()
+    let synced = SimpleBookmark(time: 5, note: "note", type: .user, relativePath: book.relativePath, uuid: book.uuid)
+
+    let paths = await bookmarkUpdates {
+      /// New, then the same again, then with another note
+      await self.sut.addBookmark(from: synced)
+      await self.sut.addBookmark(from: synced)
+      await self.sut.addBookmark(
+        from: SimpleBookmark(time: 5, note: "edited", type: .user, relativePath: book.relativePath, uuid: book.uuid)
+      )
+    }
+
+    XCTAssertEqual(paths, [book.relativePath, book.relativePath])
+  }
+
   func testRenameBookItem() {
     let book = StubFactory.book(
       dataManager: self.sut.dataManager,

@@ -8,7 +8,6 @@
 @testable import BookPlayer
 @testable import BookPlayerKit
 import Combine
-import CoreData
 import XCTest
 
 @MainActor
@@ -16,16 +15,16 @@ final class BookmarksViewModelTests: XCTestCase {
   private var playerManagerMock: PlayerManagerProtocolMock!
   private var libraryServiceMock: LibraryServiceProtocolMock!
   private var syncServiceMock: SyncServiceProtocolMock!
-  /// A real store, for object IDs of real entities
-  private var dataManager: DataManager!
-  private var context: NSManagedObjectContext { dataManager.getContext() }
+  /// What the library sends when it writes a book's bookmarks
+  private var bookmarksUpdates: PassthroughSubject<String, Never>!
 
   override func setUp() {
     super.setUp()
     playerManagerMock = PlayerManagerProtocolMock()
     libraryServiceMock = LibraryServiceProtocolMock()
     syncServiceMock = SyncServiceProtocolMock()
-    dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
+    bookmarksUpdates = PassthroughSubject<String, Never>()
+    libraryServiceMock.bookmarksUpdatePublisher = bookmarksUpdates.eraseToAnyPublisher()
 
     let item = PlayableItem(
       title: "title",
@@ -63,17 +62,6 @@ final class BookmarksViewModelTests: XCTestCase {
     )
   }
 
-  /// What a save posts, with the IDs of the objects it inserted
-  private func postSave(inserting objects: [NSManagedObject]) {
-    NotificationCenter.default.post(
-      name: NSManagedObjectContext.didSaveObjectIDsNotification,
-      object: context,
-      userInfo: [
-        NSManagedObjectContext.NotificationKey.insertedObjectIDs.rawValue: Set(objects.map(\.objectID))
-      ]
-    )
-  }
-
   private func waitUntil(timeout: TimeInterval = 2, _ condition: () -> Bool) async throws {
     let deadline = Date().addingTimeInterval(timeout)
     while Date() < deadline, !condition() {
@@ -81,24 +69,24 @@ final class BookmarksViewModelTests: XCTestCase {
     }
   }
 
-  func testSaveTouchingABookmark_reloadsTheList() async throws {
+  func testBookmarkWrittenForTheBook_reloadsTheList() async throws {
     let sut = makeSUT()
     let bookmark = SimpleBookmark(time: 10, note: nil, type: .user, relativePath: "book.m4b", uuid: "uuid")
     libraryServiceMock.getBookmarksOfRelativePathClosure = { type, _ in
       type == .user ? [bookmark] : []
     }
 
-    postSave(inserting: [Bookmark(with: 10, type: .user, context: context)])
+    bookmarksUpdates.send("book.m4b")
 
     try await waitUntil { sut.userBookmarks.count == 1 }
     XCTAssertEqual(sut.userBookmarks.map(\.time), [10])
   }
 
-  func testSaveTouchingOtherEntities_doesNotReload() async throws {
+  func testBookmarkWrittenForAnotherBook_doesNotReload() async throws {
     let sut = makeSUT()
     let callsAfterLoading = libraryServiceMock.getBookmarksOfRelativePathCallsCount
 
-    postSave(inserting: [NSEntityDescription.insertNewObject(forEntityName: "Chapter", into: context)])
+    bookmarksUpdates.send("another book.m4b")
     try await Task.sleep(for: .milliseconds(200))
 
     withExtendedLifetime(sut) {
