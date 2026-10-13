@@ -43,6 +43,9 @@ struct PlayerListPanel: View {
           }
         }
       }
+      /// The player's buttons are plain, which in a list leaves only a row's text tappable;
+      /// here the rows keep the whole-row tap and highlight they have in the sheets
+      .buttonStyle(.automatic)
       .toolbar {
         ToolbarItem(placement: .principal) {
           /// No label: VoiceOver reads the segments, "Chapters" and "Bookmarks"

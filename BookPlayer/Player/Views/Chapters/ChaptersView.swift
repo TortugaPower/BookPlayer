@@ -40,7 +40,7 @@ struct ChaptersView: View {
       .navigationBarTitleDisplayMode(.inline)
       .toolbar {
         if model.canReloadChapters {
-          ToolbarItem(placement: .confirmationAction) {
+          ToolbarItem(placement: .primaryAction) {
             reloadButton
           }
         }
@@ -54,9 +54,9 @@ struct ChaptersView: View {
     Button {
       Task { await model.reloadChapters() }
     } label: {
-      // Keep the title laid out (just hidden) while loading so the spinner overlay doesn't
+      // Keep the icon laid out (just hidden) while loading so the spinner overlay doesn't
       // change the toolbar item's width.
-      Text("reload_button")
+      Label("reload_button", systemImage: "arrow.triangle.2.circlepath")
         .foregroundStyle(theme.linkColor)
         .opacity(model.isReloadingChapters ? 0 : 1)
         .overlay {

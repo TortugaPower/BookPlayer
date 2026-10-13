@@ -100,7 +100,7 @@ struct BookmarksView: View {
     .navigationTitle("bookmarks_title")
     .navigationBarTitleDisplayMode(.inline)
     .toolbar {
-      ToolbarItem(placement: .confirmationAction) {
+      ToolbarItem(placement: .primaryAction) {
         if let currentItem = model.currentItem {
           ShareLink(
             item: BookmarksFileTransferable(
