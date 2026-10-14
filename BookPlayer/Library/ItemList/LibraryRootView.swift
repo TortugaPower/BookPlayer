@@ -157,15 +157,17 @@ struct LibraryRootView: View {
 
   func handleLibraryLoaded() async {
     await loadLastBookIfNeeded()
+    importManager.notifyPendingFiles()
     /// Open the player on launch when enabled and a book is loaded. Checked here, after the load above,
     /// so it covers both a plain cold launch (where `loadLastBookIfNeeded` just loaded the last book)
     /// and the case where the book was already loaded by another scene (e.g. CarPlay) — which makes the
-    /// `currentItem == nil` guard inside `loadLastBookIfNeeded` return early.
+    /// `currentItem == nil` guard inside `loadLastBookIfNeeded` return early. Files waiting to be
+    /// imported take the screen instead: their import screen and the player can't both present
     if UserDefaults.standard.bool(forKey: Constants.UserDefaults.openPlayerOnAppLaunch),
-       playerManager.currentItem != nil {
+       playerManager.currentItem != nil,
+       !importManager.hasPendingFiles() {
       playerState.showPlayer = true
     }
-    importManager.notifyPendingFiles()
     showSecondOnboarding()
 
     let pendingActions = AppServices.shared.pendingURLActions
