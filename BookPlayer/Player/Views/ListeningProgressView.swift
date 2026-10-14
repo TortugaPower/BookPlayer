@@ -39,8 +39,9 @@ struct ListeningProgressView: View {
       .frame(height: 18)
       
       /// The times come first: each side takes the width of the longer one (the other is laid out
-      /// hidden), so neither wraps and the label between them stays centered. That label is the
-      /// one that gives way when the row is short
+      /// hidden), so they stay on one line and the label between them stays centered. That label
+      /// is the one that gives way when the row is short; only at the largest text sizes, when
+      /// even the times don't fit, do they wrap
       HStack {
         ZStack(alignment: .leading) {
           Text(remainingTime)
@@ -50,7 +51,6 @@ struct ListeningProgressView: View {
             .accessibilityIdentifier("player.currentTime")
         }
         .bpFont(.miniPlayerTitle).monospacedDigit()
-        .lineLimit(1)
         .layoutPriority(1)
 
         Button {
@@ -74,7 +74,6 @@ struct ListeningProgressView: View {
             Text(remainingTime)
           }
           .bpFont(.miniPlayerTitle).monospacedDigit()
-          .lineLimit(1)
         }
         .layoutPriority(1)
         .accessibilityLabel(remainingTimeAccessLabel)
