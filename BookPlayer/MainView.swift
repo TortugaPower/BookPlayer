@@ -29,6 +29,7 @@ struct MainView: View {
 
   @EnvironmentObject private var listSyncRefreshService: ListSyncRefreshService
   @EnvironmentObject private var playerManager: PlayerManager
+  @EnvironmentObject private var importManager: ImportManager
 
   var body: some View {
     TabView {
@@ -163,6 +164,10 @@ struct MainView: View {
   }
 
   func showPlayer() {
+    /// The import screen is a UIKit presentation from the same screen as the player's cover, so the
+    /// cover can't present over it, and `isShowingPlayer` would stay true with no player showing,
+    /// leaving every later request (the mini player included) a no-op. The import wins
+    guard !importManager.isImportScreenShown else { return }
     playerState.isShowingPlayer = true
   }
   
