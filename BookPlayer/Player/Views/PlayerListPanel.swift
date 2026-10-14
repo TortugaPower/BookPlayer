@@ -9,8 +9,8 @@
 import BookPlayerKit
 import SwiftUI
 
-/// The chapters and bookmarks beside the player, when the screen has room for both, like an
-/// open iPhone Duo in landscape
+/// The chapters and bookmarks beside or below the player, when the screen has room for both, like
+/// an open iPhone Duo (beside in landscape, below in portrait)
 struct PlayerListPanel: View {
   typealias DisplayOption = ListOptionsSectionView.DisplayOption
 
@@ -66,8 +66,8 @@ struct PlayerListPanel: View {
 }
 
 extension View {
-  /// On iOS 27.1, puts `PlayerListPanel` beside this view when the screen has room for both;
-  /// otherwise the view stays alone, as before
+  /// On iOS 27.1, puts `PlayerListPanel` beside or below this view when the screen has room for
+  /// both; otherwise the view stays alone, as before
   func playerListPanel(
     playerManager: PlayerManager,
     libraryService: LibraryServiceProtocol,
@@ -84,6 +84,8 @@ extension View {
 }
 
 private struct PlayerListPanelModifier: ViewModifier {
+  /// The whole screen's (inside the split, each side gets its own)
+  @Environment(\.horizontalSizeClass) private var horizontalSizeClass
   let playerManager: PlayerManager
   let libraryService: LibraryServiceProtocol
   let syncService: SyncServiceProtocol
@@ -99,10 +101,15 @@ private struct PlayerListPanelModifier: ViewModifier {
           syncService: syncService
         )
       }
-      /// Side by side only: one above the other, the player and the lists would both be cramped
-      .arrangementViewStyle(.split.axes(.horizontal))
+      /// One above the other only on a wide screen, like iPhone Duo open in portrait: on a
+      /// narrow one (Duo closed) the player would get a strip
+      .arrangementViewStyle(.split.axes(axes))
     } else {
       content
     }
+  }
+
+  private var axes: Axis.Set {
+    horizontalSizeClass == .regular ? [.horizontal, .vertical] : .horizontal
   }
 }

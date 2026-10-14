@@ -13,25 +13,130 @@ struct PlayerView: View {
   @Environment(\.colorScheme) private var scheme
   @Environment(\.dismiss) private var dismiss
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
-  @Environment(\.displayScale) private var displayScale
-  @Environment(\.verticalSizeClass) private var verticalSizeClass
 
   @StateObject private var viewModel: PlayerViewModel
   @StateObject private var theme = ThemeViewModel()
   @State private var noteText: String = ""
+  /// How far the player is dragged down to close it; the lists beside it move along
   @State private var dragOffset: CGSize = .zero
-  @State private var dragThresholdReached = false
-  /// Side by side, the screen is about half as tall, so half the distance closes the player
-  private var dismissThreshold: CGFloat { (isSideBySide ? 22.0 : 44.0) * displayScale }
-  /// The artwork beside the controls on a short screen, like iPhone in landscape
-  private var isSideBySide: Bool { verticalSizeClass == .compact }
-  /// Side by side, the artwork sits against the controls; it fills less than its half when
-  /// the height is what limits it
-  private var artworkAlignment: Alignment { isSideBySide ? .trailing : .center }
 
   init(initModel: @escaping () -> PlayerViewModel) {
     self._viewModel = .init(wrappedValue: initModel())
   }
+
+  var body: some View {
+    PlayerContentView(viewModel: viewModel, dragOffset: $dragOffset)
+      .playerListPanel(
+        playerManager: viewModel.playerManager,
+        libraryService: viewModel.libraryService,
+        syncService: viewModel.syncService
+      )
+      /// Behind the panel too when it shows
+      .background(
+        RoundedRectangle(cornerRadius: 24)
+          .fill(theme.systemBackgroundColor)
+          .ignoresSafeArea()
+      )
+      .offset(y: dragOffset.height)
+      .animation(reduceMotion ? .none : .interactiveSpring(), value: dragOffset)
+      .onAppear {
+        viewModel.bindBookObservers()
+        viewModel.handleAutolockStatus(forceDisable: false)
+        viewModel.recalculateProgress()
+      }
+      .onDisappear {
+        viewModel.handleAutolockStatus(forceDisable: true)
+      }
+      .accessibilityAction(.escape) {
+        dismiss()
+      }
+      .environmentObject(theme)
+      .onChange(of: scheme) { 
+        ThemeManager.shared.checkSystemMode()
+      }
+      .buttonStyle(.plain)
+      .bpAlert($viewModel.currentAlert)
+      .alert(
+          "bookmark_note_action_title",
+          isPresented: Binding(
+            get: { viewModel.lastBookmark != nil },
+            set: { if !$0 { viewModel.lastBookmark = nil; noteText = "" } }
+          ),
+          presenting: viewModel.lastBookmark
+      ) { _ in
+        TextField("note_title", text: $noteText)
+        Button("cancel_button", role: .cancel) {}
+        Button("ok_button") {
+          viewModel.saveNote(note: noteText)
+        }
+      }
+      .sheet(item: $viewModel.sheetStyle) { style in
+        switch style {
+        case .controls:
+          PlayerControlsView{
+            PlayerControlsViewModel(playerManager: viewModel.playerManager)
+          }
+          .presentationDetents([.medium])
+          .environmentObject(theme)
+        case .chapters:
+          PlayerListSheet { close in
+            ChaptersView(onSelect: close) {
+              ChaptersViewModel(
+                playerManager: viewModel.playerManager,
+                libraryService: viewModel.libraryService
+              )
+            }
+          }
+          .environmentObject(theme)
+        case .bookmark:
+          PlayerListSheet { close in
+            BookmarksView(onSelect: close) {
+              BookmarksViewModel(
+                playerManager: viewModel.playerManager,
+                libraryService: viewModel.libraryService,
+                syncService: viewModel.syncService
+              )
+            }
+          }
+          .environmentObject(theme)
+        }
+      }
+      .fullScreenCover(isPresented: $viewModel.showButtonFreeScreen) {
+        ButtonFreeView{
+          ButtonFreeViewModel(
+            playerManager: viewModel.playerManager,
+            libraryService: viewModel.libraryService,
+            syncService: viewModel.syncService
+          )
+        }
+        .environmentObject(theme)
+      }
+  }
+}
+
+/// The player itself: artwork, controls and the button row. On the open iPhone Duo it shares the
+/// screen with the lists (`playerListPanel`), and the size classes it reads are its own part's:
+/// above the lists, in portrait, it's as short as an iPhone in landscape and lays out the same way
+private struct PlayerContentView: View {
+  @Environment(\.dismiss) private var dismiss
+  @Environment(\.displayScale) private var displayScale
+  @Environment(\.verticalSizeClass) private var verticalSizeClass
+  @EnvironmentObject private var theme: ThemeViewModel
+
+  @ObservedObject var viewModel: PlayerViewModel
+  @Binding var dragOffset: CGSize
+  @State private var dragThresholdReached = false
+  @State private var isWide = false
+  /// Side by side, the screen is about half as tall, so half the distance closes the player
+  private var dismissThreshold: CGFloat { (isSideBySide ? 22.0 : 44.0) * displayScale }
+  /// The artwork beside the controls in a short, wide space: iPhone in landscape, or above the
+  /// lists on an open iPhone Duo in portrait. Both inputs Apple gives for a now-playing layout:
+  /// with the lists hidden on a closed Duo, the size class can say compact while the player has
+  /// the whole tall screen, and the shape rules that out
+  private var isSideBySide: Bool { isWide && verticalSizeClass == .compact }
+  /// Side by side, the artwork sits against the controls; it fills less than its half when
+  /// the height is what limits it
+  private var artworkAlignment: Alignment { isSideBySide ? .trailing : .center }
 
   var body: some View {
     /// Switching the layout keeps its views, so rotating moves them instead of rebuilding them
@@ -151,91 +256,7 @@ struct PlayerView: View {
       .frame(maxWidth: .infinity)
       .padding(.horizontal, 8)
     }
-    .playerListPanel(
-      playerManager: viewModel.playerManager,
-      libraryService: viewModel.libraryService,
-      syncService: viewModel.syncService
-    )
-    /// Behind the panel too when it shows
-    .background(
-      RoundedRectangle(cornerRadius: 24)
-        .fill(theme.systemBackgroundColor)
-        .ignoresSafeArea()
-    )
-    .offset(y: dragOffset.height)
-    .animation(reduceMotion ? .none : .interactiveSpring(), value: dragOffset)
-    .onAppear {
-      viewModel.bindBookObservers()
-      viewModel.handleAutolockStatus(forceDisable: false)
-      viewModel.recalculateProgress()
-    }
-    .onDisappear {
-      viewModel.handleAutolockStatus(forceDisable: true)
-    }
-    .accessibilityAction(.escape) {
-      dismiss()
-    }
-    .environmentObject(theme)
-    .onChange(of: scheme) { 
-      ThemeManager.shared.checkSystemMode()
-    }
-    .buttonStyle(.plain)
-    .bpAlert($viewModel.currentAlert)
-    .alert(
-        "bookmark_note_action_title",
-        isPresented: Binding(
-          get: { viewModel.lastBookmark != nil },
-          set: { if !$0 { viewModel.lastBookmark = nil; noteText = "" } }
-        ),
-        presenting: viewModel.lastBookmark
-    ) { _ in
-      TextField("note_title", text: $noteText)
-      Button("cancel_button", role: .cancel) {}
-      Button("ok_button") {
-        viewModel.saveNote(note: noteText)
-      }
-    }
-    .sheet(item: $viewModel.sheetStyle) { style in
-      switch style {
-      case .controls:
-        PlayerControlsView{
-          PlayerControlsViewModel(playerManager: viewModel.playerManager)
-        }
-        .presentationDetents([.medium])
-        .environmentObject(theme)
-      case .chapters:
-        PlayerListSheet { close in
-          ChaptersView(onSelect: close) {
-            ChaptersViewModel(
-              playerManager: viewModel.playerManager,
-              libraryService: viewModel.libraryService
-            )
-          }
-        }
-        .environmentObject(theme)
-      case .bookmark:
-        PlayerListSheet { close in
-          BookmarksView(onSelect: close) {
-            BookmarksViewModel(
-              playerManager: viewModel.playerManager,
-              libraryService: viewModel.libraryService,
-              syncService: viewModel.syncService
-            )
-          }
-        }
-        .environmentObject(theme)
-      }
-    }
-    .fullScreenCover(isPresented: $viewModel.showButtonFreeScreen) {
-      ButtonFreeView{
-        ButtonFreeViewModel(
-          playerManager: viewModel.playerManager,
-          libraryService: viewModel.libraryService,
-          syncService: viewModel.syncService
-        )
-      }
-      .environmentObject(theme)
-    }
+    .onGeometryChange(for: Bool.self) { $0.size.width > $0.size.height } action: { isWide = $0 }
   }
 
   private func handleDragChanged(_ gesture: DragGesture.Value) {
