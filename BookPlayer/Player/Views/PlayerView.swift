@@ -138,15 +138,33 @@ private struct PlayerContentView: View {
   /// The artwork beside the controls in a short space: iPhone in landscape, or above the lists on
   /// iPhone Duo in the L pose
   private var isSideBySide: Bool { isScreenShort || isAboveLists }
-  /// Side by side, the artwork sits against the controls; it fills less than its half when
-  /// the height is what limits it
-  private var artworkAlignment: Alignment { isSideBySide ? .trailing : .center }
+  /// Side by side, the gap between the artwork and the controls, and the least room at the sides
+  private let sideBySideSpacing: CGFloat = 40
+  /// Side by side, the artwork sits against the controls, its top level with the title's; it
+  /// fills less than its half when the height or the width is what limits it
+  private var artworkAlignment: Alignment { isSideBySide ? .topTrailing : .center }
 
   var body: some View {
-    /// Switching the layout keeps its views, so rotating moves them instead of rebuilding them
-    let layout = isSideBySide ? AnyLayout(HStackLayout(spacing: 40)) : AnyLayout(VStackLayout())
+    /// The insets are read in the same layout pass, so a rotation never shows uneven margins
+    GeometryReader { proxy in
+      content
+        .padding(.leading, extraMargin(for: proxy.safeAreaInsets.leading))
+        .padding(.trailing, extraMargin(for: proxy.safeAreaInsets.trailing))
+    }
+  }
 
-    VStack {
+  /// Side by side, at least `sideBySideSpacing` from each edge: iPhone Duo closed in landscape
+  /// has its camera on one side only, which leaves the other side's content near the edge
+  private func extraMargin(for inset: CGFloat) -> CGFloat {
+    /// 8: the content's own padding
+    isSideBySide ? max(0, sideBySideSpacing - 8 - inset) : 0
+  }
+
+  private var content: some View {
+    /// Switching the layout keeps its views, so rotating moves them instead of rebuilding them
+    let layout = isSideBySide ? AnyLayout(HStackLayout(spacing: sideBySideSpacing)) : AnyLayout(VStackLayout())
+
+    return VStack {
       DismissableRegionView()
         .simultaneousGesture(
           DragGesture(minimumDistance: 15)
