@@ -19,11 +19,13 @@ struct SettingsStorageSectionView: View {
         Text("settings_storage_description")
           .bpFont(.body)
       }
+      .settingsRowBackground(for: .storage)
       if accessLevel == .pro {
         NavigationLink(value: SettingsScreen.syncbackup) {
           Text("settings_storage_sync_deleted_description")
             .bpFont(.body)
         }
+        .settingsRowBackground(for: .syncbackup)
       }
     } header: {
       Text("settings_storage_title")
