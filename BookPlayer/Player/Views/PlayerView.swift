@@ -13,6 +13,8 @@ struct PlayerView: View {
   @Environment(\.colorScheme) private var scheme
   @Environment(\.dismiss) private var dismiss
   @Environment(\.accessibilityReduceMotion) private var reduceMotion
+  /// The whole screen's: inside the split beside the lists, each side gets its own
+  @Environment(\.verticalSizeClass) private var verticalSizeClass
 
   @StateObject private var viewModel: PlayerViewModel
   @StateObject private var theme = ThemeViewModel()
@@ -25,7 +27,11 @@ struct PlayerView: View {
   }
 
   var body: some View {
-    PlayerContentView(viewModel: viewModel, dragOffset: $dragOffset)
+    PlayerContentView(
+      viewModel: viewModel,
+      dragOffset: $dragOffset,
+      isScreenShort: verticalSizeClass == .compact
+    )
       .playerListPanel(
         playerManager: viewModel.playerManager,
         libraryService: viewModel.libraryService,
@@ -115,25 +121,23 @@ struct PlayerView: View {
 }
 
 /// The player itself: artwork, controls and the button row. On the open iPhone Duo it shares the
-/// screen with the lists (`playerListPanel`), and the size classes it reads are its own part's:
-/// above the lists, in portrait, it's as short as an iPhone in landscape and lays out the same way
+/// screen with the lists (`playerListPanel`)
 private struct PlayerContentView: View {
   @Environment(\.dismiss) private var dismiss
   @Environment(\.displayScale) private var displayScale
-  @Environment(\.verticalSizeClass) private var verticalSizeClass
+  @Environment(\.isPlayerAboveLists) private var isAboveLists
   @EnvironmentObject private var theme: ThemeViewModel
 
   @ObservedObject var viewModel: PlayerViewModel
   @Binding var dragOffset: CGSize
+  /// The screen's height is compact, like iPhone in landscape
+  let isScreenShort: Bool
   @State private var dragThresholdReached = false
-  @State private var isWide = false
   /// Side by side, the screen is about half as tall, so half the distance closes the player
   private var dismissThreshold: CGFloat { (isSideBySide ? 22.0 : 44.0) * displayScale }
-  /// The artwork beside the controls in a short, wide space: iPhone in landscape, or above the
-  /// lists on an open iPhone Duo in portrait. Both inputs Apple gives for a now-playing layout:
-  /// with the lists hidden on a closed Duo, the size class can say compact while the player has
-  /// the whole tall screen, and the shape rules that out
-  private var isSideBySide: Bool { isWide && verticalSizeClass == .compact }
+  /// The artwork beside the controls in a short space: iPhone in landscape, or above the lists on
+  /// iPhone Duo in the L pose
+  private var isSideBySide: Bool { isScreenShort || isAboveLists }
   /// Side by side, the artwork sits against the controls; it fills less than its half when
   /// the height is what limits it
   private var artworkAlignment: Alignment { isSideBySide ? .trailing : .center }
@@ -256,7 +260,6 @@ private struct PlayerContentView: View {
       .frame(maxWidth: .infinity)
       .padding(.horizontal, 8)
     }
-    .onGeometryChange(for: Bool.self) { $0.size.width > $0.size.height } action: { isWide = $0 }
   }
 
   private func handleDragChanged(_ gesture: DragGesture.Value) {

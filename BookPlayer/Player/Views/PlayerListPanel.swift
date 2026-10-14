@@ -83,9 +83,15 @@ extension View {
   }
 }
 
+extension EnvironmentValues {
+  /// Whether `PlayerListPanel` sits below the view, across a fold: iPhone Duo in the L pose
+  @Entry var isPlayerAboveLists = false
+}
+
 private struct PlayerListPanelModifier: ViewModifier {
-  /// The whole screen's (inside the split, each side gets its own)
-  @Environment(\.horizontalSizeClass) private var horizontalSizeClass
+  /// A fold runs across the screen, like iPhone Duo half open in portrait (the L pose). Flat or
+  /// closed there's none, and in landscape the fold runs top to bottom
+  @State private var isFoldedAcross = false
   let playerManager: PlayerManager
   let libraryService: LibraryServiceProtocol
   let syncService: SyncServiceProtocol
@@ -93,7 +99,10 @@ private struct PlayerListPanelModifier: ViewModifier {
   func body(content: Content) -> some View {
     if #available(iOS 27.1, *) {
       ArrangementView {
+        /// Told here, in the same update as the split: the player switches its layout as the
+        /// lists come in or go
         content
+          .environment(\.isPlayerAboveLists, isFoldedAcross)
       } secondary: {
         PlayerListPanel(
           playerManager: playerManager,
@@ -101,15 +110,14 @@ private struct PlayerListPanelModifier: ViewModifier {
           syncService: syncService
         )
       }
-      /// One above the other only on a wide screen, like iPhone Duo open in portrait: on a
-      /// narrow one (Duo closed) the player would get a strip
-      .arrangementViewStyle(.split.axes(axes))
+      /// Across a fold, the lists go below it; otherwise only beside the player: flat in portrait
+      /// the player keeps the whole screen
+      .arrangementViewStyle(.split.axes(isFoldedAcross ? .vertical : .horizontal))
+      .onGeometryChange(for: Bool.self) { proxy in
+        proxy.reservedRegions(kind: .division).contains { $0.frame.width > $0.frame.height }
+      } action: { isFoldedAcross = $0 }
     } else {
       content
     }
-  }
-
-  private var axes: Axis.Set {
-    horizontalSizeClass == .regular ? [.horizontal, .vertical] : .horizontal
   }
 }
