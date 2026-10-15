@@ -117,6 +117,7 @@
 "reparse_chapters_none_description" = "此文件中未找到其他章节。";
 "reparse_chapters_download_description" = "刷新章节前请先下载本书。";
 "restore_title" = "恢复";
+"unlock_button" = "解锁";
 "themes_caps_title" = "主题";
 "plus_app_icons_title" = "应用图标";
 "mark_unfinished_title" = "标记为未完成";

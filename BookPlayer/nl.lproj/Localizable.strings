@@ -117,6 +117,7 @@
 "reparse_chapters_none_description" = "Er zijn geen extra hoofdstukken gevonden in dit bestand.";
 "reparse_chapters_download_description" = "Download dit boek voordat je de hoofdstukken herlaadt.";
 "restore_title" = "Herstellen";
+"unlock_button" = "Ontgrendelen";
 "themes_caps_title" = "THEMA'S";
 "plus_app_icons_title" = "App-pictogrammen";
 "mark_unfinished_title" = "Markeren als onvoltooid";

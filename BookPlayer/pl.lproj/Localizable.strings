@@ -117,6 +117,7 @@
 "reparse_chapters_none_description" = "Nie znaleziono dodatkowych rozdziałów w tym pliku.";
 "reparse_chapters_download_description" = "Pobierz tę książkę przed odświeżeniem jej rozdziałów.";
 "restore_title" = "Przywróć";
+"unlock_button" = "Odblokuj";
 "themes_caps_title" = "MOTYWY";
 "plus_app_icons_title" = "Ikony Aplikacji";
 "mark_unfinished_title" = "Oznacz jako Niedokończone";

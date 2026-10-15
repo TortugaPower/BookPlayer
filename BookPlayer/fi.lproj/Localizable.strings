@@ -117,6 +117,7 @@
 "reparse_chapters_none_description" = "Tästä tiedostosta ei löytynyt lisää kappaleita.";
 "reparse_chapters_download_description" = "Lataa tämä kirja ennen kuin lataat sen kappaleet uudelleen.";
 "restore_title" = "Palauta";
+"unlock_button" = "Avaa lukitus";
 "themes_caps_title" = "TEEMAT";
 "plus_app_icons_title" = "Appikuvakkeet";
 "mark_unfinished_title" = "Merkitse keskeneräiseksi";

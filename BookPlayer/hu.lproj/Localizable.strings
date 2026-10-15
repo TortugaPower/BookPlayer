@@ -117,6 +117,7 @@
 "reparse_chapters_none_description" = "Nem található további fejezet ebben a fájlban.";
 "reparse_chapters_download_description" = "Töltsd le ezt a könyvet, mielőtt újratöltöd a fejezeteit.";
 "restore_title" = "Visszaállítás";
+"unlock_button" = "Feloldás";
 "themes_caps_title" = "TÉMÁK";
 "plus_app_icons_title" = "App ikonok";
 "mark_unfinished_title" = "Megjelölés befejezetlennek";

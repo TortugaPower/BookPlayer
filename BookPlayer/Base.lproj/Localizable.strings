@@ -117,6 +117,7 @@
 "reparse_chapters_none_description" = "No additional chapters were found in this file.";
 "reparse_chapters_download_description" = "Download this book before reloading its chapters.";
 "restore_title" = "Restore";
+"unlock_button" = "Unlock";
 "themes_caps_title" = "THEMES";
 "plus_app_icons_title" = "App Icons";
 "mark_unfinished_title" = "Mark as Unfinished";
@@ -408,7 +409,7 @@
 "hardcover_automation_description" = "Automatically sync your reading progress with Hardcover. When enabled, books will be automatically matched and added to your library.";
 "section_item_hardcover" = "Hardcover";
 "hardcover_api_access_title" = "API Access";
-"hardcover_api_access_footer" = "Your can find your Hardcover API access at https://hardcover.app/account/api.";
+"hardcover_api_access_footer" = "You can find your Hardcover API access at https://hardcover.app/account/api.";
 "hardcover_automation_title" = "Automation";
 "hardcover_progress_tracking_title" = "Progress Tracking";
 "save_button" = "Save";

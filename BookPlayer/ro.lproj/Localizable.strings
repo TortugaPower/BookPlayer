@@ -117,6 +117,7 @@
 "reparse_chapters_none_description" = "Nu au fost găsite capitole suplimentare în acest fișier.";
 "reparse_chapters_download_description" = "Descarcă această carte înainte de a-i reîncărca capitolele.";
 "restore_title" = "Restabilire";
+"unlock_button" = "Deblochează";
 "themes_caps_title" = "Teme";
 "plus_app_icons_title" = "Pictogramele aplicației";
 "mark_unfinished_title" = "Marcați ca neterminat";

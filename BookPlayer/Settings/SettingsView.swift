@@ -130,9 +130,9 @@ struct SettingsView: View {
     let view: AnyView
     switch destination {
     case .themes:
-      view = AnyView(SettingsThemesView(showPro: showPro))
+      view = AnyView(SettingsThemesView())
     case .icons:
-      view = AnyView(SettingsAppIconsView(showPro: showPro))
+      view = AnyView(SettingsAppIconsView())
     case .controls:
       view = AnyView(SettingsPlayerControlsView())
     case .autoplay:

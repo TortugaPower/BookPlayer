@@ -117,6 +117,7 @@
 "reparse_chapters_none_description" = "Bu dosyada ek bölüm bulunamadı.";
 "reparse_chapters_download_description" = "Bölümleri yenilemeden önce bu kitabı indirin.";
 "restore_title" = "Geri Yükle";
+"unlock_button" = "Kilidi Aç";
 "themes_caps_title" = "TEMALAR";
 "plus_app_icons_title" = "Uygulama Simgeleri";
 "mark_unfinished_title" = "Tamamlanmamış olarak işaretle";
