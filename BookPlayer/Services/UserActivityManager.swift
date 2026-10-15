@@ -24,6 +24,11 @@ class UserActivityManager {
   let decoder = JSONDecoder()
   let widgetReloadService = WidgetReloadService()
 
+  private var isListeningHistoryEnabled: Bool {
+    // App Group so watchOS respects the iPhone Privacy toggle (shared Core Data store).
+    !UserDefaults.sharedDefaults.bool(forKey: Constants.UserDefaults.listeningHistoryDisabled)
+  }
+
   init(libraryService: LibraryServiceProtocol) {
     self.libraryService = libraryService
 
@@ -40,27 +45,44 @@ class UserActivityManager {
     self.currentActivity = activity
   }
 
-  func resumePlaybackActivity() {
+  func resumePlaybackActivity(relativePath: String, title: String) {
     self.currentActivity.becomeCurrent()
 
     self.playbackRecord = self.libraryService.getCurrentPlaybackRecord()
 
-    guard let record = self.playbackRecord else { return }
+    if let record = self.playbackRecord,
+      !Calendar.current.isDate(record.date, inSameDayAs: Date())
+    {
+      self.playbackRecord = self.libraryService.getCurrentPlaybackRecord()
+    }
 
-    guard !Calendar.current.isDate(record.date, inSameDayAs: Date()) else { return }
+    guard isListeningHistoryEnabled else { return }
 
-    self.playbackRecord = self.libraryService.getCurrentPlaybackRecord()
+    let presentation = libraryService.listeningHistoryPresentation(
+      for: relativePath,
+      fallbackTitle: title
+    )
+    self.libraryService.startListeningSession(
+      relativePath: relativePath,
+      title: presentation.title,
+      subtitle: presentation.subtitle,
+      artworkRelativePath: presentation.artworkRelativePath
+    )
   }
 
   func stopPlaybackActivity() {
     self.currentActivity.resignCurrent()
     self.playbackRecord = nil
+    self.libraryService.endListeningSession()
   }
 
   func recordTime() {
     guard let record = self.playbackRecord else { return }
 
     self.libraryService.recordTime(record)
+    if isListeningHistoryEnabled {
+      self.libraryService.recordListeningSessionTick()
+    }
 
     scheduleStoreRecordInDefaults()
   }

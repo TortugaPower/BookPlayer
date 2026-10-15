@@ -10,7 +10,7 @@ import CoreData
 import Foundation
 
 enum DBVersion: CaseIterable {
-  case v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12
+  case v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13
 
   func model() -> NSManagedObjectModel {
     let modelURLs = Bundle.main
@@ -42,6 +42,8 @@ enum DBVersion: CaseIterable {
       modelName = "Audiobook Player 11"
     case .v12:
       modelName = "Audiobook Player 12"
+    case .v13:
+      modelName = "Audiobook Player 13"
     }
 
     let model = modelURLs
@@ -69,6 +71,9 @@ enum DBVersion: CaseIterable {
       return "MappingModel_v10_to_v11"
     case .v12:
       return "MappingModel_v11_to_v12"
+    case .v13:
+      // Additive ListeningSession entity — inferred mapping (same pattern as v5–v7).
+      return nil
     default:
       return nil
     }
