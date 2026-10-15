@@ -117,6 +117,7 @@
 "reparse_chapters_none_description" = "У цьому файлі не знайдено додаткових розділів.";
 "reparse_chapters_download_description" = "Завантажте цю книгу, перш ніж оновлювати її розділи.";
 "restore_title" = "Відновити";
+"unlock_button" = "Розблокувати";
 "themes_caps_title" = "Теми";
 "plus_app_icons_title" = "Піктограми";
 "mark_unfinished_title" = "Позначити як незавершене";

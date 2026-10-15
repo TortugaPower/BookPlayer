@@ -117,6 +117,7 @@
 "reparse_chapters_none_description" = "Aucun chapitre supplémentaire n’a été trouvé dans ce fichier.";
 "reparse_chapters_download_description" = "Téléchargez ce livre avant de recharger ses chapitres.";
 "restore_title" = "Restaurer";
+"unlock_button" = "Débloquer";
 "themes_caps_title" = "THÈMES";
 "plus_app_icons_title" = "Icônes d'application";
 "mark_unfinished_title" = "Marquer comme non terminé";

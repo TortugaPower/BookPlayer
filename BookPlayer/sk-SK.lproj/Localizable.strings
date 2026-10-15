@@ -117,6 +117,7 @@
 "reparse_chapters_none_description" = "V tomto súbore sa nenašli žiadne ďalšie kapitoly.";
 "reparse_chapters_download_description" = "Pred obnovením kapitol si túto knihu stiahnite.";
 "restore_title" = "Obnoviť";
+"unlock_button" = "Odomknúť";
 "themes_caps_title" = "TÉMY";
 "plus_app_icons_title" = "Ikony aplikácie";
 "mark_unfinished_title" = "Označiť ako nedokončené";

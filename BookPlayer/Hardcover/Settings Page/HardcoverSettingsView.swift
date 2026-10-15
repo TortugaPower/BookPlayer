@@ -83,8 +83,11 @@ struct HardcoverSettingsView: View {
         Text("hardcover_progress_tracking_title".localized)
           .foregroundStyle(theme.secondaryColor)
       } footer: {
-        Text("hardcover_progress_tracking_footer".localized)
-          .foregroundStyle(theme.secondaryColor)
+        /// Its "Currently Reading" is Markdown bold, which `Text` only reads in a literal
+        if let attributedString = try? AttributedString(markdown: "hardcover_progress_tracking_footer".localized) {
+          Text(attributedString)
+            .foregroundStyle(theme.secondaryColor)
+        }
       }
       .navigationBarTitleDisplayMode(.inline)
 

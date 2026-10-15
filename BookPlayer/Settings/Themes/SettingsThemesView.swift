@@ -23,19 +23,10 @@ struct SettingsThemesView: View {
   var sliderValue: Double = 0
 
   @State private var themes: [SimpleTheme] = ThemeManager.getLocalThemes()
-  @State var loadingState = LoadingOverlayState()
-  @State private var showRestoredAlert = false
   @EnvironmentObject var theme: ThemeViewModel
-  @Environment(\.accountService) private var accountService
-
-  var showPro: () -> Void
 
   var body: some View {
     List {
-      if accountService.accessLevel == .free {
-        SettingsProBannerSectionView(showPro: showPro)
-      }
-
       ThemedSection {
         Toggle(isOn: $systemModeEnabled) {
           Text("theme_system_title")
@@ -97,29 +88,11 @@ struct SettingsThemesView: View {
           .foregroundStyle(theme.secondaryColor)
       }
     }
-    .environment(\.loadingState, loadingState)
-    .errorAlert(error: $loadingState.error)
     .scrollContentBackground(.hidden)
     .background(theme.systemBackgroundColor)
     .navigationTitle("themes_title")
     .navigationBarTitleDisplayMode(.inline)
-    .alert("purchases_restored_title", isPresented: $showRestoredAlert) {
-      Button("ok_button", role: .cancel) {}
-    }
-    .loadingOverlay(loadingState.show)
-    .toolbar {
-      ToolbarItem(placement: .confirmationAction) {
-        Button("restore_title".localized) {
-          PurchasesManager.restoreTips(
-            loadingState: loadingState
-          ) {
-            accountService.updateAccount(donationMade: true)
-            showRestoredAlert = true
-          }
-        }
-        .foregroundStyle(theme.linkColor)
-      }
-    }
+    .unlocksWithTipJar()
   }
 
   func handleSystemModeUpdate() {
@@ -172,7 +145,7 @@ struct SettingsThemesView: View {
   }()
 
   NavigationStack {
-    SettingsThemesView {}
+    SettingsThemesView()
   }
   .environmentObject(ThemeViewModel())
   .environment(\.accountService, accountService)

@@ -117,6 +117,7 @@
 "reparse_chapters_none_description" = "Δεν βρέθηκαν επιπλέον κεφάλαια σε αυτό το αρχείο.";
 "reparse_chapters_download_description" = "Κατεβάστε αυτό το βιβλίο πριν επαναφορτώσετε τα κεφάλαιά του.";
 "restore_title" = "Επαναφέρω";
+"unlock_button" = "Ξεκλείδωμα";
 "themes_caps_title" = "ΘΕΜΑΤΑ";
 "plus_app_icons_title" = "Εικονίδια εφαρμογών";
 "mark_unfinished_title" = "Επισήμανση ως ημιτελούς";

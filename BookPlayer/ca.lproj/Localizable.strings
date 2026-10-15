@@ -117,6 +117,7 @@
 "reparse_chapters_none_description" = "No s'ha trobat cap capítol addicional en aquest fitxer.";
 "reparse_chapters_download_description" = "Descarrega aquest llibre abans de tornar a carregar-ne els capítols.";
 "restore_title" = "Restaura";
+"unlock_button" = "Desbloqueja";
 "themes_caps_title" = "TEMES";
 "plus_app_icons_title" = "Icones de l'aplicació";
 "mark_unfinished_title" = "Marca com a inacabat";

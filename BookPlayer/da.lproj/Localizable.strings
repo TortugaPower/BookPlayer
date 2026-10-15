@@ -117,6 +117,7 @@
 "reparse_chapters_none_description" = "Der blev ikke fundet yderligere kapitler i denne fil.";
 "reparse_chapters_download_description" = "Hent denne bog, før du genindlæser dens kapitler.";
 "restore_title" = "Gendan";
+"unlock_button" = "Lås op";
 "themes_caps_title" = "TEMAER";
 "plus_app_icons_title" = "App-ikoner";
 "mark_unfinished_title" = "Markér som ikke fuldført";

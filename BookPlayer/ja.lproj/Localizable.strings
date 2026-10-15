@@ -117,6 +117,7 @@
 "reparse_chapters_none_description" = "このファイルから追加のチャプタは見つかりませんでした。";
 "reparse_chapters_download_description" = "チャプタを再読み込みする前に、この本をダウンロードしてください。";
 "restore_title" = "復元";
+"unlock_button" = "ロック解除";
 "themes_caps_title" = "テーマ";
 "plus_app_icons_title" = "アプリアイコン";
 "mark_unfinished_title" = "未完了にする";
