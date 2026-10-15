@@ -1571,7 +1571,6 @@
 		63398E3A2D654F6D00A6934E /* ca */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ca; path = ca.lproj/Localizable.strings; sourceTree = "<group>"; };
 		63398E3B2D654F6D00A6934E /* ca */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ca; path = ca.lproj/AppShortcuts.strings; sourceTree = "<group>"; };
 		63398E3C2D68254000A6934E /* SimplePlaybackRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimplePlaybackRecord.swift; sourceTree = "<group>"; };
-		A10000012F8C000100000001 /* Audiobook Player 12.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Audiobook Player 12.xcdatamodel"; sourceTree = "<group>"; };
 		A10000012F8C000100000002 /* ListeningSession+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ListeningSession+CoreDataClass.swift"; sourceTree = "<group>"; };
 		A10000012F8C000100000003 /* ListeningSession+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ListeningSession+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		A10000012F8C000100000004 /* SimpleListeningSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleListeningSession.swift; sourceTree = "<group>"; };
@@ -7553,7 +7552,6 @@
 				4165EDFA20A743D500616EDF /* Audiobook Player.xcdatamodel */,
 			);
 			currentVersion = A10000012F8C000100000060 /* Audiobook Player 13.xcdatamodel */;
-			currentVersion = A10000012F8C000100000001 /* Audiobook Player 12.xcdatamodel */;
 			path = BookPlayer.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
