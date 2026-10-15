@@ -18,14 +18,17 @@ struct SettingsPlaybackSectionView: View {
         Text("settings_controls_title")
           .bpFont(.body)
       }
+      .settingsRowBackground(for: .controls)
       NavigationLink(value: SettingsScreen.autoplay) {
         Text("settings_autoplay_section_title".localized.localizedCapitalized)
           .bpFont(.body)
       }
+      .settingsRowBackground(for: .autoplay)
       NavigationLink(value: SettingsScreen.autolock) {
         Text("settings_autlock_section_title")
           .bpFont(.body)
       }
+      .settingsRowBackground(for: .autolock)
     } header: {
       Text("settings_playback_title")
         .bpFont(.subheadline)
