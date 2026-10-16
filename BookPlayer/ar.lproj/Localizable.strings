@@ -515,6 +515,7 @@
 "sort_name_option" = "الاسم";
 "layout_options_title" = "خيارات العرض";
 "layout_grid_option" = "شبكة";
+"layout_covers_option" = "الأغلفة";
 "layout_list_option" = "قائمة";
 "authors_title" = "المؤلفون";
 "import_no_audio_files_alert" = "لم يُرسل خادمك تفاصيل الصوت لهذه العناصر بعد. حاول مرة أخرى بعد أن ينتهي من فحصها.";

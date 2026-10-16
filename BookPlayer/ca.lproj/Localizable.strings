@@ -515,6 +515,7 @@
 "sort_name_option" = "Nom";
 "layout_options_title" = "Opcions de disposició";
 "layout_grid_option" = "Quadrícula";
+"layout_covers_option" = "Portades";
 "layout_list_option" = "Llista";
 "authors_title" = "Autors";
 "import_no_audio_files_alert" = "El vostre servidor encara no ha informat dels detalls d'àudio d'aquests elements. Torneu-ho a provar quan els hagi acabat d'analitzar.";

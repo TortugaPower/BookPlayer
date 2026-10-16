@@ -12,6 +12,8 @@ import SwiftUI
 struct PercentageProgressView: View {
   let progress: Double
   let isHighlighted: Bool
+  /// A list row's by default; smaller over a cover alone in the grid
+  var font: BPFont = .miniPlayerTitle
 
   @EnvironmentObject private var theme: ThemeViewModel
 
@@ -39,7 +41,7 @@ struct PercentageProgressView: View {
         .frame(width: 18, height: 18)
       } else {
         Text("\(Int((progress * 100).rounded()))%")
-          .bpFont(.miniPlayerTitle)
+          .bpFont(font)
           .monospacedDigit()
           .foregroundStyle(labelColor)
       }

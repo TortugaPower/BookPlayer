@@ -515,6 +515,7 @@
 "sort_name_option" = "Nimi";
 "layout_options_title" = "Asetteluvalinnat";
 "layout_grid_option" = "Ruudukko";
+"layout_covers_option" = "Kannet";
 "layout_list_option" = "Luettelo";
 "authors_title" = "Tekijät";
 "import_no_audio_files_alert" = "Palvelimesi ei ole vielä ilmoittanut näiden kohteiden äänitietoja. Yritä uudelleen, kun se on skannannut ne.";

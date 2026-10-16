@@ -515,6 +515,7 @@
 "sort_name_option" = "Назва";
 "layout_options_title" = "Параметри відображення";
 "layout_grid_option" = "Сітка";
+"layout_covers_option" = "Обкладинки";
 "layout_list_option" = "Список";
 "authors_title" = "Автори";
 "import_no_audio_files_alert" = "Ваш сервер ще не надав аудіодані для цих елементів. Спробуйте ще раз, коли він завершить їх сканування.";

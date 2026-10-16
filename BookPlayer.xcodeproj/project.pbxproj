@@ -1024,6 +1024,11 @@
 		FEEDBABE0000000000000003 /* SharedWidgetStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEEDBABE0000000000000001 /* SharedWidgetStore.swift */; };
 		FEEDBABE0000000000000005 /* SharedWidgetStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEEDBABE0000000000000004 /* SharedWidgetStoreTests.swift */; };
 		FF95F8C692908D744A32D761 /* PreferencesAPI.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1E6918C51C370C2E89B24F9 /* PreferencesAPI.swift */; };
+		88FC648BF4782EC50130B541 /* LibraryTileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C8D8B56EDC1F83130041A36 /* LibraryTileView.swift */; };
+		DAC6C57CE8A4C436886FFFD6 /* ItemListView+Grid.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFB7A889B24426C7678B1797 /* ItemListView+Grid.swift */; };
+		23D7138F76116F9FC1F82796 /* ItemListViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32194561FB001A338C36005C /* ItemListViewModelTests.swift */; };
+		92A2DF0ED95385B25FC6D64B /* LibraryLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99FACFAD706E57D2BF915994 /* LibraryLayout.swift */; };
+		CEE4C04FC00CC74E8A566078 /* LibraryLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99FACFAD706E57D2BF915994 /* LibraryLayout.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -2058,6 +2063,10 @@
 		5C5F08C368941D45696C7891 /* MultipartUploadEngineTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MultipartUploadEngineTests.swift; sourceTree = "<group>"; };
 		C64E54AA0319D8F687DFB6E4 /* SyncPauseReportingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SyncPauseReportingTests.swift; sourceTree = "<group>"; };
 		B2339A98D9659EA78CB738CF /* TasksDataManagerStoreTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TasksDataManagerStoreTests.swift; sourceTree = "<group>"; };
+		8C8D8B56EDC1F83130041A36 /* LibraryTileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryTileView.swift; sourceTree = "<group>"; };
+		FFB7A889B24426C7678B1797 /* ItemListView+Grid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ItemListView+Grid.swift"; sourceTree = "<group>"; };
+		32194561FB001A338C36005C /* ItemListViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemListViewModelTests.swift; sourceTree = "<group>"; };
+		99FACFAD706E57D2BF915994 /* LibraryLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryLayout.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2322,6 +2331,7 @@
 				632119D62E543973005B3E10 /* ItemListViewModel.swift */,
 				63B4A2FB2E91828B00784A22 /* ItemListView+Alerts.swift */,
 				63B4A2FC2E91828B00784A22 /* ItemListView+Sheets.swift */,
+				FFB7A889B24426C7678B1797 /* ItemListView+Grid.swift */,
 				63B4A3BD2E9187B800784A22 /* ItemListView+ConfirmationDialogs.swift */,
 			);
 			path = ItemList;
@@ -2931,6 +2941,7 @@
 			children = (
 				3F6640892E162ABF00356522 /* AudioMetadataService.swift */,
 				9F49072B2903663800054AD6 /* SortType.swift */,
+				99FACFAD706E57D2BF915994 /* LibraryLayout.swift */,
 				9FC1E4742815C6A300522FA8 /* KeychainService.swift */,
 				62AAE22B274AA3EB001EB9FF /* LibraryService.swift */,
 				9FDDD2E0289BFCE20020C428 /* LibraryService+Sync.swift */,
@@ -3481,6 +3492,7 @@
 			isa = PBXGroup;
 			children = (
 				6D0B3A0A85A80BE4BFD195A7 /* BookmarksViewModelTests.swift */,
+				32194561FB001A338C36005C /* ItemListViewModelTests.swift */,
 				F496A2BF4CBFFC745C453D42 /* ChaptersViewModelTests.swift */,
 			);
 			path = ViewModels;
@@ -4067,6 +4079,7 @@
 				6338C7882E48DDC4008016E5 /* EmptyListView.swift */,
 				63F8BDE82E421C3B0088FB66 /* CircularProgressView.swift */,
 				63D561382E5A8C9900615522 /* ItemProgressView.swift */,
+				8C8D8B56EDC1F83130041A36 /* LibraryTileView.swift */,
 				63D561402E5A8C99006155A1 /* PercentageProgressView.swift */,
 				63D561362E5A26C800615522 /* ItemArtworkView.swift */,
 				8FBF775DDE66D0AA08818D45 /* LibraryOptionsView.swift */,
@@ -4888,6 +4901,7 @@
 				4140EA7F227289D20009F794 /* Library+CoreDataProperties.swift in Sources */,
 				4140EA7A227289C20009F794 /* Book+CoreDataClass.swift in Sources */,
 				9F49072D2903663800054AD6 /* SortType.swift in Sources */,
+				CEE4C04FC00CC74E8A566078 /* LibraryLayout.swift in Sources */,
 				6357F11A2A8BA084007947FC /* BPURLSession.swift in Sources */,
 				63125D0F2C36D84E00D35533 /* EventsAPI.swift in Sources */,
 				9FBDBC7E287940D900D315A2 /* ContentsResponse.swift in Sources */,
@@ -5124,6 +5138,7 @@
 				63C48C7C2E3DAD6E005FBB96 /* LoginBenefitSectionView.swift in Sources */,
 				636086012C5B3EB400341D78 /* CustomRewindIntent.swift in Sources */,
 				63D561392E5A8C9900615522 /* ItemProgressView.swift in Sources */,
+				88FC648BF4782EC50130B541 /* LibraryTileView.swift in Sources */,
 				9F5011F92A6580800075FEBA /* ShakeMotionService.swift in Sources */,
 				634BA5932C160B890015314D /* LoadingBar.swift in Sources */,
 				9F64C6242793C3DA00B2493C /* PlayerControlsViewModel.swift in Sources */,
@@ -5206,6 +5221,7 @@
 				FBE2B360883B414695A54628 /* ReviewPromptService.swift in Sources */,
 				6304CF672B4B595400055285 /* SettingsAutoplayViewModel.swift in Sources */,
 				63B4A2FD2E91828B00784A22 /* ItemListView+Sheets.swift in Sources */,
+				DAC6C57CE8A4C436886FFFD6 /* ItemListView+Grid.swift in Sources */,
 				63B4A2FE2E91828B00784A22 /* ItemListView+Alerts.swift in Sources */,
 				99329DC12F3AAB57003F8E73 /* DismissableRegionView.swift in Sources */,
 				639DF4982E634C8600B29BBB /* MiniPlayerArtworkView.swift in Sources */,
@@ -5442,6 +5458,7 @@
 				466E4B7066F10717C8CE7B3E /* LibraryServiceReloadChaptersTests.swift in Sources */,
 				59384C1A0B33B9EB42AE4C75 /* ChaptersViewModelTests.swift in Sources */,
 				5FAEE2B9D2CAB91DC8997A92 /* BookmarksViewModelTests.swift in Sources */,
+				23D7138F76116F9FC1F82796 /* ItemListViewModelTests.swift in Sources */,
 				5E20E8B93A65A58C51F1FF52 /* PKCETests.swift in Sources */,
 				02C668174D24A70B4CD6FCB1 /* IntegrationConnectionStoreTests.swift in Sources */,
 				8A0883CB5B4914B2DCB70A5E /* AudiobookShelfOIDCFlowTests.swift in Sources */,
@@ -5550,6 +5567,7 @@
 				41A1B122226F88C500EA0400 /* PlaybackRecord+CoreDataProperties.swift in Sources */,
 				6357F1192A8BA084007947FC /* BPURLSession.swift in Sources */,
 				9F49072C2903663800054AD6 /* SortType.swift in Sources */,
+				92A2DF0ED95385B25FC6D64B /* LibraryLayout.swift in Sources */,
 				63C6C3112B54F16800FFE0D8 /* LibraryItemSyncOperation.swift in Sources */,
 				9F1345B92938E0010089B1DE /* ImageIcons.swift in Sources */,
 				9FBDBC7D287940D900D315A2 /* ContentsResponse.swift in Sources */,
