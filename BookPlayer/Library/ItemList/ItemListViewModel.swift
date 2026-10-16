@@ -326,21 +326,13 @@ final class ItemListViewModel: ObservableObject, BPLogger {
     /// Reordering a filtered subset would corrupt orderRank, so ignore moves while searching.
     guard !isFiltering else { return }
 
-    /// On screen at once, so a drop lands without waiting on the save and the fetch; both follow on
-    /// the next turn, which re-reads the same order from the library
-    items.move(fromOffsets: source, toOffset: destination)
+    libraryService.reorderItems(
+      inside: libraryNode.folderRelativePath,
+      fromOffsets: source,
+      toOffset: destination
+    )
 
-    Task { [weak self] in
-      guard let self else { return }
-
-      libraryService.reorderItems(
-        inside: libraryNode.folderRelativePath,
-        fromOffsets: source,
-        toOffset: destination
-      )
-
-      reloadItems()
-    }
+    reloadItems()
   }
 
   /// The grid's reorder, which names the moved items and the one they now sit before (nil: after
