@@ -12,6 +12,8 @@ import SwiftUI
 struct CircularProgressView: View {
   let progress: Double
   let isHighlighted: Bool
+  /// A list row's size by default; larger over a tile's cover
+  var length: CGFloat = 18
 
   @EnvironmentObject private var theme: ThemeViewModel
 
@@ -44,7 +46,7 @@ struct CircularProgressView: View {
           .padding(2)
       }
     }
-    .frame(width: 18, height: 18)
+    .frame(width: length, height: length)
   }
 }
 

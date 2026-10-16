@@ -129,6 +129,12 @@ public enum Constants {
     /// Prefix used to enumerate / sync library display preferences
     public static let libraryDisplayPrefix = "library_display:"
 
+    /// Library tab layout: a `LibraryLayout` raw value (list, grid of cards, or covers)
+    public static let libraryLayout = "library_layout:style"
+
+    /// Prefix used to enumerate / sync the library layout preference
+    public static let libraryLayoutPrefix = "library_layout:"
+
     /// JSON-encoded `[String: ISO-8601-Date]` of synced-pref keys awaiting server flush
     public static let userPreferencesDirty = "userPreferences.dirty"
 

@@ -515,6 +515,7 @@
 "sort_name_option" = "Nume";
 "layout_options_title" = "Opțiuni de afișare";
 "layout_grid_option" = "Grilă";
+"layout_covers_option" = "Coperți";
 "layout_list_option" = "Listă";
 "authors_title" = "Autori";
 "import_no_audio_files_alert" = "Serverul dvs. nu a raportat încă detaliile audio pentru aceste elemente. Încercați din nou după ce termină scanarea lor.";

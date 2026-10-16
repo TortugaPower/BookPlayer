@@ -515,6 +515,7 @@
 "sort_name_option" = "名称";
 "layout_options_title" = "布局选项";
 "layout_grid_option" = "网格";
+"layout_covers_option" = "封面";
 "layout_list_option" = "列表";
 "authors_title" = "作者";
 "import_no_audio_files_alert" = "您的服务器尚未提供这些项目的音频信息。请在其完成扫描后重试。";

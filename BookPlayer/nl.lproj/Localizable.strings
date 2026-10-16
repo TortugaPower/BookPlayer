@@ -515,6 +515,7 @@
 "sort_name_option" = "Naam";
 "layout_options_title" = "Weergaveopties";
 "layout_grid_option" = "Raster";
+"layout_covers_option" = "Omslagen";
 "layout_list_option" = "Lijst";
 "authors_title" = "Auteurs";
 "import_no_audio_files_alert" = "Je server heeft de audiogegevens van deze items nog niet doorgegeven. Probeer het opnieuw zodra het scannen klaar is.";

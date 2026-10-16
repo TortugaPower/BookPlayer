@@ -515,6 +515,7 @@
 "sort_name_option" = "Név";
 "layout_options_title" = "Elrendezési beállítások";
 "layout_grid_option" = "Rács";
+"layout_covers_option" = "Borítók";
 "layout_list_option" = "Lista";
 "authors_title" = "Szerzők";
 "import_no_audio_files_alert" = "A kiszolgáló még nem küldte el ezeknek az elemeknek a hangadatait. Próbálja újra, miután befejezte a beolvasásukat.";

@@ -682,6 +682,22 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
   asked). Callers sync only what moved and report the clash with `LibraryService.nameTakenError`, the error
   `FileManager` itself throws, worded and localized by iOS. "Delete folder only" is refused when a child's name
   is taken in the folder's parent: nothing moves and the folder stays.
+  **Layouts:** List, Grid (cards) or Covers (`LibraryLayout`, synced as `library_layout:style`); the grid is
+  `ItemListView+Grid.swift` + `LibraryTileView`. A tile dragged on from a long press (its menu open, or while
+  selecting) reorders, through iOS 27's `reorderable()`/`reorderContainer`; on iOS 26 only the List reorders. A
+  `dropConfiguration` makes other apps' files a copy (the "+" badge) and tile drags a move. Two iOS 27.0 SwiftUI bugs shape it: a reorderable item whose view comes down to an
+  `if`/`switch` with only modifiers above it crashes on lift (the tile wrapper is a `ZStack`), and a drop
+  destination on any ancestor of the reorder container (the old tab-wide `onDrop`, or even the grid's scroll view)
+  misplaces where a tile lands. So files dropped from other apps are accepted per screen
+  (`acceptsDroppedFiles()` on the grid itself, right after `reorderContainer`; on the List; on the empty state),
+  never on an ancestor of the grid.
+  The grid can't stretch a tile to its row, so every tile is the same height by construction: a card's title and
+  author share a room reserved with `lineLimit(_:reservesSpace:)` (a hidden template in their fonts, the real text
+  laid out over it), and a folder is a stack inside a book's square: two dimmed leaves of the default artwork
+  above a shorter front cover, its artwork fitted on a blurred copy of itself (`ItemArtworkView`'s `aspectRatio`
+  and `contentMode`). The tile's content shapes go around the stack, so a folder lifts into its menu or a drag
+  with its leaves. The progress mark is the list's own (`CircularProgressView` / `PercentageProgressView`): a
+  card scales the wheel (15% of its width), never the percentage label, which grows with Dynamic Type only.
 - **Search** (`Search/`): **local-only** CoreData search (`LibraryService.searchAllBooks`), 0.3s debounce,
   results grouped by parent folder. Remote search lives in the integration view models, **not** here — don't
   expect network calls in `Search/`. The Search tab finds books only, across the library; selecting it focuses

@@ -515,6 +515,7 @@
 "sort_name_option" = "Nome";
 "layout_options_title" = "Opções de layout";
 "layout_grid_option" = "Grade";
+"layout_covers_option" = "Capas";
 "layout_list_option" = "Lista";
 "authors_title" = "Autores";
 "import_no_audio_files_alert" = "Seu servidor ainda não informou os detalhes de áudio destes itens. Tente novamente quando ele terminar de escaneá-los.";

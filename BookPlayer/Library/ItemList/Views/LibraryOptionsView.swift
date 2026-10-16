@@ -42,6 +42,15 @@ struct LibraryOptionsView: View {
   )
   private var useOriginalFileName: Bool
 
+  /// Library tab layout: list (default), grid of cards, or covers.
+  /// Synced cross-device via `PreferencesSyncService`.
+  @AppStorage(
+    wrappedValue: LibraryLayout.list,
+    Constants.UserDefaults.libraryLayout,
+    store: UserDefaults(suiteName: Constants.ApplicationGroupIdentifier)
+  )
+  private var layout: LibraryLayout
+
   @Environment(\.dismiss) private var dismiss
   @EnvironmentObject private var theme: ThemeViewModel
 
@@ -157,6 +166,24 @@ struct LibraryOptionsView: View {
             }
           }
 
+          HStack {
+            Text("layout_options_title")
+              .bpFont(.body)
+              .foregroundStyle(theme.primaryColor)
+            Spacer()
+            /// Densest first, as Pocket Casts orders them
+            Picker("layout_options_title", selection: $layout) {
+              ForEach([LibraryLayout.covers, .grid, .list], id: \.self) { option in
+                Image(systemName: option.systemImage)
+                  .accessibilityLabel(option.titleKey)
+                  .tag(option)
+              }
+            }
+            .pickerStyle(.segmented)
+            .labelsHidden()
+            .fixedSize()
+          }
+
           Toggle(isOn: $progressAsPercentage) {
             Text("library_options_progress_as_percentage_title")
               .bpFont(.body)
@@ -200,6 +227,25 @@ struct LibraryOptionsView: View {
     } label: {
       Text(titleKey)
         .foregroundStyle(theme.primaryColor)
+    }
+  }
+}
+
+extension LibraryLayout {
+  /// Its segment in the library options
+  var systemImage: String {
+    switch self {
+    case .list: "list.bullet"
+    case .grid: "rectangle.grid.2x2.fill"
+    case .covers: "square.grid.3x3.fill"
+    }
+  }
+
+  var titleKey: LocalizedStringKey {
+    switch self {
+    case .list: "layout_list_option"
+    case .grid: "layout_grid_option"
+    case .covers: "layout_covers_option"
     }
   }
 }

@@ -522,6 +522,7 @@
 "sort_name_option" = "Name";
 "layout_options_title" = "Layout options";
 "layout_grid_option" = "Grid";
+"layout_covers_option" = "Covers";
 "layout_list_option" = "List";
 "authors_title" = "Authors";
 "import_no_audio_files_alert" = "Your server hasn't reported the audio details for these items yet. Try again once it has finished scanning them.";

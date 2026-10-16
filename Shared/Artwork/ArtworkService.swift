@@ -61,36 +61,64 @@ public class ArtworkService {
     return self.cache.isCached(forKey: relativePath)
   }
 
+  /// Grid tiles decode artwork at this size: the widest tile on an iPhone, a one-column card at the
+  /// large text sizes (408 pt on a Pro Max). Wider one-column windows (iPad, the closed iPhone Duo at
+  /// the accessibility sizes) draw it slightly larger. Kingfisher caches that copy apart from the
+  /// original, under the processor's identifier, so whatever replaces or removes an item's artwork
+  /// drops it too
+  public static let tileProcessor = DownsamplingImageProcessor(size: CGSize(width: 420, height: 420))
+
   public class func removeCache(for relativePath: String) async {
     await withCheckedContinuation { continuation in
       cache.removeImage(forKey: relativePath) {
-        continuation.resume()
+        cache.removeImage(forKey: relativePath, processorIdentifier: tileProcessor.identifier) {
+          continuation.resume()
+        }
       }
     }
   }
 
   public class func removeCache(for relativePath: String) {
     self.cache.removeImage(forKey: relativePath)
+    self.cache.removeImage(forKey: relativePath, processorIdentifier: tileProcessor.identifier)
   }
 
   public class func storeInCache(_ data: Data, for relativePath: String, completionHandler: (() -> Void)? = nil) {
-    self.cache.storeToDisk(data, forKey: relativePath) { _ in
-      DispatchQueue.main.async {
-        artworkUpdatePublisher.send(relativePath)
-        completionHandler?()
+    removeDecodedCopies(for: relativePath) {
+      self.cache.storeToDisk(data, forKey: relativePath) { _ in
+        DispatchQueue.main.async {
+          artworkUpdatePublisher.send(relativePath)
+          completionHandler?()
+        }
       }
     }
   }
 
   public class func storeInCache(_ data: Data, for relativePath: String) async {
     await withCheckedContinuation { continuation in
-      cache.storeToDisk(data, forKey: relativePath) { _ in
-        DispatchQueue.main.async {
-          artworkUpdatePublisher.send(relativePath)
-          continuation.resume()
+      removeDecodedCopies(for: relativePath) {
+        cache.storeToDisk(data, forKey: relativePath) { _ in
+          DispatchQueue.main.async {
+            artworkUpdatePublisher.send(relativePath)
+            continuation.resume()
+          }
         }
       }
     }
+  }
+
+  /// What was decoded from the artwork about to be replaced: the original's copy in memory (only the
+  /// file is rewritten) and the tiles' copy, so the update notification loads the new artwork
+  private class func removeDecodedCopies(
+    for relativePath: String,
+    completionHandler: @escaping @Sendable () -> Void
+  ) {
+    cache.removeImage(forKey: relativePath, fromDisk: false)
+    cache.removeImage(
+      forKey: relativePath,
+      processorIdentifier: tileProcessor.identifier,
+      completionHandler: completionHandler
+    )
   }
 
   public class func moveCachedImage(from relativePath: String, to finalRelativePath: String) {

@@ -335,6 +335,41 @@ final class ItemListViewModel: ObservableObject, BPLogger {
     reloadItems()
   }
 
+  /// The grid's reorder, which names the moved items and the one they now sit before (nil: after
+  /// the last loaded one)
+  func reorderItems(ids: [SimpleLibraryItem.ID], before targetID: SimpleLibraryItem.ID?) {
+    guard
+      let (source, destination) = Self.moveOffsets(of: ids, before: targetID, in: items.map(\.id))
+    else { return }
+
+    reorderItems(source: source, destination: destination)
+  }
+
+  /// The offsets the list's `onMove` would give for that move, or nil when it changes nothing: a
+  /// tile dropped back where it was must not turn the folder's sort into Custom
+  static func moveOffsets(
+    of ids: [SimpleLibraryItem.ID],
+    before targetID: SimpleLibraryItem.ID?,
+    in order: [SimpleLibraryItem.ID]
+  ) -> (source: IndexSet, destination: Int)? {
+    let source = IndexSet(ids.compactMap { order.firstIndex(of: $0) })
+    guard !source.isEmpty else { return nil }
+
+    let destination: Int
+    if let targetID {
+      guard let index = order.firstIndex(of: targetID) else { return nil }
+      destination = index
+    } else {
+      destination = order.count
+    }
+
+    var reordered = order
+    reordered.move(fromOffsets: source, toOffset: destination)
+    guard reordered != order else { return nil }
+
+    return (source, destination)
+  }
+
   func handleSelectAll() {
     Task {
       if canLoadMore {

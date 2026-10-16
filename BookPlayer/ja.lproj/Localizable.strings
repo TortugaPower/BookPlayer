@@ -515,6 +515,7 @@
 "sort_name_option" = "名前";
 "layout_options_title" = "表示オプション";
 "layout_grid_option" = "グリッド";
+"layout_covers_option" = "表紙";
 "layout_list_option" = "リスト";
 "authors_title" = "著者";
 "import_no_audio_files_alert" = "サーバーがこれらの項目のオーディオ情報をまだ提供していません。スキャンが完了してから、もう一度お試しください。";

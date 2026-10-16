@@ -515,6 +515,7 @@
 "sort_name_option" = "Název";
 "layout_options_title" = "Možnosti rozložení";
 "layout_grid_option" = "Mřížka";
+"layout_covers_option" = "Obálky";
 "layout_list_option" = "Seznam";
 "authors_title" = "Autoři";
 "import_no_audio_files_alert" = "Váš server zatím u těchto položek neposkytl informace o zvuku. Zkuste to znovu, až dokončí jejich skenování.";

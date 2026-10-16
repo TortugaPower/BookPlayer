@@ -515,6 +515,7 @@
 "sort_name_option" = "Nazwa";
 "layout_options_title" = "Opcje układu";
 "layout_grid_option" = "Siatka";
+"layout_covers_option" = "Okładki";
 "layout_list_option" = "Lista";
 "authors_title" = "Autorzy";
 "import_no_audio_files_alert" = "Twój serwer nie przekazał jeszcze informacji o dźwięku dla tych elementów. Spróbuj ponownie, gdy zakończy ich skanowanie.";
