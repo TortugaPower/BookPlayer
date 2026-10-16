@@ -17,22 +17,20 @@ struct BookView: View {
   var theme: SimpleTheme
   var isPlaying: Bool
 
+  @Environment(\.displayScale) private var displayScale
+
   var body: some View {
     let title = item.title
-    let identifier = item.relativePath
     let pauseImage: String? = isPlaying ? "pause.fill" : nil
-
-    let cachedImageURL = ArtworkService.getCachedImageURL(for: identifier)
 
     return VStack(spacing: 5) {
       ZStack {
-        let uiImage =
-          UIImage(contentsOfFile: cachedImageURL.path)
-          ?? ArtworkService.generateDefaultArtwork(from: theme.linkColor)
-
-        if let uiImage,
-          WidgetUtils.isValidSize(image: uiImage)
-        {
+        if let uiImage = WidgetUtils.getArtworkImage(
+          for: item.relativePath,
+          length: 60,
+          scale: displayScale,
+          theme: theme
+        ) {
           Image(uiImage: uiImage)
             .resizable()
             .frame(minWidth: 60, maxWidth: 60, minHeight: 60, maxHeight: 60)

@@ -14,11 +14,14 @@ struct LastPlayedView: View {
   var model: LastPlayedModel
 
   @Environment(\.colorScheme) var colorScheme
+  @Environment(\.displayScale) var displayScale
 
   func getArtworkView(for relativePath: String) -> some View {
     ZStack {
       if let uiImage = WidgetUtils.getArtworkImage(
         for: relativePath,
+        length: 90,
+        scale: displayScale,
         theme: model.theme
       ) {
         Image(
