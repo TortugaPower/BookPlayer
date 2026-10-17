@@ -8,6 +8,7 @@
 import BookPlayerKit
 import Combine
 import Foundation
+import ImageIO
 import Intents
 import UIKit
 
@@ -39,6 +40,8 @@ final class MediaSuggestionsController {
     var bookPlayed: AnyPublisher<PlayableItem, Never>
     /// `LibraryService.metadataUpdatePublisher`
     var metadataUpdates: AnyPublisher<[String: Any], Never>
+    /// `ArtworkService.artworkUpdatePublisher`: a cover was added or replaced
+    var artworkUpdates: AnyPublisher<String, Never>
   }
 
   /// How many unfinished books are offered as upcoming media
@@ -51,6 +54,11 @@ final class MediaSuggestionsController {
   private var lastDonatedIdentifier: String?
   private var donationTask: Task<Void, Never>?
   private var refreshTask: Task<Void, Never>?
+  /// Covers shrunk this launch, by book id: a refresh rebuilds every intent, mostly with the same
+  /// covers. Only the listed books' are kept
+  private var artwork = [String: Data]()
+  /// Bumped when a cover changes, so a cover read before the change isn't kept
+  private var artworkGeneration = 0
   private var disposeBag = Set<AnyCancellable>()
 
   /// The latest donation and the upcoming list being built, for tests to await
@@ -75,6 +83,15 @@ final class MediaSuggestionsController {
         self?.handleMetadataUpdate(update)
       }
       .store(in: &disposeBag)
+
+    /// Rare: the covers asked for next are shrunk again, five at most
+    dependencies.artworkUpdates
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] _ in
+        self?.artwork.removeAll()
+        self?.artworkGeneration += 1
+      }
+      .store(in: &disposeBag)
   }
 
   // MARK: - Donations
@@ -90,10 +107,16 @@ final class MediaSuggestionsController {
     let identifier = item.id
     let title = item.title
     let author = item.author
-    let artworkPaths = [item.relativePath, item.currentChapter.relativePath]
+    let relativePath = item.relativePath
+    let partPath = item.currentChapter.relativePath
 
     donationTask = Task { [weak self] in
-      let artwork = await dependencies.artworkData(artworkPaths)
+      var artwork = await self?.artworkData(for: identifier, relativePath: relativePath)
+      /// A bound book's folder may have no cover cached yet: the playing part's stands in, not
+      /// kept, so the folder's own replaces it once cached
+      if artwork == nil, partPath != relativePath {
+        artwork = await dependencies.artworkData([partPath])
+      }
       let intent = Self.playIntent(
         for: Self.mediaItem(identifier: identifier, title: title, author: author, artwork: artwork)
       )
@@ -135,7 +158,7 @@ final class MediaSuggestionsController {
     guard let dependencies else { return }
 
     refreshTask?.cancel()
-    refreshTask = Task {
+    refreshTask = Task { [weak self] in
       /// Marking a folder finished asks for one refresh per book: only the last one runs
       guard !Task.isCancelled else { return }
 
@@ -145,7 +168,7 @@ final class MediaSuggestionsController {
 
       var intents = [INPlayMediaIntent]()
       for item in items {
-        let artwork = await dependencies.artworkData([item.relativePath])
+        let artwork = await self?.artworkData(for: item.stableIdentifier, relativePath: item.relativePath)
         guard !Task.isCancelled else { return }
 
         intents.append(
@@ -160,9 +183,26 @@ final class MediaSuggestionsController {
         )
       }
 
-      guard !Task.isCancelled else { return }
+      guard !Task.isCancelled, let self else { return }
+      let listed = Set(items.map(\.stableIdentifier))
+      self.artwork = self.artwork.filter { listed.contains($0.key) }
       dependencies.setSuggestedIntents(intents)
     }
+  }
+
+  /// A book's own cover, shrunk once per launch. None isn't kept: a cover can be cached without
+  /// `artworkUpdates` (read from the file when the library shows it)
+  private func artworkData(for identifier: String, relativePath: String) async -> Data? {
+    if let data = artwork[identifier] { return data }
+    guard let dependencies else { return nil }
+
+    let generation = artworkGeneration
+    let data = await dependencies.artworkData([relativePath])
+    if let data, generation == artworkGeneration {
+      artwork[identifier] = data
+    }
+
+    return data
   }
 
   // MARK: - User context
@@ -222,21 +262,35 @@ final class MediaSuggestionsController {
   /// Side of the artwork a donation carries: suggestions show it small
   nonisolated static let artworkSide: CGFloat = 256
 
-  /// The first cached cover among `relativePaths`, shrunk to `artworkSide`
-  nonisolated static func cachedArtworkData(for relativePaths: [String]) async -> Data? {
+  /// The first cached cover among `relativePaths`, shrunk to `artworkSide`. `@concurrent`: the decode
+  /// runs off the main actor whatever the build's concurrency settings
+  @concurrent nonisolated static func cachedArtworkData(for relativePaths: [String]) async -> Data? {
     for relativePath in relativePaths where ArtworkService.isCached(relativePath: relativePath) {
-      guard
-        let data = try? Data(contentsOf: ArtworkService.getCachedImageURL(for: relativePath)),
-        let image = UIImage(data: data)
-      else { continue }
-
-      let scale = min(1, artworkSide / max(image.size.width, image.size.height))
-      let size = CGSize(width: image.size.width * scale, height: image.size.height * scale)
-      let thumbnail = await image.byPreparingThumbnail(ofSize: size) ?? image
-
-      return thumbnail.jpegData(compressionQuality: 0.8)
+      if let data = thumbnailData(at: ArtworkService.getCachedImageURL(for: relativePath)) {
+        return data
+      }
     }
 
     return nil
+  }
+
+  /// The image at `url` decoded straight to `artworkSide` with ImageIO, as the widgets do: the full
+  /// cover (often thousands of pixels) is never decoded. Never larger than the original
+  nonisolated static func thumbnailData(at url: URL) -> Data? {
+    guard
+      let source = CGImageSourceCreateWithURL(url as CFURL, [kCGImageSourceShouldCache: false] as CFDictionary)
+    else { return nil }
+
+    let options: [CFString: Any] = [
+      /// Not a small thumbnail the file may embed
+      kCGImageSourceCreateThumbnailFromImageAlways: true,
+      kCGImageSourceCreateThumbnailWithTransform: true,
+      kCGImageSourceShouldCacheImmediately: true,
+      kCGImageSourceThumbnailMaxPixelSize: artworkSide,
+    ]
+
+    guard let image = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else { return nil }
+
+    return UIImage(cgImage: image).jpegData(compressionQuality: 0.8)
   }
 }

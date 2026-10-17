@@ -190,7 +190,8 @@ final class AppServices: BPLogger {
       bookPlayed: NotificationCenter.default.publisher(for: .bookPlayed)
         .compactMap { $0.userInfo?["book"] as? PlayableItem }
         .eraseToAnyPublisher(),
-      metadataUpdates: libraryService.metadataUpdatePublisher
+      metadataUpdates: libraryService.metadataUpdatePublisher,
+      artworkUpdates: ArtworkService.artworkUpdatePublisher.eraseToAnyPublisher()
     ))
   }
 

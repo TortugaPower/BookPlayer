@@ -18,6 +18,12 @@ private final class Recorder {
   var recentItems = [SimpleLibraryItem]()
   var boundBookAuthors = [String: String]()
   var hasSyncEnabled = false
+  /// The cover every book has (only the books at `artworkPaths`, when set), the paths each cover was
+  /// asked for, and a wait before each answer
+  var artwork: Data?
+  var artworkPaths: Set<String>?
+  var artworkRequests = [[String]]()
+  var artworkGate: (() async -> Void)?
   var donations = [INInteraction]()
   var deletedGroups = [String]()
   var suggestions = [[INPlayMediaIntent]]()
@@ -31,12 +37,14 @@ final class MediaSuggestionsTests: XCTestCase {
   private var recorder: Recorder!
   private var bookPlayed: PassthroughSubject<PlayableItem, Never>!
   private var metadataUpdates: PassthroughSubject<[String: Any], Never>!
+  private var artworkUpdates: PassthroughSubject<String, Never>!
   private var controller: MediaSuggestionsController!
 
   override func setUp() {
     recorder = Recorder()
     bookPlayed = PassthroughSubject()
     metadataUpdates = PassthroughSubject()
+    artworkUpdates = PassthroughSubject()
   }
 
   private func makeController() {
@@ -47,7 +55,12 @@ final class MediaSuggestionsTests: XCTestCase {
       bookCount: { 42 },
       boundBookAuthor: { recorder.boundBookAuthors[$0] },
       hasSyncEnabled: { recorder.hasSyncEnabled },
-      artworkData: { _ in nil },
+      artworkData: { paths in
+        recorder.artworkRequests.append(paths)
+        await recorder.artworkGate?()
+        guard paths.contains(where: { recorder.artworkPaths?.contains($0) ?? true }) else { return nil }
+        return recorder.artwork
+      },
       donate: { recorder.donations.append($0) },
       deleteDonations: {
         recorder.deletedGroups.append($0)
@@ -59,7 +72,8 @@ final class MediaSuggestionsTests: XCTestCase {
       },
       setUserContext: { recorder.contexts.append($0) },
       bookPlayed: bookPlayed.eraseToAnyPublisher(),
-      metadataUpdates: metadataUpdates.eraseToAnyPublisher()
+      metadataUpdates: metadataUpdates.eraseToAnyPublisher(),
+      artworkUpdates: artworkUpdates.eraseToAnyPublisher()
     ))
   }
 
@@ -90,14 +104,15 @@ final class MediaSuggestionsTests: XCTestCase {
     )
   }
 
-  private func playableItem(_ name: String, uuid: String? = nil) -> PlayableItem {
+  /// A bound book's chapters are its parts, at their own paths
+  private func playableItem(_ name: String, uuid: String? = nil, partPath: String? = nil) -> PlayableItem {
     let relativePath = "Folder/\(name).m4b"
     let chapter = PlayableChapter(
       title: name,
       author: "Author \(name)",
       start: 0,
       duration: 100,
-      relativePath: relativePath,
+      relativePath: partPath ?? relativePath,
       remoteURL: nil,
       externalURL: nil,
       index: 0
@@ -122,6 +137,13 @@ final class MediaSuggestionsTests: XCTestCase {
     bookPlayed.send(item)
     await controller.pendingDonation?.value
     await controller.pendingRefresh?.value
+  }
+
+  /// The sinks hop to the main queue: let them run
+  private func drainMainQueue() async {
+    let drained = expectation(description: "main queue drained")
+    DispatchQueue.main.async { drained.fulfill() }
+    await fulfillment(of: [drained], timeout: 1)
   }
 
   // MARK: - User context
@@ -249,13 +271,147 @@ final class MediaSuggestionsTests: XCTestCase {
     let refreshes = recorder.suggestions.count
 
     metadataUpdates.send(["relativePath": "Folder/a.m4b", "uuid": "uuid-a", "title": "Renamed"])
-    /// The sink hops to the main queue: let it run
-    let drained = expectation(description: "main queue drained")
-    DispatchQueue.main.async { drained.fulfill() }
-    await fulfillment(of: [drained], timeout: 1)
+    await drainMainQueue()
 
     XCTAssertTrue(recorder.deletedGroups.isEmpty)
     XCTAssertEqual(recorder.suggestions.count, refreshes)
+  }
+
+  // MARK: - Artwork
+
+  func testArtwork_shrinksEachBooksCoverOncePerLaunch() async {
+    recorder.recentItems = [libraryItem("a"), libraryItem("b")]
+    recorder.artwork = Data("cover".utf8)
+    makeController()
+    await controller.pendingRefresh?.value
+
+    await play(playableItem("a"))
+    await play(playableItem("b"))
+
+    XCTAssertEqual(
+      recorder.artworkRequests,
+      [["Folder/a.m4b"], ["Folder/b.m4b"]],
+      "the donations and the later refreshes reuse them"
+    )
+    XCTAssertNotNil((recorder.donations.last?.intent as? INPlayMediaIntent)?.mediaContainer?.artwork)
+    XCTAssertTrue((recorder.suggestions.last ?? []).allSatisfy { $0.mediaContainer?.artwork != nil })
+  }
+
+  func testArtwork_isShrunkAgainOnceACoverChanges() async {
+    recorder.recentItems = [libraryItem("a")]
+    recorder.artwork = Data("cover".utf8)
+    makeController()
+    await controller.pendingRefresh?.value
+
+    artworkUpdates.send("Folder/a.m4b")
+    await drainMainQueue()
+    await play(playableItem("a"))
+
+    XCTAssertEqual(recorder.artworkRequests.count, 2, "asked again for the donation, then reused by the refresh")
+  }
+
+  func testArtwork_dropsACoverReadBeforeItChanged() async {
+    recorder.recentItems = [libraryItem("a")]
+    recorder.artwork = Data("old".utf8)
+    var release: CheckedContinuation<Void, Never>?
+    let reading = expectation(description: "cover being read")
+    recorder.artworkGate = {
+      await withCheckedContinuation { continuation in
+        release = continuation
+        reading.fulfill()
+      }
+    }
+    makeController()
+    await fulfillment(of: [reading], timeout: 1)
+
+    recorder.artworkGate = nil
+    artworkUpdates.send("Folder/a.m4b")
+    await drainMainQueue()
+    release?.resume()
+    await controller.pendingRefresh?.value
+    await play(playableItem("a"))
+
+    XCTAssertEqual(recorder.artworkRequests.count, 2, "the old cover wasn't kept for the launch")
+  }
+
+  func testArtwork_keepsOnlyTheListedBooksCovers() async {
+    recorder.artwork = Data("cover".utf8)
+    makeController()
+    await controller.pendingRefresh?.value
+
+    /// Not listed: its cover goes when the refresh after its donation ends
+    await play(playableItem("a"))
+    recorder.recentItems = [libraryItem("a")]
+    await play(playableItem("b"))
+
+    XCTAssertEqual(recorder.artworkRequests.filter { $0 == ["Folder/a.m4b"] }.count, 2)
+  }
+
+  func testArtwork_keepsABoundBookOnItsFolderCoverOnly() async {
+    recorder.recentItems = [libraryItem("a")]
+    recorder.artwork = Data("cover".utf8)
+    recorder.artworkPaths = ["Folder/a/1.mp3"]
+    makeController()
+    await controller.pendingRefresh?.value
+
+    await play(playableItem("a", partPath: "Folder/a/1.mp3"))
+
+    let donation = recorder.donations.last?.intent as? INPlayMediaIntent
+    XCTAssertNotNil(donation?.mediaContainer?.artwork, "the playing part's cover stands in")
+    XCTAssertNil(recorder.suggestions.last?.first?.mediaContainer?.artwork, "and isn't kept for the folder")
+
+    /// The library caches the folder's own cover when it shows it
+    recorder.artworkPaths = nil
+    let suggested = expectation(description: "upcoming books refreshed")
+    recorder.onSuggest = { suggested.fulfill() }
+    metadataUpdates.send(["relativePath": "Folder/a.m4b", "uuid": "uuid-a", "isFinished": false])
+    await fulfillment(of: [suggested], timeout: 1)
+
+    XCTAssertNotNil(recorder.suggestions.last?.first?.mediaContainer?.artwork)
+  }
+
+  func testArtwork_isAskedForAgainWhileABookHasNone() async {
+    recorder.recentItems = [libraryItem("a")]
+    makeController()
+    await controller.pendingRefresh?.value
+
+    /// The library caches it when it shows the book, without an artwork update
+    recorder.artwork = Data("cover".utf8)
+    await play(playableItem("b"))
+
+    XCTAssertEqual(recorder.artworkRequests.filter { $0 == ["Folder/a.m4b"] }.count, 2)
+    XCTAssertNotNil(recorder.suggestions.last?.first?.mediaContainer?.artwork)
+  }
+
+  func testThumbnail_shrinksACoverToTheSuggestionSizeOnly() throws {
+    let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
+    defer { try? FileManager.default.removeItem(at: directory) }
+
+    func cover(width: Int, height: Int) throws -> URL {
+      let format = UIGraphicsImageRendererFormat()
+      format.scale = 1
+      let size = CGSize(width: width, height: height)
+      let image = UIGraphicsImageRenderer(size: size, format: format).image { context in
+        UIColor.red.setFill()
+        context.fill(CGRect(origin: .zero, size: size))
+      }
+      let url = directory.appendingPathComponent("\(width)x\(height).png")
+      try XCTUnwrap(image.pngData()).write(to: url)
+      return url
+    }
+
+    let large = try XCTUnwrap(
+      MediaSuggestionsController.thumbnailData(at: cover(width: 1200, height: 600)).flatMap(UIImage.init(data:))
+    )
+    XCTAssertEqual(large.size, CGSize(width: 256, height: 128))
+
+    let small = try XCTUnwrap(
+      MediaSuggestionsController.thumbnailData(at: cover(width: 100, height: 50)).flatMap(UIImage.init(data:))
+    )
+    XCTAssertEqual(small.size, CGSize(width: 100, height: 50), "never enlarged")
+
+    XCTAssertNil(MediaSuggestionsController.thumbnailData(at: directory.appendingPathComponent("missing.png")))
   }
 
   // MARK: - Playing what an intent names
