@@ -691,13 +691,19 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
   misplaces where a tile lands. So files dropped from other apps are accepted per screen
   (`acceptsDroppedFiles()` on the grid itself, right after `reorderContainer`; on the List; on the empty state),
   never on an ancestor of the grid.
-  The grid can't stretch a tile to its row, so every tile is the same height by construction: a card's title and
-  author share a room reserved with `lineLimit(_:reservesSpace:)` (a hidden template in their fonts, the real text
-  laid out over it), and a folder is a stack inside a book's square: two dimmed leaves of the default artwork
+  `LazyVGrid` sizes each row to its tallest tile, and a card fills its row (`frame(maxHeight: .infinity)`), so
+  a row lines up while each card fits its own text (title up to two lines, three at the accessibility sizes;
+  author up to two). A folder is a stack inside a book's square: two dimmed leaves of the default artwork
   above a shorter front cover, its artwork fitted on a blurred copy of itself (`ItemArtworkView`'s `aspectRatio`
   and `contentMode`). The tile's content shapes go around the stack, so a folder lifts into its menu or a drag
   with its leaves. The progress mark is the list's own (`CircularProgressView` / `PercentageProgressView`): a
   card scales the wheel (15% of its width), never the percentage label, which grows with Dynamic Type only.
+  Covers use 100 pt tiles, 140 pt in a regular-width window (iPad, iPhone Duo open). On a Mac ("Designed for
+  iPad", drawn at 77%) every tile minimum is 1.3× and follows the Text Size setting, the Mac's stand-in for
+  Dynamic Type (`BPFontModifier.macOSScaleFactor`). Across a fold running top
+  to bottom (iPhone Duo half open in landscape, read from `reservedRegions(kind: .division)`, iOS 27.1) the
+  grid switches to fixed columns that leave the fold in a gap (`FoldedTileColumns`): one tile width on both
+  sides, so rows still line up, with the leftover space at the outer edges.
 - **Search** (`Search/`): **local-only** CoreData search (`LibraryService.searchAllBooks`), 0.3s debounce,
   results grouped by parent folder. Remote search lives in the integration view models, **not** here — don't
   expect network calls in `Search/`. The Search tab finds books only, across the library; selecting it focuses

@@ -38,6 +38,14 @@ struct ItemListView: View {
   /// The narrowest a tile gets, larger with the text size
   @ScaledMetric(relativeTo: .body) var tileMinimumWidth: CGFloat = 150
   @ScaledMetric(relativeTo: .body) var coverMinimumWidth: CGFloat = 100
+  /// A cover alone on a wide screen (iPad, iPhone Duo open), which would otherwise fit many small ones
+  @ScaledMetric(relativeTo: .body) var wideCoverMinimumWidth: CGFloat = 140
+  /// The Text Size setting on a Mac, where Dynamic Type (which scales the widths above) stays put
+  @AppStorage(Constants.UserDefaults.macOSTextScale) var macOSTextScaleIndex: Double = 0.0
+  @Environment(\.horizontalSizeClass) var horizontalSizeClass
+  /// Where a fold runs top to bottom across the grid (iPhone Duo half open in landscape, the book
+  /// pose), so its columns leave it in a gap
+  @State var tileGridFold: TileGridFold?
   /// The tiles' title source, which a cover's menu names it by
   @AppStorage(
     wrappedValue: false,

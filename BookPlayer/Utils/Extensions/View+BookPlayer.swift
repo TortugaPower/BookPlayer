@@ -67,7 +67,12 @@ struct BPFontModifier: ViewModifier {
 
   /// Scale factor for macOS (1.0 to 1.6 based on slider position 0-6)
   private var macOSScaleFactor: CGFloat {
-    1.0 + (textScaleIndex * 0.1)
+    Self.macOSScaleFactor(forIndex: textScaleIndex)
+  }
+
+  /// The Text Size setting's factor on a Mac, where it stands in for Dynamic Type
+  static func macOSScaleFactor(forIndex index: Double) -> CGFloat {
+    1.0 + (index * 0.1)
   }
 
   func body(content: Content) -> some View {
