@@ -1029,6 +1029,7 @@
 		23D7138F76116F9FC1F82796 /* ItemListViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 32194561FB001A338C36005C /* ItemListViewModelTests.swift */; };
 		92A2DF0ED95385B25FC6D64B /* LibraryLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99FACFAD706E57D2BF915994 /* LibraryLayout.swift */; };
 		CEE4C04FC00CC74E8A566078 /* LibraryLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99FACFAD706E57D2BF915994 /* LibraryLayout.swift */; };
+		FCC36DCA4DDFC47494F08E06 /* FoldedTileColumnsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E1D595D4ED5DCE9C4CF1B8B /* FoldedTileColumnsTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -2067,6 +2068,7 @@
 		FFB7A889B24426C7678B1797 /* ItemListView+Grid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ItemListView+Grid.swift"; sourceTree = "<group>"; };
 		32194561FB001A338C36005C /* ItemListViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemListViewModelTests.swift; sourceTree = "<group>"; };
 		99FACFAD706E57D2BF915994 /* LibraryLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryLayout.swift; sourceTree = "<group>"; };
+		3E1D595D4ED5DCE9C4CF1B8B /* FoldedTileColumnsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoldedTileColumnsTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2566,6 +2568,7 @@
 				098A98893A8783E8BE1C5420 /* ListSyncRefreshServiceTests.swift */,
 				EDC06443EFD052E697036798 /* QueuedTaskDisplayTests.swift */,
 				93B92CBF82FDC0C582ED64AC /* OrientationLockTests.swift */,
+				3E1D595D4ED5DCE9C4CF1B8B /* FoldedTileColumnsTests.swift */,
 				5359C57600F2E373E8F33D39 /* NetworkClientQueryEncodingTests.swift */,
 				41C3CF7D20AEA5E5007C3EF4 /* DataManagerTests.swift */,
 				9F8A9A5D27AC3F8C0093AA1C /* PlayableItemTests.swift */,
@@ -5452,6 +5455,7 @@
 				3EBBB264D481A0F2DF48763E /* ListSyncRefreshServiceTests.swift in Sources */,
 				FDA22898B1CD320A1D8F6C52 /* QueuedTaskDisplayTests.swift in Sources */,
 				D4E0F3615A600272F7CA5046 /* OrientationLockTests.swift in Sources */,
+				FCC36DCA4DDFC47494F08E06 /* FoldedTileColumnsTests.swift in Sources */,
 				74054210C96493349539697D /* NetworkClientQueryEncodingTests.swift in Sources */,
 				0CEC6B48350FC9C0A0B7D1C0 /* SyncTasksStorageTests.swift in Sources */,
 				1A26F7D72FFD6D625A313FC5 /* AudioMetadataServiceTests.swift in Sources */,

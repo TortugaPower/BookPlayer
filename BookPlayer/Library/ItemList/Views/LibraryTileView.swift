@@ -69,6 +69,9 @@ struct LibraryTileView: View {
             cover(progress: isFinished ? 1 : progress)
             details
           }
+          /// As tall as the tallest card in its row, which the grid sizes the row to, so a row
+          /// lines up while each fits its own text
+          .frame(maxHeight: .infinity, alignment: .top)
           .background(theme.tertiarySystemBackgroundColor)
           .clipShape(shape)
         case .cover:
@@ -87,7 +90,13 @@ struct LibraryTileView: View {
       .contentShape(.contextMenuPreview, shape)
       .contentShape(.dragPreview, shape)
     }
-    .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { coverWidth = $0 }
+    /// Only a real change: the tile's layout depends on this width, and in a right-to-left layout
+    /// it can come back a rounding error apart on every pass, which would never settle
+    .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { width in
+      if abs(width - coverWidth) >= 0.5 {
+        coverWidth = width
+      }
+    }
     .accessibilityElement(children: .ignore)
     .dynamicAccessibilityLabel(for: item)
     .accessibilityAddTraits(isSelecting && isSelected ? .isSelected : [])
@@ -161,59 +170,26 @@ struct LibraryTileView: View {
         .bpFont(.caption)
         .foregroundStyle(theme.secondaryColor)
         .lineLimit(1)
-      /// The same room on every card, so the cards in a row line up: the title takes what it needs
-      /// of its lines, and the author the rest, right under it
-      titleAndAuthorRoom
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .overlay(alignment: .topLeading) {
-          titleAndAuthor
-        }
+      Text(verbatim: item.displayTitle(useOriginalFileName: useOriginalFileName))
+        .bpFont(.subheadline)
+        .fontWeight(.bold)
+        .foregroundStyle(isHighlighted ? theme.linkColor : theme.primaryColor)
+        .lineLimit(titleLineLimit)
+      Text(verbatim: item.details)
+        .bpFont(.caption)
+        .foregroundStyle(theme.secondaryColor)
+        .lineLimit(2)
     }
     .multilineTextAlignment(.leading)
     .frame(maxWidth: .infinity, alignment: .leading)
     .padding(.horizontal, Spacing.S1)
-    .padding(.top, Spacing.S2)
-    .padding(.bottom, Spacing.S1)
+    .padding(.top, Spacing.S3)
+    .padding(.bottom, Spacing.S2 + Spacing.S5)
   }
 
   /// A third line at the accessibility sizes, where wrapping beats cutting a title short
   private var titleLineLimit: Int {
     dynamicTypeSize.isAccessibilitySize ? 3 : 2
-  }
-
-  /// The room the title and author share: the title's lines and one of the author's, measured in
-  /// their own fonts at the current text size
-  private var titleAndAuthorRoom: some View {
-    VStack(alignment: .leading, spacing: Spacing.S5) {
-      titleText(" ")
-        .lineLimit(titleLineLimit, reservesSpace: true)
-      authorText(" ")
-        .lineLimit(1, reservesSpace: true)
-    }
-    .hidden()
-  }
-
-  /// Laid out in that room: the title first, then the author in as many lines as are left
-  private var titleAndAuthor: some View {
-    VStack(alignment: .leading, spacing: Spacing.S5) {
-      titleText(item.displayTitle(useOriginalFileName: useOriginalFileName))
-        .lineLimit(titleLineLimit)
-        .layoutPriority(1)
-      authorText(item.details)
-    }
-  }
-
-  private func titleText(_ title: String) -> some View {
-    Text(verbatim: title)
-      .bpFont(.subheadline)
-      .fontWeight(.bold)
-      .foregroundStyle(isHighlighted ? theme.linkColor : theme.primaryColor)
-  }
-
-  private func authorText(_ author: String) -> some View {
-    Text(verbatim: author)
-      .bpFont(.caption)
-      .foregroundStyle(theme.secondaryColor)
   }
 
   /// A card's wheel grows from the list's to 15% of the card's width, about the share the list's
