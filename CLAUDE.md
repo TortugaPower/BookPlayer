@@ -44,7 +44,7 @@ Ten native targets in `BookPlayer.xcodeproj` (no `Package.swift`, no app `.xcwor
 | `BookPlayerWatch` | app (watchOS) | Watch app | `BookPlayerWatch/` |
 | `BookPlayerWidgetsPhone` | app-extension | iOS widgets | `BookPlayerWidgets/` (`Phone/` + `Shared/`) |
 | `BookPlayerWidgetsWatch` | app-extension | watchOS widgets/complications | `BookPlayerWidgets/Shared/` |
-| `BookPlayerIntents` | app-extension | **legacy SiriKit** `INExtension` | `BookPlayerIntents/` |
+| `BookPlayerIntents` | app-extension | **legacy SiriKit** `INExtension` (custom Sleep Timer intent only) | `BookPlayerIntents/` |
 | `BookPlayerShareExtension` | app-extension | Share-sheet import | `BookPlayerShareExtension/` |
 | `BookPlayerTests` | "Audiobook PlayerTests" · unit-test | Unit + perf tests | `BookPlayerTests/` |
 | `BookPlayerUITests` | UI-test bundle | **Release check only** (never CI), see below | `BookPlayerUITests/` |
@@ -66,7 +66,8 @@ import BookPlayerKit
 
 Do **not** "fix" or collapse these conditional imports — they are the mechanism that lets one shared codebase
 compile for both platforms. `BookPlayerIntents` (SiriKit `Intents`) is **legacy** and distinct from the modern
-App Intents in the top-level `BookPlayer/BookPlayer/AppIntents/` folder — don't conflate them.
+App Intents in the top-level `BookPlayer/BookPlayer/AppIntents/` folder — don't conflate them. SiriKit **media**
+(`INPlayMediaIntent`) is NOT legacy: it is handled in the app, not that extension (see "Playback suggestions").
 
 ### Dependencies (SPM, declared inside `project.pbxproj`)
 
@@ -383,6 +384,25 @@ lines). It is the highest-risk file in the app.
   cancels the subscription and removes observers, and `setTimer` always resets first. It emits three publishers
   consumed by `PlayerManager` (threshold volume-fade, end→pause, turned-on→`.sleep` bookmark; shake-to-resume via
   `ShakeMotionService`).
+- **Playback suggestions** (what the Lock Screen, Control Center and Home app offer while nothing plays) come only
+  from SiriKit media; App Intents, iOS 27's `.audio` schemas included, has no equivalent. `MediaSuggestionsController`
+  (app target, owned by `AppServices`) donates an `INPlayMediaIntent` when a book starts (`.bookPlayed`, once per
+  book until another plays or it's finished), sets the 5 most recent unfinished books as
+  `INUpcomingMediaManager` suggestions, and makes an `INMediaUserContext` current once per launch: book count, and
+  `.subscribed` for PRO/LITE only, anyone else left `.unknown`, never `.notSubscribed` (decided: free users play
+  their whole library). Every intent names the book as `mediaContainer` alone, and `Intents.intentdefinition`'s
+  PlayMedia must keep its `mediaContainer`-only supported combination: that combination is the opt-in. A book is
+  named by its uuid, or its path without a real one (`PlayableItem.id`, `SimpleLibraryItem.stableIdentifier`).
+  Its donations are deleted when it's finished (`metadataUpdatePublisher`) or deleted (`LibraryService.delete`),
+  and when an id played from one is gone, no longer a book (a bound book made a plain folder), or now plays as another
+  item (a part donated before its folder was bound plays the bound book; a path id, the book's uuid). The upcoming
+  list is rebuilt only at launch, when a different book starts and when one is finished or marked unfinished, so a
+  deleted book (or one finished through sync) stays in it until then (decided: no deletion signal).
+  `PlayMediaIntentHandler` plays them: the app declares the intent (`INIntentsSupported`, Audiobooks media category)
+  and returns the handler from `application(_:handlerFor:)`, so a suggestion, Siri or a Shortcut starts playback
+  through `awaitCoreServices` + `loadAndKeepAlive`, cold launch included. A spoken title or author plays the most
+  recently played of up to 50 matches, a part of a bound book counting as the bound book (as in the Search tab), even
+  over an exact title match (decided: "Play Dune" while in "Dune Messiah" plays Messiah).
 - Related services (protocols marked `/// sourcery: AutoMockable`): `SpeedService` (per-book vs global speed),
   `ShakeMotionService`, `PlayerLoaderService`, `WidgetReloadService`. `PlayerManagerProtocol` is AutoMockable but
   its mock does **not** reproduce `ObservableObject`/`@Published` — Combine-dependent tests need the concrete class.

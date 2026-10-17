@@ -568,6 +568,15 @@
 					<key>INIntentParameterCombinationTitleID</key>
 					<string>5EnoUf</string>
 				</dict>
+				<key>mediaContainer</key>
+				<dict>
+					<key>INIntentParameterCombinationSupportsBackgroundExecution</key>
+					<true/>
+					<key>INIntentParameterCombinationTitle</key>
+					<string>Play ${mediaContainer}</string>
+					<key>INIntentParameterCombinationTitleID</key>
+					<string>Q32Raq</string>
+				</dict>
 			</dict>
 			<key>INIntentParameters</key>
 			<array>
