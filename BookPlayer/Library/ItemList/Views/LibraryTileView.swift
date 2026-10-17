@@ -90,7 +90,13 @@ struct LibraryTileView: View {
       .contentShape(.contextMenuPreview, shape)
       .contentShape(.dragPreview, shape)
     }
-    .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { coverWidth = $0 }
+    /// Only a real change: the tile's layout depends on this width, and in a right-to-left layout
+    /// it can come back a rounding error apart on every pass, which would never settle
+    .onGeometryChange(for: CGFloat.self) { $0.size.width } action: { width in
+      if abs(width - coverWidth) >= 0.5 {
+        coverWidth = width
+      }
+    }
     .accessibilityElement(children: .ignore)
     .dynamicAccessibilityLabel(for: item)
     .accessibilityAddTraits(isSelecting && isSelected ? .isSelected : [])
