@@ -1222,6 +1222,24 @@ class ModifyLibraryTests: LibraryServiceTests {
     XCTAssert(self.sut.getMaxItemsCount(at: "folder") == 4)
   }
 
+  func testGetBookCount_countsABoundBookOnce() throws {
+    let library = sut.getLibrary()
+    library.addToItems(StubFactory.book(dataManager: sut.dataManager, title: "book", duration: 100))
+
+    let folder = try StubFactory.folder(dataManager: sut.dataManager, title: "folder")
+    library.addToItems(folder)
+    folder.addToItems(StubFactory.book(dataManager: sut.dataManager, title: "folder-book", duration: 100))
+
+    let bound = try StubFactory.folder(dataManager: sut.dataManager, title: "bound")
+    bound.type = .bound
+    library.addToItems(bound)
+    bound.addToItems(StubFactory.book(dataManager: sut.dataManager, title: "part-1", duration: 100))
+    bound.addToItems(StubFactory.book(dataManager: sut.dataManager, title: "part-2", duration: 100))
+    sut.dataManager.saveContext()
+
+    XCTAssertEqual(sut.getBookCount(), 3, "the root book, the one in a folder, and the bound book once")
+  }
+
   func testReplaceOrderItems() throws {
     let book4 = StubFactory.book(dataManager: self.sut.dataManager, title: "book4", duration: 100)
     let book3 = StubFactory.book(dataManager: self.sut.dataManager, title: "book3", duration: 100)

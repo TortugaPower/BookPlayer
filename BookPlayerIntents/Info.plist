@@ -32,7 +32,6 @@
 			<array/>
 			<key>IntentsSupported</key>
 			<array>
-				<string>INPlayMediaIntent</string>
 				<string>PlayAndSleepActionIntent</string>
 				<string>SleepTimerIntent</string>
 			</array>

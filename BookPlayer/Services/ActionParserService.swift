@@ -8,11 +8,6 @@
 
 import BookPlayerKit
 import Foundation
-import Intents
-
-public enum BPParseError: Error {
-  case unrecognizedIntent
-}
 
 @MainActor
 class ActionParserService {
@@ -24,14 +19,6 @@ class ActionParserService {
 
   public class func process(_ activity: NSUserActivity) {
     guard let action = CommandParser.parse(activity) else { return }
-
-    self.handleAction(action)
-  }
-
-  public class func process(_ intent: INIntent) throws {
-    guard let action = CommandParser.parse(intent) else {
-      throw BPParseError.unrecognizedIntent
-    }
 
     self.handleAction(action)
   }
