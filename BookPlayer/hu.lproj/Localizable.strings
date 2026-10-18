@@ -161,8 +161,6 @@
 "watchapp_refresh_data_title" = "Adatok frissítése";
 "recent_title" = "Friss";
 "carplay_library_error" = "Nem lehet betölteni a könyveket";
-"siri_invocation_phrase" = "Folytassa a könyvemet";
-"siri_activity_title" = "Folytassa a legutóbb lejátszott könyvet";
 "watchapp_connect_error_title" = "Kapcsolódási hiba";
 "watchapp_connect_error_description" = "Probléma a telefonhoz való csatlakozáskor, próbálkozzon később ismételten";
 "watch_signin_with_iphone" = "Bejelentkezés iPhone-nal";
@@ -326,6 +324,13 @@
 "intent_sleeptimer_request_duration_title" = "Meddíg";
 "Set Sleep Timer for ${duration}" = "Az elalvásidőzítő beállítása a következőhöz ${duration}";
 "intent_sleeptimer_eoc_title" = "Állítsa az elalváskapcsolót a fejezet végére";
+"sleeptimer_option_5_minutes" = "5 perc";
+"sleeptimer_option_10_minutes" = "10 perc";
+"sleeptimer_option_15_minutes" = "15 perc";
+"sleeptimer_option_30_minutes" = "30 perc";
+"sleeptimer_option_45_minutes" = "45 perc";
+"sleeptimer_option_1_hour" = "1 óra";
+"widget_autoplay_title" = "Automatikus lejátszás";
 "intent_lastbook_play_title" = "Utoljára lejátszott könyv folytatása";
 "intent_lastbook_empty_error" = "Nincs utoljára játszott könyv";
 "intent_playback_pause_title" = "Lejátszás szüneteltetése";

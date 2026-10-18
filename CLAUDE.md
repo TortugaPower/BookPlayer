@@ -34,7 +34,7 @@ The on-disk tree is deeply misleading. Before judging *where* code should live, 
 
 ## Targets & dependency rule
 
-Ten native targets in `BookPlayer.xcodeproj` (no `Package.swift`, no app `.xcworkspace`):
+Nine native targets in `BookPlayer.xcodeproj` (no `Package.swift`, no app `.xcworkspace`):
 
 | Target | Product / type | Role | Source |
 |---|---|---|---|
@@ -44,7 +44,6 @@ Ten native targets in `BookPlayer.xcodeproj` (no `Package.swift`, no app `.xcwor
 | `BookPlayerWatch` | app (watchOS) | Watch app | `BookPlayerWatch/` |
 | `BookPlayerWidgetsPhone` | app-extension | iOS widgets | `BookPlayerWidgets/` (`Phone/` + `Shared/`) |
 | `BookPlayerWidgetsWatch` | app-extension | watchOS widgets/complications | `BookPlayerWidgets/Shared/` |
-| `BookPlayerIntents` | app-extension | **legacy SiriKit** `INExtension` (custom Sleep Timer intent only) | `BookPlayerIntents/` |
 | `BookPlayerShareExtension` | app-extension | Share-sheet import | `BookPlayerShareExtension/` |
 | `BookPlayerTests` | "Audiobook PlayerTests" · unit-test | Unit + perf tests | `BookPlayerTests/` |
 | `BookPlayerUITests` | UI-test bundle | **Release check only** (never CI), see below | `BookPlayerUITests/` |
@@ -65,9 +64,14 @@ import BookPlayerKit
 ```
 
 Do **not** "fix" or collapse these conditional imports — they are the mechanism that lets one shared codebase
-compile for both platforms. `BookPlayerIntents` (SiriKit `Intents`) is **legacy** and distinct from the modern
-App Intents in the top-level `BookPlayer/BookPlayer/AppIntents/` folder — don't conflate them. SiriKit **media**
-(`INPlayMediaIntent`) is NOT legacy: it is handled in the app, not that extension (see "Playback suggestions").
+compile for both platforms. There is no SiriKit Intents extension: its custom intents were replaced by App Intents
+(decided). Shortcuts built with the old SiriKit "Sleep Timer" action don't migrate and stop working; the
+`CustomSleepTimerIntent`, `EndChapterSleepTimerIntent` and `CancelSleepTimerIntent` App Intents cover it. Time Listened
+widgets do migrate: `TimeListenedConfigurationIntent` adopts `CustomIntentMigratedAppIntent` (`intentClassName`
+"PlayAndSleepActionIntent"), and the system carries settings over by parameter name and type (`sleepTimer`, `autoplay`)
+and `SleepTimerOption` case name. Renaming any of them silently drops what people chose. Without that conformance, a
+widget set up with SiriKit freezes and can't be edited until it's re-added.
+SiriKit **media** (`INPlayMediaIntent`) is still SiriKit, handled in the app (see "Playback suggestions").
 
 ### Dependencies (SPM, declared inside `project.pbxproj`)
 
@@ -392,7 +396,8 @@ lines). It is the highest-risk file in the app.
   `INUpcomingMediaManager` suggestions, and makes an `INMediaUserContext` current once per launch: book count, and
   `.subscribed` for PRO/LITE only, anyone else left `.unknown`, never `.notSubscribed` (decided: free users play
   their whole library). Every intent names the book as `mediaContainer` alone, and `Intents.intentdefinition`'s
-  PlayMedia must keep its `mediaContainer`-only supported combination: that combination is the opt-in. A book is
+  PlayMedia must keep its `mediaContainer`-only supported combination: that combination is the opt-in. PlayMedia is the
+  definition's only entry, compiled into the app target alone (no generated classes). A book is
   named by its uuid, or its path without a real one (`PlayableItem.id`, `SimpleLibraryItem.stableIdentifier`).
   Its donations are deleted when it's finished (`metadataUpdatePublisher`) or deleted (`LibraryService.delete`),
   and when an id played from one is gone, no longer a book (a bound book made a plain folder), or now plays as another

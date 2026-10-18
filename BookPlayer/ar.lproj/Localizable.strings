@@ -161,8 +161,6 @@
 "watchapp_refresh_data_title" = "تحديث البيانات";
 "recent_title" = "الأحدث";
 "carplay_library_error" = "غير قادر على تحميل الكتب";
-"siri_invocation_phrase" = "استمر في كتابي";
-"siri_activity_title" = "متابعة آخر كتاب تم تشغيله";
 "watchapp_connect_error_title" = "خطأ في الاتصال";
 "watchapp_connect_error_description" = "هناك مشكلة في الاتصال بهاتفك، الرجاء المحاولة مرة أخرى لاحقًا";
 "watch_signin_with_iphone" = "تسجيل الدخول باستخدام iPhone";
@@ -326,6 +324,13 @@
 "intent_sleeptimer_request_duration_title" = "إلى متى؟";
 "Set Sleep Timer for ${duration}" = "ضبط مؤقت النوم لـ ${duration}";
 "intent_sleeptimer_eoc_title" = "اضبط مؤقت النوم على نهاية الفصل";
+"sleeptimer_option_5_minutes" = "5 دقائق";
+"sleeptimer_option_10_minutes" = "10 دقائق";
+"sleeptimer_option_15_minutes" = "15 دقيقة";
+"sleeptimer_option_30_minutes" = "30 دقيقة";
+"sleeptimer_option_45_minutes" = "45 دقيقة";
+"sleeptimer_option_1_hour" = "ساعة واحدة";
+"widget_autoplay_title" = "تشغيل تلقائي";
 "intent_lastbook_play_title" = "استئناف آخر كتاب تم تشغيله";
 "intent_lastbook_empty_error" = "لا يوجد كتاب تم تشغيله مؤخراً";
 "intent_playback_pause_title" = "إيقاف التشغيل مؤقتًا";

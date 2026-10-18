@@ -161,8 +161,6 @@
 "watchapp_refresh_data_title" = "Oppdater data";
 "recent_title" = "Nylig";
 "carplay_library_error" = "Kan ikke laste inn bøker";
-"siri_invocation_phrase" = "Fortsett boken min";
-"siri_activity_title" = "Fortsett sist spilte bok";
 "watchapp_connect_error_title" = "Tilkoblingsfeil";
 "watchapp_connect_error_description" = "Det er et problem med å koble til telefonen din, prøv igjen senere";
 "watch_signin_with_iphone" = "Logg inn med iPhone";
@@ -326,6 +324,13 @@
 "intent_sleeptimer_request_duration_title" = "Hvor lenge";
 "Set Sleep Timer for ${duration}" = "Still inn dvaletimer for ${duration}";
 "intent_sleeptimer_eoc_title" = "Sett Sleep Timer til Slutt på kapittel";
+"sleeptimer_option_5_minutes" = "5 minutter";
+"sleeptimer_option_10_minutes" = "10 minutter";
+"sleeptimer_option_15_minutes" = "15 minutter";
+"sleeptimer_option_30_minutes" = "30 minutter";
+"sleeptimer_option_45_minutes" = "45 minutter";
+"sleeptimer_option_1_hour" = "1 time";
+"widget_autoplay_title" = "Automatisk avspilling";
 "intent_lastbook_play_title" = "Fortsett sist spilte bok";
 "intent_lastbook_empty_error" = "Det er ingen sist spilte bok";
 "intent_playback_pause_title" = "Sett avspilling på pause";

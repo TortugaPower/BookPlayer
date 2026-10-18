@@ -161,8 +161,6 @@
 "watchapp_refresh_data_title" = "Aggiorna i dati";
 "recent_title" = "Recente";
 "carplay_library_error" = "Impossibile caricare i libri";
-"siri_invocation_phrase" = "Riprendi il mio libro";
-"siri_activity_title" = "Riprendi l'ultimo libro riprodotto";
 "watchapp_connect_error_title" = "Errore di connettività";
 "watchapp_connect_error_description" = "Si è verificato un problema durante la connessione con il telefono, riprova più tardi";
 "watch_signin_with_iphone" = "Accedi con iPhone";
@@ -326,6 +324,13 @@
 "intent_sleeptimer_request_duration_title" = "Per quanto";
 "Set Sleep Timer for ${duration}" = "Imposta il timer di spegnimento per ${duration}";
 "intent_sleeptimer_eoc_title" = "Imposta il timer di spegnimento alla fine del capitolo";
+"sleeptimer_option_5_minutes" = "5 minuti";
+"sleeptimer_option_10_minutes" = "10 minuti";
+"sleeptimer_option_15_minutes" = "15 minuti";
+"sleeptimer_option_30_minutes" = "30 minuti";
+"sleeptimer_option_45_minutes" = "45 minuti";
+"sleeptimer_option_1_hour" = "1 ora";
+"widget_autoplay_title" = "Riproduzione automatica";
 "intent_lastbook_play_title" = "Riprendi l'ultimo libro riprodotto";
 "intent_lastbook_empty_error" = "Non c'è l'ultimo libro giocato";
 "intent_playback_pause_title" = "Mettere in pausa la riproduzione";

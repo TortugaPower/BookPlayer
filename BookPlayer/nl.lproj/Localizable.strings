@@ -161,8 +161,6 @@
 "watchapp_refresh_data_title" = "Ververs data";
 "recent_title" = "Recente";
 "carplay_library_error" = "Kan boeken niet laden";
-"siri_invocation_phrase" = "Ga verder met mijn boek";
-"siri_activity_title" = "Doorgaan met laatst afgespeelde boek";
 "watchapp_connect_error_title" = "Verbindingsfout";
 "watchapp_connect_error_description" = "Er is een probleem met het verbinden met je telefoon, probeer het later opnieuw";
 "watch_signin_with_iphone" = "Log in met iPhone";
@@ -326,6 +324,13 @@
 "intent_sleeptimer_request_duration_title" = "Voor hoelang";
 "Set Sleep Timer for ${duration}" = "Slaaptimer instellen voor ${duration}";
 "intent_sleeptimer_eoc_title" = "Stel de Slaaptimer in op Einde van hoofdstuk";
+"sleeptimer_option_5_minutes" = "5 minuten";
+"sleeptimer_option_10_minutes" = "10 minuten";
+"sleeptimer_option_15_minutes" = "15 minuten";
+"sleeptimer_option_30_minutes" = "30 minuten";
+"sleeptimer_option_45_minutes" = "45 minuten";
+"sleeptimer_option_1_hour" = "1 uur";
+"widget_autoplay_title" = "Automatisch afspelen";
 "intent_lastbook_play_title" = "Hervat het laatst gespeelde boek";
 "intent_lastbook_empty_error" = "Er is geen laatst gespeeld boek";
 "intent_playback_pause_title" = "Pauzeer het afspelen";

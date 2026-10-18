@@ -161,8 +161,6 @@
 "watchapp_refresh_data_title" = "Obnoviť dáta";
 "recent_title" = "Nedávne";
 "carplay_library_error" = "Nemožno načítať knihy";
-"siri_invocation_phrase" = "Pokračovať v počúvaní mojej knihy";
-"siri_activity_title" = "Pokračovať v naposledy prehrávanej knihe";
 "watchapp_connect_error_title" = "Chyba pripojenia";
 "watchapp_connect_error_description" = "Pri pripojení k telefónu došlo k problémom, vyskúšajte to prosím neskôr";
 "watch_signin_with_iphone" = "Prihlásiť sa cez iPhone";
@@ -326,6 +324,13 @@
 "intent_sleeptimer_request_duration_title" = "Na ako dlho";
 "Set Sleep Timer for ${duration}" = "Nastaviť časovač spánku na ${duration}";
 "intent_sleeptimer_eoc_title" = "Nastavenie časovača spánku na koniec kapitoly";
+"sleeptimer_option_5_minutes" = "5 minút";
+"sleeptimer_option_10_minutes" = "10 minút";
+"sleeptimer_option_15_minutes" = "15 minút";
+"sleeptimer_option_30_minutes" = "30 minút";
+"sleeptimer_option_45_minutes" = "45 minút";
+"sleeptimer_option_1_hour" = "1 hodina";
+"widget_autoplay_title" = "Automatické prehrávanie";
 "intent_lastbook_play_title" = "Obnovenie poslednej prehrávanej knihy";
 "intent_lastbook_empty_error" = "Žiadna naposledy prehrávaná kniha";
 "intent_playback_pause_title" = "Pozastavenie prehrávania";
