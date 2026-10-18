@@ -25,8 +25,10 @@ final class ListStateManager {
   /// Integration sheet presented at MainView level for state preservation.
   /// MediaServersView is the unified entry point — per-integration libraries are
   /// pushed on top of it as sub-sheets when the user taps a server row.
+  /// Transfer from Computer is presented here too, as an integration sheet from the add menu.
   enum IntegrationSheet: String, Identifiable {
     case mediaServers
+    case transferFromComputer
     var id: String { rawValue }
   }
   var activeIntegrationSheet: IntegrationSheet?
@@ -34,6 +36,7 @@ final class ListStateManager {
   /// What can cover the library from the main view.
   enum Cover: Hashable {
     case mediaServers
+    case transferFromComputer
     case player
   }
 

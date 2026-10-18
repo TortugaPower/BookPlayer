@@ -449,6 +449,9 @@ struct ItemListView: View {
     Button("download_from_url_title", systemImage: "link") {
       activeAlert = .downloadURL("")
     }
+    Button("transfer_title", systemImage: "laptopcomputer.and.arrow.down") {
+      listState.activeIntegrationSheet = .transferFromComputer
+    }
     Button("media_servers_title".localized, systemImage: "server.rack") {
       listState.activeIntegrationSheet = .mediaServers
     }

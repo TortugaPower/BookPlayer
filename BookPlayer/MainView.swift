@@ -64,6 +64,7 @@ struct MainView: View {
     }
     .sheet(item: $listState.activeIntegrationSheet, onDismiss: {
       listState.coversOnScreen.remove(.mediaServers)
+      listState.coversOnScreen.remove(.transferFromComputer)
     }) { sheet in
       switch sheet {
       case .mediaServers:
@@ -76,6 +77,11 @@ struct MainView: View {
         }
         .environment(\.closeMediaServers, CloseMediaServersAction { listState.activeIntegrationSheet = nil })
         .onAppear { listState.coversOnScreen.insert(.mediaServers) }
+      case .transferFromComputer:
+        TransferView {
+          TransferViewModel(importManager: importManager, libraryService: libraryService)
+        }
+        .onAppear { listState.coversOnScreen.insert(.transferFromComputer) }
       }
     }
     .fullScreenCover(isPresented: playerState.isShowingPlayerBinding, onDismiss: {

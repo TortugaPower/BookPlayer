@@ -1,0 +1,126 @@
+//
+//  TransferView.swift
+//  BookPlayer
+//
+//  Created by Gianni Carlo on 17/10/26.
+//  Copyright © 2026 BookPlayer LLC. All rights reserved.
+//
+
+import BookPlayerKit
+import SwiftUI
+
+/// The Transfer from Computer flow's sheet: the import shell, showing the address to open until the first
+/// file arrives, then the files like any import. Done imports them, Cancel throws them away; like the import
+/// screen, a swipe can't close it.
+struct TransferView: View {
+  /// Owns the session (initModel/@StateObject pattern): it lives exactly as long as the sheet.
+  @StateObject private var model: TransferViewModel
+
+  init(initModel: @escaping () -> TransferViewModel) {
+    self._model = .init(wrappedValue: initModel())
+  }
+
+  @EnvironmentObject private var theme: ThemeViewModel
+  @Environment(\.dismiss) private var dismiss
+  @State private var showsCopied = false
+
+  var body: some View {
+    ImportConfirmationView(
+      rows: model.rows,
+      /// A failure to listen again (back from the background) leaves what arrived importable, so the
+      /// list says so instead of the usual caveat.
+      description: model.status == .failed ? "transfer_server_start_failed_message" : "transfer_footer",
+      onRemove: { model.remove($0) },
+      onConfirm: {
+        model.confirm()
+        dismiss()
+      },
+      onCancel: {
+        model.discard()
+        dismiss()
+      }
+    ) {
+      emptyState
+    }
+    .onAppear {
+      model.start()
+    }
+    .onDisappear {
+      model.sheetDisappeared()
+    }
+    /// UIKit's notifications, not `scenePhase`: inside this sheet (the app hosts SwiftUI in a
+    /// `UIHostingController`) `scenePhase` doesn't change when the app goes to the background.
+    .onReceive(NotificationCenter.default.publisher(for: UIApplication.didEnterBackgroundNotification)) { _ in
+      model.appEnteredBackground()
+    }
+    .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
+      model.appWillEnterForeground()
+    }
+  }
+
+  // MARK: - Empty state
+
+  @ViewBuilder
+  private var emptyState: some View {
+    switch model.status {
+    case .starting:
+      ProgressView()
+    case .failed:
+      ContentUnavailableView {
+        Label("transfer_server_start_failed_message", systemImage: "exclamationmark.triangle")
+          .foregroundStyle(theme.primaryColor)
+      } actions: {
+        Button("integration_retry_button") {
+          model.retry()
+        }
+        .bpFont(.body)
+      }
+    case .running:
+      if let address = model.address {
+        ContentUnavailableView {
+          Label {
+            Text("transfer_instructions")
+              .foregroundStyle(theme.primaryColor)
+          } icon: {
+            Image(systemName: "laptopcomputer.and.arrow.down")
+              .foregroundStyle(theme.secondaryColor)
+          }
+        } actions: {
+          addressActions(address.url.absoluteString)
+        }
+      } else {
+        ContentUnavailableView {
+          Label("transfer_no_address", systemImage: "wifi.slash")
+            .foregroundStyle(theme.primaryColor)
+        }
+      }
+    }
+  }
+
+  @ViewBuilder
+  private func addressActions(_ address: String) -> some View {
+    Text(verbatim: address)
+      .bpFont(.title2)
+      .monospaced()
+      .foregroundStyle(theme.primaryColor)
+      .textSelection(.enabled)
+      .accessibilityLabel("transfer_server_url_accessibility")
+      .accessibilityValue(Text(verbatim: address))
+
+    Button(
+      showsCopied ? "transfer_server_copied_button" : "transfer_server_copy_button",
+      systemImage: showsCopied ? "checkmark" : "doc.on.doc"
+    ) {
+      model.copyAddress()
+      showsCopied = true
+    }
+    .bpFont(.body)
+    .contentTransition(.symbolEffect(.replace))
+    .sensoryFeedback(.success, trigger: showsCopied) { _, copied in copied }
+    .task(id: showsCopied) {
+      guard showsCopied else { return }
+      try? await Task.sleep(for: .seconds(2))
+      showsCopied = false
+    }
+  }
+}

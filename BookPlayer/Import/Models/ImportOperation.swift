@@ -18,6 +18,10 @@ public class ImportOperation: Operation {
   public let libraryService: LibraryServiceProtocol
   public var processedFiles = [URL]()
   public var suggestedFolderName: String?
+  /// A folder the files come from that this import owns, like the Transfer from Computer flow's
+  /// holding folder: its files are deleted once copied, as Documents' are, it never suggests a
+  /// folder name, and it's removed when the import finishes.
+  private let ownedSourceRoot: URL?
 
   private let lockQueue = DispatchQueue(label: "com.bookplayer.asyncoperation", attributes: .concurrent)
 
@@ -58,9 +62,11 @@ public class ImportOperation: Operation {
   }
 
   init(files: [URL],
-       libraryService: LibraryServiceProtocol) {
+       libraryService: LibraryServiceProtocol,
+       ownedSourceRoot: URL? = nil) {
     self.files = files
     self.libraryService = libraryService
+    self.ownedSourceRoot = ownedSourceRoot
   }
 
   public override func start() {
@@ -82,8 +88,21 @@ public class ImportOperation: Operation {
       self.processedFiles = sortedFiles
     }
 
+    if let ownedSourceRoot {
+      try? FileManager.default.removeItem(at: ownedSourceRoot)
+    }
+
     isExecuting = false
     isFinished = true
+  }
+
+  /// Whether the source is the app's to delete once copied: Documents, the share extension's
+  /// folder, or the folder this import owns.
+  private func removesSource(_ url: URL) -> Bool {
+    if DataManager.isAppManagedSource(url) { return true }
+    guard let ownedSourceRoot else { return false }
+    let rootPath = ownedSourceRoot.resolvingSymlinksInPath().path
+    return url.resolvingSymlinksInPath().path.hasPrefix(rootPath + "/")
   }
 
   func getInfo() -> [String: String] {
@@ -187,7 +206,7 @@ public class ImportOperation: Operation {
 
       try FileManager.default.copyItem(at: fileURL, to: existingFileURL)
 
-      if DataManager.isAppManagedSource(fileURL) {
+      if self.removesSource(fileURL) {
         fileURL.disableFileProtection()
         try? FileManager.default.removeItem(at: fileURL)
       }
@@ -216,11 +235,14 @@ public class ImportOperation: Operation {
   private func detectFolderOrganization() {
     guard files.count > 1 else { return }
 
-    let topLevelImportPaths: Set<String> = [
+    var topLevelImportPaths: Set<String> = [
       DataManager.getDocumentsFolderURL().resolvingSymlinksInPath().path,
       DataManager.getSharedFilesFolderURL().resolvingSymlinksInPath().path,
       DataManager.getInboxFolderURL().resolvingSymlinksInPath().path,
     ]
+    if let ownedSourceRoot {
+      topLevelImportPaths.insert(ownedSourceRoot.resolvingSymlinksInPath().path)
+    }
     var parentFolders = Set<String>()
 
     for file in files {
@@ -264,7 +286,7 @@ public class ImportOperation: Operation {
     do {
       try FileManager.default.copyItem(at: currentFile, to: destinationURL)
 
-      if DataManager.isAppManagedSource(currentFile) {
+      if self.removesSource(currentFile) {
         currentFile.disableFileProtection()
         try FileManager.default.removeItem(at: currentFile)
       }

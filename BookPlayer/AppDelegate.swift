@@ -91,6 +91,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
     self.setupRevenueCat()
     // Setup Sentry
     self.setupSentry()
+    // Drop uploads left by a Transfer session the app never finished (a crash or a force-quit)
+    TransferViewModel.removeLeftovers()
     // Setup core services
     AppServices.shared.setupCoreServices()
 

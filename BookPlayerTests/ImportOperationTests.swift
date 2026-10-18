@@ -128,6 +128,36 @@ class ImportOperationTests: XCTestCase {
 
     wait(for: [promise], timeout: 15)
   }
+
+  /// The Transfer from Computer flow hands over files in a holding folder it owns: they're
+  /// deleted once copied, the folder doesn't become a suggested name, and it's gone afterwards.
+  func testOwnedSourceRootIsConsumedAndSuggestsNoFolder() throws {
+    let root = FileManager.default.temporaryDirectory
+      .appendingPathComponent("ImportOperationTests-\(UUID().uuidString)", isDirectory: true)
+    try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+    let first = DataTestUtils.generateTestFile(name: "first.txt", contents: Data("one".utf8), destinationFolder: root)
+    let second = DataTestUtils.generateTestFile(name: "second.txt", contents: Data("two".utf8), destinationFolder: root)
+
+    let promise = XCTestExpectation(description: "Process owned files")
+    let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
+    let libraryService = LibraryService()
+    libraryService.setup(dataManager: dataManager, audioMetadataService: AudioMetadataService())
+    let operation = ImportOperation(files: [first, second], libraryService: libraryService, ownedSourceRoot: root)
+
+    operation.completionBlock = {
+      XCTAssertNil(operation.suggestedFolderName)
+      XCTAssertEqual(operation.processedFiles.count, 2)
+      for file in operation.processedFiles {
+        XCTAssert(FileManager.default.fileExists(atPath: file.path))
+      }
+      XCTAssertFalse(FileManager.default.fileExists(atPath: root.path))
+      promise.fulfill()
+    }
+
+    operation.start()
+
+    wait(for: [promise], timeout: 15)
+  }
 }
 
 // MARK: - Virtual import pipeline
