@@ -450,10 +450,10 @@ struct ItemListView: View {
       activeAlert = .downloadURL("")
     }
     Button("transfer_title", systemImage: "laptopcomputer.and.arrow.down") {
-      listState.activeIntegrationSheet = .transferFromComputer
+      listState.activeLibrarySheet = .transferFromComputer
     }
     Button("media_servers_title".localized, systemImage: "server.rack") {
-      listState.activeIntegrationSheet = .mediaServers
+      listState.activeLibrarySheet = .mediaServers
     }
     Button("create_playlist_button", systemImage: "folder.badge.plus") {
       /// Clean up just in case due to how List(selection:) works under the hood
