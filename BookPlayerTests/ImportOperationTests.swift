@@ -128,6 +128,102 @@ class ImportOperationTests: XCTestCase {
 
     wait(for: [promise], timeout: 15)
   }
+
+  /// The Transfer from Computer flow hands over files in a holding folder it owns: the folder
+  /// doesn't become a suggested name, and it's gone once the import finishes.
+  func testOwnedSourceRootIsConsumedAndSuggestsNoFolder() throws {
+    let root = FileManager.default.temporaryDirectory
+      .appendingPathComponent("ImportOperationTests-\(UUID().uuidString)", isDirectory: true)
+    try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+    let first = DataTestUtils.generateTestFile(name: "first.txt", contents: Data("one".utf8), destinationFolder: root)
+    let second = DataTestUtils.generateTestFile(name: "second.txt", contents: Data("two".utf8), destinationFolder: root)
+
+    let promise = XCTestExpectation(description: "Process owned files")
+    let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
+    let libraryService = LibraryService()
+    libraryService.setup(dataManager: dataManager, audioMetadataService: AudioMetadataService())
+    let operation = ImportOperation(files: [first, second], libraryService: libraryService, ownedSourceRoot: root)
+
+    operation.completionBlock = {
+      XCTAssertNil(operation.suggestedFolderName)
+      XCTAssertEqual(operation.processedFiles.count, 2)
+      for file in operation.processedFiles {
+        XCTAssert(FileManager.default.fileExists(atPath: file.path))
+      }
+      XCTAssertFalse(FileManager.default.fileExists(atPath: root.path))
+      promise.fulfill()
+    }
+
+    operation.start()
+
+    wait(for: [promise], timeout: 15)
+  }
+
+  /// What the Transfer flow usually hands over: a top-level folder in its holding folder, copied whole.
+  func testOwnedFolderItemIsCopiedWhole() throws {
+    let root = FileManager.default.temporaryDirectory
+      .appendingPathComponent("ImportOperationTests-\(UUID().uuidString)", isDirectory: true)
+    let name = "Book-\(UUID().uuidString)"
+    let folder = root.appendingPathComponent(name, isDirectory: true)
+    try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+    _ = DataTestUtils.generateTestFile(name: "01.txt", contents: Data("one".utf8), destinationFolder: folder)
+
+    let promise = XCTestExpectation(description: "Process the owned folder")
+    let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
+    let libraryService = LibraryService()
+    libraryService.setup(dataManager: dataManager, audioMetadataService: AudioMetadataService())
+    let operation = ImportOperation(files: [folder], libraryService: libraryService, ownedSourceRoot: root)
+
+    operation.completionBlock = {
+      XCTAssertNil(operation.suggestedFolderName)
+      XCTAssertEqual(operation.processedFiles.map(\.lastPathComponent), [name])
+      if let processed = operation.processedFiles.first {
+        XCTAssert(FileManager.default.fileExists(atPath: processed.appendingPathComponent("01.txt").path))
+        try? FileManager.default.removeItem(at: processed)
+      }
+      XCTAssertFalse(FileManager.default.fileExists(atPath: root.path))
+      promise.fulfill()
+    }
+
+    operation.start()
+
+    wait(for: [promise], timeout: 15)
+  }
+
+  /// Only the owned folder is deleted: a source outside it is copied and left where it is.
+  func testSourceOutsideTheOwnedRootIsKept() throws {
+    let root = FileManager.default.temporaryDirectory
+      .appendingPathComponent("ImportOperationTests-\(UUID().uuidString)", isDirectory: true)
+    let outsideFolder = FileManager.default.temporaryDirectory
+      .appendingPathComponent("ImportOperationTests-\(UUID().uuidString)", isDirectory: true)
+    try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+    try FileManager.default.createDirectory(at: outsideFolder, withIntermediateDirectories: true)
+    defer { try? FileManager.default.removeItem(at: outsideFolder) }
+    let outside = DataTestUtils.generateTestFile(
+      name: "outside-\(UUID().uuidString).txt",
+      contents: Data("kept".utf8),
+      destinationFolder: outsideFolder
+    )
+
+    let promise = XCTestExpectation(description: "Process a file outside the owned folder")
+    let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
+    let libraryService = LibraryService()
+    libraryService.setup(dataManager: dataManager, audioMetadataService: AudioMetadataService())
+    let operation = ImportOperation(files: [outside], libraryService: libraryService, ownedSourceRoot: root)
+
+    operation.completionBlock = {
+      XCTAssertTrue(FileManager.default.fileExists(atPath: outside.path))
+      XCTAssertEqual(operation.processedFiles.count, 1)
+      for file in operation.processedFiles {
+        try? FileManager.default.removeItem(at: file)
+      }
+      promise.fulfill()
+    }
+
+    operation.start()
+
+    wait(for: [promise], timeout: 15)
+  }
 }
 
 // MARK: - Virtual import pipeline

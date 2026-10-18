@@ -72,7 +72,8 @@ App Intents in the top-level `BookPlayer/BookPlayer/AppIntents/` folder — don'
 
 RevenueCat (`purchases-ios`, ~5.78), Sentry (`sentry-cocoa`, **exact 8.36.0**), Kingfisher (~8.10),
 JellyfinAPI (`jellyfin-sdk-swift`, ~1.0), Get (~2.2), MarqueeLabel (~4.0.5), DeviceKit (~5.1),
-IDZSwiftCommonCrypto (~0.13.1), Themeable (~3.0), ZipArchive (~2.3), DirectoryWatcher (~2.8.6).
+IDZSwiftCommonCrypto (~0.13.1), Themeable (~3.0), ZipArchive (~2.3), DirectoryWatcher (~2.8.6),
+BrowserDrop (`TortugaPower/SwiftBrowserDrop`, ~1.0; the Transfer from Computer server).
 `BlurHashDecode.swift` is vendored (SwiftLint-excluded). RevenueCat + Kingfisher link into the **frameworks**;
 most others link into the **app**. JellyfinAPI and Get link into the app, both frameworks and `BookPlayerTests`, so
 Xcode builds each as one dynamic `…_PackageProduct.framework` that the app embeds: one copy of their types (an
@@ -650,6 +651,20 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
   prompts. Its actions and the list's multi-select share
   `LibraryOrganizer`. An alert that leads to another (Move → the folder name) uses a separate alert, set from
   the first one's button: switching one alert's contents (nil, then the next) can be dropped mid-animation.
+  **Transfer from Computer** (library add menu → `Import/TransferView`, `MainView`'s library sheet): a
+  BrowserDrop session (an upload-only HTTP server on the local network, port 80, then 8080, then any
+  free port, no password by design) lives exactly as long as the sheet, which owns `TransferViewModel`. The sheet is the
+  `ImportConfirmationView` shell: its `emptyState` shows the address until the first file arrives, then the
+  files are listed like an import, removable (`BrowserDropServer.removeReceivedItem(at:)`). Uploads wait in
+  BrowserDrop's `tmp` staging and only complete files count; progress shows on the web page only. Done never
+  goes through Documents or the import screen: the files move into an owned holding folder
+  (`tmp/TransferImport/<uuid>`) and an `ImportOperation(files:libraryService:ownedSourceRoot:)` goes on
+  `ImportManager.operationPublisher`, as the import screen's own Done does, so the library runs it and shows the
+  placement prompt once the sheet's cover is gone. The operation removes that folder when it finishes and
+  suggests no folder named after it. Cancel, closing the sheet any other way, or the app being
+  killed, wipes staging (`TransferViewModel.removeLeftovers()` at launch clears staging and holding); going to
+  the background suspends the server and coming back resumes it on the same port, keeping what arrived. The
+  sheet keeps the screen awake, restoring the previous `isIdleTimerDisabled` (the player sets it too).
 - **Library** (`Library/ItemList/…`, backed by `Shared/Services/LibraryService.swift`): the main list, folders,
   and drag-drop reordering. **Ordering model (query-time sort):** `orderRank` means ONLY the user's custom
   arrangement (written by drag/reverse/Custom-freeze/one-shot sorts and by sync; never by an automatic sort).

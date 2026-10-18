@@ -18,6 +18,9 @@ public class ImportOperation: Operation {
   public let libraryService: LibraryServiceProtocol
   public var processedFiles = [URL]()
   public var suggestedFolderName: String?
+  /// A folder the files come from that this import owns, like the Transfer from Computer flow's
+  /// holding folder: it never suggests a folder name, and it's removed when the import finishes.
+  private let ownedSourceRoot: URL?
 
   private let lockQueue = DispatchQueue(label: "com.bookplayer.asyncoperation", attributes: .concurrent)
 
@@ -58,9 +61,11 @@ public class ImportOperation: Operation {
   }
 
   init(files: [URL],
-       libraryService: LibraryServiceProtocol) {
+       libraryService: LibraryServiceProtocol,
+       ownedSourceRoot: URL? = nil) {
     self.files = files
     self.libraryService = libraryService
+    self.ownedSourceRoot = ownedSourceRoot
   }
 
   public override func start() {
@@ -80,6 +85,10 @@ public class ImportOperation: Operation {
 
     if let sortedFiles = orderedSet.sortedArray(using: [sortDescriptor]) as? [URL] {
       self.processedFiles = sortedFiles
+    }
+
+    if let ownedSourceRoot {
+      try? FileManager.default.removeItem(at: ownedSourceRoot)
     }
 
     isExecuting = false
@@ -216,11 +225,14 @@ public class ImportOperation: Operation {
   private func detectFolderOrganization() {
     guard files.count > 1 else { return }
 
-    let topLevelImportPaths: Set<String> = [
+    var topLevelImportPaths: Set<String> = [
       DataManager.getDocumentsFolderURL().resolvingSymlinksInPath().path,
       DataManager.getSharedFilesFolderURL().resolvingSymlinksInPath().path,
       DataManager.getInboxFolderURL().resolvingSymlinksInPath().path,
     ]
+    if let ownedSourceRoot {
+      topLevelImportPaths.insert(ownedSourceRoot.resolvingSymlinksInPath().path)
+    }
     var parentFolders = Set<String>()
 
     for file in files {

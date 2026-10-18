@@ -1,5 +1,5 @@
 {
-  "originHash" : "805dd10f49bb52f869285787fba58f83273717c272d6c319c6faa7d81b013cfc",
+  "originHash" : "3f1ce053f28ca579cd10f1de96200c41c8414098e0d3c0e5e4eb609b7794dd1b",
   "pins" : [
     {
       "identity" : "devicekit",
@@ -80,6 +80,15 @@
       "state" : {
         "revision" : "5575af93efb776414f243e93d6af9f6258dc539a",
         "version" : "8.36.0"
+      }
+    },
+    {
+      "identity" : "swiftbrowserdrop",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/TortugaPower/SwiftBrowserDrop.git",
+      "state" : {
+        "revision" : "d64f5860e66c28d64366411ed012709c0315f950",
+        "version" : "1.0.0"
       }
     },
     {

@@ -17,7 +17,7 @@ struct MainView: View {
   @StateObject private var theme = ThemeViewModel()
   @StateObject private var keyboardObserver = KeyboardObserver()
   /// A wire between SwiftUI views that MainCoordinator never touches, so it's owned here.
-  /// Injected below, where the integration sheets and the library tab both inherit it.
+  /// Injected below, where the library sheets and the library tab both inherit it.
   @StateObject private var externalImportEvents = ExternalImportEvents()
   @Environment(\.libraryService) private var libraryService
   @Environment(\.playerState) private var playerState
@@ -62,8 +62,9 @@ struct MainView: View {
         MiniPlayerAccessoryView(relativePath: relativePath, showPlayer: showPlayer)
       }
     }
-    .sheet(item: $listState.activeIntegrationSheet, onDismiss: {
+    .sheet(item: $listState.activeLibrarySheet, onDismiss: {
       listState.coversOnScreen.remove(.mediaServers)
+      listState.coversOnScreen.remove(.transferFromComputer)
     }) { sheet in
       switch sheet {
       case .mediaServers:
@@ -74,8 +75,13 @@ struct MainView: View {
             style: .libraryEntry
           )
         }
-        .environment(\.closeMediaServers, CloseMediaServersAction { listState.activeIntegrationSheet = nil })
+        .environment(\.closeMediaServers, CloseMediaServersAction { listState.activeLibrarySheet = nil })
         .onAppear { listState.coversOnScreen.insert(.mediaServers) }
+      case .transferFromComputer:
+        TransferView {
+          TransferViewModel(importManager: importManager, libraryService: libraryService)
+        }
+        .onAppear { listState.coversOnScreen.insert(.transferFromComputer) }
       }
     }
     .fullScreenCover(isPresented: playerState.isShowingPlayerBinding, onDismiss: {
@@ -99,7 +105,7 @@ struct MainView: View {
     // can present, since the sheet is attached underneath it.
     .onReceive(NotificationCenter.default.publisher(for: .showMediaServers)) { _ in
       playerState.isShowingPlayer = false
-      listState.activeIntegrationSheet = .mediaServers
+      listState.activeLibrarySheet = .mediaServers
     }
     // Sibling copy (see PlaybackAlerts): playback also starts with the player CLOSED —
     // mini-player, CarPlay, remote commands, last-book restore — and the copy inside the cover

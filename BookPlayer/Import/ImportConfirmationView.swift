@@ -30,7 +30,8 @@ struct ImportConfirmationRow: Identifiable {
 /// This shell is currently shaped for the external flow, whose needs are the simpler
 /// half. Four things the UIKit screen does are NOT implemented here, and the file flow
 /// cannot adopt it until they are. None of them are reachable today: an external batch
-/// is frozen at confirmation and its removals cannot fail.
+/// is frozen at confirmation and its removals cannot fail. The Transfer flow builds its own
+/// folder rows (2) and passes its file total (4), and shows a failed removal by keeping the row.
 ///
 /// 1. **Failure has nowhere to go.** `onRemove` and `onCancel` are non-throwing, because the
 ///    external flow only mutates an array and dismisses. Their file-flow equivalents both
@@ -48,8 +49,8 @@ struct ImportConfirmationRow: Identifiable {
 ///    `import_warning_description` warns about, so without it the copy is a promise the
 ///    screen cannot keep, which is why the external flow passes no description at all.
 /// 4. **Total vs row count.** The UIKit header counts files INSIDE folders via
-///    `getTotalItems()`; this counts rows. Identical until folders appear.
-struct ImportConfirmationView: View {
+///    `getTotalItems()`; this counts rows unless the flow passes `fileCount`.
+struct ImportConfirmationView<EmptyState: View>: View {
   let rows: [ImportConfirmationRow]
   /// Nil when the flow has no caveat to give. Not defaulted on purpose: a default is how
   /// the file flow's "transferring files may take a while" ended up on the external
@@ -58,6 +59,31 @@ struct ImportConfirmationView: View {
   let onRemove: (ImportConfirmationRow.ID) -> Void
   let onConfirm: () -> Void
   let onCancel: () -> Void
+  /// What the header counts. Nil counts the rows; a flow with folder rows passes the files
+  /// inside them, as the UIKit import screen counts them.
+  private let fileCount: Int?
+  /// Shown instead of the list while there are no rows, for a flow whose rows arrive while
+  /// the screen is up (the Transfer from Computer flow). Nil keeps the empty list: a batch
+  /// that starts out empty has nothing to explain.
+  private let emptyState: EmptyState?
+
+  init(
+    rows: [ImportConfirmationRow],
+    description: LocalizedStringKey? = nil,
+    fileCount: Int? = nil,
+    onRemove: @escaping (ImportConfirmationRow.ID) -> Void,
+    onConfirm: @escaping () -> Void,
+    onCancel: @escaping () -> Void,
+    @ViewBuilder emptyState: () -> EmptyState
+  ) {
+    self.rows = rows
+    self.description = description
+    self.fileCount = fileCount
+    self.onRemove = onRemove
+    self.onConfirm = onConfirm
+    self.onCancel = onCancel
+    self.emptyState = emptyState()
+  }
 
   @EnvironmentObject private var theme: ThemeViewModel
 
@@ -71,6 +97,61 @@ struct ImportConfirmationView: View {
 
   var body: some View {
     NavigationStack {
+      content
+      /// Set here rather than inherited: the two current call sites happen to sit under a
+      /// `.tint(theme.linkColor)`, but a reusable shell should not depend on an ancestor the
+      /// file flow will not have. `linkColor` also matches what UIKit puts on the bar —
+      /// the hand-rolled buttons this replaced used `primaryColor`, which never did.
+      .tint(theme.linkColor)
+      /// The list gets this from `applyListStyle`; the empty state needs it too, or the bar
+      /// keeps the system colour scheme until the first row arrives.
+      .toolbarColorScheme(theme.useDarkVariant ? .dark : .light, for: .navigationBar)
+      /// Cancelling has to be a choice: a swipe-away would discard a staged import by
+      /// accident. Deliberately STRICTER than the UIKit screen, which allows the swipe and
+      /// runs `try? discardImportOperation()` from `presentationControllerDidDismiss` —
+      /// cleanup whose failure it then swallows. The file flow should adopt this stricter
+      /// behaviour rather than restore that path.
+      .interactiveDismissDisabled()
+      .navigationTitle("import_title")
+      .toolbar {
+        ToolbarItem(placement: .cancellationAction) {
+          Button {
+            onCancel()
+          } label: {
+            Image(systemName: "xmark")
+          }
+          .accessibilityLabel("cancel_button")
+        }
+
+        ToolbarItem(placement: .confirmationAction) {
+          Button {
+            onConfirm()
+          } label: {
+            Image(systemName: "checkmark")
+          }
+          .accessibilityLabel("import_button")
+          /// Parity with `ImportViewController`, which disables Done at zero files:
+          /// confirming an emptied list is a no-op, so don't offer it.
+          .disabled(rows.isEmpty)
+        }
+      }
+    }
+  }
+
+  /// The rows, or the flow's empty state while there are none.
+  @ViewBuilder
+  private var content: some View {
+    if rows.isEmpty, let emptyState {
+      /// Centered while it fits, scrolling once the largest text sizes make it taller than the
+      /// screen, where it would otherwise clip its actions.
+      ScrollView {
+        emptyState
+          .frame(maxWidth: .infinity)
+      }
+      .defaultScrollAnchor(.center, for: .alignment)
+      .scrollBounceBehavior(.basedOnSize)
+      .background(theme.systemBackgroundColor)
+    } else {
       List {
         Section {
           ForEach(sortedRows) { row in
@@ -111,7 +192,7 @@ struct ImportConfirmationView: View {
           }
         } header: {
           Text(
-            String.localizedStringWithFormat("files_title".localized, rows.count)
+            String.localizedStringWithFormat("files_title".localized, fileCount ?? rows.count)
               .localizedCapitalized
           )
           .bpFont(.subheadline)
@@ -144,40 +225,26 @@ struct ImportConfirmationView: View {
             .padding(.bottom, Spacing.S2)
         }
       }
-      /// Set here rather than inherited: the two current call sites happen to sit under a
-      /// `.tint(theme.linkColor)`, but a reusable shell should not depend on an ancestor the
-      /// file flow will not have. `linkColor` also matches what UIKit puts on the bar —
-      /// the hand-rolled buttons this replaced used `primaryColor`, which never did.
-      .tint(theme.linkColor)
-      /// Cancelling has to be a choice: a swipe-away would discard a staged import by
-      /// accident. Deliberately STRICTER than the UIKit screen, which allows the swipe and
-      /// runs `try? discardImportOperation()` from `presentationControllerDidDismiss` —
-      /// cleanup whose failure it then swallows. The file flow should adopt this stricter
-      /// behaviour rather than restore that path.
-      .interactiveDismissDisabled()
-      .navigationTitle("import_title")
-      .toolbar {
-        ToolbarItem(placement: .cancellationAction) {
-          Button {
-            onCancel()
-          } label: {
-            Image(systemName: "xmark")
-          }
-          .accessibilityLabel("cancel_button")
-        }
-
-        ToolbarItem(placement: .confirmationAction) {
-          Button {
-            onConfirm()
-          } label: {
-            Image(systemName: "checkmark")
-          }
-          .accessibilityLabel("import_button")
-          /// Parity with `ImportViewController`, which disables Done at zero files:
-          /// confirming an emptied list is a no-op, so don't offer it.
-          .disabled(rows.isEmpty)
-        }
-      }
     }
+  }
+}
+
+
+extension ImportConfirmationView where EmptyState == EmptyView {
+  /// A flow without an empty state (its batch is complete when the screen opens).
+  init(
+    rows: [ImportConfirmationRow],
+    description: LocalizedStringKey? = nil,
+    onRemove: @escaping (ImportConfirmationRow.ID) -> Void,
+    onConfirm: @escaping () -> Void,
+    onCancel: @escaping () -> Void
+  ) {
+    self.rows = rows
+    self.description = description
+    self.onRemove = onRemove
+    self.onConfirm = onConfirm
+    self.onCancel = onCancel
+    self.fileCount = nil
+    self.emptyState = nil
   }
 }
