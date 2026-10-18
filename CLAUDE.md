@@ -650,7 +650,9 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
   media server. Status `HardcoverBook.Status { local=0, library=1, reading=2, read=3 }`; **only 1/2/3 are ever
   POSTed** (`.local` is a local-only marker). Monotonic guards prevent backwards writes; auto-match on import has
   explicit duplicate detection; API failures are log-and-swallowed so a Hardcover outage never blocks local
-  playback. Token is Keychain `.hardcoverToken`; no token → subscriptions torn down.
+  playback. Token is Keychain `.hardcoverToken`; no token → subscriptions torn down. It holds the bare API key
+  (`hc_pat_…`): `HardcoverService.apiKey(from:)` drops a pasted `Bearer ` (older tokens were copied with it, and
+  ones saved that way read without it), and requests send `Authorization: Bearer <key>`, which the API requires.
 
 ---
 

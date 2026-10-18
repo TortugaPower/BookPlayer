@@ -11,7 +11,7 @@ import Combine
 import UIKit
 
 protocol HardcoverServiceProtocol {
-  /// Authorization token for API requests
+  /// API key for API requests, stored without the `Bearer` scheme the requests add
   var authorization: String? { get set }
 
   /// Search for books using the Hardcover API
@@ -94,17 +94,39 @@ final class HardcoverService: BPLogger, HardcoverServiceProtocol {
     bindKeychainObserver()
   }
 
+  /// The bare API key; tokens saved with their `Bearer ` prefix (before Hardcover's API keys) read without it
   var authorization: String? {
     get {
-      try? keychain.get(.hardcoverToken)
+      guard let storedToken = try? keychain.get(.hardcoverToken) else { return nil }
+
+      let apiKey = Self.apiKey(from: storedToken)
+      return apiKey.isEmpty ? nil : apiKey
     }
     set {
-      if let newValue = newValue, !newValue.isEmpty {
-        try? self.keychain.set(newValue, key: .hardcoverToken)
+      let apiKey = newValue.map(Self.apiKey(from:)) ?? ""
+
+      if !apiKey.isEmpty {
+        try? self.keychain.set(apiKey, key: .hardcoverToken)
       } else {
         try? self.keychain.remove(.hardcoverToken)
       }
     }
+  }
+
+  /// Hardcover's API still requires the `Bearer` scheme, which its API keys (`hc_pat_…`) no longer include
+  private var authorizationHeader: String? {
+    authorization.map { "Bearer \($0)" }
+  }
+
+  /// The API key in what the user entered: trimmed, without a leading `Bearer` (copied from older tokens)
+  static func apiKey(from input: String) -> String {
+    let token = input.trimmingCharacters(in: .whitespacesAndNewlines)
+
+    guard
+      let scheme = token.range(of: #"^bearer(\s+|$)"#, options: [.regularExpression, .caseInsensitive])
+    else { return token }
+
+    return String(token[scheme.upperBound...])
   }
 }
 
@@ -138,7 +160,7 @@ extension HardcoverService {
         "query": query,
         "per_page": perPage,
       ],
-      authorization: authorization,
+      authorization: authorizationHeader,
       responseType: BooksData.self
     )
 
@@ -162,7 +184,7 @@ extension HardcoverService {
     let result = try await graphQL.execute(
       query: queryString,
       variables: ["id": id],
-      authorization: authorization,
+      authorization: authorizationHeader,
       responseType: BookByIdData.self
     )
 
@@ -194,7 +216,7 @@ extension HardcoverService {
         "book_id": bookID,
         "status_id": Int(status.rawValue),
       ],
-      authorization: authorization,
+      authorization: authorizationHeader,
       responseType: InsertUserBookData.self
     )
   }
@@ -213,7 +235,7 @@ extension HardcoverService {
       variables: [
         "id": userBookID
       ],
-      authorization: authorization,
+      authorization: authorizationHeader,
       responseType: DeleteUserBookData.self
     )
   }
