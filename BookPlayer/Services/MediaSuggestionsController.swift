@@ -110,6 +110,7 @@ final class MediaSuggestionsController {
     let relativePath = item.relativePath
     let partPath = item.currentChapter.relativePath
 
+    donationTask?.cancel()
     donationTask = Task { [weak self] in
       var artwork = await self?.artworkData(for: identifier, relativePath: relativePath)
       /// A bound book's folder may have no cover cached yet: the playing part's stands in, not
@@ -117,6 +118,10 @@ final class MediaSuggestionsController {
       if artwork == nil, partPath != relativePath {
         artwork = await dependencies.artworkData([partPath])
       }
+      /// Another book started while this one's cover was read: donated now, this one would look
+      /// like the more recent play
+      guard !Task.isCancelled else { return }
+
       let intent = Self.playIntent(
         for: Self.mediaItem(identifier: identifier, title: title, author: author, artwork: artwork)
       )

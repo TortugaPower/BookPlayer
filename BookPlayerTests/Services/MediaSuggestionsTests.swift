@@ -223,6 +223,30 @@ final class MediaSuggestionsTests: XCTestCase {
     XCTAssertEqual(recorder.donations.first?.groupIdentifier, "Folder/a.m4b")
   }
 
+  func testBookPlayed_skipsABookLeftWhileItsCoverWasRead() async {
+    makeController()
+    await controller.pendingRefresh?.value
+
+    var release: CheckedContinuation<Void, Never>?
+    let reading = expectation(description: "cover being read")
+    recorder.artworkGate = {
+      await withCheckedContinuation { continuation in
+        release = continuation
+        reading.fulfill()
+      }
+    }
+    bookPlayed.send(playableItem("a"))
+    let first = controller.pendingDonation
+    await fulfillment(of: [reading], timeout: 1)
+
+    recorder.artworkGate = nil
+    await play(playableItem("b"))
+    release?.resume()
+    await first?.value
+
+    XCTAssertEqual(recorder.donations.map(\.groupIdentifier), ["uuid-b"], "a donated after b would look more recent")
+  }
+
   func testBookPlayed_refreshesTheUpcomingBooks() async {
     makeController()
     await controller.pendingRefresh?.value
