@@ -245,6 +245,11 @@ def retarget(xctestrun, app, name):
     original = target["UITargetAppPath"]
     target["UITargetAppPath"] = str(app)
     target["DependentProductPaths"] = [str(app) if p == original else p for p in target["DependentProductPaths"]]
+    # The candidate's DYLD_* paths point at its own build products: the other app must load the frameworks it
+    # embeds, or a symbol the candidate dropped from BookPlayerKit stops it at launch (5.22.2 under 6.0.0)
+    environment = target.get("UITargetAppEnvironmentVariables", {})
+    for key in [key for key in environment if "DYLD_" in key]:
+        del environment[key]
     copy = xctestrun.parent / name  # __TESTROOT__ is the file's folder, so it stays next to the original
     with open(copy, "wb") as f:
         plistlib.dump(plist, f)

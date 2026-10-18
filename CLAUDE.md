@@ -110,7 +110,9 @@ a build phase) and its output is committed.
   `accessibilityIdentifier`s (`library.row.<relativePath>`, `miniPlayer.info`, `player.playPause`,
   `player.currentTime`) and by the English labels "Done" (Import sheet) and "Library" (placement prompt); keep
   `BookPlayerUITests/ReleaseCheckUITests.swift` in step when changing those.
-  The upgrade scenario drives the *previous* release with labels only, since older builds lack the identifiers.
+  The upgrade scenario drives the *previous* release with labels only, since older builds lack the identifiers,
+  and runs it on the frameworks it embeds: its copy of the `.xctestrun` drops the candidate's `DYLD_*` paths, or a
+  symbol the candidate removed from `BookPlayerKit` would stop the old app at launch.
 - **Lint/format is enforced by tools — do NOT flag style they own.** `.swiftlint.yml` **disables**: `line_length`,
   `identifier_name`, `type_name`, `type_body_length`, `file_length`, `nesting`, `force_try`, `trailing_comma`,
   `trailing_newline`, `trailing_whitespace`, `switch_case_alignment`, `private_over_fileprivate`, `opening_brace`,
