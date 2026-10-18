@@ -22,7 +22,6 @@ final class TransferViewModel: ObservableObject, BPLogger {
   enum Status: Equatable {
     case starting
     case running
-    case failed
   }
 
   /// What the browser may send: the file picker's audio, movie and zip types, by extension, since the page
@@ -64,7 +63,13 @@ final class TransferViewModel: ObservableObject, BPLogger {
     self.libraryService = libraryService
     self.server = BrowserDropServer(
       configuration: configuration
-        ?? .init(allowedExtensions: Self.acceptedExtensions, pageSettings: Self.pageSettings())
+        ?? .init(
+          // Port 80 keeps the address short; then 8080, then any free port, so listening practically
+          // never fails (the address shows the port when it isn't 80).
+          ports: [80, 8080, 0],
+          allowedExtensions: Self.acceptedExtensions,
+          pageSettings: Self.pageSettings()
+        )
     )
   }
 
@@ -127,12 +132,6 @@ final class TransferViewModel: ObservableObject, BPLogger {
         self?.handle(event)
       }
     }
-    listen()
-  }
-
-  func retry() {
-    guard status == .failed, !hasEnded else { return }
-    status = .starting
     listen()
   }
 
@@ -219,8 +218,8 @@ final class TransferViewModel: ObservableObject, BPLogger {
     return true
   }
 
-  /// Starts the session the first time, and listens again after the background, an interruption or a
-  /// failed attempt, keeping what arrived.
+  /// Starts the session the first time, and listens again after the background or an interruption,
+  /// keeping what arrived.
   private func listen() {
     let server = server
     runInOrder { [weak self] in
@@ -234,8 +233,9 @@ final class TransferViewModel: ObservableObject, BPLogger {
         self?.address = addresses.first
         self?.status = .running
       } catch {
+        // Nothing on screen: the browser can't reach the address, and coming back to the app tries
+        // again. A first start that fails keeps the spinner.
         Self.logger.error("Transfer couldn't listen: \(error.localizedDescription)")
-        self?.status = .failed
       }
     }
   }

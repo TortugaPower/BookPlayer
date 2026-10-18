@@ -565,7 +565,6 @@
 "uploads_running_background_title" = "Laster opp i bakgrunnen";
 "uploads_running_background_caption" = "Laster opp i bakgrunnen · %d%%";
 "continue_uploads_short_button" = "Fortsett";
-"transfer_server_start_failed_message" = "Kunne ikke starte overføringsserveren. Prøv igjen.";
 "transfer_server_url_accessibility" = "Overføringsadresse";
 "transfer_server_copy_button" = "Kopier adresse";
 "transfer_server_copied_button" = "Kopiert";

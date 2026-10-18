@@ -565,7 +565,6 @@
 "uploads_running_background_title" = "正在后台上传";
 "uploads_running_background_caption" = "正在后台上传 · %d%%";
 "continue_uploads_short_button" = "继续";
-"transfer_server_start_failed_message" = "无法启动传输服务器。请重试。";
 "transfer_server_url_accessibility" = "传输地址";
 "transfer_server_copy_button" = "复制地址";
 "transfer_server_copied_button" = "已复制";

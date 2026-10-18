@@ -565,7 +565,6 @@
 "uploads_running_background_title" = "Se încarcă în fundal";
 "uploads_running_background_caption" = "Se încarcă în fundal · %d%%";
 "continue_uploads_short_button" = "Continuă";
-"transfer_server_start_failed_message" = "Serverul de transfer nu a putut fi pornit. Încercați din nou.";
 "transfer_server_url_accessibility" = "Adresă de transfer";
 "transfer_server_copy_button" = "Copiază adresa";
 "transfer_server_copied_button" = "Copiată";

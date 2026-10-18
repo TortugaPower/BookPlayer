@@ -565,7 +565,6 @@
 "uploads_running_background_title" = "Uploaden op de achtergrond";
 "uploads_running_background_caption" = "Uploaden op de achtergrond · %d%%";
 "continue_uploads_short_button" = "Doorgaan";
-"transfer_server_start_failed_message" = "Kan de overzetserver niet starten. Probeer het opnieuw.";
 "transfer_server_url_accessibility" = "Overzetadres";
 "transfer_server_copy_button" = "Adres kopiëren";
 "transfer_server_copied_button" = "Gekopieerd";

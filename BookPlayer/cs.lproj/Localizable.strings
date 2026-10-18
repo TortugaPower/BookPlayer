@@ -565,7 +565,6 @@
 "uploads_running_background_title" = "Nahrávání na pozadí";
 "uploads_running_background_caption" = "Nahrávání na pozadí · %d%%";
 "continue_uploads_short_button" = "Pokračovat";
-"transfer_server_start_failed_message" = "Přenosový server se nepodařilo spustit. Zkuste to znovu.";
 "transfer_server_url_accessibility" = "Adresa přenosu";
 "transfer_server_copy_button" = "Kopírovat adresu";
 "transfer_server_copied_button" = "Zkopírováno";

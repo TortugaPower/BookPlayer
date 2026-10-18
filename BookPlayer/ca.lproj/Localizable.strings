@@ -565,7 +565,6 @@
 "uploads_running_background_title" = "S'està pujant en segon pla";
 "uploads_running_background_caption" = "S'està pujant en segon pla · %d%%";
 "continue_uploads_short_button" = "Continuar";
-"transfer_server_start_failed_message" = "No s'ha pogut iniciar el servidor de transferència. Torna-ho a provar.";
 "transfer_server_url_accessibility" = "Adreça de transferència";
 "transfer_server_copy_button" = "Copia l’adreça";
 "transfer_server_copied_button" = "Copiada";

@@ -565,7 +565,6 @@
 "uploads_running_background_title" = "Envoi en arrière-plan";
 "uploads_running_background_caption" = "Envoi en arrière-plan · %d %%";
 "continue_uploads_short_button" = "Continuer";
-"transfer_server_start_failed_message" = "Impossible de démarrer le serveur de transfert. Réessayez.";
 "transfer_server_url_accessibility" = "Adresse de transfert";
 "transfer_server_copy_button" = "Copier l’adresse";
 "transfer_server_copied_button" = "Copiée";

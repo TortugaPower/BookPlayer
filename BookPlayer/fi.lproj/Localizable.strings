@@ -565,7 +565,6 @@
 "uploads_running_background_title" = "Lähetetään taustalla";
 "uploads_running_background_caption" = "Lähetetään taustalla · %d %%";
 "continue_uploads_short_button" = "Jatka";
-"transfer_server_start_failed_message" = "Siirtopalvelinta ei voitu käynnistää. Yritä uudelleen.";
 "transfer_server_url_accessibility" = "Siirto-osoite";
 "transfer_server_copy_button" = "Kopioi osoite";
 "transfer_server_copied_button" = "Kopioitu";

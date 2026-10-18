@@ -565,7 +565,6 @@
 "uploads_running_background_title" = "Arka planda yükleniyor";
 "uploads_running_background_caption" = "Arka planda yükleniyor · %%%d";
 "continue_uploads_short_button" = "Devam";
-"transfer_server_start_failed_message" = "Aktarım sunucusu başlatılamadı. Yeniden deneyin.";
 "transfer_server_url_accessibility" = "Aktarım adresi";
 "transfer_server_copy_button" = "Adresi kopyala";
 "transfer_server_copied_button" = "Kopyalandı";

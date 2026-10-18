@@ -565,7 +565,6 @@
 "uploads_running_background_title" = "Загрузка в фоне";
 "uploads_running_background_caption" = "Загрузка в фоне · %d%%";
 "continue_uploads_short_button" = "Продолжить";
-"transfer_server_start_failed_message" = "Не удалось запустить сервер передачи. Попробуйте ещё раз.";
 "transfer_server_url_accessibility" = "Адрес передачи";
 "transfer_server_copy_button" = "Скопировать адрес";
 "transfer_server_copied_button" = "Скопировано";

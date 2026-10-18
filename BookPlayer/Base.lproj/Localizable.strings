@@ -566,7 +566,6 @@
 "uploads_running_background_title" = "Uploading in background";
 "uploads_running_background_caption" = "Uploading in background · %d%%";
 "continue_uploads_short_button" = "Continue";
-"transfer_server_start_failed_message" = "Could not start the transfer server. Try again.";
 "transfer_server_url_accessibility" = "Transfer address";
 "transfer_server_copy_button" = "Copy address";
 "transfer_server_copied_button" = "Copied";

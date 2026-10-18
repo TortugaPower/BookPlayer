@@ -565,7 +565,6 @@
 "uploads_running_background_title" = "バックグラウンドでアップロード中";
 "uploads_running_background_caption" = "バックグラウンドでアップロード中 · %d%%";
 "continue_uploads_short_button" = "続ける";
-"transfer_server_start_failed_message" = "転送サーバを起動できませんでした。もう一度お試しください。";
 "transfer_server_url_accessibility" = "転送アドレス";
 "transfer_server_copy_button" = "アドレスをコピー";
 "transfer_server_copied_button" = "コピーしました";

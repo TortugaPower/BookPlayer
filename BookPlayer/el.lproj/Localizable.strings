@@ -565,7 +565,6 @@
 "uploads_running_background_title" = "Μεταφόρτωση στο παρασκήνιο";
 "uploads_running_background_caption" = "Μεταφόρτωση στο παρασκήνιο · %d%%";
 "continue_uploads_short_button" = "Συνέχεια";
-"transfer_server_start_failed_message" = "Δεν ήταν δυνατή η εκκίνηση του διακομιστή μεταφοράς. Δοκιμάστε ξανά.";
 "transfer_server_url_accessibility" = "Διεύθυνση μεταφοράς";
 "transfer_server_copy_button" = "Αντιγραφή διεύθυνσης";
 "transfer_server_copied_button" = "Αντιγράφηκε";

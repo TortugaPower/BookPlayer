@@ -565,7 +565,6 @@
 "uploads_running_background_title" = "جارٍ التحميل في الخلفية";
 "uploads_running_background_caption" = "جارٍ التحميل في الخلفية · %d%%";
 "continue_uploads_short_button" = "متابعة";
-"transfer_server_start_failed_message" = "تعذّر بدء خادم النقل. حاول مرة أخرى.";
 "transfer_server_url_accessibility" = "عنوان النقل";
 "transfer_server_copy_button" = "نسخ العنوان";
 "transfer_server_copied_button" = "تم النسخ";

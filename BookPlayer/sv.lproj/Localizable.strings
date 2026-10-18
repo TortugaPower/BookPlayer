@@ -565,7 +565,6 @@
 "uploads_running_background_title" = "Laddar upp i bakgrunden";
 "uploads_running_background_caption" = "Laddar upp i bakgrunden · %d %%";
 "continue_uploads_short_button" = "Fortsätt";
-"transfer_server_start_failed_message" = "Det gick inte att starta överföringsservern. Försök igen.";
 "transfer_server_url_accessibility" = "Överföringsadress";
 "transfer_server_copy_button" = "Kopiera adress";
 "transfer_server_copied_button" = "Kopierad";

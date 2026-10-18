@@ -565,7 +565,6 @@
 "uploads_running_background_title" = "Przesyłanie w tle";
 "uploads_running_background_caption" = "Przesyłanie w tle · %d%%";
 "continue_uploads_short_button" = "Kontynuuj";
-"transfer_server_start_failed_message" = "Nie udało się uruchomić serwera przesyłania. Spróbuj ponownie.";
 "transfer_server_url_accessibility" = "Adres przesyłania";
 "transfer_server_copy_button" = "Kopiuj adres";
 "transfer_server_copied_button" = "Skopiowano";

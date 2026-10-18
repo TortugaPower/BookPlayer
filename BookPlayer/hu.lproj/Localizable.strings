@@ -565,7 +565,6 @@
 "uploads_running_background_title" = "Feltöltés a háttérben";
 "uploads_running_background_caption" = "Feltöltés a háttérben · %d%%";
 "continue_uploads_short_button" = "Folytatás";
-"transfer_server_start_failed_message" = "Nem sikerült elindítani az átviteli szervert. Próbáld újra.";
 "transfer_server_url_accessibility" = "Átviteli cím";
 "transfer_server_copy_button" = "Cím másolása";
 "transfer_server_copied_button" = "Másolva";

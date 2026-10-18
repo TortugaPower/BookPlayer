@@ -29,9 +29,7 @@ struct TransferView: View {
   var body: some View {
     ImportConfirmationView(
       rows: model.rows,
-      /// A failure to listen again (back from the background) leaves what arrived importable, so the
-      /// list says so instead of the usual caveat.
-      description: model.status == .failed ? "transfer_server_start_failed_message" : "transfer_footer",
+      description: "transfer_footer",
       fileCount: model.fileCount,
       onRemove: { model.remove($0) },
       onConfirm: {
@@ -68,16 +66,6 @@ struct TransferView: View {
     switch model.status {
     case .starting:
       ProgressView()
-    case .failed:
-      ContentUnavailableView {
-        Label("transfer_server_start_failed_message", systemImage: "exclamationmark.triangle")
-          .foregroundStyle(theme.primaryColor)
-      } actions: {
-        Button("integration_retry_button") {
-          model.retry()
-        }
-        .bpFont(.body)
-      }
     case .running:
       if let address = model.address {
         ContentUnavailableView {

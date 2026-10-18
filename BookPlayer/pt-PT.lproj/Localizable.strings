@@ -565,7 +565,6 @@
 "uploads_running_background_title" = "A fazer upload em segundo plano";
 "uploads_running_background_caption" = "A fazer upload em segundo plano · %d%%";
 "continue_uploads_short_button" = "Continuar";
-"transfer_server_start_failed_message" = "Não foi possível iniciar o servidor de transferência. Tente novamente.";
 "transfer_server_url_accessibility" = "Endereço de transferência";
 "transfer_server_copy_button" = "Copiar endereço";
 "transfer_server_copied_button" = "Copiado";

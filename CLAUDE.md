@@ -652,8 +652,8 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
   `LibraryOrganizer`. An alert that leads to another (Move → the folder name) uses a separate alert, set from
   the first one's button: switching one alert's contents (nil, then the next) can be dropped mid-animation.
   **Transfer from Computer** (library add menu → `Import/TransferView`, `MainView`'s integration sheet): a
-  BrowserDrop session (an upload-only HTTP server on the local network, port 80 then 8080, no password by
-  design) lives exactly as long as the sheet, which owns `TransferViewModel`. The sheet is the
+  BrowserDrop session (an upload-only HTTP server on the local network, port 80, then 8080, then any
+  free port, no password by design) lives exactly as long as the sheet, which owns `TransferViewModel`. The sheet is the
   `ImportConfirmationView` shell: its `emptyState` shows the address until the first file arrives, then the
   files are listed like an import, removable (`BrowserDropServer.removeReceivedItem(at:)`). Uploads wait in
   BrowserDrop's `tmp` staging and only complete files count; progress shows on the web page only. Done never

@@ -565,7 +565,6 @@
 "uploads_running_background_title" = "Вивантаження у фоні";
 "uploads_running_background_caption" = "Вивантаження у фоні · %d%%";
 "continue_uploads_short_button" = "Продовжити";
-"transfer_server_start_failed_message" = "Не вдалося запустити сервер передавання. Спробуйте ще раз.";
 "transfer_server_url_accessibility" = "Адреса передавання";
 "transfer_server_copy_button" = "Скопіювати адресу";
 "transfer_server_copied_button" = "Скопійовано";
