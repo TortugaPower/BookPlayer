@@ -8,6 +8,7 @@
 
 import AVFoundation
 import BookPlayerKit
+import Intents
 import UIKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
@@ -23,9 +24,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
   }
 
   func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-    if let activityType = connectionOptions.userActivities.first?.activityType,
-       activityType == Constants.UserActivityPlayback {
-      playLastBook()
+    if let activity = connectionOptions.userActivities.first {
+      if activity.activityType == Constants.UserActivityPlayback {
+        playLastBook()
+      } else if activity.interaction?.intent is INPlayMediaIntent {
+        /// Launched with a media intent: `scene(_:continue:)` only gets the ones that arrive later
+        ActionParserService.process(activity)
+      }
     }
 
     handleOpening(URLContexts: connectionOptions.urlContexts)

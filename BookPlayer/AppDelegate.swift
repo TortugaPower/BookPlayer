@@ -119,19 +119,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
     backgroundSessionWakes.handleEvents(forSession: identifier, completionHandler: completionHandler)
   }
 
-  func application(
-    _ application: UIApplication,
-    handle intent: INIntent,
-    completionHandler: @escaping (INIntentResponse) -> Void
-  ) {
-    let response: INPlayMediaIntentResponse
-    do {
-      try ActionParserService.process(intent)
-      response = INPlayMediaIntentResponse(code: .success, userActivity: nil)
-    } catch {
-      response = INPlayMediaIntentResponse(code: .failure, userActivity: nil)
-    }
-    completionHandler(response)
+  /// The system's playback suggestions, Siri and Shortcuts play books through this handler. The app
+  /// declares `INPlayMediaIntent` itself (`INIntentsSupported`), so playback starts here even on a
+  /// launch in the background
+  func application(_ application: UIApplication, handlerFor intent: INIntent) -> Any? {
+    guard intent is INPlayMediaIntent else { return nil }
+
+    return PlayMediaIntentHandler()
   }
 
   @objc func messageReceived(_ notification: Notification) {

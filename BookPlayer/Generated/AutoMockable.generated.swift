@@ -269,6 +269,22 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
             return getMaxItemsCountAtReturnValue
         }
     }
+    //MARK: - getBookCount
+
+    var getBookCountCallsCount = 0
+    var getBookCountCalled: Bool {
+        return getBookCountCallsCount > 0
+    }
+    var getBookCountReturnValue: Int!
+    var getBookCountClosure: (() -> Int)?
+    func getBookCount() -> Int {
+        getBookCountCallsCount += 1
+        if let getBookCountClosure = getBookCountClosure {
+            return getBookCountClosure()
+        } else {
+            return getBookCountReturnValue
+        }
+    }
     //MARK: - getLastPlayedItems
 
     var getLastPlayedItemsLimitCallsCount = 0
