@@ -17,6 +17,7 @@ final class SecondOnboardingCoordinatorTests: XCTestCase {
   private let tier4 = PricingModel(id: PricingOption.supportTier4.rawValue, title: "$3.99", price: 3.99)
   private let tier7 = PricingModel(id: PricingOption.supportTier7.rawValue, title: "$6.99", price: 6.99)
   private let tier10 = PricingModel(id: PricingOption.supportTier10.rawValue, title: "$9.99", price: 9.99)
+  private let pro = PricingModel(id: PricingOption.proMonthly.rawValue, title: "$4.99", price: 4.99)
 
   /// The `first_seen` onboarding as the server sends it: an intro story, then the paywall.
   private var stories: [StoryResponseModel] {
@@ -77,6 +78,48 @@ final class SecondOnboardingCoordinatorTests: XCTestCase {
     XCTAssertEqual(action.sliderOptions?.max, 9.99)
     XCTAssertEqual(action.button, "Continue")
     XCTAssertEqual(action.dismiss, "Not now")
+  }
+
+  /// The `support_paywall` and tips onboardings (most of them on the server) send no options: only the PRO
+  /// default, with the tip jar.
+  private var paywallWithoutOptions: [StoryResponseModel] {
+    [
+      StoryResponseModel(
+        title: "Paywall",
+        body: "Body",
+        image: nil,
+        duration: 10,
+        action: StoryActionResponseModel(
+          options: [],
+          defaultOption: pro.id,
+          button: "Continue for $4.99 / month",
+          tipJar: "or open the tip jar",
+          tipJarDisclaimer: "Disclaimer"
+        )
+      )
+    ]
+  }
+
+  func testPaywallWithoutOptionsNeedsOnlyTheDefaultPrice() async throws {
+    var requestedIds: [[String]] = []
+
+    let result = await SecondOnboardingCoordinator.parseStoryData(paywallWithoutOptions) { ids in
+      requestedIds.append(ids)
+      return [pro]
+    }
+
+    let action = try XCTUnwrap(try XCTUnwrap(result).first?.action)
+    XCTAssertEqual(requestedIds, [[pro.id]])
+    XCTAssertEqual(action.options, [])
+    XCTAssertEqual(action.defaultOption, pro)
+    XCTAssertEqual(action.tipJar, "or open the tip jar")
+    XCTAssertEqual(action.tipJarDisclaimer, "Disclaimer")
+  }
+
+  func testPaywallWithoutOptionsSkipsTheOnboardingWithoutTheDefaultPrice() async {
+    let result = await SecondOnboardingCoordinator.parseStoryData(paywallWithoutOptions) { _ in [] }
+
+    XCTAssertNil(result)
   }
 
   func testStoriesWithoutActionsLoadNoPrices() async throws {
