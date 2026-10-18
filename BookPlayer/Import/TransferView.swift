@@ -121,6 +121,9 @@ struct TransferView: View {
       UIAccessibility.post(notification: .announcement, argument: "transfer_server_copied_button".localized)
     }
     .bpFont(.body)
+    // Spoken as Copy throughout: the announcement says it worked, and a label that changes under
+    // VoiceOver's focus can be read again over it.
+    .accessibilityLabel("transfer_server_copy_button")
     .contentTransition(.symbolEffect(.replace))
     .sensoryFeedback(.success, trigger: copies)
     .task(id: copies) {

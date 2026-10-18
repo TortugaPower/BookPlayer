@@ -54,8 +54,8 @@ final class TransferViewModelTests: XCTestCase {
     XCTAssertEqual(rows[2].subtitle, String.localizedStringWithFormat("files_title".localized, 1))
   }
 
-  /// Done moves what arrived into a holding folder and sends one import for it, and the session ends
-  /// once: a later Cancel or the sheet going away sends nothing more.
+  /// Done moves what arrived into a holding folder and sends one import for it. A later Cancel or the
+  /// sheet going away sends nothing more and leaves what Done handed over alone.
   func testDoneHandsWhatArrivedToOneImport() async throws {
     let model = makeModel()
     model.start()
@@ -81,9 +81,12 @@ final class TransferViewModelTests: XCTestCase {
     model.sheetDisappeared()
     try await Task.sleep(for: .milliseconds(300))
     XCTAssertEqual(operations.count, 1)
+    XCTAssertTrue(FileManager.default.fileExists(atPath: files[0].appendingPathComponent("01.mp3").path))
+    let state = await model.server.state
+    XCTAssertEqual(state, .closed)
   }
 
-  /// A removed folder takes its files with it, and the removal finishes before Done takes the rest.
+  /// A removed folder takes its files with it: Done imports only what's left.
   func testRemovingAFolderDropsItsFilesFromTheImport() async throws {
     let model = makeModel()
     model.start()
@@ -110,11 +113,13 @@ final class TransferViewModelTests: XCTestCase {
 
     try await upload("intro.mp3", to: port)
     try await waitUntil { model.fileCount == 1 }
+    // The session's staging folder, under the test's root: the configuration reached the server.
+    XCTAssertEqual(try FileManager.default.contentsOfDirectory(atPath: stagingRoot.path).count, 1)
     model.discard()
     XCTAssertFalse(UIApplication.shared.isIdleTimerDisabled)
 
     try await waitUntil {
-      (try? FileManager.default.contentsOfDirectory(atPath: self.stagingRoot.path))?.isEmpty ?? true
+      (try? FileManager.default.contentsOfDirectory(atPath: self.stagingRoot.path))?.isEmpty ?? false
     }
     try await Task.sleep(for: .milliseconds(300))
     XCTAssertTrue(operations.isEmpty)

@@ -82,9 +82,10 @@ final class TransferViewModel: ObservableObject, BPLogger {
   /// Files the list's header counts, inside folders too.
   var fileCount: Int { receivedFiles.count }
 
-  /// Rows for the received files' relative paths, in the order they arrived: a file at the top is its
-  /// own row, and a file in a folder counts toward that folder's row. A row's id is the path that
-  /// ``remove(_:)`` hands to BrowserDrop.
+  /// Rows for the received files' relative paths: a file at the top is its own row, and a file in a
+  /// folder counts toward that folder's row. Files come first, then folders in the order first seen;
+  /// the shell sorts them by title for display. A row's id is the path ``remove(_:)`` hands to
+  /// BrowserDrop.
   static func rows(forRelativePaths paths: [String]) -> [ImportConfirmationRow] {
     var rows: [ImportConfirmationRow] = []
     var folders: [String] = []
