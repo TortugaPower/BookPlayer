@@ -23,6 +23,8 @@ struct TransferView: View {
   @EnvironmentObject private var theme: ThemeViewModel
   @Environment(\.dismiss) private var dismiss
   @State private var showsCopied = false
+  /// Bumped by every Copy, so a second tap within the feedback's two seconds gets its own.
+  @State private var copies = 0
 
   var body: some View {
     ImportConfirmationView(
@@ -30,6 +32,7 @@ struct TransferView: View {
       /// A failure to listen again (back from the background) leaves what arrived importable, so the
       /// list says so instead of the usual caveat.
       description: model.status == .failed ? "transfer_server_start_failed_message" : "transfer_footer",
+      fileCount: model.fileCount,
       onRemove: { model.remove($0) },
       onConfirm: {
         model.confirm()
@@ -113,13 +116,18 @@ struct TransferView: View {
     ) {
       model.copyAddress()
       showsCopied = true
+      copies += 1
+      // The label's change isn't reliably spoken while the button has focus.
+      UIAccessibility.post(notification: .announcement, argument: "transfer_server_copied_button".localized)
     }
     .bpFont(.body)
     .contentTransition(.symbolEffect(.replace))
-    .sensoryFeedback(.success, trigger: showsCopied) { _, copied in copied }
-    .task(id: showsCopied) {
-      guard showsCopied else { return }
+    .sensoryFeedback(.success, trigger: copies)
+    .task(id: copies) {
+      guard copies > 0 else { return }
       try? await Task.sleep(for: .seconds(2))
+      // A newer tap cancels this one and starts its own two seconds.
+      guard !Task.isCancelled else { return }
       showsCopied = false
     }
   }

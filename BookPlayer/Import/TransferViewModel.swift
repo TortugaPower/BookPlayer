@@ -44,7 +44,8 @@ final class TransferViewModel: ObservableObject, BPLogger {
 
   private let importManager: ImportManager
   private let libraryService: LibraryServiceProtocol
-  private let server: BrowserDropServer
+  /// Internal for tests, which read the bound port from its state.
+  let server: BrowserDropServer
   private var eventsTask: Task<Void, Never>?
   /// Session work runs in order: a removal finishes before Done takes the files, and a quick
   /// background-and-back suspends before it resumes.
@@ -53,11 +54,17 @@ final class TransferViewModel: ObservableObject, BPLogger {
   private var hasEnded = false
   private var previousIdleTimerDisabled: Bool?
 
-  init(importManager: ImportManager, libraryService: LibraryServiceProtocol) {
+  /// `configuration` is for tests (any port, their own staging); the app uses the default.
+  init(
+    importManager: ImportManager,
+    libraryService: LibraryServiceProtocol,
+    configuration: BrowserDropServer.Configuration? = nil
+  ) {
     self.importManager = importManager
     self.libraryService = libraryService
     self.server = BrowserDropServer(
-      configuration: .init(allowedExtensions: Self.acceptedExtensions, pageSettings: Self.pageSettings())
+      configuration: configuration
+        ?? .init(allowedExtensions: Self.acceptedExtensions, pageSettings: Self.pageSettings())
     )
   }
 
@@ -69,23 +76,36 @@ final class TransferViewModel: ObservableObject, BPLogger {
 
   /// What the import list shows: each file at the top, and each folder with how many files it holds.
   var rows: [ImportConfirmationRow] {
+    Self.rows(forRelativePaths: receivedFiles.map(\.relativePath))
+  }
+
+  /// Files the list's header counts, inside folders too.
+  var fileCount: Int { receivedFiles.count }
+
+  /// Rows for the received files' relative paths, in the order they arrived: a file at the top is its
+  /// own row, and a file in a folder counts toward that folder's row. A row's id is the path that
+  /// ``remove(_:)`` hands to BrowserDrop.
+  static func rows(forRelativePaths paths: [String]) -> [ImportConfirmationRow] {
     var rows: [ImportConfirmationRow] = []
+    var folders: [String] = []
     var folderCounts: [String: Int] = [:]
-    for file in receivedFiles {
-      let parts = file.relativePath.split(separator: "/", maxSplits: 1)
+    for path in paths {
+      let parts = path.split(separator: "/", maxSplits: 1)
       if parts.count == 2 {
-        folderCounts[String(parts[0]), default: 0] += 1
+        let folder = String(parts[0])
+        if folderCounts[folder] == nil { folders.append(folder) }
+        folderCounts[folder, default: 0] += 1
       } else {
-        rows.append(ImportConfirmationRow(id: file.relativePath, icon: "waveform", title: file.name))
+        rows.append(ImportConfirmationRow(id: path, icon: "waveform", title: path))
       }
     }
-    for (folder, count) in folderCounts {
+    for folder in folders {
       rows.append(
         ImportConfirmationRow(
           id: folder,
           icon: "folder",
           title: folder,
-          subtitle: String.localizedStringWithFormat("files_title".localized, count)
+          subtitle: String.localizedStringWithFormat("files_title".localized, folderCounts[folder] ?? 0)
         )
       )
     }
@@ -239,8 +259,9 @@ final class TransferViewModel: ObservableObject, BPLogger {
     case .addressesChanged(let addresses):
       address = addresses.first
     case .interrupted:
-      // In the background, coming back resumes it.
-      if UIApplication.shared.applicationState == .active {
+      // In the background, coming back resumes it. Inactive (Control Center over the sheet) isn't the
+      // background: coming back from it doesn't send willEnterForeground, so resume now.
+      if UIApplication.shared.applicationState != .background {
         listen()
       }
     case .uploadStarted, .uploadProgress, .uploadFailed:

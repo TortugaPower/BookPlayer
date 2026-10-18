@@ -30,8 +30,8 @@ struct ImportConfirmationRow: Identifiable {
 /// This shell is currently shaped for the external flow, whose needs are the simpler
 /// half. Four things the UIKit screen does are NOT implemented here, and the file flow
 /// cannot adopt it until they are. None of them are reachable today: an external batch
-/// is frozen at confirmation and its removals cannot fail, and the Transfer flow's folder rows
-/// come from its own view model, which shows a failed removal by keeping the row.
+/// is frozen at confirmation and its removals cannot fail. The Transfer flow builds its own
+/// folder rows (2) and passes its file total (4), and shows a failed removal by keeping the row.
 ///
 /// 1. **Failure has nowhere to go.** `onRemove` and `onCancel` are non-throwing, because the
 ///    external flow only mutates an array and dismisses. Their file-flow equivalents both
@@ -49,7 +49,7 @@ struct ImportConfirmationRow: Identifiable {
 ///    `import_warning_description` warns about, so without it the copy is a promise the
 ///    screen cannot keep, which is why the external flow passes no description at all.
 /// 4. **Total vs row count.** The UIKit header counts files INSIDE folders via
-///    `getTotalItems()`; this counts rows. Identical until folders appear.
+///    `getTotalItems()`; this counts rows unless the flow passes `fileCount`.
 struct ImportConfirmationView<EmptyState: View>: View {
   let rows: [ImportConfirmationRow]
   /// Nil when the flow has no caveat to give. Not defaulted on purpose: a default is how
@@ -59,6 +59,9 @@ struct ImportConfirmationView<EmptyState: View>: View {
   let onRemove: (ImportConfirmationRow.ID) -> Void
   let onConfirm: () -> Void
   let onCancel: () -> Void
+  /// What the header counts. Nil counts the rows; a flow with folder rows passes the files
+  /// inside them, as the UIKit import screen counts them.
+  private let fileCount: Int?
   /// Shown instead of the list while there are no rows, for a flow whose rows arrive while
   /// the screen is up (the Transfer from Computer flow). Nil keeps the empty list: a batch
   /// that starts out empty has nothing to explain.
@@ -67,6 +70,7 @@ struct ImportConfirmationView<EmptyState: View>: View {
   init(
     rows: [ImportConfirmationRow],
     description: LocalizedStringKey? = nil,
+    fileCount: Int? = nil,
     onRemove: @escaping (ImportConfirmationRow.ID) -> Void,
     onConfirm: @escaping () -> Void,
     onCancel: @escaping () -> Void,
@@ -74,6 +78,7 @@ struct ImportConfirmationView<EmptyState: View>: View {
   ) {
     self.rows = rows
     self.description = description
+    self.fileCount = fileCount
     self.onRemove = onRemove
     self.onConfirm = onConfirm
     self.onCancel = onCancel
@@ -93,7 +98,14 @@ struct ImportConfirmationView<EmptyState: View>: View {
   var body: some View {
     NavigationStack {
       content
+      /// Set here rather than inherited: the two current call sites happen to sit under a
+      /// `.tint(theme.linkColor)`, but a reusable shell should not depend on an ancestor the
+      /// file flow will not have. `linkColor` also matches what UIKit puts on the bar —
+      /// the hand-rolled buttons this replaced used `primaryColor`, which never did.
       .tint(theme.linkColor)
+      /// The list gets this from `applyListStyle`; the empty state needs it too, or the bar
+      /// keeps the system colour scheme until the first row arrives.
+      .toolbarColorScheme(theme.useDarkVariant ? .dark : .light, for: .navigationBar)
       /// Cancelling has to be a choice: a swipe-away would discard a staged import by
       /// accident. Deliberately STRICTER than the UIKit screen, which allows the swipe and
       /// runs `try? discardImportOperation()` from `presentationControllerDidDismiss` —
@@ -130,9 +142,15 @@ struct ImportConfirmationView<EmptyState: View>: View {
   @ViewBuilder
   private var content: some View {
     if rows.isEmpty, let emptyState {
-      emptyState
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-        .background(theme.systemBackgroundColor)
+      /// Centered while it fits, scrolling once the largest text sizes make it taller than the
+      /// screen, where it would otherwise clip its actions.
+      ScrollView {
+        emptyState
+          .frame(maxWidth: .infinity)
+      }
+      .defaultScrollAnchor(.center, for: .alignment)
+      .scrollBounceBehavior(.basedOnSize)
+      .background(theme.systemBackgroundColor)
     } else {
       List {
         Section {
@@ -174,7 +192,7 @@ struct ImportConfirmationView<EmptyState: View>: View {
           }
         } header: {
           Text(
-            String.localizedStringWithFormat("files_title".localized, rows.count)
+            String.localizedStringWithFormat("files_title".localized, fileCount ?? rows.count)
               .localizedCapitalized
           )
           .bpFont(.subheadline)
@@ -207,10 +225,6 @@ struct ImportConfirmationView<EmptyState: View>: View {
             .padding(.bottom, Spacing.S2)
         }
       }
-      /// Set here rather than inherited: the two current call sites happen to sit under a
-      /// `.tint(theme.linkColor)`, but a reusable shell should not depend on an ancestor the
-      /// file flow will not have. `linkColor` also matches what UIKit puts on the bar —
-      /// the hand-rolled buttons this replaced used `primaryColor`, which never did.
     }
   }
 }
@@ -230,6 +244,7 @@ extension ImportConfirmationView where EmptyState == EmptyView {
     self.onRemove = onRemove
     self.onConfirm = onConfirm
     self.onCancel = onCancel
+    self.fileCount = nil
     self.emptyState = nil
   }
 }

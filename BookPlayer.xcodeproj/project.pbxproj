@@ -1033,6 +1033,7 @@
 		92A2DF0ED95385B25FC6D64B /* LibraryLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99FACFAD706E57D2BF915994 /* LibraryLayout.swift */; };
 		CEE4C04FC00CC74E8A566078 /* LibraryLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 99FACFAD706E57D2BF915994 /* LibraryLayout.swift */; };
 		FCC36DCA4DDFC47494F08E06 /* FoldedTileColumnsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E1D595D4ED5DCE9C4CF1B8B /* FoldedTileColumnsTests.swift */; };
+		6B6FF31D9EA606728B7744A4 /* TransferViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = C16DCA3135D8033FF7B22131 /* TransferViewModelTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -2074,6 +2075,7 @@
 		32194561FB001A338C36005C /* ItemListViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ItemListViewModelTests.swift; sourceTree = "<group>"; };
 		99FACFAD706E57D2BF915994 /* LibraryLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LibraryLayout.swift; sourceTree = "<group>"; };
 		3E1D595D4ED5DCE9C4CF1B8B /* FoldedTileColumnsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FoldedTileColumnsTests.swift; sourceTree = "<group>"; };
+		C16DCA3135D8033FF7B22131 /* TransferViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferViewModelTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -2575,6 +2577,7 @@
 				EDC06443EFD052E697036798 /* QueuedTaskDisplayTests.swift */,
 				93B92CBF82FDC0C582ED64AC /* OrientationLockTests.swift */,
 				3E1D595D4ED5DCE9C4CF1B8B /* FoldedTileColumnsTests.swift */,
+				C16DCA3135D8033FF7B22131 /* TransferViewModelTests.swift */,
 				5359C57600F2E373E8F33D39 /* NetworkClientQueryEncodingTests.swift */,
 				41C3CF7D20AEA5E5007C3EF4 /* DataManagerTests.swift */,
 				9F8A9A5D27AC3F8C0093AA1C /* PlayableItemTests.swift */,
@@ -5468,6 +5471,7 @@
 				FDA22898B1CD320A1D8F6C52 /* QueuedTaskDisplayTests.swift in Sources */,
 				D4E0F3615A600272F7CA5046 /* OrientationLockTests.swift in Sources */,
 				FCC36DCA4DDFC47494F08E06 /* FoldedTileColumnsTests.swift in Sources */,
+				6B6FF31D9EA606728B7744A4 /* TransferViewModelTests.swift in Sources */,
 				74054210C96493349539697D /* NetworkClientQueryEncodingTests.swift in Sources */,
 				0CEC6B48350FC9C0A0B7D1C0 /* SyncTasksStorageTests.swift in Sources */,
 				1A26F7D72FFD6D625A313FC5 /* AudioMetadataServiceTests.swift in Sources */,
