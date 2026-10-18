@@ -129,8 +129,8 @@ class ImportOperationTests: XCTestCase {
     wait(for: [promise], timeout: 15)
   }
 
-  /// The Transfer from Computer flow hands over files in a holding folder it owns: they're
-  /// deleted once copied, the folder doesn't become a suggested name, and it's gone afterwards.
+  /// The Transfer from Computer flow hands over files in a holding folder it owns: the folder
+  /// doesn't become a suggested name, and it's gone once the import finishes.
   func testOwnedSourceRootIsConsumedAndSuggestsNoFolder() throws {
     let root = FileManager.default.temporaryDirectory
       .appendingPathComponent("ImportOperationTests-\(UUID().uuidString)", isDirectory: true)
@@ -190,7 +190,7 @@ class ImportOperationTests: XCTestCase {
     wait(for: [promise], timeout: 15)
   }
 
-  /// Only sources inside the owned folder are deleted: anything else is copied and left where it is.
+  /// Only the owned folder is deleted: a source outside it is copied and left where it is.
   func testSourceOutsideTheOwnedRootIsKept() throws {
     let root = FileManager.default.temporaryDirectory
       .appendingPathComponent("ImportOperationTests-\(UUID().uuidString)", isDirectory: true)

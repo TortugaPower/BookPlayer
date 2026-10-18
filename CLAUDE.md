@@ -660,8 +660,8 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
   goes through Documents or the import screen: the files move into an owned holding folder
   (`tmp/TransferImport/<uuid>`) and an `ImportOperation(files:libraryService:ownedSourceRoot:)` goes on
   `ImportManager.operationPublisher`, as the import screen's own Done does, so the library runs it and shows the
-  placement prompt once the sheet's cover is gone. The operation consumes that folder like an app-managed
-  source and suggests no folder named after it. Cancel, closing the sheet any other way, or the app being
+  placement prompt once the sheet's cover is gone. The operation removes that folder when it finishes and
+  suggests no folder named after it. Cancel, closing the sheet any other way, or the app being
   killed, wipes staging (`TransferViewModel.removeLeftovers()` at launch clears staging and holding); going to
   the background suspends the server and coming back resumes it on the same port, keeping what arrived. The
   sheet keeps the screen awake, restoring the previous `isIdleTimerDisabled` (the player sets it too).
