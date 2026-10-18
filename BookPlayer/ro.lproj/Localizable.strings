@@ -161,8 +161,6 @@
 "watchapp_refresh_data_title" = "Actualizați datele";
 "recent_title" = "Recent";
 "carplay_library_error" = "Imposibil de încărcat cărți";
-"siri_invocation_phrase" = "Continuați-mi cartea";
-"siri_activity_title" = "Continuați ultima carte derulata";
 "watchapp_connect_error_title" = "Eroare de conectivitate";
 "watchapp_connect_error_description" = "Există o problemă de conectare la telefonul dvs., încercați din nou mai târziu";
 "watch_signin_with_iphone" = "Autentificare cu iPhone";
@@ -326,6 +324,13 @@
 "intent_sleeptimer_request_duration_title" = "Pentru cât timp";
 "Set Sleep Timer for ${duration}" = "Setați cronometrul de repaus pentru ${duration}";
 "intent_sleeptimer_eoc_title" = "Setați cronometrul de repaus la sfârșitul capitolului";
+"sleeptimer_option_5_minutes" = "5 minute";
+"sleeptimer_option_10_minutes" = "10 minute";
+"sleeptimer_option_15_minutes" = "15 minute";
+"sleeptimer_option_30_minutes" = "30 de minute";
+"sleeptimer_option_45_minutes" = "45 de minute";
+"sleeptimer_option_1_hour" = "1 oră";
+"widget_autoplay_title" = "Redare automată";
 "intent_lastbook_play_title" = "Reluați ultima carte jucată";
 "intent_lastbook_empty_error" = "Nu există ultima carte jucată";
 "intent_playback_pause_title" = "Întrerupeți redarea";

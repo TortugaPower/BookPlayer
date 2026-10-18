@@ -161,8 +161,6 @@
 "watchapp_refresh_data_title" = "Оновити дані";
 "recent_title" = "Останні";
 "carplay_library_error" = "Не вдається завантажити книги";
-"siri_invocation_phrase" = "Продовжити слухати книгу";
-"siri_activity_title" = "Продовжити відтворення попередньої книги";
 "watchapp_connect_error_title" = "Помилка з'єднання";
 "watchapp_connect_error_description" = "Виникла проблема з підключенням до телефону, будь ласка, спробуйте пізніше";
 "watch_signin_with_iphone" = "Увійти через iPhone";
@@ -326,6 +324,13 @@
 "intent_sleeptimer_request_duration_title" = "Як довго";
 "Set Sleep Timer for ${duration}" = "Встановити таймер сну на ${duration}";
 "intent_sleeptimer_eoc_title" = "Встановіть таймер сну на кінець розділу";
+"sleeptimer_option_5_minutes" = "5 хвилин";
+"sleeptimer_option_10_minutes" = "10 хвилин";
+"sleeptimer_option_15_minutes" = "15 хвилин";
+"sleeptimer_option_30_minutes" = "30 хвилин";
+"sleeptimer_option_45_minutes" = "45 хвилин";
+"sleeptimer_option_1_hour" = "1 година";
+"widget_autoplay_title" = "Автовідтворення";
 "intent_lastbook_play_title" = "Відновити останню відтворену книгу";
 "intent_lastbook_empty_error" = "Немає останньої програної книги";
 "intent_playback_pause_title" = "Призупинити відтворення";

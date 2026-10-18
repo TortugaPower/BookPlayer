@@ -65,7 +65,6 @@
 		4111FBEA25EDEFDD0096954F /* forest-green@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4111FBE825EDEFDD0096954F /* forest-green@3x.png */; };
 		4111FBEB25EDEFDD0096954F /* forest-green@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4111FBE925EDEFDD0096954F /* forest-green@2x.png */; };
 		41188D2426ED2BA30017124E /* LoadingCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41188D2326ED2BA30017124E /* LoadingCoordinator.swift */; };
-		4122991D24442E7800CDB416 /* BookPlayerKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41A1B0D2226E9BC400EA0400 /* BookPlayerKit.framework */; };
 		4124122826D19A8700B099DB /* StorageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4124122726D19A8600B099DB /* StorageViewModel.swift */; };
 		4124122A26D19B9100B099DB /* StorageItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4124122926D19B9100B099DB /* StorageItem.swift */; };
 		4124AB1725DFE07E0007C839 /* DataMigrationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4124AB1625DFE07E0007C839 /* DataMigrationManager.swift */; };
@@ -77,10 +76,6 @@
 		412AB70E2701463100969618 /* LoadingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 412AB70D2701463100969618 /* LoadingViewModel.swift */; };
 		412AB71527017ABE00969618 /* DBVersion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 412AB71427017ABD00969618 /* DBVersion.swift */; };
 		412AB71627017ABE00969618 /* DBVersion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 412AB71427017ABD00969618 /* DBVersion.swift */; };
-		41342D0124435D9900F0905B /* IntentHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41342D0024435D9900F0905B /* IntentHandler.swift */; };
-		41342D0524435D9900F0905B /* BookPlayerIntents.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 41342CFE24435D9900F0905B /* BookPlayerIntents.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		41342D0A24435DAD00F0905B /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = 41640A3624416EE8004FB97B /* Intents.intentdefinition */; settings = {ATTRIBUTES = (no_codegen, ); }; };
-		41342D0C24435EF800F0905B /* SleepTimerHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41342D0B24435EF800F0905B /* SleepTimerHandler.swift */; };
 		4137BBCC272DAF2E009ED9FE /* MVVMControllerProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4137BBCB272DAF2E009ED9FE /* MVVMControllerProtocol.swift */; };
 		4137BBD0272DEBEC009ED9FE /* LoadingCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4137BBCF272DEBEC009ED9FE /* LoadingCoordinatorTests.swift */; };
 		4138CE1126E5542C0014F11E /* Bookmark+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4138CE0D26E5540E0014F11E /* Bookmark+CoreDataClass.swift */; };
@@ -134,11 +129,14 @@
 		4163E313214AC43000072AA2 /* ImportOperationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4163E312214AC43000072AA2 /* ImportOperationTests.swift */; };
 		28EEB2588DE468A6B8C15272 /* RefreshTaskOperationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65962B5F03D221629A83C22C /* RefreshTaskOperationTests.swift */; };
 		3EBBB264D481A0F2DF48763E /* ListSyncRefreshServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 098A98893A8783E8BE1C5420 /* ListSyncRefreshServiceTests.swift */; };
+		A64308C416AABB27C66476A5 /* SleepTimerOptionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 288AB833FD0408AF95443752 /* SleepTimerOptionTests.swift */; };
+		B843F82DBB21978E66CC52BE /* SleepTimerOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = F272F6B4BD466581AA888D36 /* SleepTimerOption.swift */; };
+		CD5F28377EB6CA3A6D28FCAE /* TimeListenedConfigurationIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5B7EA50469723CE6626EB2A /* TimeListenedConfigurationIntent.swift */; };
+		E79345DD00DC64A0F7E0939A /* SleepTimerOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = F272F6B4BD466581AA888D36 /* SleepTimerOption.swift */; };
 		FDA22898B1CD320A1D8F6C52 /* QueuedTaskDisplayTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EDC06443EFD052E697036798 /* QueuedTaskDisplayTests.swift */; };
 		D4E0F3615A600272F7CA5046 /* OrientationLockTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93B92CBF82FDC0C582ED64AC /* OrientationLockTests.swift */; };
 		74054210C96493349539697D /* NetworkClientQueryEncodingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5359C57600F2E373E8F33D39 /* NetworkClientQueryEncodingTests.swift */; };
 		41640A3724416EE8004FB97B /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = 41640A3624416EE8004FB97B /* Intents.intentdefinition */; settings = {ATTRIBUTES = (no_codegen, ); }; };
-		41640A452441ACE2004FB97B /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = 41640A3624416EE8004FB97B /* Intents.intentdefinition */; };
 		4165EE0520A743D500616EDF /* BookPlayer.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 4165EDF920A743D500616EDF /* BookPlayer.xcdatamodeld */; };
 		41670131255B4A2C0054164F /* Sequence+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41670130255B4A2C0054164F /* Sequence+BookPlayer.swift */; };
 		416A297D2568671F00605395 /* AVPlayer+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 416A297C2568671F00605395 /* AVPlayer+BookPlayer.swift */; };
@@ -152,7 +150,6 @@
 		416AAC3323F51031005AD04F /* LocalizableButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 416AAC3223F51031005AD04F /* LocalizableButton.swift */; };
 		416AAC3423F515AF005AD04F /* String+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4160A08E23F2DBD40039166B /* String+BookPlayer.swift */; };
 		416AAC3523F515B0005AD04F /* String+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4160A08E23F2DBD40039166B /* String+BookPlayer.swift */; };
-		417D996F256D73B400C3B753 /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = 41640A3624416EE8004FB97B /* Intents.intentdefinition */; settings = {ATTRIBUTES = (no_codegen, ); }; };
 		417D9994256DE3FB00C3B753 /* LastPlayedWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 417D9993256DE3FB00C3B753 /* LastPlayedWidgetView.swift */; };
 		418445C3258AE11E0072DD13 /* WidgetUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 418445C2258AE11E0072DD13 /* WidgetUtils.swift */; };
 		418B6CFC1D2707F800F974FB /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 418B6CFB1D2707F800F974FB /* AppDelegate.swift */; };
@@ -169,7 +166,6 @@
 		4197240021874D5F00AB1190 /* UserActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 419723FF21874D5F00AB1190 /* UserActivityManager.swift */; };
 		4197FAFC267E480100811CC8 /* ImportViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4197FAFB267E480100811CC8 /* ImportViewController.swift */; };
 		419B375623B8D5A500128A8F /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 419B375423B8D5A500128A8F /* Localizable.strings */; };
-		419BD5992443FD04001E50A0 /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = 41640A3624416EE8004FB97B /* Intents.intentdefinition */; };
 		41A1B0E4226E9BC500EA0400 /* BookPlayerKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 41A1B0D4226E9BC400EA0400 /* BookPlayerKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		41A1B0E7226E9BC500EA0400 /* BookPlayerKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 41A1B0D2226E9BC400EA0400 /* BookPlayerKit.framework */; platformFilter = ios; };
 		41A1B0E8226E9BC500EA0400 /* BookPlayerKit.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 41A1B0D2226E9BC400EA0400 /* BookPlayerKit.framework */; platformFilter = ios; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -223,7 +219,6 @@
 		41AD3DA1221C7CAB00DC41E1 /* Icon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41AD3DA0221C7CAB00DC41E1 /* Icon.swift */; };
 		41AD3DAB221C8FF400DC41E1 /* default-icon@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 41AD3DA8221C8FF400DC41E1 /* default-icon@3x.png */; };
 		41AD3DAC221C8FF400DC41E1 /* default-icon@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 41AD3DA9221C8FF400DC41E1 /* default-icon@2x.png */; };
-		41ADD6A72570651200660C64 /* PlayAndSleepActionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41ADD6A62570651200660C64 /* PlayAndSleepActionHandler.swift */; };
 		41ADD6DA2570AC6300660C64 /* RecentBooksWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41ADD6D92570AC6300660C64 /* RecentBooksWidgetView.swift */; };
 		41B0A9872746F47600DE9E48 /* ThemedTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B0A9862746F47600DE9E48 /* ThemedTableViewCell.swift */; };
 		41B2A5E121CCC21000917584 /* ThemeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41B2A5E021CCC21000917584 /* ThemeManager.swift */; };
@@ -322,7 +317,6 @@
 		62CADBAE2725FE2900A4A98F /* AVAudioAssetImageDataProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 624AB20A2724808600F6A486 /* AVAudioAssetImageDataProvider.swift */; };
 		62CADBAF2725FE2C00A4A98F /* ArtworkService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 415460F525E57B4F0085F8D9 /* ArtworkService.swift */; };
 		62F2F25F25E18C7500E1D6A0 /* ImportableItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 62F2F25E25E18C7500E1D6A0 /* ImportableItem.swift */; };
-		63005A2D2AE7FD8000A4CA2C /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = 41640A3624416EE8004FB97B /* Intents.intentdefinition */; settings = {ATTRIBUTES = (no_codegen, ); }; };
 		63005A2F2AE7FD8000A4CA2C /* MappingModel_v7_to_v8.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 41A359C2276232E00020D5F5 /* MappingModel_v7_to_v8.xcmappingmodel */; };
 		63005A302AE7FD8000A4CA2C /* BookPlayerWidgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 416A29A92569658100605395 /* BookPlayerWidgets.swift */; };
 		63005A312AE7FD8000A4CA2C /* MappingModel_v1_to_v2.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 41D20DAE25D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel */; };
@@ -1039,20 +1033,6 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		4122991F24442E7800CDB416 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 418B6CF01D2707F700F974FB /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 41A1B0D1226E9BC400EA0400;
-			remoteInfo = BookPlayerKit;
-		};
-		41342D0324435D9900F0905B /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 418B6CF01D2707F700F974FB /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 41342CFD24435D9900F0905B;
-			remoteInfo = BookPlayerIntents;
-		};
 		4140EA4C227288EF0009F794 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 418B6CF01D2707F700F974FB /* Project object */;
@@ -1163,7 +1143,6 @@
 			files = (
 				416A29B02569658300605395 /* BookPlayerWidgetsPhone.appex in Embed Foundation Extensions */,
 				9F4A33E7292B0C710034CD4C /* BookPlayerShareExtension.appex in Embed Foundation Extensions */,
-				41342D0524435D9900F0905B /* BookPlayerIntents.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1204,6 +1183,7 @@
 		22E85F55E03D1981F097661C /* PKCE.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PKCE.swift; sourceTree = "<group>"; };
 		2621E11ACFA5162D6D14CB7C /* MediaServerProgressPushTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MediaServerProgressPushTests.swift; sourceTree = "<group>"; };
 		269BB56618B150DCAA2CA5FB /* IntegrationConnectionStoreTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = IntegrationConnectionStoreTests.swift; sourceTree = "<group>"; };
+		288AB833FD0408AF95443752 /* SleepTimerOptionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepTimerOptionTests.swift; sourceTree = "<group>"; };
 		2AF448F75392B02FC5451289 /* SortIntegrationHarness.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SortIntegrationHarness.swift; sourceTree = "<group>"; };
 		2BB8BD2F5EC900DC51D5D02D /* IntegrationConnectionDataDecodingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = IntegrationConnectionDataDecodingTests.swift; sourceTree = "<group>"; };
 		2E070421575334E1CD85C049 /* IntegrationLibraryViewModelProtocol.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = IntegrationLibraryViewModelProtocol.swift; sourceTree = "<group>"; };
@@ -1266,10 +1246,6 @@
 		412AB70D2701463100969618 /* LoadingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingViewModel.swift; sourceTree = "<group>"; };
 		412AB71427017ABD00969618 /* DBVersion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DBVersion.swift; sourceTree = "<group>"; };
 		412AB73B2702BDED00969618 /* SimpleTheme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SimpleTheme.swift; sourceTree = "<group>"; };
-		41342CFE24435D9900F0905B /* BookPlayerIntents.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = BookPlayerIntents.appex; sourceTree = BUILT_PRODUCTS_DIR; };
-		41342D0024435D9900F0905B /* IntentHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntentHandler.swift; sourceTree = "<group>"; };
-		41342D0224435D9900F0905B /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		41342D0B24435EF800F0905B /* SleepTimerHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepTimerHandler.swift; sourceTree = "<group>"; };
 		4136175B24019EE700D2DDC1 /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/Localizable.strings; sourceTree = "<group>"; };
 		4136175C24019EEB00D2DDC1 /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = sv; path = sv.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		4137BBCB272DAF2E009ED9FE /* MVVMControllerProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MVVMControllerProtocol.swift; sourceTree = "<group>"; };
@@ -1411,7 +1387,6 @@
 		41AD3DA8221C8FF400DC41E1 /* default-icon@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "default-icon@3x.png"; sourceTree = "<group>"; };
 		41AD3DA9221C8FF400DC41E1 /* default-icon@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "default-icon@2x.png"; sourceTree = "<group>"; };
 		41AD3DB222205C5A00DC41E1 /* Kingfisher.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Kingfisher.framework; path = Carthage/Build/iOS/Kingfisher.framework; sourceTree = "<group>"; };
-		41ADD6A62570651200660C64 /* PlayAndSleepActionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayAndSleepActionHandler.swift; sourceTree = "<group>"; };
 		41ADD6D92570AC6300660C64 /* RecentBooksWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecentBooksWidgetView.swift; sourceTree = "<group>"; };
 		41B0A9862746F47600DE9E48 /* ThemedTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemedTableViewCell.swift; sourceTree = "<group>"; };
 		41B2A5E021CCC21000917584 /* ThemeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeManager.swift; sourceTree = "<group>"; };
@@ -1734,6 +1709,7 @@
 		5EEA5B438944574494C5385F /* BackgroundSessionWakeCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundSessionWakeCoordinator.swift; sourceTree = "<group>"; };
 		42B6A047D0689D9E2E2D9749 /* PromptSurfaceArbiter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptSurfaceArbiter.swift; sourceTree = "<group>"; };
 		3D4833D717C7B97F7B5DFDC5 /* PromptSurfaceArbiterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptSurfaceArbiterTests.swift; sourceTree = "<group>"; };
+		F272F6B4BD466581AA888D36 /* SleepTimerOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepTimerOption.swift; sourceTree = "<group>"; };
 		F3B31C1E62A380C33C60FF9B /* PlaybackAlerts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackAlerts.swift; sourceTree = "<group>"; };
 		F05D3B1199FC741AB2FDED67 /* PlaybackFailure.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackFailure.swift; sourceTree = "<group>"; };
 		63B760E72C31FFC600AA98C7 /* SupportFlowCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupportFlowCoordinator.swift; sourceTree = "<group>"; };
@@ -1855,6 +1831,7 @@
 		9911FBC62F7738C100DC9A2B /* SyncableExternalResource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncableExternalResource.swift; sourceTree = "<group>"; };
 		9911FBD62F7CACE200DC9A2B /* QueuedTasksView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueuedTasksView.swift; sourceTree = "<group>"; };
 		4F26B24460975E0B0B15ABDA /* QueuedTaskDisplay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueuedTaskDisplay.swift; sourceTree = "<group>"; };
+		F5B7EA50469723CE6626EB2A /* TimeListenedConfigurationIntent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeListenedConfigurationIntent.swift; sourceTree = "<group>"; };
 		FCC4219B7DA1CD232AE12888 /* SyncPauseReport.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncPauseReport.swift; sourceTree = "<group>"; };
 		99329DB62F3AA8F6003F8E73 /* PlayControlsRowView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayControlsRowView.swift; sourceTree = "<group>"; };
 		99329DBA2F3AAA61003F8E73 /* ListeningProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListeningProgressView.swift; sourceTree = "<group>"; };
@@ -2083,14 +2060,6 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		41342CFB24435D9900F0905B /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				4122991D24442E7800CDB416 /* BookPlayerKit.framework in Frameworks */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		4140EA38227288EF0009F794 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -2316,6 +2285,8 @@
 			isa = PBXGroup;
 			children = (
 				410641272579AA2F008EB8D0 /* TimeListenedWidgetView.swift */,
+				F5B7EA50469723CE6626EB2A /* TimeListenedConfigurationIntent.swift */,
+				F272F6B4BD466581AA888D36 /* SleepTimerOption.swift */,
 				41064151258726D2008EB8D0 /* TimeListenedMediumView.swift */,
 				4106414825872699008EB8D0 /* TimeListenedSmallView.swift */,
 				4106413F25872614008EB8D0 /* BarView.swift */,
@@ -2380,17 +2351,6 @@
 				637043492E2C03D9005353D1 /* SettingsDataUsageSectionView.swift */,
 			);
 			path = Storage;
-			sourceTree = "<group>";
-		};
-		41342CFF24435D9900F0905B /* BookPlayerIntents */ = {
-			isa = PBXGroup;
-			children = (
-				41342D0024435D9900F0905B /* IntentHandler.swift */,
-				41342D0B24435EF800F0905B /* SleepTimerHandler.swift */,
-				41ADD6A62570651200660C64 /* PlayAndSleepActionHandler.swift */,
-				41342D0224435D9900F0905B /* Info.plist */,
-			);
-			path = BookPlayerIntents;
 			sourceTree = "<group>";
 		};
 		4138CE1A26E5B4020014F11E /* Bookmarks */ = {
@@ -2493,7 +2453,6 @@
 				41A1B0D3226E9BC400EA0400 /* BookPlayerKit */,
 				418B6D111D2707F800F974FB /* BookPlayerTests */,
 				4140EA5F227289720009F794 /* BookPlayerWatchKit */,
-				41342CFF24435D9900F0905B /* BookPlayerIntents */,
 				416A29A82569658100605395 /* BookPlayerWidgets */,
 				9F4A33DE292B0C710034CD4C /* BookPlayerShareExtension */,
 				418B6CF91D2707F800F974FB /* Products */,
@@ -2515,7 +2474,6 @@
 				41A1B0D2226E9BC400EA0400 /* BookPlayerKit.framework */,
 				4140EA2F227288ED0009F794 /* BookPlayerWatch.app */,
 				4140EA5E227289720009F794 /* BookPlayerWatchKit.framework */,
-				41342CFE24435D9900F0905B /* BookPlayerIntents.appex */,
 				416A29A32569658100605395 /* BookPlayerWidgetsPhone.appex */,
 				9F4A33DD292B0C700034CD4C /* BookPlayerShareExtension.appex */,
 				63005A432AE7FD8000A4CA2C /* BookPlayerWidgetsWatch.appex */,
@@ -2584,6 +2542,7 @@
 				5359C57600F2E373E8F33D39 /* NetworkClientQueryEncodingTests.swift */,
 				41C3CF7D20AEA5E5007C3EF4 /* DataManagerTests.swift */,
 				9F8A9A5D27AC3F8C0093AA1C /* PlayableItemTests.swift */,
+				288AB833FD0408AF95443752 /* SleepTimerOptionTests.swift */,
 				689E2BCD29DC1D9253949A53 /* PlayableChapterTests.swift */,
 				9FB7C48C2835A2C1003B917E /* PlayerManagerTests.swift */,
 				B0B0F11E5EA1CA27D0000005 /* PlayerTimeSampleTests.swift */,
@@ -4239,24 +4198,6 @@
 			productReference = AECEFA77F95B65BB6215EF13 /* BookPlayerUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
 		};
-		41342CFD24435D9900F0905B /* BookPlayerIntents */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 41342D0624435D9900F0905B /* Build configuration list for PBXNativeTarget "BookPlayerIntents" */;
-			buildPhases = (
-				41342CFA24435D9900F0905B /* Sources */,
-				41342CFB24435D9900F0905B /* Frameworks */,
-				41342CFC24435D9900F0905B /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				4122992024442E7800CDB416 /* PBXTargetDependency */,
-			);
-			name = BookPlayerIntents;
-			productName = BookPlayerIntents;
-			productReference = 41342CFE24435D9900F0905B /* BookPlayerIntents.appex */;
-			productType = "com.apple.product-type.app-extension";
-		};
 		4140EA2E227288ED0009F794 /* BookPlayerWatch */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4140EA57227288EF0009F794 /* Build configuration list for PBXNativeTarget "BookPlayerWatch" */;
@@ -4337,7 +4278,6 @@
 			dependencies = (
 				41A1B0E6226E9BC500EA0400 /* PBXTargetDependency */,
 				4140EA4D227288EF0009F794 /* PBXTargetDependency */,
-				41342D0424435D9900F0905B /* PBXTargetDependency */,
 				416A29AF2569658300605395 /* PBXTargetDependency */,
 				9F4A33E6292B0C710034CD4C /* PBXTargetDependency */,
 			);
@@ -4450,9 +4390,6 @@
 				LastUpgradeCheck = 2620;
 				ORGANIZATIONNAME = "BookPlayer LLC";
 				TargetAttributes = {
-					41342CFD24435D9900F0905B = {
-						CreatedOnToolsVersion = 11.4;
-					};
 					4140EA2E227288ED0009F794 = {
 						CreatedOnToolsVersion = 10.2.1;
 						LastSwiftMigration = 1130;
@@ -4561,7 +4498,6 @@
 				63005A262AE7FD8000A4CA2C /* BookPlayerWidgetsWatch */,
 				41A1B0D1226E9BC400EA0400 /* BookPlayerKit */,
 				4140EA5D227289720009F794 /* BookPlayerWatchKit */,
-				41342CFD24435D9900F0905B /* BookPlayerIntents */,
 				416A29A22569658100605395 /* BookPlayerWidgetsPhone */,
 				9F4A33DC292B0C700034CD4C /* BookPlayerShareExtension */,
 				35158A29FEC7E0CF8DF14A04 /* BookPlayerUITests */,
@@ -4571,13 +4507,6 @@
 
 /* Begin PBXResourcesBuildPhase section */
 		0D4700EF5BCA264DFCA93621 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		41342CFC24435D9900F0905B /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -4760,17 +4689,6 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		41342CFA24435D9900F0905B /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				41342D0C24435EF800F0905B /* SleepTimerHandler.swift in Sources */,
-				41ADD6A72570651200660C64 /* PlayAndSleepActionHandler.swift in Sources */,
-				41342D0A24435DAD00F0905B /* Intents.intentdefinition in Sources */,
-				41342D0124435D9900F0905B /* IntentHandler.swift in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		4140EA37227288EF0009F794 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -4863,7 +4781,6 @@
 				9911FBC52F76122400DC9A2B /* FileUploadOperation.swift in Sources */,
 				CC6BB739AD7C3CAE40BB940C /* PartUploadTransport.swift in Sources */,
 				6399EA392F12BB690077BB13 /* PasskeyModels.swift in Sources */,
-				419BD5992443FD04001E50A0 /* Intents.intentdefinition in Sources */,
 				62AAE22D274AA6DE001EB9FF /* LibraryService.swift in Sources */,
 				62CADBAF2725FE2C00A4A98F /* ArtworkService.swift in Sources */,
 				4140EA80227289D50009F794 /* Folder+CoreDataClass.swift in Sources */,
@@ -5015,6 +4932,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B843F82DBB21978E66CC52BE /* SleepTimerOption.swift in Sources */,
+				CD5F28377EB6CA3A6D28FCAE /* TimeListenedConfigurationIntent.swift in Sources */,
 				418445C3258AE11E0072DD13 /* WidgetUtils.swift in Sources */,
 				4106414025872614008EB8D0 /* BarView.swift in Sources */,
 				3F66408F2E172DF500356522 /* MappingModel_v9_to_v10.xcmappingmodel in Sources */,
@@ -5022,7 +4941,6 @@
 				996D4CC92F98A25100FC3B57 /* MappingModel_v10_to_v11.xcmappingmodel in Sources */,
 				630826062AF525F1002ACE0D /* SharedWidgetContainerView.swift in Sources */,
 				4106414925872699008EB8D0 /* TimeListenedSmallView.swift in Sources */,
-				417D996F256D73B400C3B753 /* Intents.intentdefinition in Sources */,
 				6397208A2CAC5C870045A4DB /* LastPlayedModel.swift in Sources */,
 				417D9994256DE3FB00C3B753 /* LastPlayedWidgetView.swift in Sources */,
 				41A359C7276232E00020D5F5 /* MappingModel_v7_to_v8.xcmappingmodel in Sources */,
@@ -5439,6 +5357,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A64308C416AABB27C66476A5 /* SleepTimerOptionTests.swift in Sources */,
+				E79345DD00DC64A0F7E0939A /* SleepTimerOption.swift in Sources */,
 				9F1C30FC2A2E593300D5BC81 /* PlayableItemMock.swift in Sources */,
 				69343D36213A07B4000C425E /* VoiceOverServiceTest.swift in Sources */,
 				8AAA4F4C2CF1FF8C009D0777 /* MockCoordinatorPresentationFlow.swift in Sources */,
@@ -5602,7 +5522,6 @@
 				9F07B79829B770B7005A939D /* BPTaskUploadDelegate.swift in Sources */,
 				41C3394925E04091003ED2B0 /* MappingModel_v2_to_v3.xcmappingmodel in Sources */,
 				996D4CD12F98A45300FC3B57 /* IntegrationError.swift in Sources */,
-				41640A452441ACE2004FB97B /* Intents.intentdefinition in Sources */,
 				41D20DB225D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel in Sources */,
 				412AB71527017ABE00969618 /* DBVersion.swift in Sources */,
 				99F3C2122F650F1200AC91A2 /* ExternalResource+CoreDataProperties.swift in Sources */,
@@ -5684,7 +5603,6 @@
 			files = (
 				630826012AF29538002ACE0D /* SharedWidgetEntry.swift in Sources */,
 				6340D5692AF12D48003D0B09 /* SharedWidget.swift in Sources */,
-				63005A2D2AE7FD8000A4CA2C /* Intents.intentdefinition in Sources */,
 				63673F98304332050077F1D8 /* MappingModel_v11_to_v12.xcmappingmodel in Sources */,
 				630825FE2AF293DC002ACE0D /* SharedWidgetContainerView.swift in Sources */,
 				630825FC2AF2923B002ACE0D /* WidgetUtils.swift in Sources */,
@@ -5726,16 +5644,6 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		4122992024442E7800CDB416 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 41A1B0D1226E9BC400EA0400 /* BookPlayerKit */;
-			targetProxy = 4122991F24442E7800CDB416 /* PBXContainerItemProxy */;
-		};
-		41342D0424435D9900F0905B /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 41342CFD24435D9900F0905B /* BookPlayerIntents */;
-			targetProxy = 41342D0324435D9900F0905B /* PBXContainerItemProxy */;
-		};
 		4140EA4D227288EF0009F794 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 4140EA2E227288ED0009F794 /* BookPlayerWatch */;
@@ -5920,104 +5828,6 @@
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
-		41342D0724435D9900F0905B /* Debug */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 415A9976264CCD3F002BFD35 /* Debug.xcconfig */;
-			buildSettings = {
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_IDENTITY = "Apple Development";
-				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "$(inherited)";
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = BookPlayerIntents/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 5.22.2;
-				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
-				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerIntents";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_INTENTS)";
-				SKIP_INSTALL = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
-		41342D0824435D9900F0905B /* Release */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 415A9977264CCD3F002BFD35 /* Release.xcconfig */;
-			buildSettings = {
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_IDENTITY = "Apple Distribution";
-				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "$(inherited)";
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = BookPlayerIntents/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 5.22.2;
-				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerIntents";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_INTENTS)";
-				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
-		41342D0924435D9900F0905B /* Beta */ = {
-			isa = XCBuildConfiguration;
-			baseConfigurationReference = 415A9977264CCD3F002BFD35 /* Release.xcconfig */;
-			buildSettings = {
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_IDENTITY = "Apple Distribution";
-				CODE_SIGN_STYLE = Manual;
-				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = "$(inherited)";
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				INFOPLIST_FILE = BookPlayerIntents/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 5.22.2;
-				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "$(BP_BUNDLE_IDENTIFIER).BookPlayerIntents";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "$(BP_PROVISIONING_INTENTS)";
-				SKIP_INSTALL = YES;
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Beta;
-		};
 		4140EA4F227288EF0009F794 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 415A9976264CCD3F002BFD35 /* Debug.xcconfig */;
@@ -7175,16 +6985,6 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		41342D0624435D9900F0905B /* Build configuration list for PBXNativeTarget "BookPlayerIntents" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				41342D0724435D9900F0905B /* Debug */,
-				41342D0824435D9900F0905B /* Release */,
-				41342D0924435D9900F0905B /* Beta */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 		4140EA57227288EF0009F794 /* Build configuration list for PBXNativeTarget "BookPlayerWatch" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

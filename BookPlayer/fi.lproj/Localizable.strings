@@ -161,8 +161,6 @@
 "watchapp_refresh_data_title" = "Päivitä tiedot";
 "recent_title" = "Viimeisin";
 "carplay_library_error" = "Kirjoja ei voi ladata";
-"siri_invocation_phrase" = "Jatka kirjaani";
-"siri_activity_title" = "Jatka viimeksi toistettua kirjaa";
 "watchapp_connect_error_title" = "Yhteysvirhe";
 "watchapp_connect_error_description" = "Ongelma yhteyden muodostamisessa puhelimeesi. Yritä myöhemmin uudelleen";
 "watch_signin_with_iphone" = "Kirjaudu iPhonella";
@@ -326,6 +324,13 @@
 "intent_sleeptimer_request_duration_title" = "Kuinka pitkään";
 "Set Sleep Timer for ${duration}" = "Aseta uniajastin ajaksi ${duration}";
 "intent_sleeptimer_eoc_title" = "Aseta uniajastin luvun loppuun";
+"sleeptimer_option_5_minutes" = "5 minuuttia";
+"sleeptimer_option_10_minutes" = "10 minuuttia";
+"sleeptimer_option_15_minutes" = "15 minuuttia";
+"sleeptimer_option_30_minutes" = "30 minuuttia";
+"sleeptimer_option_45_minutes" = "45 minuuttia";
+"sleeptimer_option_1_hour" = "1 tunti";
+"widget_autoplay_title" = "Automaattinen toisto";
 "intent_lastbook_play_title" = "Jatka viimeksi toistettua kirjaa";
 "intent_lastbook_empty_error" = "Ei ole viimeksi pelattua kirjaa";
 "intent_playback_pause_title" = "Keskeytä toisto";

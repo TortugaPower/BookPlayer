@@ -161,8 +161,6 @@
 "watchapp_refresh_data_title" = "Obnovit data";
 "recent_title" = "Nedávné";
 "carplay_library_error" = "Nelze načíst audioknihy";
-"siri_invocation_phrase" = "Pokračovat v poslechu mé audioknihy";
-"siri_activity_title" = "Pokračovat v naposledy přehrávané audioknize";
 "watchapp_connect_error_title" = "Chyba připojení";
 "watchapp_connect_error_description" = "Při připojení k telefonu došlo k potížím, zkuste to prosím později.";
 "watch_signin_with_iphone" = "Přihlásit se pomocí iPhone";
@@ -326,6 +324,13 @@
 "intent_sleeptimer_request_duration_title" = "Jak dlouho";
 "Set Sleep Timer for ${duration}" = "Nastavit časovač spánku na ${duration}";
 "intent_sleeptimer_eoc_title" = "Nastavte časovač spánku na konec kapitoly";
+"sleeptimer_option_5_minutes" = "5 minut";
+"sleeptimer_option_10_minutes" = "10 minut";
+"sleeptimer_option_15_minutes" = "15 minut";
+"sleeptimer_option_30_minutes" = "30 minut";
+"sleeptimer_option_45_minutes" = "45 minut";
+"sleeptimer_option_1_hour" = "1 hodina";
+"widget_autoplay_title" = "Automatické přehrávání";
 "intent_lastbook_play_title" = "Obnovit naposledy přehrávanou knihu";
 "intent_lastbook_empty_error" = "Neexistuje žádná naposledy hraná kniha";
 "intent_playback_pause_title" = "Pozastavit přehrávání";

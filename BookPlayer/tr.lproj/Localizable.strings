@@ -161,8 +161,6 @@
 "watchapp_refresh_data_title" = "Verileri yenile";
 "recent_title" = "Son";
 "carplay_library_error" = "Kitap yüklenemiyor";
-"siri_invocation_phrase" = "Kitabıma devam et";
-"siri_activity_title" = "En son oynatılan kitaba devam et";
 "watchapp_connect_error_title" = "Bağlantı Hatası";
 "watchapp_connect_error_description" = "Telefonunuza bağlanmada bir sorun var, lütfen daha sonra tekrar deneyin";
 "watch_signin_with_iphone" = "iPhone ile giriş yap";
@@ -326,6 +324,13 @@
 "intent_sleeptimer_request_duration_title" = "Ne kadar süreliğine";
 "Set Sleep Timer for ${duration}" = "${duration} için Uyku Zamanlayıcısını Ayarla";
 "intent_sleeptimer_eoc_title" = "Uyku Zamanlayıcısını Bölümün Sonuna Ayarlayın";
+"sleeptimer_option_5_minutes" = "5 dakika";
+"sleeptimer_option_10_minutes" = "10 dakika";
+"sleeptimer_option_15_minutes" = "15 dakika";
+"sleeptimer_option_30_minutes" = "30 dakika";
+"sleeptimer_option_45_minutes" = "45 dakika";
+"sleeptimer_option_1_hour" = "1 saat";
+"widget_autoplay_title" = "Otomatik Oynatma";
 "intent_lastbook_play_title" = "Son oynatılan kitabı devam ettir";
 "intent_lastbook_empty_error" = "Son çalınan kitap yok";
 "intent_playback_pause_title" = "Oynatmayı duraklat";

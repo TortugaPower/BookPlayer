@@ -161,8 +161,6 @@
 "watchapp_refresh_data_title" = "刷新数据";
 "recent_title" = "最近";
 "carplay_library_error" = "无法加载有声书籍";
-"siri_invocation_phrase" = "继续我的有声书";
-"siri_activity_title" = "继续上次播放的有声书";
 "watchapp_connect_error_title" = "连接错误";
 "watchapp_connect_error_description" = "连接手机时出现问题，请稍后重试";
 "watch_signin_with_iphone" = "使用 iPhone 登录";
@@ -326,6 +324,13 @@
 "intent_sleeptimer_request_duration_title" = "多长时间";
 "Set Sleep Timer for ${duration}" = "将睡眠定时器设置为${duration}";
 "intent_sleeptimer_eoc_title" = "将睡眠定时器设置为章节结束";
+"sleeptimer_option_5_minutes" = "5 分钟";
+"sleeptimer_option_10_minutes" = "10 分钟";
+"sleeptimer_option_15_minutes" = "15 分钟";
+"sleeptimer_option_30_minutes" = "30 分钟";
+"sleeptimer_option_45_minutes" = "45 分钟";
+"sleeptimer_option_1_hour" = "1 小时";
+"widget_autoplay_title" = "自动播放";
 "intent_lastbook_play_title" = "继续上次播放的书";
 "intent_lastbook_empty_error" = "没有最后玩过的书";
 "intent_playback_pause_title" = "暂停播放";

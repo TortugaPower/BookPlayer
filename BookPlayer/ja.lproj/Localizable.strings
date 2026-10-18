@@ -161,8 +161,6 @@
 "watchapp_refresh_data_title" = "データを更新";
 "recent_title" = "最近使った項目";
 "carplay_library_error" = "ブックを読み込めません";
-"siri_invocation_phrase" = "ブックを続きから再生";
-"siri_activity_title" = "前回再生していたブックを続きから再生";
 "watchapp_connect_error_title" = "接続エラー";
 "watchapp_connect_error_description" = "iPhoneとの接続に問題が発生しました。あとでやり直してください。";
 "watch_signin_with_iphone" = "iPhoneでサインイン";
@@ -326,6 +324,13 @@
 "intent_sleeptimer_request_duration_title" = "どれくらいの時間ですか";
 "Set Sleep Timer for ${duration}" = "スリープタイマーを${duration}に設定";
 "intent_sleeptimer_eoc_title" = "スリープタイマーをチャプタの終わりに設定";
+"sleeptimer_option_5_minutes" = "5分";
+"sleeptimer_option_10_minutes" = "10分";
+"sleeptimer_option_15_minutes" = "15分";
+"sleeptimer_option_30_minutes" = "30分";
+"sleeptimer_option_45_minutes" = "45分";
+"sleeptimer_option_1_hour" = "1時間";
+"widget_autoplay_title" = "自動再生";
 "intent_lastbook_play_title" = "前回再生していたブックを続きから再生";
 "intent_lastbook_empty_error" = "前回再生していたブックがありません";
 "intent_playback_pause_title" = "再生を一時停止";

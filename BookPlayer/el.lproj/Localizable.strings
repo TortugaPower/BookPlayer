@@ -161,8 +161,6 @@
 "watchapp_refresh_data_title" = "Ανανέωση δεδομένων";
 "recent_title" = "Πρόσφατος";
 "carplay_library_error" = "Δεν είναι δυνατή η φόρτωση βιβλίων";
-"siri_invocation_phrase" = "Συνέχισε το βιβλίο μου";
-"siri_activity_title" = "Συνέχεια τελευταίου βιβλίου που έπαιξε";
 "watchapp_connect_error_title" = "Σφάλμα συνδεσιμότητας";
 "watchapp_connect_error_description" = "Παρουσιάστηκε πρόβλημα με τη σύνδεση με το τηλέφωνό σας, δοκιμάστε ξανά αργότερα";
 "watch_signin_with_iphone" = "Σύνδεση με iPhone";
@@ -326,6 +324,13 @@
 "intent_sleeptimer_request_duration_title" = "Για ποσο καιρο";
 "Set Sleep Timer for ${duration}" = "Ρύθμιση χρονοδιακόπτη ύπνου για ${duration}";
 "intent_sleeptimer_eoc_title" = "Ρυθμίστε το Χρονοδιακόπτη ύπνου στο τέλος του κεφαλαίου";
+"sleeptimer_option_5_minutes" = "5 λεπτά";
+"sleeptimer_option_10_minutes" = "10 λεπτά";
+"sleeptimer_option_15_minutes" = "15 λεπτά";
+"sleeptimer_option_30_minutes" = "30 λεπτά";
+"sleeptimer_option_45_minutes" = "45 λεπτά";
+"sleeptimer_option_1_hour" = "1 ώρα";
+"widget_autoplay_title" = "Αυτόματη αναπαραγωγή";
 "intent_lastbook_play_title" = "Συνέχιση βιβλίου που παίχτηκε τελευταία";
 "intent_lastbook_empty_error" = "Δεν υπάρχει βιβλίο που παίχτηκε τελευταία";
 "intent_playback_pause_title" = "Παύση αναπαραγωγής";
