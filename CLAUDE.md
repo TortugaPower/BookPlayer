@@ -400,7 +400,9 @@ lines). It is the highest-risk file in the app.
   deleted book (or one finished through sync) stays in it until then (decided: no deletion signal).
   `PlayMediaIntentHandler` plays them: the app declares the intent (`INIntentsSupported`, Audiobooks media category)
   and returns the handler from `application(_:handlerFor:)`, so a suggestion, Siri or a Shortcut starts playback
-  through `awaitCoreServices` + `loadAndKeepAlive`, cold launch included. A spoken title or author plays the most
+  through `awaitCoreServices` + `loadAndKeepAlive`, cold launch included. A media intent the system opens the app
+  with instead (a user activity, at launch or later) goes through the same handler (`ActionParserService`), never
+  `CommandParser`'s play-the-last-book. A spoken title or author plays the most
   recently played of up to 50 matches, a part of a bound book counting as the bound book (as in the Search tab), even
   over an exact title match (decided: "Play Dune" while in "Dune Messiah" plays Messiah).
 - Related services (protocols marked `/// sourcery: AutoMockable`): `SpeedService` (per-book vs global speed),

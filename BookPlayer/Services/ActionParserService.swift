@@ -8,6 +8,7 @@
 
 import BookPlayerKit
 import Foundation
+import Intents
 
 @MainActor
 class ActionParserService {
@@ -18,6 +19,13 @@ class ActionParserService {
   }
 
   public class func process(_ activity: NSUserActivity) {
+    /// The system can open the app with a media intent instead of handing it to the handler in the
+    /// background: it plays the book the intent names, not just the last one
+    if let intent = activity.interaction?.intent as? INPlayMediaIntent {
+      Task { _ = await PlayMediaIntentHandler().handle(intent: intent) }
+      return
+    }
+
     guard let action = CommandParser.parse(activity) else { return }
 
     self.handleAction(action)
