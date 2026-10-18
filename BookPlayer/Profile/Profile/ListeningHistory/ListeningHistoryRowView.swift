@@ -95,7 +95,7 @@ struct ListeningHistoryRowView: View {
     } else if let artwork = theme.defaultArtwork {
       artwork
         .resizable()
-        .aspectRatio(contentMode: .fill)
+        .scaledToFill()
     } else {
       theme.systemGroupedBackgroundColor
     }
