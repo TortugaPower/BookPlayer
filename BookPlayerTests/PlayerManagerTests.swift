@@ -16,28 +16,48 @@ import XCTest
 
 class PlayerManagerTests: XCTestCase {
   var playbackServiceMock: PlaybackServiceProtocolMock!
+  var libraryServiceMock: LibraryServiceProtocolMock!
+  var speedServiceMock: SpeedServiceProtocolMock!
   var syncServiceMock: SyncServiceProtocolMock!
   /// Read live by `sut`'s entitlement closure, so a test can flip the entitlement on `sut`.
   var streamingEnabled = true
   var sut: PlayerManager!
+  /// Keeps the in-memory store alive for the playback record `play()` asks the library for.
+  private var playbackRecordStack: DataManager?
+  private var savedTimerDefaults: [String: Any] = [:]
+  private var copiedFixtureURL: URL?
+
+  private let timerDefaultKeys = [
+    Constants.UserDefaults.smartRewindEnabled,
+    Constants.UserDefaults.smartRewindMaxInterval,
+    Constants.UserDefaults.autoTimerEnabled,
+    Constants.UserDefaults.lastEnabledTimer,
+  ]
 
   override func setUp() {
     // Clean up stored configs
     UserDefaults.sharedDefaults.removeObject(forKey: Constants.UserDefaults.chapterContextEnabled)
     UserDefaults.sharedDefaults.removeObject(forKey: Constants.UserDefaults.remainingTimeEnabled)
+    savedTimerDefaults = timerDefaultKeys.reduce(into: [:]) { stored, key in
+      stored[key] = UserDefaults.standard.object(forKey: key)
+    }
 
     self.playbackServiceMock = PlaybackServiceProtocolMock()
     /// Mirror production `PlaybackService.updatePlaybackTime(item:time:)`, which advances the
     /// playhead, so seek targets are observable in tests instead of staying frozen.
     self.playbackServiceMock.updatePlaybackTimeItemTimeClosure = { item, time in
       item.currentTime = time
+      item.lastPlayDate = Date()
     }
+    self.libraryServiceMock = LibraryServiceProtocolMock()
+    self.speedServiceMock = SpeedServiceProtocolMock()
+    self.speedServiceMock.getSpeedRelativePathReturnValue = 1
     self.syncServiceMock = SyncServiceProtocolMock()
     self.sut = PlayerManager(
-      libraryService: LibraryServiceProtocolMock(),
+      libraryService: libraryServiceMock,
       playbackService: playbackServiceMock,
       syncService: syncServiceMock,
-      speedService: SpeedServiceProtocolMock(),
+      speedService: speedServiceMock,
       shakeMotionService: ShakeMotionServiceProtocolMock(),
       widgetReloadService: WidgetReloadService(),
       // Entitled by default, so nothing here is suppressed by tier; the item half of the rule
@@ -45,6 +65,23 @@ class PlayerManagerTests: XCTestCase {
       hasStreamingEnabled: { [weak self] in self?.streamingEnabled ?? true },
       presentFailure: { _ in }
     )
+  }
+
+  override func tearDown() {
+    sut.stop()
+    SleepTimer.shared.setTimer(.off)
+    for key in timerDefaultKeys {
+      if let value = savedTimerDefaults[key] {
+        UserDefaults.standard.set(value, forKey: key)
+      } else {
+        UserDefaults.standard.removeObject(forKey: key)
+      }
+    }
+    if let copiedFixtureURL {
+      try? FileManager.default.removeItem(at: copiedFixtureURL)
+    }
+    playbackRecordStack = nil
+    super.tearDown()
   }
 
   private func generatePlayableItem() -> PlayableItem {
@@ -717,5 +754,545 @@ class PlayerManagerTests: XCTestCase {
     // Falls back to the previous item without seeking within the current one
     XCTAssertEqual(playbackServiceMock.getPlayableItemBeforeParentFolderCallsCount, 1)
     XCTAssertEqual(sut.currentItem?.currentTime ?? -1, 1, accuracy: 0.0001)
+  }
+
+  // MARK: - Smart Rewind at a chapter boundary
+
+  func testSmartRewindTargetStaysInTheCurrentChapter() throws {
+    let overnight: TimeInterval = 12 * 60 * 60
+    let maxInterval: TimeInterval = 30
+
+    let fractionalTarget = try XCTUnwrap(
+      PlayerManager.smartRewindSeekTarget(
+        playerTime: 10.4,
+        chapterElapsed: 0.4,
+        chapterFileStart: 10,
+        timePassed: overnight,
+        maxInterval: maxInterval
+      )
+    )
+    XCTAssertEqual(fractionalTarget.time, 10, accuracy: 0.000_001)
+    XCTAssertTrue(fractionalTarget.pinsChapterStart)
+    XCTAssertEqual(chapteredBook().getChapter(at: fractionalTarget.time)?.index, 2)
+
+    let exact = PlayerManager.smartRewindSeekTarget(
+      playerTime: 10,
+      chapterElapsed: 0,
+      chapterFileStart: 10,
+      timePassed: overnight,
+      maxInterval: maxInterval
+    )
+    XCTAssertNil(exact, "already on the chapter start — seeking would let tolerance step backward")
+
+    // Model is further into the chapter than the player. Subtracting the model elapsed from the
+    // player clock used to land before this chapter's start.
+    let mismatched = PlayerManager.smartRewindSeekTarget(
+      playerTime: 10.05,
+      chapterElapsed: 2,
+      chapterFileStart: 10,
+      timePassed: overnight,
+      maxInterval: maxInterval
+    )
+    XCTAssertEqual(mismatched?.time ?? -1, 10, accuracy: 0.000_001)
+    XCTAssertGreaterThanOrEqual(mismatched?.time ?? -1, 10)
+
+    // `playerTime - elapsed` undershoots the boundary. The target has to be this chapter's start.
+    let undershoot = PlayerManager.smartRewindSeekTarget(
+      playerTime: 10.2,
+      chapterElapsed: 0.2 + 0.000_000_001,
+      chapterFileStart: 10,
+      timePassed: overnight,
+      maxInterval: maxInterval
+    )
+    XCTAssertEqual(undershoot?.time ?? -1, 10, accuracy: 0)
+    XCTAssertEqual(chapteredBook().getChapter(at: undershoot?.time ?? -1)?.index, 2)
+
+    // A negative elapsed must not be subtracted (that seeks forward by its magnitude).
+    let negative = PlayerManager.smartRewindSeekTarget(
+      playerTime: 10.2,
+      chapterElapsed: -1.5,
+      chapterFileStart: 10,
+      timePassed: overnight,
+      maxInterval: maxInterval
+    )
+    XCTAssertNil(negative)
+
+    let negativeAndBehind = PlayerManager.smartRewindSeekTarget(
+      playerTime: 9.4,
+      chapterElapsed: -2,
+      chapterFileStart: 10,
+      timePassed: overnight,
+      maxInterval: maxInterval
+    )
+    XCTAssertEqual(negativeAndBehind?.time ?? -1, 10, accuracy: 0.000_001)
+    XCTAssertLessThan(negativeAndBehind?.time ?? 0, 10.2)
+
+    // Chapter inside a bound file: floor is the file offset, not 0 and not the global start.
+    let withinFile = PlayerManager.smartRewindSeekTarget(
+      playerTime: 150.2,
+      chapterElapsed: 0.2,
+      chapterFileStart: 150,
+      timePassed: overnight,
+      maxInterval: maxInterval
+    )
+    XCTAssertEqual(withinFile?.time ?? -1, 150, accuracy: 0.000_001)
+    XCTAssertEqual(withinFile?.pinsChapterStart, true)
+
+    // First chapter of a new file: offset is 0, so the floor is the file start.
+    let newFile = PlayerManager.smartRewindSeekTarget(
+      playerTime: 0.3,
+      chapterElapsed: 0.3,
+      chapterFileStart: 0,
+      timePassed: overnight,
+      maxInterval: maxInterval
+    )
+    XCTAssertEqual(newFile?.time ?? -1, 0, accuracy: 0.000_001)
+
+    let midChapter = PlayerManager.smartRewindSeekTarget(
+      playerTime: 25,
+      chapterElapsed: 25,
+      chapterFileStart: 0,
+      timePassed: overnight,
+      maxInterval: 10
+    )
+    XCTAssertEqual(midChapter?.time ?? -1, 15, accuracy: 0.000_001)
+    XCTAssertEqual(midChapter?.pinsChapterStart, false)
+
+    let justResumed = PlayerManager.smartRewindSeekTarget(
+      playerTime: 18,
+      chapterElapsed: 8,
+      chapterFileStart: 10,
+      timePassed: 0,
+      maxInterval: maxInterval
+    )
+    XCTAssertNil(justResumed)
+  }
+
+  func testChapterFileStartMatchesThePlayerTimeline() {
+    let single = chapteredBook()
+    single.currentChapter = single.chapters[1]
+    XCTAssertEqual(PlayerManager.chapterFileStart(for: single), 10)
+
+    let bound = chapteredBook(bound: true, chapterOffset: 150, globalStart: 5_000)
+    bound.currentChapter = bound.chapters[1]
+    XCTAssertEqual(PlayerManager.chapterFileStart(for: bound), 150)
+
+    let newFile = chapteredBook(bound: true, chapterOffset: 0, globalStart: 5_000)
+    newFile.currentChapter = newFile.chapters[1]
+    XCTAssertEqual(PlayerManager.chapterFileStart(for: newFile), 0)
+  }
+
+  @MainActor
+  func testHandleSmartRewindDoesNotSeekBeforeTheChapter() async throws {
+    UserDefaults.standard.set(true, forKey: Constants.UserDefaults.smartRewindEnabled)
+    UserDefaults.standard.set(30.0, forKey: Constants.UserDefaults.smartRewindMaxInterval)
+    let item = try await loadWellFormedBook(at: 10.05)
+    item.lastPlayDate = Date().addingTimeInterval(-12 * 60 * 60)
+    item.currentTime = 12
+
+    await sut.handleSmartRewind(item)
+
+    let fileTime = CMTimeGetSeconds(sut.getAVPlayer().currentTime())
+    XCTAssertGreaterThanOrEqual(fileTime, 10)
+    XCTAssertEqual(item.getChapter(at: fileTime)?.index, 2)
+    XCTAssertEqual(item.currentChapter.index, 2)
+  }
+
+  @MainActor
+  func testMidChapterSmartRewindStillRewindsWhenEnabled() async throws {
+    UserDefaults.standard.set(true, forKey: Constants.UserDefaults.smartRewindEnabled)
+    // Four seconds fits inside chapter 3 (20–30) at t=25, so the rewind is the configured
+    // amount rather than the clamp at the chapter start.
+    UserDefaults.standard.set(4.0, forKey: Constants.UserDefaults.smartRewindMaxInterval)
+    let item = try await loadWellFormedBook(at: 25)
+    item.lastPlayDate = Date().addingTimeInterval(-12 * 60 * 60)
+
+    await sut.handleSmartRewind(item)
+
+    XCTAssertEqual(CMTimeGetSeconds(sut.getAVPlayer().currentTime()), 21, accuracy: 0.05)
+    XCTAssertEqual(item.currentChapter.index, 3)
+  }
+
+  @MainActor
+  func testSmartRewindPreservesPauseTimestampAfterRestorationSample() async throws {
+    UserDefaults.standard.set(true, forKey: Constants.UserDefaults.smartRewindEnabled)
+    UserDefaults.standard.set(4.0, forKey: Constants.UserDefaults.smartRewindMaxInterval)
+    let item = try await loadWellFormedBook(at: 25)
+    item.lastPlayDate = Date().addingTimeInterval(-12 * 60 * 60)
+    let lastPlayTime = item.lastPlayDate
+
+    // An accepted restoration sample persists a fresh date before rewind begins.
+    sut.updateTime()
+    XCTAssertGreaterThan(try XCTUnwrap(item.lastPlayDate), try XCTUnwrap(lastPlayTime))
+    await sut.handleSmartRewind(item, lastPlayTime: lastPlayTime)
+
+    XCTAssertEqual(CMTimeGetSeconds(sut.getAVPlayer().currentTime()), 21, accuracy: 0.05)
+    XCTAssertEqual(item.currentChapter.index, 3)
+  }
+
+  @MainActor
+  func testSmartRewindPreservesMissingPauseTimestampAfterRestorationSample() async throws {
+    UserDefaults.standard.set(true, forKey: Constants.UserDefaults.smartRewindEnabled)
+    let item = try await loadWellFormedBook(at: 25)
+    item.lastPlayDate = nil
+    let lastPlayTime = item.lastPlayDate
+
+    sut.updateTime()
+    XCTAssertNotNil(item.lastPlayDate)
+    await sut.handleSmartRewind(item, lastPlayTime: lastPlayTime)
+
+    XCTAssertEqual(CMTimeGetSeconds(sut.getAVPlayer().currentTime()), 25, accuracy: 0.05)
+  }
+
+  @MainActor
+  func testSmartRewindDisabledLeavesThePlayhead() async throws {
+    UserDefaults.standard.set(false, forKey: Constants.UserDefaults.smartRewindEnabled)
+    let item = try await loadWellFormedBook(at: 25)
+    item.lastPlayDate = Date().addingTimeInterval(-12 * 60 * 60)
+
+    await sut.handleSmartRewind(item)
+
+    XCTAssertEqual(CMTimeGetSeconds(sut.getAVPlayer().currentTime()), 25, accuracy: 0.05)
+  }
+
+  @MainActor
+  func testBoundBookRewindUsesChapterOffset() async throws {
+    UserDefaults.standard.set(true, forKey: Constants.UserDefaults.smartRewindEnabled)
+    UserDefaults.standard.set(30.0, forKey: Constants.UserDefaults.smartRewindMaxInterval)
+
+    // Chapter inside the file (offset 10) and, below, the first chapter of a file (offset 0)
+    // whose global start is not the file start.
+    let withinFile = try await loadWellFormedBook(at: 10.2, bound: true)
+    withinFile.lastPlayDate = Date().addingTimeInterval(-12 * 60 * 60)
+    await sut.handleSmartRewind(withinFile)
+    let withinTime = CMTimeGetSeconds(sut.getAVPlayer().currentTime())
+    XCTAssertGreaterThanOrEqual(withinTime, 10)
+    XCTAssertLessThan(withinTime, 10.2)
+    XCTAssertEqual(withinFile.currentChapter.index, 2)
+
+    let newFile = try XCTUnwrap(sut.currentItem)
+    let opening = PlayableChapter(
+      title: "First of file",
+      author: "Fixture",
+      start: 5_000,
+      duration: 40,
+      relativePath: newFile.relativePath,
+      remoteURL: nil,
+      externalURL: nil,
+      index: 1,
+      chapterOffset: 0
+    )
+    let rebound = PlayableItem(
+      title: newFile.title,
+      author: newFile.author,
+      chapters: [opening],
+      currentTime: 5_000.3,
+      duration: 5_040,
+      relativePath: newFile.relativePath,
+      uuid: newFile.uuid,
+      parentFolder: nil,
+      percentCompleted: 0,
+      lastPlayDate: Date().addingTimeInterval(-12 * 60 * 60),
+      isFinished: false,
+      isBoundBook: true
+    )
+    sut.currentItem = rebound
+    sut.jumpTo(5_000.3, recordBookmark: false)
+    await awaitPlayerTime(0.3)
+    rebound.lastPlayDate = Date().addingTimeInterval(-12 * 60 * 60)
+
+    await sut.handleSmartRewind(rebound)
+
+    let openedAt = CMTimeGetSeconds(sut.getAVPlayer().currentTime())
+    XCTAssertGreaterThanOrEqual(openedAt, 0)
+    XCTAssertLessThan(openedAt, 0.3)
+    XCTAssertEqual(rebound.currentChapter.index, 1)
+    XCTAssertEqual(playbackServiceMock.getPlayableItemAfterParentFolderAutoplayedRestartFinishedCallsCount, 0)
+  }
+
+  @MainActor
+  func testResumeAfterEndOfChapterTimerContinuesTheNextChapter() async throws {
+    UserDefaults.standard.set(true, forKey: Constants.UserDefaults.smartRewindEnabled)
+    UserDefaults.standard.set(30.0, forKey: Constants.UserDefaults.smartRewindMaxInterval)
+    UserDefaults.standard.set(true, forKey: Constants.UserDefaults.autoTimerEnabled)
+    installPlaybackRecord()
+    _ = try await loadWellFormedBook(at: 9)
+    SleepTimer.shared.setTimer(.endOfChapter)
+
+    sut.play()
+    try await waitUntil("paused at chapter 2") {
+      guard let item = self.sut.currentItem else { return false }
+      return !self.sut.isPlaying && item.currentChapter.index == 2 && item.currentTime >= 10
+    }
+    XCTAssertEqual(SleepTimer.shared.state, .off)
+
+    let immediateMark = sut.currentItem?.currentTime ?? 0
+    sut.play()
+    try await waitUntil("immediate resume plays chapter 2 with the timer armed") {
+      self.resumedIntoChapterTwo(past: immediateMark)
+    }
+
+    sut.pause()
+    let overnightMark = sut.currentItem?.currentTime ?? 0
+    sut.currentItem?.lastPlayDate = Date().addingTimeInterval(-12 * 60 * 60)
+    // Lock-screen play goes through `playPause()` on this manager.
+    sut.playPause()
+    try await waitUntil("overnight resume plays chapter 2 with the timer armed") {
+      self.resumedIntoChapterTwo(past: overnightMark)
+    }
+  }
+
+  @MainActor
+  func testTransientBoundarySampleDoesNotEndTheChapterTimer() async throws {
+    UserDefaults.standard.set(true, forKey: Constants.UserDefaults.autoTimerEnabled)
+    let item = try await loadWellFormedBook(at: 10.2)
+    SleepTimer.shared.setTimer(.endOfChapter)
+
+    await awaitPlayerTime(9.99)
+    sut.updateTime()
+
+    XCTAssertEqual(item.currentChapter.index, 2)
+    XCTAssertEqual(SleepTimer.shared.state, .endOfChapter)
+    XCTAssertFalse(sut.isPlaying)
+
+    await awaitPlayerTime(8)
+    sut.updateTime()
+
+    XCTAssertEqual(item.currentChapter.index, 1)
+    XCTAssertEqual(SleepTimer.shared.state, .off)
+  }
+
+  @MainActor
+  func testCountdownAndDisabledAutoTimerKeepTheirBehavior() async throws {
+    installPlaybackRecord()
+    let item = try await loadWellFormedBook(at: 15)
+    item.lastPlayDate = nil
+
+    UserDefaults.standard.set(false, forKey: Constants.UserDefaults.autoTimerEnabled)
+    SleepTimer.shared.setTimer(.off)
+    sut.play()
+    try await waitUntil("plays with the automatic timer disabled") { self.sut.isPlaying }
+    XCTAssertEqual(SleepTimer.shared.state, .off)
+    sut.pause()
+
+    UserDefaults.standard.set(true, forKey: Constants.UserDefaults.autoTimerEnabled)
+    SleepTimer.shared.setTimer(.countdown(300))
+    item.lastPlayDate = nil
+    sut.play()
+    try await waitUntil("plays with a countdown timer") { self.sut.isPlaying }
+    guard case .countdown = SleepTimer.shared.state else {
+      return XCTFail("countdown timer was \(SleepTimer.shared.state)")
+    }
+  }
+
+  @MainActor
+  func testShakeToResumeRearmsTheTimerWithoutStopping() async throws {
+    UserDefaults.standard.set(true, forKey: Constants.UserDefaults.smartRewindEnabled)
+    UserDefaults.standard.set(30.0, forKey: Constants.UserDefaults.smartRewindMaxInterval)
+    UserDefaults.standard.set(true, forKey: Constants.UserDefaults.autoTimerEnabled)
+    installPlaybackRecord()
+    let item = try await loadWellFormedBook(at: 10.2)
+    SleepTimer.shared.setTimer(.endOfChapter)
+    NotificationCenter.default.post(name: .chapterChange, object: nil)
+    XCTAssertEqual(SleepTimer.shared.state, .off)
+
+    item.lastPlayDate = Date().addingTimeInterval(-12 * 60 * 60)
+    // Shake rearms the remembered timer and only then calls `play()`.
+    SleepTimer.shared.restartTimer()
+    sut.play()
+
+    let mark = item.currentTime
+    try await waitUntil("shake resume keeps chapter 2 and the timer") {
+      self.resumedIntoChapterTwo(past: mark)
+    }
+  }
+
+  @MainActor
+  func testCompletedBookDoesNotReplayOrSkipOnResume() async throws {
+    UserDefaults.standard.set(true, forKey: Constants.UserDefaults.smartRewindEnabled)
+    UserDefaults.standard.set(30.0, forKey: Constants.UserDefaults.smartRewindMaxInterval)
+    installPlaybackRecord()
+    let item = try await loadWellFormedBook(at: 20)
+    await awaitPlayerTime(item.duration)
+    item.currentTime = item.duration
+    item.currentChapter = item.chapters[3]
+    item.lastPlayDate = Date().addingTimeInterval(-12 * 60 * 60)
+    XCTAssertEqual(Int(item.duration), Int(CMTimeGetSeconds(sut.getAVPlayer().currentTime())))
+
+    let played = expectation(forNotification: .bookPlayed, object: nil)
+    played.isInverted = true
+    sut.play()
+    await fulfillment(of: [played], timeout: 1.5)
+
+    // The finished-book return happens after `prepareForPlayback` has queued playback, so
+    // `isPlaying` stays true. Audio must not start, and the book must not advance.
+    XCTAssertEqual(sut.getAVPlayer().rate, 0)
+    XCTAssertEqual(item.currentChapter.index, 4)
+    XCTAssertEqual(item.currentTime, item.duration, accuracy: 0.05)
+    XCTAssertEqual(playbackServiceMock.getPlayableItemAfterParentFolderAutoplayedRestartFinishedCallsCount, 0)
+  }
+
+  /// Chapters at 0, 10, 20 and 30 seconds, matching `m4b_WELLFORMED`.
+  private func chapteredBook(
+    bound: Bool = false,
+    chapterOffset: TimeInterval = 0,
+    globalStart: TimeInterval = 10
+  ) -> PlayableItem {
+    let chapter1 = PlayableChapter(
+      title: "chapter 1",
+      author: "author",
+      start: 0,
+      duration: 10,
+      relativePath: "book.m4b",
+      remoteURL: nil,
+      externalURL: nil,
+      index: 1
+    )
+    let chapter2 = PlayableChapter(
+      title: "chapter 2",
+      author: "author",
+      start: globalStart,
+      duration: 10,
+      relativePath: "book.m4b",
+      remoteURL: nil,
+      externalURL: nil,
+      index: 2,
+      chapterOffset: chapterOffset
+    )
+    return PlayableItem(
+      title: "book",
+      author: "author",
+      chapters: [chapter1, chapter2],
+      currentTime: globalStart,
+      duration: globalStart + 10,
+      relativePath: "book.m4b",
+      uuid: "LEGACY_UUID",
+      parentFolder: nil,
+      percentCompleted: 0,
+      lastPlayDate: nil,
+      isFinished: false,
+      isBoundBook: bound
+    )
+  }
+
+  /// Four 10-second chapters, the same cuts as `m4b_WELLFORMED`.
+  private func fixtureChapters(relativePath: String, bound: Bool) -> [PlayableChapter] {
+    var chapters: [PlayableChapter] = []
+    for offset in 0..<4 {
+      let start = TimeInterval(offset * 10)
+      chapters.append(
+        PlayableChapter(
+          title: "Chapter \(offset + 1)",
+          author: "Fixture",
+          start: start,
+          duration: 10,
+          relativePath: relativePath,
+          remoteURL: nil,
+          externalURL: nil,
+          index: Int16(offset + 1),
+          chapterOffset: bound ? start : 0
+        )
+      )
+    }
+    return chapters
+  }
+
+  @MainActor
+  private func loadWellFormedBook(at time: TimeInterval, bound: Bool = false) async throws -> PlayableItem {
+    let relativePath = "player-manager-chapter-timer.m4b"
+    let source = try XCTUnwrap(
+      Bundle(for: Self.self).url(forResource: "m4b_WELLFORMED", withExtension: "m4b")
+    )
+    let destination = DataManager.getProcessedFolderURL().appendingPathComponent(relativePath)
+    if FileManager.default.fileExists(atPath: destination.path) {
+      try FileManager.default.removeItem(at: destination)
+    }
+    try FileManager.default.copyItem(at: source, to: destination)
+    copiedFixtureURL = destination
+
+    let chapters = fixtureChapters(relativePath: relativePath, bound: bound)
+    let item = PlayableItem(
+      title: "Well Formed",
+      author: "Fixture",
+      chapters: chapters,
+      currentTime: time,
+      duration: 40,
+      relativePath: relativePath,
+      uuid: "chapter-timer-fixture",
+      parentFolder: nil,
+      percentCompleted: 0,
+      lastPlayDate: nil,
+      isFinished: false,
+      isBoundBook: bound
+    )
+
+    let ready = expectation(forNotification: .bookReady, object: nil)
+    sut.load(item, autoplay: false)
+    await fulfillment(of: [ready], timeout: 10)
+
+    let playable = expectation(description: "player item ready")
+    let timer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { [weak self] timer in
+      if self?.sut.getAVPlayer().currentItem?.status == .readyToPlay {
+        timer.invalidate()
+        playable.fulfill()
+      }
+    }
+    defer { timer.invalidate() }
+    await fulfillment(of: [playable], timeout: 10)
+
+    sut.jumpTo(time, recordBookmark: false)
+    let loaded = sut.currentItem ?? item
+    let fileTime =
+      loaded.isBoundBook
+      ? loaded.getChapterTime(in: loaded.currentChapter, for: time)
+      : time
+    await awaitPlayerTime(fileTime)
+    return loaded
+  }
+
+  @MainActor
+  private func awaitPlayerTime(_ seconds: TimeInterval) async {
+    await withCheckedContinuation { continuation in
+      sut.getAVPlayer().seek(
+        to: CMTime(seconds: seconds, preferredTimescale: 600),
+        toleranceBefore: .zero,
+        toleranceAfter: .zero
+      ) { _ in
+        continuation.resume()
+      }
+    }
+  }
+
+  @MainActor
+  private func waitUntil(
+    _ description: String,
+    timeout: TimeInterval = 8,
+    _ predicate: @escaping () -> Bool
+  ) async throws {
+    let exp = expectation(description: description)
+    let timer = Timer.scheduledTimer(withTimeInterval: 0.05, repeats: true) { timer in
+      if predicate() {
+        timer.invalidate()
+        exp.fulfill()
+      }
+    }
+    defer { timer.invalidate() }
+    await fulfillment(of: [exp], timeout: timeout)
+  }
+
+  private func resumedIntoChapterTwo(past mark: TimeInterval) -> Bool {
+    guard let item = sut.currentItem else { return false }
+
+    guard case .endOfChapter = SleepTimer.shared.state else { return false }
+
+    return sut.isPlaying && item.currentChapter.index == 2 && item.currentTime > mark + 0.4
+  }
+
+  private func installPlaybackRecord() {
+    let dataManager = DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null"))
+    playbackRecordStack = dataManager
+    libraryServiceMock.getCurrentPlaybackRecordReturnValue = PlaybackRecord.create(
+      in: dataManager.getContext()
+    )
   }
 }
