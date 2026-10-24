@@ -29,6 +29,7 @@ final class BookmarksViewModel: BookmarksView.Model {
     super.init()
     
     self.bindCurrentItemObserver()
+    self.bindBookmarkChangesObserver()
   }
 
   func bindCurrentItemObserver() {
@@ -46,6 +47,25 @@ final class BookmarksViewModel: BookmarksView.Model {
           self.automaticBookmarks = []
           self.userBookmarks = []
         }
+      }
+      .store(in: &disposeBag)
+  }
+
+  /// Beside the player, the list stays on screen while bookmarks are added from outside it (the
+  /// player's bookmark button, automatic bookmarks, sync), so it reloads whenever the library
+  /// writes one of the book's bookmarks
+  func bindBookmarkChangesObserver() {
+    libraryService.bookmarksUpdatePublisher
+      .receive(on: DispatchQueue.main)
+      .filter { [weak self] relativePath in relativePath == self?.currentItem?.relativePath }
+      /// Writes come in bursts (a sync pull adds a book's bookmarks one by one, an automatic
+      /// bookmark is a delete, a create and a note): one reload after the last of them
+      .debounce(for: .milliseconds(100), scheduler: DispatchQueue.main)
+      .sink { [weak self] relativePath in
+        guard let self, relativePath == self.currentItem?.relativePath else { return }
+
+        self.automaticBookmarks = self.getAutomaticBookmarks(for: relativePath)
+        self.userBookmarks = self.getUserBookmarks(for: relativePath)
       }
       .store(in: &disposeBag)
   }

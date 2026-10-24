@@ -8,15 +8,21 @@
 
 import SwiftUI
 
-struct MediaActionRow: View {
+struct MediaActionRow<TimerPopover: View>: View {
   let speedText: String
   let sleepText: String?
   let sleepAccessibilityLabel: String?
 
   @Binding var currentAlert: BPAlertContent?
-  
+  /// Shows `timerPopover` from the sleep timer button
+  @Binding var showsTimerPopover: Bool
+
   let currentAlertOrigin: MediaAction?
+  /// A fixed gap that keeps the buttons together in the middle; without one they spread
+  /// evenly across the row
+  var buttonSpacing: CGFloat? = nil
   let onActionTapped: (MediaAction) -> Void
+  @ViewBuilder let timerPopover: () -> TimerPopover
     
   func iconImage(_ ma: MediaAction) -> Image? {
     switch ma {
@@ -52,7 +58,7 @@ struct MediaActionRow: View {
   }
   
   var body: some View {
-    HStack {
+    HStack(spacing: buttonSpacing) {
       Spacer()
       ForEach(MediaAction.allCases) { ma in
         BubbleButton(
@@ -69,7 +75,17 @@ struct MediaActionRow: View {
           $currentAlert,
           isOriginView: currentAlertOrigin == ma
         )
+        .popover(
+          isPresented: ma == .timer ? $showsTimerPopover : .constant(false),
+          content: timerPopover
+        )
 
+        if buttonSpacing == nil {
+          Spacer()
+        }
+      }
+
+      if buttonSpacing != nil {
         Spacer()
       }
     }
@@ -77,5 +93,7 @@ struct MediaActionRow: View {
 }
 
 #Preview {
-  MediaActionRow(speedText: "2x", sleepText: nil, sleepAccessibilityLabel: nil, currentAlert: .constant(nil), currentAlertOrigin: .timer, onActionTapped: { ma in print(ma.iconName) })
+  MediaActionRow(speedText: "2x", sleepText: nil, sleepAccessibilityLabel: nil, currentAlert: .constant(nil), showsTimerPopover: .constant(false), currentAlertOrigin: .timer, onActionTapped: { ma in print(ma.iconName) }) {
+    EmptyView()
+  }
 }

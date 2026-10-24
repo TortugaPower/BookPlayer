@@ -102,6 +102,50 @@ struct SettingsTipJarView: View {
   }
 }
 
+extension View {
+  /// While the extra themes and app icons are locked (a free account), an Unlock button that opens
+  /// the Tip Jar, since a tip is what unlocks them. Its thank-you closes the Tip Jar again
+  func unlocksWithTipJar() -> some View {
+    modifier(TipJarUnlock())
+  }
+}
+
+private struct TipJarUnlock: ViewModifier {
+  @Environment(\.accountService) private var accountService
+  @EnvironmentObject private var theme: ThemeViewModel
+  @State private var showTipJar = false
+
+  func body(content: Content) -> some View {
+    content
+      .toolbar {
+        if accountService.accessLevel == .free {
+          ToolbarItem(placement: .primaryAction) {
+            Button("unlock_button") {
+              showTipJar = true
+            }
+            .foregroundStyle(theme.linkColor)
+          }
+        }
+      }
+      .sheet(isPresented: $showTipJar) {
+        NavigationStack {
+          SettingsTipJarView()
+            .toolbar {
+              ToolbarItem(placement: .cancellationAction) {
+                Button {
+                  showTipJar = false
+                } label: {
+                  Label("voiceover_close_button", systemImage: "xmark")
+                }
+                .foregroundStyle(theme.linkColor)
+              }
+            }
+        }
+        .environmentObject(theme)
+      }
+  }
+}
+
 #Preview {
   @Previewable var accountService: AccountService = {
     let accountService = AccountService()

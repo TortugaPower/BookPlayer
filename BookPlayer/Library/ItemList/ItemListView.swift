@@ -25,16 +25,41 @@ struct ItemListView: View {
   @State var downloadURLInput = ""
   @State private var playingItemParentPath: String?
 
-  @Namespace private var customRotorNamespace
+  @Namespace var customRotorNamespace
   @AccessibilityFocusState private var focus: FocusTarget?
+
+  /// Set from `LibraryOptionsView`: rows, or tiles (cards or covers only)
+  @AppStorage(
+    wrappedValue: LibraryLayout.list,
+    Constants.UserDefaults.libraryLayout,
+    store: UserDefaults(suiteName: Constants.ApplicationGroupIdentifier)
+  )
+  var layout: LibraryLayout
+  /// The narrowest a tile gets, larger with the text size
+  @ScaledMetric(relativeTo: .body) var tileMinimumWidth: CGFloat = 150
+  @ScaledMetric(relativeTo: .body) var coverMinimumWidth: CGFloat = 100
+  /// A cover alone on a wide screen (iPad, iPhone Duo open), which would otherwise fit many small ones
+  @ScaledMetric(relativeTo: .body) var wideCoverMinimumWidth: CGFloat = 140
+  /// The Text Size setting on a Mac, where Dynamic Type (which scales the widths above) stays put
+  @AppStorage(Constants.UserDefaults.macOSTextScale) var macOSTextScaleIndex: Double = 0.0
+  @Environment(\.horizontalSizeClass) var horizontalSizeClass
+  /// Where a fold runs top to bottom across the grid (iPhone Duo half open in landscape, the book
+  /// pose), so its columns leave it in a gap
+  @State var tileGridFold: TileGridFold?
+  /// The tiles' title source, which a cover's menu names it by
+  @AppStorage(
+    wrappedValue: false,
+    Constants.UserDefaults.libraryDisplayTitleSource,
+    store: UserDefaults(suiteName: Constants.ApplicationGroupIdentifier)
+  )
+  var useOriginalFileName: Bool
 
   @Environment(\.libraryService) var libraryService
   @Environment(\.accountService) private var accountService
   @Environment(\.syncService) var syncService
+  @Environment(\.syncQueueService) private var syncQueueService
   @Environment(\.hardcoverService) var hardcoverService
   @Environment(\.playerLoaderService) private var playerLoaderService
-  @Environment(\.jellyfinService) var jellyfinService
-  @Environment(\.audiobookshelfService) var audiobookshelfService
   @Environment(\.preferencesService) var preferencesService
   @Environment(\.listState) var listState
   @Environment(\.playerState) private var playerState
@@ -43,6 +68,9 @@ struct ItemListView: View {
   @Environment(\.scenePhase) private var scenePhase
   @EnvironmentObject private var importManager: ImportManager
   @EnvironmentObject private var theme: ThemeViewModel
+
+  /// A parked task in the sync lane: the blocked-refresh alert says sync is paused
+  @State private var syncLanePaused = false
 
   init(initModel: @escaping () -> ItemListViewModel) {
     self._model = .init(wrappedValue: initModel())
@@ -187,26 +215,34 @@ struct ItemListView: View {
         EmptyListView(node: model.libraryNode) {
           activeConfirmationDialog = .addOptions
         }
+        .acceptsDroppedFiles()
       } else {
         ScrollViewReader { scrollView in
-          List(selection: $model.selectedSetItems) {
-            ForEach(model.filteredResults, id: \.id) { item in
-              rowView(item)
-                .accessibilityRotorEntry(id: item.id, in: customRotorNamespace)
-                .moveDisabled(model.isFiltering)
-            }
-            .onMove { source, destination in
-              model.reorderItems(source: source, destination: destination)
-            }
+          Group {
+            if layout != .list {
+              tileGrid
+            } else {
+              List(selection: $model.selectedSetItems) {
+                ForEach(model.filteredResults, id: \.id) { item in
+                  rowView(item)
+                    .accessibilityRotorEntry(id: item.id, in: customRotorNamespace)
+                    .moveDisabled(model.isFiltering)
+                }
+                .onMove { source, destination in
+                  model.reorderItems(source: source, destination: destination)
+                }
 
-            if model.canLoadMore {
-              loadMoreView()
-            }
-          }
-          .macContextMenu(forSelectionType: SimpleLibraryItem.ID.self) { itemIDs in
-            let _ = { model.selectedSetItems = itemIDs }()
-            if !model.selectedItems.isEmpty {
-              contextMenuContent()
+                if model.canLoadMore {
+                  loadMoreView()
+                }
+              }
+              .macContextMenu(forSelectionType: SimpleLibraryItem.ID.self) { itemIDs in
+                let _ = { model.selectedSetItems = itemIDs }()
+                if !model.selectedItems.isEmpty {
+                  contextMenuContent(for: model.selectedItems)
+                }
+              }
+              .acceptsDroppedFiles()
             }
           }
           .overlay {
@@ -238,12 +274,21 @@ struct ItemListView: View {
             do {
               try await model.refreshListState()
             } catch {
-              self.activeAlert = .queuedTasks
+              self.activeAlert = .queuedTasks(paused: syncLanePaused)
             }
           }
           .environment(\.playingItemParentPath, playingItemParentPath)
           .environment(\.libraryNode, model.libraryNode)
         }
+      }
+    }
+    // Once while the list is up: `observeQueueCounts()` is a new publisher on every call, so
+    // `.onReceive` subscribed again (and took a replayed snapshot) on every render
+    .task {
+      for await counts in syncQueueService.observeQueueCounts().values {
+        // Blocked too: an account-level pause from an upload holds this lane with none of its
+        // own tasks parked
+        syncLanePaused = counts.isBlocked(TaskQueueKey.sync) || counts.pausedCount(in: TaskQueueKey.sync) > 0
       }
     }
     .onReceive(
@@ -329,32 +374,20 @@ struct ItemListView: View {
           handleArtworkTap(for: item)
         }
         .onTapGesture {
-          switch syncService.getDownloadState(for: item) {
-          case .downloading:
-            cancelDownload(of: item.id)
-          case .downloaded, .notDownloaded:
-            loadPlayer(with: item.relativePath)
-          }
+          handleTap(on: item)
         }
         .accessibilityAction {
           guard !model.editMode.isEditing else {
-            if model.selectedSetItems.contains(item.id) {
-              model.selectedSetItems.remove(item.id)
-            } else {
-              model.selectedSetItems.insert(item.id)
-            }
+            toggleSelection(of: item)
             return
           }
 
-          switch syncService.getDownloadState(for: item) {
-          case .downloading:
-            cancelDownload(of: item.id)
-          case .downloaded, .notDownloaded:
-            loadPlayer(with: item.relativePath)
-          }
+          handleTap(on: item)
         }
       }
     }
+    /// For the release-check UI tests: the row's label includes its progress, so they find it by path
+    .accessibilityIdentifier("library.row.\(item.relativePath)")
     .onAppear {
       Task {
         await model.prefetchIfNeeded(for: item)
@@ -410,14 +443,17 @@ struct ItemListView: View {
 
   @ViewBuilder
   func addFilesOptions() -> some View {
-    Button("import_button", systemImage: "waveform") {
+    Button("import_button", systemImage: "square.and.arrow.down") {
       showDocumentPicker = true
     }
     Button("download_from_url_title", systemImage: "link") {
       activeAlert = .downloadURL("")
     }
+    Button("transfer_title", systemImage: "laptopcomputer.and.arrow.down") {
+      listState.activeLibrarySheet = .transferFromComputer
+    }
     Button("media_servers_title".localized, systemImage: "server.rack") {
-      listState.activeIntegrationSheet = .mediaServers
+      listState.activeLibrarySheet = .mediaServers
     }
     Button("create_playlist_button", systemImage: "folder.badge.plus") {
       /// Clean up just in case due to how List(selection:) works under the hood
@@ -462,35 +498,24 @@ struct ItemListView: View {
   /// `ToolbarSpacer(.fixed, ...)` render as one shared capsule. Without the
   /// fixed spacer (or with `.flexible`), each item gets its own pill — which is
   /// what the cascading `.tint(theme.linkColor)` from `LibraryRootView` was
-  /// producing previously. On iOS 18 we fall back to the legacy
-  /// `ToolbarItemGroup` layout since `ToolbarSpacer` isn't available.
+  /// producing previously.
   @ToolbarContentBuilder
   private func regularToolbarItems() -> some ToolbarContent {
-    if #available(iOS 26.0, *) {
-      if importOperationState.isOperationActive {
-        ToolbarItem(placement: .topBarTrailing) {
-          importOperationButton
-        }
-        ToolbarSpacer(.fixed, placement: .topBarTrailing)
-      }
-
+    if importOperationState.isOperationActive {
       ToolbarItem(placement: .topBarTrailing) {
-        libraryOptionsButton
+        importOperationButton
       }
-
       ToolbarSpacer(.fixed, placement: .topBarTrailing)
+    }
 
-      ToolbarItem(placement: .topBarTrailing) {
-        ellipsisMenu
-      }
-    } else {
-      ToolbarItemGroup(placement: .confirmationAction) {
-        if importOperationState.isOperationActive {
-          importOperationButton
-        }
-        libraryOptionsButton
-        ellipsisMenu
-      }
+    ToolbarItem(placement: .topBarTrailing) {
+      libraryOptionsButton
+    }
+
+    ToolbarSpacer(.fixed, placement: .topBarTrailing)
+
+    ToolbarItem(placement: .topBarTrailing) {
+      ellipsisMenu
     }
   }
 
@@ -616,6 +641,24 @@ struct ItemListView: View {
     }
   }
 
+  /// A book's tap: play it and open the player, or offer to cancel its download
+  func handleTap(on item: SimpleLibraryItem) {
+    switch syncService.getDownloadState(for: item) {
+    case .downloading:
+      cancelDownload(of: item.id)
+    case .downloaded, .notDownloaded:
+      loadPlayer(with: item.relativePath)
+    }
+  }
+
+  func toggleSelection(of item: SimpleLibraryItem) {
+    if model.selectedSetItems.contains(item.id) {
+      model.selectedSetItems.remove(item.id)
+    } else {
+      model.selectedSetItems.insert(item.id)
+    }
+  }
+
   func cancelDownload(of relativePath: String) {
     model.selectedSetItems = [relativePath]
     if let item = model.selectedItems.first {
@@ -659,52 +702,61 @@ extension ItemListView {
 
   @ViewBuilder
   func itemOptionsDialog() -> some View {
-    detailsOption(forMenu: false)
-    moveOption(forMenu: false)
-    shareOption(forMenu: false)
-    jumpToStartOption(forMenu: false)
-    markFinishedOption(forMenu: false)
-    boundBooksOption(forMenu: false)
-    downloadOption(forMenu: false)
-    deleteOption(forMenu: false)
+    let items = model.selectedItems
+    detailsOption(for: items, forMenu: false)
+    moveOption(for: items, forMenu: false)
+    shareOption(for: items, forMenu: false)
+    jumpToStartOption(for: items, forMenu: false)
+    markFinishedOption(for: items, forMenu: false)
+    boundBooksOption(for: items, forMenu: false)
+    downloadOption(for: items, forMenu: false)
+    deleteOption(for: items, forMenu: false)
   }
 
   /// Menu version with reversed order (Menu displays first item at bottom)
   @ViewBuilder
   func itemOptionsMenu() -> some View {
-    deleteOption(forMenu: true)
-    downloadOption(forMenu: true)
-    boundBooksOption(forMenu: true)
-    markFinishedOption(forMenu: true)
-    jumpToStartOption(forMenu: true)
-    shareOption(forMenu: true)
-    moveOption(forMenu: true)
-    detailsOption(forMenu: true)
+    let items = model.selectedItems
+    deleteOption(for: items, forMenu: true)
+    downloadOption(for: items, forMenu: true)
+    boundBooksOption(for: items, forMenu: true)
+    markFinishedOption(for: items, forMenu: true)
+    jumpToStartOption(for: items, forMenu: true)
+    shareOption(for: items, forMenu: true)
+    moveOption(for: items, forMenu: true)
+    detailsOption(for: items, forMenu: true)
   }
 
-  // MARK: - Context Menu (macOS right-click)
+  // MARK: - Context Menu (a tile's long press, and right-click on macOS)
 
+  /// For `items`, which a tile's long press hasn't selected: each option selects them before it
+  /// acts, since the actions and the alerts they open work on the selection
   @ViewBuilder
-  func contextMenuContent() -> some View {
-    detailsOption(forMenu: false)
-    moveOption(forMenu: false)
-    shareOption(forMenu: false)
-    jumpToStartOption(forMenu: false)
-    markFinishedOption(forMenu: false)
-    boundBooksOption(forMenu: false)
-    downloadOption(forMenu: false)
+  func contextMenuContent(for items: [SimpleLibraryItem]) -> some View {
+    detailsOption(for: items, forMenu: false)
+    moveOption(for: items, forMenu: false)
+    shareOption(for: items, forMenu: false)
+    jumpToStartOption(for: items, forMenu: false)
+    markFinishedOption(for: items, forMenu: false)
+    boundBooksOption(for: items, forMenu: false)
+    downloadOption(for: items, forMenu: false)
     Divider()
-    deleteOption(forMenu: false)
+    deleteOption(for: items, forMenu: false)
+  }
+
+  private func select(_ items: [SimpleLibraryItem]) {
+    model.selectedSetItems = Set(items.map(\.id))
   }
 
   // MARK: - Individual Option Builders
 
   @ViewBuilder
-  private func detailsOption(forMenu: Bool) -> some View {
-    let item = model.selectedItems.first
-    let isSingle = model.selectedItems.count == 1
+  private func detailsOption(for items: [SimpleLibraryItem], forMenu: Bool) -> some View {
+    let item = items.first
+    let isSingle = items.count == 1
 
     Button {
+      select(items)
       activeSheet = .itemDetails(item!)
     } label: {
       Label("details_title", systemImage: "square.and.pencil")
@@ -714,8 +766,9 @@ extension ItemListView {
   }
 
   @ViewBuilder
-  private func moveOption(forMenu: Bool) -> some View {
+  private func moveOption(for items: [SimpleLibraryItem], forMenu: Bool) -> some View {
     Button {
+      select(items)
       activeAlert = .moveOptions
     } label: {
       Label("move_title", systemImage: "folder")
@@ -724,9 +777,9 @@ extension ItemListView {
   }
 
   @ViewBuilder
-  private func shareOption(forMenu: Bool) -> some View {
-    let item = model.selectedItems.first
-    let isSingle = model.selectedItems.count == 1
+  private func shareOption(for items: [SimpleLibraryItem], forMenu: Bool) -> some View {
+    let item = items.first
+    let isSingle = items.count == 1
 
     if isSingle, let item {
       ShareLink(
@@ -743,8 +796,9 @@ extension ItemListView {
   }
 
   @ViewBuilder
-  private func jumpToStartOption(forMenu: Bool) -> some View {
+  private func jumpToStartOption(for items: [SimpleLibraryItem], forMenu: Bool) -> some View {
     Button {
+      select(items)
       model.handleResetPlaybackPosition()
     } label: {
       Label("jump_start_title", systemImage: "backward.end")
@@ -753,8 +807,8 @@ extension ItemListView {
   }
 
   @ViewBuilder
-  private func markFinishedOption(forMenu: Bool) -> some View {
-    let areAllFinished = model.selectedItems.allSatisfy { $0.isFinished }
+  private func markFinishedOption(for items: [SimpleLibraryItem], forMenu: Bool) -> some View {
+    let areAllFinished = items.allSatisfy { $0.isFinished }
     let markTitle =
       areAllFinished
       ? "mark_unfinished_title".localized
@@ -762,6 +816,7 @@ extension ItemListView {
     let markIcon = areAllFinished ? "circle" : "checkmark.circle"
 
     Button {
+      select(items)
       model.handleMarkAsFinished(flag: !areAllFinished)
     } label: {
       Label(markTitle, systemImage: markIcon)
@@ -770,25 +825,27 @@ extension ItemListView {
   }
 
   @ViewBuilder
-  private func boundBooksOption(forMenu: Bool) -> some View {
-    let item = model.selectedItems.first
-    let isSingle = model.selectedItems.count == 1
-    let allAreBound = model.selectedItems.allSatisfy { $0.type == .bound }
-    let multipleBooks = model.selectedItems.count > 1 && model.selectedItems.allSatisfy { $0.type == .book }
+  private func boundBooksOption(for items: [SimpleLibraryItem], forMenu: Bool) -> some View {
+    let item = items.first
+    let isSingle = items.count == 1
+    let allAreBound = items.allSatisfy { $0.type == .bound }
+    let multipleBooks = items.count > 1 && items.allSatisfy { $0.type == .book }
     let singleFolder = isSingle && (item?.type == .folder)
     let canCreateBound = multipleBooks || singleFolder
 
     if allAreBound {
       Button {
-        model.updateFolders(model.selectedItems, type: .folder)
+        select(items)
+        model.updateFolders(items, type: .folder)
       } label: {
         Label("bound_books_undo_alert_title", systemImage: "rectangle.stack.badge.minus")
       }
       .menuTint(theme.primaryColor, enabled: forMenu)
     } else {
       Button {
+        select(items)
         if isSingle {
-          model.updateFolders(model.selectedItems, type: .bound)
+          model.updateFolders(items, type: .bound)
         } else {
           folderInput.prepareForBound(title: item?.title)
           folderNameRequest = FolderNameRequest(folderInput)
@@ -802,14 +859,15 @@ extension ItemListView {
   }
 
   @ViewBuilder
-  private func downloadOption(forMenu: Bool) -> some View {
-    let item = model.selectedItems.first
-    let isSingle = model.selectedItems.count == 1
+  private func downloadOption(for items: [SimpleLibraryItem], forMenu: Bool) -> some View {
+    let item = items.first
+    let isSingle = items.count == 1
 
     if let item, syncService.isActive {
       switch syncService.getDownloadState(for: item) {
       case .notDownloaded:
         Button {
+          select(items)
           model.startDownload(of: item)
         } label: {
           Label("download_title", systemImage: "arrow.down.circle")
@@ -818,6 +876,7 @@ extension ItemListView {
         .disabled(!isSingle)
       case .downloading:
         Button {
+          select(items)
           activeAlert = .cancelDownload(item)
         } label: {
           Label("cancel_download_title", systemImage: "xmark.circle")
@@ -826,6 +885,7 @@ extension ItemListView {
         .disabled(!isSingle)
       case .downloaded:
         Button {
+          select(items)
           Task {
             if await syncService.hasUploadTask(for: item.relativePath) {
               activeAlert = .warningOffload(item)
@@ -843,8 +903,9 @@ extension ItemListView {
   }
 
   @ViewBuilder
-  private func deleteOption(forMenu: Bool) -> some View {
+  private func deleteOption(for items: [SimpleLibraryItem], forMenu: Bool) -> some View {
     Button(role: .destructive) {
+      select(items)
       activeAlert = .delete
     } label: {
       Label("delete_button", systemImage: "trash")

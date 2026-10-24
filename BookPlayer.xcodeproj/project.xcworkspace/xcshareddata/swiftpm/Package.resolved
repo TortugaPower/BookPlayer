@@ -1,5 +1,5 @@
 {
-  "originHash" : "318e5e6f1fd44dd83a98bfdcc02c25efa21b9ba400d81e74fd9a319d50412e50",
+  "originHash" : "3f1ce053f28ca579cd10f1de96200c41c8414098e0d3c0e5e4eb609b7794dd1b",
   "pins" : [
     {
       "identity" : "devicekit",
@@ -51,8 +51,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/onevcat/Kingfisher.git",
       "state" : {
-        "revision" : "2ef543ee21d63734e1c004ad6c870255e8716c50",
-        "version" : "7.12.0"
+        "revision" : "410984bf301f4fa224fe56277b3f8672cc465c79",
+        "version" : "8.11.0"
       }
     },
     {
@@ -80,6 +80,15 @@
       "state" : {
         "revision" : "5575af93efb776414f243e93d6af9f6258dc539a",
         "version" : "8.36.0"
+      }
+    },
+    {
+      "identity" : "swiftbrowserdrop",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/TortugaPower/SwiftBrowserDrop.git",
+      "state" : {
+        "revision" : "d64f5860e66c28d64366411ed012709c0315f950",
+        "version" : "1.0.0"
       }
     },
     {

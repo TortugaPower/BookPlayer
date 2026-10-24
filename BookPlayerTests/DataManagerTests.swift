@@ -9,6 +9,7 @@
 @testable import BookPlayer
 @testable import BookPlayerKit
 import Combine
+import CoreData
 import XCTest
 
 class DataManagerTests: XCTestCase {
@@ -60,5 +61,62 @@ class ProcessFilesTests: DataManagerTests {
     self.importManager.process(fileUrl)
 
     wait(for: [expectation], timeout: 15)
+  }
+}
+
+/// Guards the v11→v12 manual migration: `shouldInferMappingModelAutomatically` is OFF,
+/// so if the v12 `.xcdatamodel` is ever edited after `MappingModel_v11_to_v12` was
+/// generated, the checksum mismatch makes `migrateStore` throw at launch for every
+/// existing install. This must fail in CI first.
+class MigrationV11ToV12Tests: XCTestCase {
+  func testMappingModelMatchesModelsAndMigratesStore() throws {
+    let v11 = DBVersion.v11.model()
+    let v12 = DBVersion.v12.model()
+    XCTAssertFalse(v11.entities.isEmpty, "v11 model failed to load from the bundle")
+    XCTAssertFalse(v12.entities.isEmpty, "v12 model failed to load from the bundle")
+    XCTAssertTrue(v12.entitiesByName.keys.contains("ExternalResource"))
+
+    // The lookup validates BOTH sides' entity checksums — this is exactly what
+    // breaks when a model is edited after its mapping model was generated
+    let mapping = NSMappingModel(from: [Bundle.main], forSourceModel: v11, destinationModel: v12)
+    let unwrappedMapping = try XCTUnwrap(mapping, "MappingModel_v11_to_v12 no longer matches the v11/v12 models")
+
+    // End-to-end: run a real v11 store through the migration and verify the
+    // result opens as a v12 store
+    let tempDir = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+    try FileManager.default.createDirectory(at: tempDir, withIntermediateDirectories: true)
+    defer { try? FileManager.default.removeItem(at: tempDir) }
+    let sourceURL = tempDir.appendingPathComponent("v11.sqlite")
+    let destinationURL = tempDir.appendingPathComponent("v12.sqlite")
+
+    let coordinator = NSPersistentStoreCoordinator(managedObjectModel: v11)
+    let store = try coordinator.addPersistentStore(
+      ofType: NSSQLiteStoreType,
+      configurationName: nil,
+      at: sourceURL,
+      options: nil
+    )
+    try coordinator.remove(store)
+
+    let manager = NSMigrationManager(sourceModel: v11, destinationModel: v12)
+    try manager.migrateStore(
+      from: sourceURL,
+      sourceType: NSSQLiteStoreType,
+      options: nil,
+      with: unwrappedMapping,
+      toDestinationURL: destinationURL,
+      destinationType: NSSQLiteStoreType,
+      destinationOptions: nil
+    )
+
+    let metadata = try NSPersistentStoreCoordinator.metadataForPersistentStore(
+      ofType: NSSQLiteStoreType,
+      at: destinationURL,
+      options: nil
+    )
+    XCTAssertTrue(
+      v12.isConfiguration(withName: nil, compatibleWithStoreMetadata: metadata),
+      "migrated store is not compatible with the v12 model"
+    )
   }
 }

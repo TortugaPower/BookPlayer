@@ -36,7 +36,9 @@ struct PlayerJumpView: View {
     }
     .buttonStyle(.plain)
     .background(Color.clear)
-    .frame(width: 54, height: 48)
+    /// As tall as the icon: a shorter frame lets it spill past, and layouts around it
+    /// (centering, spacing) go by the frame
+    .frame(width: 54, height: 56)
   }
 }
 

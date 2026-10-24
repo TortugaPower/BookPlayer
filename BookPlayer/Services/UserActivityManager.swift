@@ -13,11 +13,10 @@
 #endif
 import Combine
 import Foundation
-import Intents
 
+/// Records the time listened per day (`PlaybackRecord`) and hands the last week to the Time Listened widget
 class UserActivityManager {
   let libraryService: LibraryServiceProtocol
-  var currentActivity: NSUserActivity
   var playbackRecord: PlaybackRecord?
   private var referenceWorkItem: DispatchWorkItem?
   let encoder = JSONEncoder()
@@ -26,23 +25,9 @@ class UserActivityManager {
 
   init(libraryService: LibraryServiceProtocol) {
     self.libraryService = libraryService
-
-    let intent = INPlayMediaIntent()
-    let interaction = INInteraction(intent: intent, response: nil)
-    interaction.donate(completion: nil)
-    let activity = NSUserActivity(activityType: Constants.UserActivityPlayback)
-    activity.title = "siri_activity_title".localized
-    activity.isEligibleForPrediction = true
-    activity.persistentIdentifier = NSUserActivityPersistentIdentifier(Constants.UserActivityPlayback)
-    activity.suggestedInvocationPhrase = "siri_invocation_phrase".localized
-    activity.isEligibleForSearch = true
-
-    self.currentActivity = activity
   }
 
   func resumePlaybackActivity() {
-    self.currentActivity.becomeCurrent()
-
     self.playbackRecord = self.libraryService.getCurrentPlaybackRecord()
 
     guard let record = self.playbackRecord else { return }
@@ -53,7 +38,6 @@ class UserActivityManager {
   }
 
   func stopPlaybackActivity() {
-    self.currentActivity.resignCurrent()
     self.playbackRecord = nil
   }
 

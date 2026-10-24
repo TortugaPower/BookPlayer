@@ -115,6 +115,30 @@ final class AudiobookShelfConnectionViewModelTests: XCTestCase {
     XCTAssertEqual(try persistedHeaders(), ["CF-Access-Client-Id": "abc123"])
   }
 
+  // MARK: - Server identity
+
+  /// ABS has no per-instance id. `serverSettings.id` is the constant "server-settings" on every
+  /// server, and Android builds that stored it resolved every ABS book to the first server
+  /// saved. The connection must keep no id, so its address is its identity.
+  func testPasswordSignInStoresNoServerId() async throws {
+    http.exchangePayload = Data(
+      #"{"user":{"token":"t","id":"u1","username":"gianni"},"server":{"id":"not-an-instance-id"},"serverSettings":{"id":"server-settings"}}"#
+        .utf8
+    )
+
+    try await service.signIn(
+      username: "gianni",
+      password: "pw",
+      serverUrl: serverURL,
+      serverName: "Home"
+    )
+
+    let stored: [AudiobookShelfConnectionData]? = try keychain.get(.audiobookshelfConnection)
+    XCTAssertEqual(stored?.count, 1)
+    XCTAssertNil(stored?.first?.serverId)
+    XCTAssertEqual(stored?.first?.stableHostId, "https://abs.example.com")
+  }
+
   // MARK: - Re-authentication
 
   func testPrepareReauthRestoresEnoughStateToSignInAgain() async throws {

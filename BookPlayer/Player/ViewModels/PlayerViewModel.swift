@@ -14,7 +14,6 @@ enum PlayerSheetStyle: String, Identifiable {
     case chapters
     case controls
     case bookmark
-    case sleep
 
     var id: String { self.rawValue }
 }
@@ -36,6 +35,7 @@ final class PlayerViewModel: ObservableObject {
   @Published var hasPreviousChapter = false
   @Published var lastBookmark: SimpleBookmark?
   @Published var sheetStyle: PlayerSheetStyle?
+  @Published var showsCustomSleepTimer = false
   @Published var displaySheet = false
   @Published var showButtonFreeScreen = false
   /// Whether the current chapter's file is a video (drives the video surface + fullscreen button)
@@ -121,6 +121,9 @@ final class PlayerViewModel: ObservableObject {
   }
   
   func bindBookObservers() {
+    // Called on every player appear — drop the previous generation of sinks or each
+    // open appends another copy of every subscription below
+    disposeBag.removeAll()
     bindBookPlayingProgressEvents()
     bindNotificationSubscribers()
     bindBookSharedObservers()
@@ -195,6 +198,7 @@ final class PlayerViewModel: ObservableObject {
   }
   
   func bindBookPlayingProgressEvents() {
+
     self.playerManager.isPlayingPublisher()
       .removeDuplicates()
       .receive(on: DispatchQueue.main)
@@ -547,7 +551,7 @@ final class PlayerViewModel: ObservableObject {
       BPActionItem(
         title: "sleeptimer_option_custom".localized,
         handler: { [weak self] in
-          self?.displaySheet(style: .sleep)
+          self?.showsCustomSleepTimer = true
         }
       )
     )

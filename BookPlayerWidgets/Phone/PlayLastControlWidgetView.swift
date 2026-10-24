@@ -11,7 +11,6 @@ import Foundation
 import SwiftUI
 import WidgetKit
 
-@available(iOSApplicationExtension 18.0, iOS 18.0, *)
 struct PlayLastControlWidgetView: ControlWidget {
   var body: some ControlWidgetConfiguration {
     StaticControlConfiguration(

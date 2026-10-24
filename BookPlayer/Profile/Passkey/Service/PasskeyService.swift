@@ -62,7 +62,7 @@ public final class PasskeyService: NSObject, PasskeyServiceProtocol, @unchecked 
 
       return response
     } catch let error as BookPlayerError {
-      if case .networkErrorWithCode(_, let code) = error,
+      if case .networkErrorWithCode(_, let code, _) = error,
          code == "EMAIL_ALREADY_REGISTERED" {
         throw PasskeyError.emailAlreadyRegistered
       }

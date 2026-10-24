@@ -62,12 +62,12 @@ struct StoryActionView: View {
           ) {
             Text("Pay what you think is fair")
           } minimumValueLabel: {
-            Text(String(format: "$%.0f", action.options.first!.price))
+            Text(String(format: "$%.0f", action.options.first?.price ?? sliderOptions.min))
               .bpFont(.title)
               .foregroundStyle(.white)
               .accessibilityHidden(true)
           } maximumValueLabel: {
-            Text(String(format: "$%.0f", action.options.last!.price))
+            Text(String(format: "$%.0f", action.options.last?.price ?? sliderOptions.max))
               .bpFont(.title)
               .foregroundStyle(.white)
               .accessibilityHidden(true)

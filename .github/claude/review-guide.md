@@ -69,6 +69,12 @@ the PR head only (`fetch-depth: 1`): there is no `origin/develop` ref and no `gh
 - **Entitlement gating.** Bypassing or trusting stale/client-only state for `pro`/`plus` features, or gating
   sync without going through `AccountService`.
 - **BookPlayerKit boundary.** `Shared/` code importing app-layer types (breaks the framework).
+- **SDK-only result-builder content → launch crash on older iOS.** Inside a `ForEach` (or other builder closure)
+  that builds non-View content (accessibility rotor entries, toolbar items), an `if` produces `Optional<…>` and
+  several statements produce `TupleContent<…>`. With the iOS 27 SDK, those types' conformances to
+  `AccessibilityRotorContent` / `ToolbarContent` / `CustomizableToolbarContent` exist only on iOS 27, and the
+  compiler doesn't flag it: the app aborts on earlier versions as soon as SwiftUI resolves the view's body (5.22.1
+  shipped this as a launch crash). Filter the data before the `ForEach` instead of branching inside it.
 - Hand-editing `Generated/AutoMockable.generated.swift`.
 
 ### 🟡 WARN — worth a comment, not blocking
@@ -88,6 +94,11 @@ the PR head only (`fetch-depth: 1`): there is no `origin/develop` ref and no `gh
   test** in `BookPlayerTests/`.
 - A `Simple*`/`Playable*` snapshot bypassed — raw `NSManagedObject` used where a snapshot is the convention.
 - Swallowed errors; new code added to a top-level **empty stub** folder instead of `BookPlayer/BookPlayer/` or `Shared/`.
+- **Release-check UI tests out of sync:** renaming or removing an `accessibilityIdentifier` that
+  `BookPlayerUITests` uses (`library.row.<relativePath>`, `miniPlayer.info`, `player.playPause`,
+  `player.currentTime`), or changing the Import sheet's "Done" or the placement prompt's "Library", without
+  updating `BookPlayerUITests/ReleaseCheckUITests.swift`. CI doesn't run those tests, so it only shows up when the
+  release check fails at release time.
 
 ### 🔵 INFO — mention if helpful
 

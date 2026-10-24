@@ -15,7 +15,7 @@ struct AudiobookShelfLibraryGridItemView: View {
 
   @State var item: AudiobookShelfLibraryItem
 
-  @ScaledMetric var accessabilityScale: CGFloat = 1
+  @ScaledMetric var accessibilityScale: CGFloat = 1
 
   var isSelected: Bool
 
@@ -50,7 +50,7 @@ struct AudiobookShelfLibraryGridItemView: View {
   @ViewBuilder
   private var libraryBadge: some View {
     ZStack {
-      Circle().strokeBorder(.foreground, lineWidth: 1 * accessabilityScale)
+      Circle().strokeBorder(.foreground, lineWidth: 1 * accessibilityScale)
         .background(Circle().fill(.background))
       Image(systemName: item.placeholderImageName)
         .resizable()

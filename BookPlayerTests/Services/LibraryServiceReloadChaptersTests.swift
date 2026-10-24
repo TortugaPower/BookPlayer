@@ -24,6 +24,8 @@ private final class StubAudioMetadataService: AudioMetadataServiceProtocol {
   }
 }
 
+/// Main actor: the tests use the main-queue view context (see LibraryServiceTests).
+@MainActor
 final class LibraryServiceReloadChaptersTests: XCTestCase {
   // swiftlint:disable force_cast
   private var sut: LibraryService!

@@ -35,7 +35,7 @@ struct SearchView: View {
       .navigationTitle("search_title".localized)
       .searchable(
         text: $viewModel.searchText,
-        prompt: "search_title".localized + " " + "library_title".localized
+        prompt: "search_title".localized + " " + "books_title".localized
       )
       .onChange(of: viewModel.searchText) { _, newValue in
         viewModel.searchBooks(query: newValue)

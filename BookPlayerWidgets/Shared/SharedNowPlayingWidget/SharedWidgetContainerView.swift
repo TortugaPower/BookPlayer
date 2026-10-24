@@ -8,7 +8,6 @@
 
 import SwiftUI
 
-@available(iOSApplicationExtension 16.1, *)
 struct SharedWidgetContainerView: View {
   let entry: SharedWidgetEntry
 

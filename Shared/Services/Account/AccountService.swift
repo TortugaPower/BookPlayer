@@ -28,7 +28,7 @@ public enum SecondOnboardingError: Error {
 }
 
 public enum AccessLevel: String, CaseIterable, Identifiable {
-  case free, plus, pro
+  case free, plus, lite, pro
 
   public var id: String { rawValue }
 }
@@ -59,6 +59,8 @@ public protocol AccountServiceProtocol {
   func hasAccount() -> Bool
   func hasSyncEnabled() -> Bool
   func hasPlusAccess() -> Bool
+  /// Whether the user holds, or ever held, a subscription they did not get refunded.
+  func hasEverSubscribed() -> Bool
 
   @discardableResult
   func createAccount(donationMade: Bool) -> Account
@@ -74,14 +76,12 @@ public protocol AccountServiceProtocol {
 
   func getHardcodedSubscriptionOptions() -> [PricingModel]
   func getSubscriptionOptions() async throws -> [PricingModel]
-
+  func getAccessLevel() -> AccessLevel
+  
   func subscribe(option: PricingModel) async throws -> Bool
   func restorePurchases() async throws -> CustomerInfo
 
-  @MainActor func login(
-    with token: String,
-    userId: String
-  ) async throws -> Account?
+  @MainActor func login(with token: String) async throws -> Account?
   /// Load up stored user into RevenueCat's SDK to start listening to events
   /// - Parameter delegate: Delegate that will handle any changes to the customer info
   func loginIfUserExists(delegate: PurchasesDelegate)
@@ -105,6 +105,8 @@ public protocol AccountServiceProtocol {
 
 @Observable
 public final class AccountService: AccountServiceProtocol {
+  let monthlyLiteSubscriptionId = "com.tortugapower.audiobookplayer.subscription.lite"
+  let yearlyLiteSubscriptionId = "com.tortugapower.audiobookplayer.subscription.lite.yearly"
   let monthlySubscriptionId = "com.tortugapower.audiobookplayer.subscription.pro"
   let yearlySubscriptionId = "com.tortugapower.audiobookplayer.subscription.pro.yearly"
   var dataManager: DataManager!
@@ -174,7 +176,33 @@ public final class AccountService: AccountServiceProtocol {
   }
 
   public func hasSyncEnabled() -> Bool {
-    return Purchases.shared.cachedCustomerInfo?.entitlements.all["pro"]?.isActive == true
+    return Purchases.shared.cachedCustomerInfo?.entitlements.all["pro"]?.isActive == true || Purchases.shared.cachedCustomerInfo?.entitlements.all["lite"]?.isActive == true
+  }
+  
+  /// A fresh (network) RevenueCat read of the access level, for when the server rejects the
+  /// account while the cached info says otherwise. The account update it triggers posts
+  /// `.accountUpdate`, so losing every sync tier runs the usual lapse path. nil = the fetch
+  /// failed.
+  public func refreshAccessLevel() async -> AccessLevel? {
+    do {
+      let customerInfo = try await Purchases.shared.customerInfo(fetchPolicy: .fetchCurrent)
+      // On main, all of it: updateAccount works on the view context, and so does
+      // hasPlusAccess when it falls back to the stored account. This method resumes off main
+      return await MainActor.run {
+        self.updateAccount(from: customerInfo)
+        // From this answer, not the cache: pro first, as in getAccessLevel
+        let entitlements = customerInfo.entitlements.all
+        if entitlements["pro"]?.isActive == true { return .pro }
+        if entitlements["lite"]?.isActive == true { return .lite }
+        return self.hasPlusAccess() ? .plus : .free
+      }
+    } catch {
+      return nil
+    }
+  }
+
+  public func hasLiteEnabled() -> Bool {
+    return Purchases.shared.cachedCustomerInfo?.entitlements.all["lite"]?.isActive == true
   }
 
   public func hasPlusAccess() -> Bool {
@@ -183,9 +211,9 @@ public final class AccountService: AccountServiceProtocol {
     }
 
     let entitlements = cachedInfo.entitlements.all
-
     if entitlements["plus"]?.isActive == true
       || entitlements["pro"]?.isActive == true
+        || entitlements["lite"]?.isActive == true
     {
       return true
     }
@@ -196,13 +224,62 @@ public final class AccountService: AccountServiceProtocol {
     {
       return false
     }
+    
+    if entitlements["lite"]?.isActive == false,
+      let subscriptionInfo = getSubscriptionInfo(from: cachedInfo),
+      subscriptionInfo.refundedAt != nil
+    {
+      return false
+    }
 
     return getAccount()?.donationMade == true
   }
 
-  private func getAccessLevel() -> AccessLevel {
-    if hasSyncEnabled() {
+  /// Whether the user holds, or ever held, a subscription they did not get refunded — the
+  /// "has paid at some point" half of streaming access, which outlives the subscription.
+  ///
+  /// Family-shared and sandbox rows would also qualify, since neither carries a refund date.
+  /// Neither is filtered: every product in `IAP-Configuration.storekit` is
+  /// `familyShareable: false`, and sandbox subscriptions only reach developers and QA
+  /// (purchases are disabled on TestFlight via `AppEnvironment.isPurchaseEnabled`).
+  ///
+  /// Reads `subscriptionsByProductIdentifier` directly rather than going through
+  /// `getSubscriptionInfo(from:)`: that helper breaks on the first `PricingOption` match, so it
+  /// answers about ONE subscription chosen by enum order, and would deny someone who had a
+  /// refunded pro alongside a legitimately lapsed lite. Reading the dictionary also covers a
+  /// legacy product id that predates the enum.
+  public func hasEverSubscribed() -> Bool {
+    guard let cachedInfo = Purchases.shared.cachedCustomerInfo else { return false }
+
+    return Self.hasUnrefundedSubscription(
+      refundDates: cachedInfo.subscriptionsByProductIdentifier.values.map(\.refundedAt)
+    )
+  }
+
+  /// The streaming rule, taking plain values so the composition is testable: the inputs come
+  /// from RevenueCat and CoreData, neither of which a unit test can stand up.
+  static func resolveStreamingAccess(
+    isSignedIn: Bool,
+    hasPlusAccess: Bool,
+    hasEverSubscribed: Bool
+  ) -> Bool {
+    isSignedIn && (hasPlusAccess || hasEverSubscribed)
+  }
+
+  /// The rule behind `hasEverSubscribed()`, taking the refund dates rather than the
+  /// subscriptions: `SubscriptionInfo`'s initializer is internal to RevenueCat, so a test
+  /// cannot build one.
+  static func hasUnrefundedSubscription(refundDates: [Date?]) -> Bool {
+    refundDates.contains { $0 == nil }
+  }
+
+  public func getAccessLevel() -> AccessLevel {
+    // The pro entitlement is checked explicitly first: a user holding BOTH pro and lite
+    // (e.g. mid-crossgrade) must resolve to the higher tier, not fall through to lite.
+    if Purchases.shared.cachedCustomerInfo?.entitlements.all["pro"]?.isActive == true {
       return .pro
+    } else if hasLiteEnabled() {
+      return .lite
     } else if hasPlusAccess() {
       return .plus
     } else {
@@ -321,6 +398,38 @@ public final class AccountService: AccountServiceProtocol {
 
     return options
   }
+  
+  public func getLiteSubscriptionOptions() async throws -> [PricingModel] {
+    let products = await Purchases.shared.products([yearlyLiteSubscriptionId, monthlyLiteSubscriptionId])
+
+    var options = [PricingModel]()
+
+    if let product = products.first(where: { $0.productIdentifier == yearlyLiteSubscriptionId }) {
+      options.append(
+        PricingModel(
+          id: product.productIdentifier,
+          title: "\(product.localizedPriceString) \("yearly_title".localized)",
+          price: product.priceDecimalNumber.doubleValue
+        )
+      )
+    }
+
+    if let product = products.first(where: { $0.productIdentifier == monthlyLiteSubscriptionId }) {
+      options.append(
+        PricingModel(
+          id: product.productIdentifier,
+          title: "\(product.localizedPriceString) \("monthly_title".localized)",
+          price: product.priceDecimalNumber.doubleValue
+        )
+      )
+    }
+
+    if options.isEmpty {
+      throw AccountError.emptyProducts
+    }
+
+    return options
+  }
 
   public func subscribe(option: PricingModel) async throws -> Bool {
     return try await subscribe(productId: option.id)
@@ -357,19 +466,16 @@ public final class AccountService: AccountServiceProtocol {
   /// On the main actor, like the other sign-ins and deleteAccount(): the account is read and
   /// updated on the view context. Only the requests run off the main thread
   @MainActor
-  public func login(
-    with token: String,
-    userId: String
-  ) async throws -> Account? {
+  public func login(with token: String) async throws -> Account? {
     let response: LoginResponse = try await provider.request(.login(token: token))
 
     try self.keychain.set(response.token, key: .token)
 
     // Identify to RevenueCat with the server's canonical id (the account's
     // external_id) as the single source of truth, so a user signing in with
-    // Apple lands on the same RevenueCat user as their other credentials.
-    // Fall back to the Apple credential id only if an older response omits it.
-    let rcUserId = response.revenuecatId ?? userId
+    // Apple lands on the same RevenueCat user as their other credentials, and the
+    // server checks entitlements against the same customer
+    let rcUserId = response.revenuecatId
     let (customerInfo, _) = try await Purchases.shared.logIn(rcUserId)
     UserDefaults.sharedDefaults.set(rcUserId, forKey: "rcUserId")
 
@@ -507,6 +613,34 @@ public final class AccountService: AccountServiceProtocol {
         region: countryCode,
         version: Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String ?? "0"
       )
+    )
+  }
+}
+
+
+extension AccountServiceProtocol {
+  /// Whether media-server streaming is available: signed in, AND has paid at some point —
+  /// broader than `hasSyncEnabled()` on the second half, on purpose. Streaming reaches the
+  /// user's own Jellyfin/AudiobookShelf and never our servers, so it survives a subscription
+  /// ending, while sync, S3 and the chapter refresh stay behind an active lite/pro subscription.
+  ///
+  /// `getAccountId()`, not `hasAccount()`: logout blanks the account's fields but leaves the
+  /// row, so `hasAccount()` stays true afterwards — `AccountServiceTests` asserts it is still
+  /// true even after `deleteAccount()`. Only the id going empty marks a signed-out user, and
+  /// without this check a tip alone reopened streaming after sign-out, since `donationMade`
+  /// deliberately outlives logout.
+  ///
+  /// Both remaining clauses are load-bearing:
+  /// - `hasPlusAccess()` — an active tier, or a one-time tip. A tip is not read separately:
+  ///   RevenueCat attaches `plus` to non-subscription purchases, and that check short-circuits
+  ///   before the refund handling, so `hasPlusAccess()` already answers for tippers.
+  /// - `hasEverSubscribed()` — a subscription that expired without being refunded, which no
+  ///   entitlement reports any more.
+  public func hasStreamingEnabled() -> Bool {
+    return AccountService.resolveStreamingAccess(
+      isSignedIn: getAccountId() != nil,
+      hasPlusAccess: hasPlusAccess(),
+      hasEverSubscribed: hasEverSubscribed()
     )
   }
 }

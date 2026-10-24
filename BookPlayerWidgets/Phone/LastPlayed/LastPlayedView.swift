@@ -14,11 +14,14 @@ struct LastPlayedView: View {
   var model: LastPlayedModel
 
   @Environment(\.colorScheme) var colorScheme
+  @Environment(\.displayScale) var displayScale
 
   func getArtworkView(for relativePath: String) -> some View {
     ZStack {
       if let uiImage = WidgetUtils.getArtworkImage(
         for: relativePath,
+        length: 90,
+        scale: displayScale,
         theme: model.theme
       ) {
         Image(
@@ -50,27 +53,23 @@ struct LastPlayedView: View {
     return VStack(alignment: .leading) {
       if let relativePath = model.relativePath {
         HStack {
-          if #available(iOSApplicationExtension 17.0, iOS 17.0, *) {
-            Button(intent: BookPlaybackToggleIntent(relativePath: relativePath)) {
-              ZStack {
-                getArtworkView(for: relativePath)
-                Circle()
-                  .foregroundStyle(.white)
-                  .frame(width: 30, height: 30)
-                  .opacity(0.8)
-                Image(systemName: imageName)
-                  .resizable()
-                  .aspectRatio(contentMode: .fit)
-                  .foregroundStyle(.black)
-                  .frame(width: 11, height: 11)
-                  .offset(x: model.isPlaying ? 0 : 1)
-                  .widgetAccentable()
-              }
+          Button(intent: BookPlaybackToggleIntent(relativePath: relativePath)) {
+            ZStack {
+              getArtworkView(for: relativePath)
+              Circle()
+                .foregroundStyle(.white)
+                .frame(width: 30, height: 30)
+                .opacity(0.8)
+              Image(systemName: imageName)
+                .resizable()
+                .aspectRatio(contentMode: .fit)
+                .foregroundStyle(.black)
+                .frame(width: 11, height: 11)
+                .offset(x: model.isPlaying ? 0 : 1)
+                .widgetAccentable()
             }
-            .buttonStyle(.plain)
-          } else {
-            getArtworkView(for: relativePath)
           }
+          .buttonStyle(.plain)
 
           VStack {
             Image(appIconName)

@@ -17,7 +17,6 @@ class NetworkMonitor {
   private let queue = DispatchQueue(label: "NetworkMonitor")
   
   var isConnected: Bool = false
-  var isConnectedViaWiFi: Bool = false
   var isConnectedViaCellular: Bool = false
   
   init() {
@@ -32,7 +31,6 @@ class NetworkMonitor {
     monitor.pathUpdateHandler = { [weak self] path in
       DispatchQueue.main.async {
         self?.isConnected = path.status == .satisfied
-        self?.isConnectedViaWiFi = path.usesInterfaceType(.wifi)
         self?.isConnectedViaCellular = path.usesInterfaceType(.cellular)
       }
     }

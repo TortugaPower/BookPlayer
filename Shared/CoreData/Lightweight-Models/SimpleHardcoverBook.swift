@@ -32,3 +32,21 @@ public struct SimpleHardcoverBook {
     self.userBookID = userBookID
   }
 }
+
+extension SimpleHardcoverBook {
+  /// Metadata repair for a status-only stub (created when a synced-down Hardcover link
+  /// crosses the reading threshold before this device ever fetched the book): metadata
+  /// comes from the FETCHED copy, monotonic state (status, userBookID) stays LOCAL — a
+  /// metadata repair must never regress reading progress already pushed to Hardcover,
+  /// and losing userBookID would break the unlink flow's removal call.
+  public func repairingMetadata(from fetched: SimpleHardcoverBook) -> SimpleHardcoverBook {
+    SimpleHardcoverBook(
+      id: fetched.id,
+      artworkURL: fetched.artworkURL,
+      title: fetched.title,
+      author: fetched.author,
+      status: status,
+      userBookID: userBookID
+    )
+  }
+}

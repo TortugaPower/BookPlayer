@@ -14,7 +14,6 @@ struct MiniPlayerAccessoryView: View {
   let showPlayer: () -> Void
 
   @State private var isPlaying: Bool = false
-  @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
   @EnvironmentObject private var theme: ThemeViewModel
   @EnvironmentObject private var playerManager: PlayerManager
 
@@ -43,18 +42,14 @@ struct MiniPlayerAccessoryView: View {
         .accessibilityHidden(true)
         .padding(.leading, 8)
 
-        VStack(alignment: .leading) {
+        VStack(alignment: .leading, spacing: 0) {
           Text(verbatim: playerManager.currentItem?.title ?? "")
-            .foregroundStyle(
-              reduceTransparency ? Color.primary : theme.primaryColor
-            )
+            .foregroundStyle(.primary)
             .bpFont(.miniPlayerTitle)
             .lineLimit(1)
 
           Text(verbatim: playerManager.currentItem?.author ?? "")
-            .foregroundStyle(
-              reduceTransparency ? Color.secondary : theme.secondaryColor
-            )
+            .foregroundStyle(.secondary)
             .bpFont(.miniPlayerAuthor)
             .lineLimit(1)
         }
@@ -62,6 +57,7 @@ struct MiniPlayerAccessoryView: View {
         .accessibilityElement(children: .combine)
         .accessibilityAddTraits(.isHeader)
         .accessibilityLabel(voiceOverLabel)
+        .accessibilityIdentifier("miniPlayer.info")
         Button {
           UIImpactFeedbackGenerator(style: .medium).impactOccurred()
           playerManager.rewind()

@@ -11,13 +11,11 @@ import UIKit
 
 struct ConfettiView: UIViewRepresentable {
   func makeUIView(context: Context) -> UIView {
-    let view = UIView(frame: .zero)
+    let view = EmitterView(frame: .zero)
 
-    let emitter = CAEmitterLayer()
+    let emitter = view.emitter
 
-    emitter.emitterPosition = CGPoint(x: UIScreen.main.bounds.width / 2.0, y: 0)
     emitter.emitterShape = .line
-    emitter.emitterSize = CGSize(width: UIScreen.main.bounds.width, height: 1)
 
     let confettis: [(color: UIColor, image: UIImage)] = [
       (UIColor(red: 0.95, green: 0.40, blue: 0.27, alpha: 1.0), UIImage(named: "confetti_paper")!),
@@ -33,7 +31,6 @@ struct ConfettiView: UIViewRepresentable {
     }
 
     emitter.emitterCells = cells
-    view.layer.addSublayer(emitter)
 
     return view
   }
@@ -59,4 +56,31 @@ struct ConfettiView: UIViewRepresentable {
   }
 
   func updateUIView(_ uiView: UIView, context: Context) {}
+}
+
+/// Lays the emitter out from its own bounds rather than the screen's: they differ in Split View
+/// and on iPhone Duo, and the bounds follow the window when it resizes
+private final class EmitterView: UIView {
+  let emitter = CAEmitterLayer()
+
+  override init(frame: CGRect) {
+    super.init(frame: frame)
+    layer.addSublayer(emitter)
+  }
+
+  required init?(coder: NSCoder) {
+    fatalError("init(coder:) has not been implemented")
+  }
+
+  override func layoutSubviews() {
+    super.layoutSubviews()
+
+    /// A standalone layer animates property changes implicitly, which would slide the emitter
+    /// in from its previous frame
+    CATransaction.begin()
+    CATransaction.setDisableActions(true)
+    emitter.emitterPosition = CGPoint(x: bounds.midX, y: 0)
+    emitter.emitterSize = CGSize(width: bounds.width, height: 1)
+    CATransaction.commit()
+  }
 }

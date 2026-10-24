@@ -33,6 +33,7 @@ public enum BPFont {
   // Small/caption variants
   case buttonTextSmall  // 11pt bold
   case captionMedium    // 13pt medium
+  case captionSemibold  // 12pt semibold
 
   // Mini player
   case miniPlayerTitle   // 14pt semibold
@@ -74,6 +75,8 @@ public enum BPFont {
       return .caption2.weight(.bold)
     case .captionMedium:
       return .footnote.weight(.medium)
+    case .captionSemibold:
+      return .caption.weight(.semibold)
     case .miniPlayerTitle:
       return .subheadline.weight(.semibold)
     case .miniPlayerAuthor:
@@ -102,6 +105,7 @@ public enum BPFont {
     case .pricingTitle: return 34
     case .buttonTextSmall: return 11
     case .captionMedium: return 13
+    case .captionSemibold: return 12
     case .miniPlayerTitle: return 15
     case .miniPlayerAuthor: return 13
     case .iconLarge: return 48
@@ -126,6 +130,7 @@ public enum BPFont {
     case .pricingTitle: return .heavy
     case .buttonTextSmall: return .bold
     case .captionMedium: return .medium
+    case .captionSemibold: return .semibold
     case .miniPlayerTitle: return .semibold
     case .miniPlayerAuthor: return .regular
     case .iconLarge: return .regular

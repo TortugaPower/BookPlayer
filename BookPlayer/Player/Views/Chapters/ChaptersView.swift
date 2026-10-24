@@ -9,49 +9,43 @@
 import BookPlayerKit
 import SwiftUI
 
+/// The current book's chapters. Whatever shows it (a sheet, the panel beside the player)
+/// provides the navigation stack and the way out
 struct ChaptersView: View {
   @StateObject private var model: Self.Model
   @StateObject private var theme = ThemeViewModel()
-  @Environment(\.dismiss) private var dismiss
+  /// Called after a chapter is picked, e.g. to close the sheet the list is in
+  private let onSelect: () -> Void
 
-  init(initModel: @escaping () -> Self.Model) {
+  init(onSelect: @escaping () -> Void = {}, initModel: @escaping () -> Self.Model) {
+    self.onSelect = onSelect
     self._model = .init(wrappedValue: initModel())
   }
 
   var body: some View {
-    NavigationStack {
-      ScrollViewReader { proxy in
-        List {
-          ForEach(Array(model.chapters.enumerated()), id: \.element.id) { index, chapter in
-            rowView(chapter, index: index)
-          }
+    ScrollViewReader { proxy in
+      List {
+        ForEach(Array(model.chapters.enumerated()), id: \.element.id) { index, chapter in
+          rowView(chapter, index: index)
         }
-        .onAppear {
-          if let currentChapter = model.currentChapter {
-            proxy.scrollTo(currentChapter.id, anchor: .center)
-          }
-        }
-        .listStyle(.plain)
-        .applyListStyle(with: theme, background: theme.systemBackgroundColor)
-        .navigationTitle("chapters_title")
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-          ToolbarItem(placement: .cancellationAction) {
-            Button {
-              dismiss()
-            } label: {
-              Label("voiceover_close_button", systemImage: "xmark")
-            }
-            .foregroundStyle(theme.linkColor)
-          }
-          if model.canReloadChapters {
-            ToolbarItem(placement: .confirmationAction) {
-              reloadButton
-            }
-          }
-        }
-        .bpAlert($model.currentAlert)
       }
+      .onAppear {
+        if let currentChapter = model.currentChapter {
+          proxy.scrollTo(currentChapter.id, anchor: .center)
+        }
+      }
+      .listStyle(.plain)
+      .applyListStyle(with: theme, background: theme.systemBackgroundColor)
+      .navigationTitle("chapters_title")
+      .navigationBarTitleDisplayMode(.inline)
+      .toolbar {
+        if model.canReloadChapters {
+          ToolbarItem(placement: .primaryAction) {
+            reloadButton
+          }
+        }
+      }
+      .bpAlert($model.currentAlert)
     }
   }
 
@@ -60,9 +54,9 @@ struct ChaptersView: View {
     Button {
       Task { await model.reloadChapters() }
     } label: {
-      // Keep the title laid out (just hidden) while loading so the spinner overlay doesn't
+      // Keep the icon laid out (just hidden) while loading so the spinner overlay doesn't
       // change the toolbar item's width.
-      Text("reload_button")
+      Label("reload_button", systemImage: "arrow.triangle.2.circlepath")
         .foregroundStyle(theme.linkColor)
         .opacity(model.isReloadingChapters ? 0 : 1)
         .overlay {
@@ -88,7 +82,7 @@ struct ChaptersView: View {
     )
     Button {
       model.handleChapterSelected(chapter)
-      dismiss()
+      onSelect()
     } label: {
       HStack {
         VStack(alignment: .leading, spacing: Spacing.S4) {
@@ -142,6 +136,7 @@ extension ChaptersView {
     duration: 300,
     relativePath: "book1.m4b",
     remoteURL: nil,
+    externalURL: nil,
     index: 0
   )
 
@@ -156,6 +151,7 @@ extension ChaptersView {
           duration: 300,
           relativePath: "book1.m4b",
           remoteURL: nil,
+          externalURL: nil,
           index: 1
         ),
       ],

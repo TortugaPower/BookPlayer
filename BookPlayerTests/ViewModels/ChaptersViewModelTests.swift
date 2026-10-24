@@ -7,18 +7,36 @@
 
 @testable import BookPlayer
 @testable import BookPlayerKit
+import Combine
 import XCTest
 
 @MainActor
 final class ChaptersViewModelTests: XCTestCase {
   private var playerManagerMock: PlayerManagerProtocolMock!
   private var libraryServiceMock: LibraryServiceProtocolMock!
+  /// Stands in for `PlayerManager.$currentItem`, which the view model follows
+  private var currentItemSubject: CurrentValueSubject<PlayableItem?, Never>!
 
   override func setUp() {
     super.setUp()
     DataTestUtils.clearFolderContents(url: DataManager.getProcessedFolderURL())
     playerManagerMock = PlayerManagerProtocolMock()
     libraryServiceMock = LibraryServiceProtocolMock()
+    currentItemSubject = CurrentValueSubject(nil)
+    playerManagerMock.currentItemPublisherReturnValue = currentItemSubject.eraseToAnyPublisher()
+  }
+
+  /// Like `PlayerManager`: the property and its publisher change together
+  private func setCurrentItem(_ item: PlayableItem?) {
+    playerManagerMock.currentItem = item
+    currentItemSubject.send(item)
+  }
+
+  private func waitUntil(timeout: TimeInterval = 2, _ condition: () -> Bool) async throws {
+    let deadline = Date().addingTimeInterval(timeout)
+    while Date() < deadline, !condition() {
+      try await Task.sleep(for: .milliseconds(10))
+    }
   }
 
   private func makeItem(relativePath: String, isBoundBook: Bool, chapterCount: Int = 1) -> PlayableItem {
@@ -30,6 +48,7 @@ final class ChaptersViewModelTests: XCTestCase {
         duration: 10,
         relativePath: relativePath,
         remoteURL: nil,
+        externalURL: nil,
         index: Int16(index)
       )
     }
@@ -62,23 +81,23 @@ final class ChaptersViewModelTests: XCTestCase {
   }
 
   func testCanReloadChapters_singleFileBook_isTrue() {
-    playerManagerMock.currentItem = makeItem(relativePath: "book.m4b", isBoundBook: false)
+    setCurrentItem(makeItem(relativePath: "book.m4b", isBoundBook: false))
     XCTAssertTrue(makeSUT().canReloadChapters)
   }
 
   func testCanReloadChapters_boundBook_isFalse() {
-    playerManagerMock.currentItem = makeItem(relativePath: "folder", isBoundBook: true)
+    setCurrentItem(makeItem(relativePath: "folder", isBoundBook: true))
     XCTAssertFalse(makeSUT().canReloadChapters)
   }
 
   func testReloadChapters_whenMoreFound_reloadsItemAndRefreshesList() async {
     createLocalFile(named: "reparse.m4b")
-    playerManagerMock.currentItem = makeItem(relativePath: "reparse.m4b", isBoundBook: false, chapterCount: 1)
+    setCurrentItem(makeItem(relativePath: "reparse.m4b", isBoundBook: false, chapterCount: 1))
     libraryServiceMock.reloadChaptersRelativePathReturnValue = 5
     // Simulate PlayerManager rebuilding currentItem from storage with the new chapter count.
     let reloadedItem = makeItem(relativePath: "reparse.m4b", isBoundBook: false, chapterCount: 5)
     playerManagerMock.reloadCurrentItemClosure = { [weak self] in
-      self?.playerManagerMock.currentItem = reloadedItem
+      self?.setCurrentItem(reloadedItem)
     }
     let sut = makeSUT()
 
@@ -93,7 +112,7 @@ final class ChaptersViewModelTests: XCTestCase {
 
   func testReloadChapters_whenFileNotDownloaded_alertsWithoutParsing() async {
     // No file created on disk for this relativePath.
-    playerManagerMock.currentItem = makeItem(relativePath: "missing.m4b", isBoundBook: false)
+    setCurrentItem(makeItem(relativePath: "missing.m4b", isBoundBook: false))
     let sut = makeSUT()
 
     await sut.reloadChapters()
@@ -106,7 +125,7 @@ final class ChaptersViewModelTests: XCTestCase {
 
   func testReloadChapters_whenNoAdditionalFound_alertsAndDoesNotReloadItem() async {
     createLocalFile(named: "none.m4b")
-    playerManagerMock.currentItem = makeItem(relativePath: "none.m4b", isBoundBook: false)
+    setCurrentItem(makeItem(relativePath: "none.m4b", isBoundBook: false))
     libraryServiceMock.reloadChaptersRelativePathReturnValue = nil
     let sut = makeSUT()
 
@@ -119,12 +138,37 @@ final class ChaptersViewModelTests: XCTestCase {
   }
 
   func testReloadChapters_boundBook_isNoOp() async {
-    playerManagerMock.currentItem = makeItem(relativePath: "folder", isBoundBook: true)
+    setCurrentItem(makeItem(relativePath: "folder", isBoundBook: true))
     let sut = makeSUT()
 
     await sut.reloadChapters()
 
     XCTAssertFalse(libraryServiceMock.reloadChaptersRelativePathCalled)
     XCTAssertNil(sut.currentAlert)
+  }
+
+  func testCurrentChapter_followsPlayback() async throws {
+    let item = makeItem(relativePath: "book.m4b", isBoundBook: false, chapterCount: 3)
+    item.currentChapter = item.chapters[0]
+    setCurrentItem(item)
+    let sut = makeSUT()
+
+    item.currentChapter = item.chapters[2]
+
+    try await waitUntil { sut.currentChapter == item.chapters[2] }
+    XCTAssertEqual(sut.currentChapter, item.chapters[2])
+  }
+
+  func testChapters_followTheCurrentItem() async throws {
+    setCurrentItem(makeItem(relativePath: "first.m4b", isBoundBook: false, chapterCount: 2))
+    let sut = makeSUT()
+    let next = makeItem(relativePath: "second.m4b", isBoundBook: false, chapterCount: 4)
+    next.currentChapter = next.chapters[1]
+
+    setCurrentItem(next)
+
+    try await waitUntil { sut.chapters == next.chapters && sut.currentChapter == next.chapters[1] }
+    XCTAssertEqual(sut.chapters, next.chapters)
+    XCTAssertEqual(sut.currentChapter, next.chapters[1])
   }
 }
