@@ -18,6 +18,11 @@ first three, "… Upgrade" for the last, so neither is reset right after playing
             from the release before it instead, which is where its users really come from; if that one
             crashes too, the upgrade is reported as not tested there instead of failing this build
 
+Before any of them, the built bundle is checked without a simulator: every app and extension in it, the
+watch app and its widgets included, must find each library it loads inside the bundle. A missing one fails
+the check at once (6.0.0's watch app embedded no Get/JellyfinAPI and died at launch on every watch; Xcode
+and the simulator hid it).
+
 Every step also fails on a new crash report from the app. A failure WITH a crash report fails the check
 at once. A failure without one gets one retry on a freshly reset simulator: the check fails only if it
 fails again, and a scenario that passes the second time is reported as "passed on retry" with the first
@@ -254,6 +259,88 @@ def retarget(xctestrun, app, name):
     with open(copy, "wb") as f:
         plistlib.dump(plist, f)
     return copy
+
+
+# MARK: - Bundle
+
+DYLIB_LOADS = {"LC_LOAD_DYLIB", "LC_LOAD_WEAK_DYLIB", "LC_REEXPORT_DYLIB", "LC_LAZY_LOAD_DYLIB", "LC_LOAD_UPWARD_DYLIB"}
+
+
+def load_commands(binary):
+    """A Mach-O's dependencies as (name, weak) and its LC_RPATHs in order, across all its architectures."""
+    deps, rpaths, command = set(), [], None
+    for line in run(["otool", "-arch", "all", "-l", str(binary)]).splitlines():
+        line = line.strip()
+        if line.startswith("cmd "):
+            command = line.split()[1]
+        elif line.startswith("name ") and command in DYLIB_LOADS:
+            deps.add((line[5:].rsplit(" (offset", 1)[0], command == "LC_LOAD_WEAK_DYLIB"))
+        elif line.startswith("path ") and command == "LC_RPATH":
+            path = line[5:].rsplit(" (offset", 1)[0]
+            if path not in rpaths:
+                rpaths.append(path)
+    return deps, rpaths
+
+
+def missing_frameworks(app):
+    """Every library dyld wouldn't find when an app or extension inside `app` launches (the watch app and its
+    widgets included, which no scenario launches), one line each. Resolved as dyld does: an @rpath dependency
+    through the LC_RPATHs of the image loading it, then of each image above it up to the executable. An rpath
+    outside the bundle is ignored: Debug builds add one to the build folder's PackageFrameworks, which on the
+    simulator and in Xcode hides a framework the app doesn't embed (6.0.0's watch app died at launch on every
+    watch). Each app only finds what's inside it, an extension what's inside its app: the watch app is installed
+    on the watch alone, so its `@executable_path/../../Frameworks` (the iPhone app's, in the build) isn't there.
+    The Swift runtime (`libswift*`) and absolute system paths come from the OS."""
+    app = app.resolve()
+    commands, missing = {}, []
+
+    def loaded(binary):
+        if binary not in commands:
+            commands[binary] = load_commands(binary)
+        return commands[binary]
+
+    def expand(path, owner, executable):
+        if path.startswith("@loader_path"):
+            return owner.parent / path[len("@loader_path/"):]
+        if path.startswith("@executable_path"):
+            return executable.parent / path[len("@executable_path/"):]
+        return Path(path)
+
+    def resolve(name, chain, root):
+        """The file `name` loads from inside `root`, "system" for the OS's own, or None."""
+        if name.startswith("@rpath/"):
+            for owner in reversed(chain):
+                for rpath in loaded(owner)[1]:
+                    folder = expand(rpath, owner, chain[0]).resolve()  # `..` and /tmp → /private/tmp, like `app`
+                    candidate = folder / name[len("@rpath/"):]
+                    if folder.is_relative_to(root) and candidate.exists():
+                        return candidate.resolve()
+            return "system" if Path(name).name.startswith("libswift") else None
+        if name.startswith(("@loader_path/", "@executable_path/")):
+            candidate = expand(name, chain[-1], chain[0]).resolve()
+            return candidate if candidate.is_relative_to(root) and candidate.exists() else None
+        return "system"
+
+    bundles = [app, *sorted(path for path in app.rglob("*") if path.suffix in (".app", ".appex") and path.is_dir())]
+    for bundle in bundles:
+        try:
+            with open(bundle / "Info.plist", "rb") as f:
+                executable = (bundle / plistlib.load(f)["CFBundleExecutable"]).resolve()
+        except (OSError, KeyError):
+            continue  # a resource folder named like a bundle: nothing launches from it
+        root = bundle if bundle.suffix == ".app" else next(p for p in bundle.parents if p.suffix == ".app")
+        queue, seen = [[executable]], {executable}
+        while queue:
+            chain = queue.pop(0)
+            for name, weak in sorted(loaded(chain[-1])[0]):
+                found = resolve(name, chain, root)
+                if found is None and not weak:
+                    missing.append(f"{bundle.relative_to(app.parent)}: {chain[-1].relative_to(app.parent)} loads "
+                                   f"{name}, which isn't in the bundle")
+                elif isinstance(found, Path) and found not in seen:
+                    seen.add(found)
+                    queue.append(chain + [found])
+    return missing
 
 
 # MARK: - Test files
@@ -600,6 +687,19 @@ def check(args):
     candidate = products / "Release-iphonesimulator/BookPlayer.app"
     with open(candidate / "Info.plist", "rb") as f:
         bundle_id = plistlib.load(f)["CFBundleIdentifier"]
+
+    # Before any simulator: an app or extension that can't load a framework crashes at launch on every device,
+    # and the watch app (with its widgets) is in no scenario
+    missing = missing_frameworks(candidate)
+    results.append(("bundle", "frameworks", "failed" if missing else "passed",
+                    "\n".join(missing) if missing else "every app and extension finds what it loads"))
+    log(f"bundle frameworks: {results[-1][3].splitlines()[0]}")
+    if missing:
+        if not args.keep_build:
+            shutil.rmtree(out / "DerivedData", ignore_errors=True)
+        notes.append("simulator scenarios not run: fix the bundle first")
+        write_report(out, started, tag, results, notes, passed=False)
+        return 1
     previous_runs = {}
 
     def previous_xctestrun(previous_tag_name):
