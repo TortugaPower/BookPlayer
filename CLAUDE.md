@@ -87,7 +87,7 @@ Xcode builds each as one dynamic `…_PackageProduct.framework` that the app emb
 app only when that app target links the package itself, and a package linked by `BookPlayerWatchKit` alone left the
 watch app without it (6.0.0: every watch died at launch, dyld "Library not loaded: @rpath/Get_…_PackageProduct").
 Runs from Xcode and on the simulator hide this, since Debug builds add an absolute rpath to the build folder's
-`PackageFrameworks`; check the built `.app`'s `Frameworks/` instead. SwiftLint runs as a build-phase run-script; **Sourcery is run manually** (not
+`PackageFrameworks`; the release check's bundle check (below) catches it. SwiftLint runs as a build-phase run-script; **Sourcery is run manually** (not
 a build phase) and its output is committed.
 
 ---
@@ -104,7 +104,11 @@ a build phase) and its output is committed.
   (`ci_scripts/`), whose Xcode version is set in App Store Connect and must be 27.1 too.
 - **Release check** (`scripts/release-check/release_check.py`): run locally by the iOS release skill before a
   release is tagged, **never by CI**. It builds the **Release** configuration for the simulator through the shared
-  `ReleaseCheck` scheme (CI's `BookPlayer` scheme and `Unit Tests` plan don't include `BookPlayerUITests`) and runs
+  `ReleaseCheck` scheme (CI's `BookPlayer` scheme and `Unit Tests` plan don't include `BookPlayerUITests`). Before
+  any simulator, `missing_frameworks` reads the built bundle with `otool`: every app and extension in it (the
+  embedded watch app and its widgets included, which no scenario launches) must find each library it loads, resolved
+  through its rpaths as dyld does, inside its own app (the watch app is installed alone, so the iPhone app's
+  `Frameworks/` doesn't count) and ignoring rpaths outside the bundle. A miss fails the check at once. It then runs
   four scenarios per supported iOS major (deployment target → SDK, minus the script's `SKIPPED_MAJORS`): fresh
   launch, import, playback, and upgrade from the previous release (cached in `~/Library/Caches/BookPlayerReleaseCheck/`).
   A failure with a crash report fails at once; one without gets a single retry on a reset simulator and is
