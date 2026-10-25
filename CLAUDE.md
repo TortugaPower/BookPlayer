@@ -681,7 +681,7 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
   `relativePath`, with no expiry; a cover set by hand lives only there. Kingfisher names each file by a hash of
   the key (MD5 in 7.x, SHA-256 since 8.x), so a Kingfisher update that changes it hides every cached cover: 6.0.0
   did, and covers set by hand fell back to the embedded ones. `AppServices` restores 7.x files once at launch,
-  before any screen shows artwork (`ArtworkService.restoreLegacyCacheFiles`, flag `legacyArtworkRestored`;
+  off the main thread but before any screen shows artwork (`ArtworkService.restoreLegacyCacheFiles`, flag `legacyArtworkRestored`;
   decided: the old cover wins). Write to the cache through Kingfisher, never by moving files into its folder:
   the disk storage lists the folder once at launch and treats a name it hasn't seen as not cached.
   **The import's "where should these go?" prompt is `ImportPlacementPrompt`, owned by `LibraryRootView`, not

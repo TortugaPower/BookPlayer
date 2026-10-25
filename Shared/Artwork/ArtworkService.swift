@@ -12,7 +12,7 @@ import Foundation
 import Kingfisher
 import UIKit
 
-public class ArtworkService {
+public class ArtworkService: BPLogger {
   static public var cache: ImageCache = {
     let url = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: Constants.ApplicationGroupIdentifier)!
 
@@ -168,6 +168,10 @@ public class ArtworkService {
         // over the restored one
         try cache.diskStorage.store(value: Data(contentsOf: legacyURL), forKey: key)
       } catch {
+        // Tried again on the next launch: say why, or a restore that never finishes leaves no trace
+        Self.logger.error(
+          "Couldn't restore the artwork cached for \(key, privacy: .private): \(error.localizedDescription, privacy: .public)"
+        )
         complete = false
         continue
       }
