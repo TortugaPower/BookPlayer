@@ -7,11 +7,12 @@
 //
 
 import Combine
+import CryptoKit
 import Foundation
 import Kingfisher
 import UIKit
 
-public class ArtworkService {
+public class ArtworkService: BPLogger {
   static public var cache: ImageCache = {
     let url = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: Constants.ApplicationGroupIdentifier)!
 
@@ -131,6 +132,59 @@ public class ArtworkService {
       Self.storeInCache(cachedImageData, for: finalRelativePath)
       Self.removeCache(for: relativePath)
     }
+  }
+
+  /// The name Kingfisher 7 gave a key's cached file: the hex MD5 of its UTF-8 bytes, no extension
+  static func legacyCacheFileName(forKey key: String) -> String {
+    Insecure.MD5.hash(data: Data(key.utf8)).map { String(format: "%02x", $0) }.joined()
+  }
+
+  /// 6.0.0 moved to Kingfisher 8, which names a cached file by its key's SHA-256 where Kingfisher 7
+  /// used the MD5, so every artwork cached before it was left under a name nothing reads. Embedded
+  /// covers were just extracted again, but a cover set by hand only ever lived in this cache, and
+  /// those items showed their embedded artwork instead. Stores each key's old file under its current
+  /// name, replacing what 6.0.0 cached there (decided: the pre-6.0.0 cover wins, even over one set
+  /// again since), and drops what was decoded from the replaced one. Old files of keys that are no
+  /// longer in the library stay where they are.
+  /// - Returns: The keys restored, and whether every old file could be stored (a failure leaves
+  ///   it in place, to be tried again).
+  @discardableResult
+  public class func restoreLegacyCacheFiles(
+    for keys: [String],
+    in cache: ImageCache = ArtworkService.cache
+  ) -> (restored: [String], complete: Bool) {
+    let fileManager = FileManager.default
+    let directory = cache.diskStorage.directoryURL
+    var restored = [String]()
+    var complete = true
+
+    for key in Set(keys) {
+      let legacyURL = directory.appendingPathComponent(legacyCacheFileName(forKey: key))
+      guard fileManager.fileExists(atPath: legacyURL.path) else { continue }
+
+      do {
+        // Through the disk storage, never a file move: it lists the folder once at launch and
+        // reads a name it hasn't seen as not cached, which would extract the embedded cover again
+        // over the restored one
+        try cache.diskStorage.store(value: Data(contentsOf: legacyURL), forKey: key)
+      } catch {
+        // Tried again on the next launch: say why, or a restore that never finishes leaves no trace
+        Self.logger.error(
+          "Couldn't restore the artwork cached for \(key, privacy: .private): \(error.localizedDescription, privacy: .public)"
+        )
+        complete = false
+        continue
+      }
+      try? fileManager.removeItem(at: legacyURL)
+      cache.removeImage(forKey: key, fromDisk: false)
+      cache.removeImage(forKey: key, processorIdentifier: tileProcessor.identifier)
+      restored.append(key)
+    }
+
+    DispatchQueue.main.async {
+      restored.forEach { artworkUpdatePublisher.send($0) }
+    }
+    return (restored, complete)
   }
 
   public class func getArtworkProvider(

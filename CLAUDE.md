@@ -82,7 +82,12 @@ BrowserDrop (`TortugaPower/SwiftBrowserDrop`, ~1.0; the Transfer from Computer s
 `BlurHashDecode.swift` is vendored (SwiftLint-excluded). RevenueCat + Kingfisher link into the **frameworks**;
 most others link into the **app**. JellyfinAPI and Get link into the app, both frameworks and `BookPlayerTests`, so
 Xcode builds each as one dynamic `…_PackageProduct.framework` that the app embeds: one copy of their types (an
-`APIError` thrown inside BookPlayerKit matches the app's `catch`), not a static copy per binary. SwiftLint runs as a build-phase run-script; **Sourcery is run manually** (not
+`APIError` thrown inside BookPlayerKit matches the app's `catch`), not a static copy per binary. The watch app
+(`BookPlayerWatch`) links both too, only so that it embeds them: Xcode copies a `…_PackageProduct.framework` into an
+app only when that app target links the package itself, and a package linked by `BookPlayerWatchKit` alone left the
+watch app without it (6.0.0: every watch died at launch, dyld "Library not loaded: @rpath/Get_…_PackageProduct").
+Runs from Xcode and on the simulator hide this, since Debug builds add an absolute rpath to the build folder's
+`PackageFrameworks`; the release check's bundle check (below) catches it. SwiftLint runs as a build-phase run-script; **Sourcery is run manually** (not
 a build phase) and its output is committed.
 
 ---
@@ -99,7 +104,11 @@ a build phase) and its output is committed.
   (`ci_scripts/`), whose Xcode version is set in App Store Connect and must be 27.1 too.
 - **Release check** (`scripts/release-check/release_check.py`): run locally by the iOS release skill before a
   release is tagged, **never by CI**. It builds the **Release** configuration for the simulator through the shared
-  `ReleaseCheck` scheme (CI's `BookPlayer` scheme and `Unit Tests` plan don't include `BookPlayerUITests`) and runs
+  `ReleaseCheck` scheme (CI's `BookPlayer` scheme and `Unit Tests` plan don't include `BookPlayerUITests`). Before
+  any simulator, `missing_frameworks` reads the built bundle with `otool`: every app and extension in it (the
+  embedded watch app and its widgets included, which no scenario launches) must find each library it loads, resolved
+  through its rpaths as dyld does, inside its own app (the watch app is installed alone, so the iPhone app's
+  `Frameworks/` doesn't count) and ignoring rpaths outside the bundle. A miss fails the check at once. It then runs
   four scenarios per supported iOS major (deployment target → SDK, minus the script's `SKIPPED_MAJORS`): fresh
   launch, import, playback, and upgrade from the previous release (cached in `~/Library/Caches/BookPlayerReleaseCheck/`).
   A failure with a crash report fails at once; one without gets a single retry on a reset simulator and is
@@ -668,6 +677,13 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
   `SentrySDK.capture`s then `fatalError`s** — an intentional but real crash surface for bad imports. Book/folder
   records are created via `LibraryService.createBook/createFolder`; artwork is extracted lazily by
   `ArtworkService`, not inline. App-managed source files are removed after copy.
+  **The artwork cache** (`ArtworkService.cache`) is Kingfisher's disk cache in the App Group, keyed by the item's
+  `relativePath`, with no expiry; a cover set by hand lives only there. Kingfisher names each file by a hash of
+  the key (MD5 in 7.x, SHA-256 since 8.x), so a Kingfisher update that changes it hides every cached cover: 6.0.0
+  did, and covers set by hand fell back to the embedded ones. `AppServices` restores 7.x files once at launch,
+  off the main thread but before any screen shows artwork (`ArtworkService.restoreLegacyCacheFiles`, flag `legacyArtworkRestored`;
+  decided: the old cover wins). Write to the cache through Kingfisher, never by moving files into its folder:
+  the disk storage lists the folder once at launch and treats a name it hasn't seen as not cached.
   **The import's "where should these go?" prompt is `ImportPlacementPrompt`, owned by `LibraryRootView`, not
   one of the list's alerts.** SwiftUI drops a presentation started while something covers the library or is
   still leaving it, and a dropped value in the list's single `activeAlert` slot used to block every later list

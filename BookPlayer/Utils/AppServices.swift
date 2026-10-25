@@ -56,12 +56,31 @@ final class AppServices: BPLogger {
       do {
         let stack = try await databaseInitializer.loadCoreDataStack()
         let coreServices = createCoreServicesIfNeeded(from: stack)
+        await restoreLegacyArtworkIfNeeded(libraryService: coreServices.libraryService)
 
         AppDependencyManager.shared.add(dependency: coreServices.playerLoaderService)
         AppDependencyManager.shared.add(dependency: coreServices.libraryService)
       } catch {
         errorCoreServicesSetup = error
       }
+    }
+  }
+
+  /// Once, before anything shows artwork (the loading screen waits on this task): the covers cached
+  /// before 6.0.0, under Kingfisher 7's file names. See `ArtworkService.restoreLegacyCacheFiles`
+  private func restoreLegacyArtworkIfNeeded(libraryService: LibraryService) async {
+    let defaults = UserDefaults.standard
+    guard !defaults.bool(forKey: Constants.UserDefaults.legacyArtworkRestored) else { return }
+
+    // The paths from the view context, here on main; the files off it: 5.x cached every cover it
+    // showed at full size, so a large library is a lot of reading and writing
+    let keys = libraryService.fetchIdentifiers()
+    let complete = await Task.detached(priority: .userInitiated) {
+      ArtworkService.restoreLegacyCacheFiles(for: keys).complete
+    }.value
+
+    if complete {
+      defaults.set(true, forKey: Constants.UserDefaults.legacyArtworkRestored)
     }
   }
 
