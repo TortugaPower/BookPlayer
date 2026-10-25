@@ -82,7 +82,12 @@ BrowserDrop (`TortugaPower/SwiftBrowserDrop`, ~1.0; the Transfer from Computer s
 `BlurHashDecode.swift` is vendored (SwiftLint-excluded). RevenueCat + Kingfisher link into the **frameworks**;
 most others link into the **app**. JellyfinAPI and Get link into the app, both frameworks and `BookPlayerTests`, so
 Xcode builds each as one dynamic `…_PackageProduct.framework` that the app embeds: one copy of their types (an
-`APIError` thrown inside BookPlayerKit matches the app's `catch`), not a static copy per binary. SwiftLint runs as a build-phase run-script; **Sourcery is run manually** (not
+`APIError` thrown inside BookPlayerKit matches the app's `catch`), not a static copy per binary. The watch app
+(`BookPlayerWatch`) links both too, only so that it embeds them: Xcode copies a `…_PackageProduct.framework` into an
+app only when that app target links the package itself, and a package linked by `BookPlayerWatchKit` alone left the
+watch app without it (6.0.0: every watch died at launch, dyld "Library not loaded: @rpath/Get_…_PackageProduct").
+Runs from Xcode and on the simulator hide this, since Debug builds add an absolute rpath to the build folder's
+`PackageFrameworks`; check the built `.app`'s `Frameworks/` instead. SwiftLint runs as a build-phase run-script; **Sourcery is run manually** (not
 a build phase) and its output is committed.
 
 ---

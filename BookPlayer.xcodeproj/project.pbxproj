@@ -696,6 +696,8 @@
 		9907757C2FF33C0C00E35FAE /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 9907757B2FF33C0C00E35FAE /* Kingfisher */; };
 		9907757E2FF33C1500E35FAE /* Kingfisher in Frameworks */ = {isa = PBXBuildFile; productRef = 9907757D2FF33C1500E35FAE /* Kingfisher */; };
 		990775802FF33D5300E35FAE /* Get in Frameworks */ = {isa = PBXBuildFile; productRef = 9907757F2FF33D5300E35FAE /* Get */; };
+		99074B842A4AEDD663B729EA /* JellyfinAPI in Frameworks */ = {isa = PBXBuildFile; productRef = 99517F43FFD7310D2535472D /* JellyfinAPI */; };
+		99BA975133DC67F00BA06056 /* Get in Frameworks */ = {isa = PBXBuildFile; productRef = 995159280F3A304D0F1C2B98 /* Get */; };
 		9911FBA92F71BD3000DC9A2B /* JellyfinConnectionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8AAD8A542CEE8849000A4B4B /* JellyfinConnectionService.swift */; };
 		9911FBAC2F71CD6300DC9A2B /* AsyncOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBAB2F71CD5F00DC9A2B /* AsyncOperation.swift */; };
 		9911FBAD2F71CD6300DC9A2B /* AsyncOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBAB2F71CD5F00DC9A2B /* AsyncOperation.swift */; };
@@ -2069,6 +2071,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				4140EA65227289720009F794 /* BookPlayerWatchKit.framework in Frameworks */,
+				99BA975133DC67F00BA06056 /* Get in Frameworks */,
+				99074B842A4AEDD663B729EA /* JellyfinAPI in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -4221,6 +4225,10 @@
 				63005A472AE800C000A4CA2C /* PBXTargetDependency */,
 			);
 			name = BookPlayerWatch;
+			packageProductDependencies = (
+				995159280F3A304D0F1C2B98 /* Get */,
+				99517F43FFD7310D2535472D /* JellyfinAPI */,
+			);
 			productName = BookPlayerWatch;
 			productReference = 4140EA2F227288ED0009F794 /* BookPlayerWatch.app */;
 			productType = "com.apple.product-type.application";
@@ -7276,6 +7284,16 @@
 			productName = JellyfinAPI;
 		};
 		99D9959B2F71B08000BAF216 /* JellyfinAPI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 8A495CC42CC8589F001B4244 /* XCRemoteSwiftPackageReference "jellyfin-sdk-swift" */;
+			productName = JellyfinAPI;
+		};
+		995159280F3A304D0F1C2B98 /* Get */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 990775752FF33BD700E35FAE /* XCRemoteSwiftPackageReference "Get" */;
+			productName = Get;
+		};
+		99517F43FFD7310D2535472D /* JellyfinAPI */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 8A495CC42CC8589F001B4244 /* XCRemoteSwiftPackageReference "jellyfin-sdk-swift" */;
 			productName = JellyfinAPI;
