@@ -677,6 +677,13 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
   `SentrySDK.capture`s then `fatalError`s** — an intentional but real crash surface for bad imports. Book/folder
   records are created via `LibraryService.createBook/createFolder`; artwork is extracted lazily by
   `ArtworkService`, not inline. App-managed source files are removed after copy.
+  **The artwork cache** (`ArtworkService.cache`) is Kingfisher's disk cache in the App Group, keyed by the item's
+  `relativePath`, with no expiry; a cover set by hand lives only there. Kingfisher names each file by a hash of
+  the key (MD5 in 7.x, SHA-256 since 8.x), so a Kingfisher update that changes it hides every cached cover: 6.0.0
+  did, and covers set by hand fell back to the embedded ones. `AppServices` restores 7.x files once at launch,
+  off the main thread but before any screen shows artwork (`ArtworkService.restoreLegacyCacheFiles`, flag `legacyArtworkRestored`;
+  decided: the old cover wins). Write to the cache through Kingfisher, never by moving files into its folder:
+  the disk storage lists the folder once at launch and treats a name it hasn't seen as not cached.
   **The import's "where should these go?" prompt is `ImportPlacementPrompt`, owned by `LibraryRootView`, not
   one of the list's alerts.** SwiftUI drops a presentation started while something covers the library or is
   still leaving it, and a dropped value in the list's single `activeAlert` slot used to block every later list
