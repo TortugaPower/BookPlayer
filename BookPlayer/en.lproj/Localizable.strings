@@ -597,5 +597,6 @@
 "transfer_web_not_enough_space" = "Not enough space on the device";
 "transfer_web_too_large" = "Too large";
 "transfer_web_unsupported" = "File type not supported";
+"transfer_web_path_conflict" = "Another file or folder you sent has this name";
 "transfer_web_done_hint" = "When you’re done, confirm in BookPlayer to import the files.";
 "transfer_web_load_error" = "Can’t reach BookPlayer. Check that its Transfer screen is still open.";

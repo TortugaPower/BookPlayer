@@ -595,5 +595,6 @@
 "transfer_web_not_enough_space" = "لا توجد مساحة كافية على الجهاز";
 "transfer_web_too_large" = "كبير جدًا";
 "transfer_web_unsupported" = "نوع الملف غير مدعوم";
+"transfer_web_path_conflict" = "يوجد ملف أو مجلد آخر أرسلته بهذا الاسم";
 "transfer_web_done_hint" = "عند الانتهاء، أكّد في BookPlayer لاستيراد الملفات.";
 "transfer_web_load_error" = "تعذّر الوصول إلى BookPlayer. تحقق من أن شاشة النقل فيه لا تزال مفتوحة.";

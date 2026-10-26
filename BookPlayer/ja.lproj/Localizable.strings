@@ -595,5 +595,6 @@
 "transfer_web_not_enough_space" = "デバイスの空き容量が足りません";
 "transfer_web_too_large" = "サイズが大きすぎます";
 "transfer_web_unsupported" = "サポートされていないファイル形式です";
+"transfer_web_path_conflict" = "送信した別のファイルまたはフォルダに同じ名前があります";
 "transfer_web_done_hint" = "完了したら、BookPlayerで確定してファイルを読み込んでください。";
 "transfer_web_load_error" = "BookPlayerに接続できません。BookPlayerの転送画面が開いたままか確認してください。";

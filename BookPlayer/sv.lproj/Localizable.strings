@@ -595,5 +595,6 @@
 "transfer_web_not_enough_space" = "Inte tillräckligt med utrymme på enheten";
 "transfer_web_too_large" = "För stor";
 "transfer_web_unsupported" = "Filtypen stöds inte";
+"transfer_web_path_conflict" = "En annan fil eller mapp som du har skickat har redan det här namnet";
 "transfer_web_done_hint" = "Bekräfta i BookPlayer när du är klar för att importera filerna.";
 "transfer_web_load_error" = "Kan inte nå BookPlayer. Kontrollera att dess överföringsskärm fortfarande är öppen.";

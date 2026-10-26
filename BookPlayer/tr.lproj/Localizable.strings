@@ -595,5 +595,6 @@
 "transfer_web_not_enough_space" = "Aygıtta yeterli alan yok";
 "transfer_web_too_large" = "Çok büyük";
 "transfer_web_unsupported" = "Dosya türü desteklenmiyor";
+"transfer_web_path_conflict" = "Gönderdiğiniz başka bir dosya veya klasör zaten bu ada sahip";
 "transfer_web_done_hint" = "İşiniz bitince dosyaları içe aktarmak için BookPlayer'da onaylayın.";
 "transfer_web_load_error" = "BookPlayer'a ulaşılamıyor. Aktarım ekranının hâlâ açık olduğundan emin olun.";

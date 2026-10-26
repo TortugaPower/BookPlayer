@@ -595,5 +595,6 @@
 "transfer_web_not_enough_space" = "Laitteella ei ole tarpeeksi tilaa";
 "transfer_web_too_large" = "Liian suuri";
 "transfer_web_unsupported" = "Tiedostotyyppiä ei tueta";
+"transfer_web_path_conflict" = "Toisella lähettämälläsi tiedostolla tai kansiolla on jo tämä nimi";
 "transfer_web_done_hint" = "Kun olet valmis, vahvista BookPlayerissa tuodaksesi tiedostot.";
 "transfer_web_load_error" = "BookPlayeriin ei saada yhteyttä. Tarkista, että sen siirtonäyttö on yhä auki.";

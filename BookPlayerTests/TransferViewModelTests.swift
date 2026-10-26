@@ -54,8 +54,8 @@ final class TransferViewModelTests: XCTestCase {
     XCTAssertEqual(rows[2].subtitle, String.localizedStringWithFormat("files_title".localized, 1))
   }
 
-  /// Done moves what arrived into a holding folder and sends one import for it. A later Cancel or the
-  /// sheet going away sends nothing more and leaves what Done handed over alone.
+  /// Done sends one import for the folder BrowserDrop hands over. A later Cancel or the sheet going away
+  /// sends nothing more and leaves what Done handed over alone.
   func testDoneHandsWhatArrivedToOneImport() async throws {
     let model = makeModel()
     model.start()
@@ -70,10 +70,11 @@ final class TransferViewModelTests: XCTestCase {
 
     let files = try XCTUnwrap(operations.first?.files)
     XCTAssertEqual(files.map(\.lastPathComponent), ["Book"])
-    let holding = files[0].deletingLastPathComponent()
+    // The session folder, in the test's own staging root.
+    let folder = files[0].deletingLastPathComponent()
     XCTAssertEqual(
-      holding.deletingLastPathComponent().standardizedFileURL.path,
-      TransferViewModel.holdingRoot.standardizedFileURL.path
+      folder.deletingLastPathComponent().standardizedFileURL.path,
+      stagingRoot.standardizedFileURL.path
     )
     XCTAssertTrue(FileManager.default.fileExists(atPath: files[0].appendingPathComponent("01.mp3").path))
 
@@ -113,8 +114,8 @@ final class TransferViewModelTests: XCTestCase {
 
     try await upload("intro.mp3", to: port)
     try await waitUntil { model.fileCount == 1 }
-    // The session's staging folder, under the test's root: the configuration reached the server.
-    XCTAssertEqual(try FileManager.default.contentsOfDirectory(atPath: stagingRoot.path).count, 1)
+    // The session's staging is under the test's root: the configuration reached the server.
+    XCTAssertFalse(try FileManager.default.contentsOfDirectory(atPath: stagingRoot.path).isEmpty)
     model.discard()
     XCTAssertFalse(UIApplication.shared.isIdleTimerDisabled)
 

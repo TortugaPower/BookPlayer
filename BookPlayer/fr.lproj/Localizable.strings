@@ -595,5 +595,6 @@
 "transfer_web_not_enough_space" = "Espace insuffisant sur l’appareil";
 "transfer_web_too_large" = "Trop volumineux";
 "transfer_web_unsupported" = "Type de fichier non pris en charge";
+"transfer_web_path_conflict" = "Un autre fichier ou dossier que vous avez envoyé porte déjà ce nom";
 "transfer_web_done_hint" = "Une fois terminé, confirmez dans BookPlayer pour importer les fichiers.";
 "transfer_web_load_error" = "Impossible de joindre BookPlayer. Vérifiez que son écran de transfert est toujours ouvert.";
