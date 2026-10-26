@@ -595,5 +595,6 @@
 "transfer_web_not_enough_space" = "V zařízení není dost místa";
 "transfer_web_too_large" = "Příliš velký";
 "transfer_web_unsupported" = "Nepodporovaný typ souboru";
+"transfer_web_path_conflict" = "Jiný soubor nebo složka, které jste odeslali, už má tento název";
 "transfer_web_done_hint" = "Až budete hotovi, potvrďte import souborů v BookPlayeru.";
 "transfer_web_load_error" = "BookPlayer není dostupný. Zkontrolujte, že je v něm stále otevřená obrazovka přenosu.";

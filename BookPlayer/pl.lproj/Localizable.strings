@@ -595,5 +595,6 @@
 "transfer_web_not_enough_space" = "Za mało miejsca na urządzeniu";
 "transfer_web_too_large" = "Za duży";
 "transfer_web_unsupported" = "Nieobsługiwany typ pliku";
+"transfer_web_path_conflict" = "Inny wysłany plik lub folder ma już tę nazwę";
 "transfer_web_done_hint" = "Gdy skończysz, potwierdź w BookPlayer, aby zaimportować pliki.";
 "transfer_web_load_error" = "Nie można połączyć się z BookPlayer. Sprawdź, czy ekran przesyłania jest nadal otwarty.";

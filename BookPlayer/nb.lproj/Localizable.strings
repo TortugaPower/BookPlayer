@@ -595,5 +595,6 @@
 "transfer_web_not_enough_space" = "Ikke nok plass på enheten";
 "transfer_web_too_large" = "For stor";
 "transfer_web_unsupported" = "Filtypen støttes ikke";
+"transfer_web_path_conflict" = "En annen fil eller mappe du har sendt, har allerede dette navnet";
 "transfer_web_done_hint" = "Bekreft i BookPlayer når du er ferdig, for å importere filene.";
 "transfer_web_load_error" = "Får ikke kontakt med BookPlayer. Sjekk at overføringsskjermen fortsatt er åpen.";

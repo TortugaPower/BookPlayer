@@ -31,11 +31,6 @@ final class TransferViewModel: ObservableObject, BPLogger {
     "mp4", "m4v", "mov", "avi", "zip", "lpf",
   ]
 
-  /// Where Done moves the received files for the import to take. The import owns each folder in it and
-  /// deletes it when done; what a killed app leaves behind goes at launch (``removeLeftovers()``).
-  static let holdingRoot = FileManager.default.temporaryDirectory
-    .appendingPathComponent("TransferImport", isDirectory: true)
-
   @Published private(set) var status = Status.starting
   /// The address to show, best first; nil until listening, or when this device has no network to share.
   @Published private(set) var address: BrowserDropServer.Address?
@@ -73,10 +68,10 @@ final class TransferViewModel: ObservableObject, BPLogger {
     )
   }
 
-  /// Staging left by a session or an import the app never finished (a crash or a force-quit).
+  /// Staging left by a session, and a handed-over folder an import never finished with (a crash or a
+  /// force-quit): both live in BrowserDrop's staging root.
   static func removeLeftovers() {
     BrowserDropServer.removeLeftovers()
-    try? FileManager.default.removeItem(at: holdingRoot)
   }
 
   /// What the import list shows: each file at the top, and each folder with how many files it holds.
@@ -168,29 +163,29 @@ final class TransferViewModel: ObservableObject, BPLogger {
 
   /// Done: hand what arrived to the import. It runs on its own, so the sheet can close right away; the
   /// library's placement prompt waits for the sheet's cover to go.
+  ///
+  /// BrowserDrop hands over the session folder, which nothing in it touches again, and the import takes
+  /// it as its own: it copies the items out and deletes the folder when done.
   func confirm() {
     guard end() else { return }
     let server = server
     let importManager = importManager
     let libraryService = libraryService
     runInOrder {
-      let holding = Self.holdingRoot.appendingPathComponent(UUID().uuidString, isDirectory: true)
-      var items: [URL] = []
+      let folder: URL?
       do {
-        try FileManager.default.createDirectory(at: holding, withIntermediateDirectories: true)
-        items = try await server.finish(movingInto: holding)
-      } catch BrowserDropError.couldNotMove(let moved, let failed) {
-        Self.logger.error("Transfer couldn't hand over \(failed.count) items")
-        items = moved
+        folder = try await server.finish()
       } catch {
         Self.logger.error("Transfer couldn't hand over its files: \(error.localizedDescription)")
-      }
-      guard !items.isEmpty else {
-        try? FileManager.default.removeItem(at: holding)
         return
       }
+      // Nothing arrived. A folder that can't be listed is left to the launch cleanup.
+      guard let folder,
+        let items = try? FileManager.default.contentsOfDirectory(at: folder, includingPropertiesForKeys: nil),
+        !items.isEmpty
+      else { return }
       importManager.operationPublisher.send(
-        ImportOperation(files: items, libraryService: libraryService, ownedSourceRoot: holding)
+        ImportOperation(files: items, libraryService: libraryService, ownedSourceRoot: folder)
       )
     }
   }
@@ -265,7 +260,7 @@ final class TransferViewModel: ObservableObject, BPLogger {
       if UIApplication.shared.applicationState != .background {
         listen()
       }
-    case .uploadStarted, .uploadProgress, .uploadFailed:
+    case .uploadStarted, .uploadFailed:
       // The browser shows progress and failures; the list here holds what's ready to import.
       break
     }
@@ -315,6 +310,7 @@ final class TransferViewModel: ObservableObject, BPLogger {
         "notEnoughSpace": "transfer_web_not_enough_space".localized,
         "tooLarge": "transfer_web_too_large".localized,
         "unsupported": "transfer_web_unsupported".localized,
+        "pathConflict": "transfer_web_path_conflict".localized,
         "doneHint": "transfer_web_done_hint".localized,
         "loadError": "transfer_web_load_error".localized,
       ]

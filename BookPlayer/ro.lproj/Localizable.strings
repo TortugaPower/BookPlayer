@@ -595,5 +595,6 @@
 "transfer_web_not_enough_space" = "Spațiu insuficient pe dispozitiv";
 "transfer_web_too_large" = "Prea mare";
 "transfer_web_unsupported" = "Tip de fișier neacceptat";
+"transfer_web_path_conflict" = "Un alt fișier sau dosar pe care l-ați trimis are deja acest nume";
 "transfer_web_done_hint" = "Când ați terminat, confirmați în BookPlayer pentru a importa fișierele.";
 "transfer_web_load_error" = "BookPlayer nu poate fi accesat. Verificați dacă ecranul de transfer este încă deschis.";

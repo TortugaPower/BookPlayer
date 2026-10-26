@@ -595,5 +595,6 @@
 "transfer_web_not_enough_space" = "Niet genoeg ruimte op het apparaat";
 "transfer_web_too_large" = "Te groot";
 "transfer_web_unsupported" = "Bestandstype niet ondersteund";
+"transfer_web_path_conflict" = "Een ander bestand of een andere map die je hebt verstuurd, heeft al deze naam";
 "transfer_web_done_hint" = "Bevestig in BookPlayer als je klaar bent om de bestanden te importeren.";
 "transfer_web_load_error" = "Kan BookPlayer niet bereiken. Controleer of het overzetscherm nog open is.";

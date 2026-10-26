@@ -595,5 +595,6 @@
 "transfer_web_not_enough_space" = "Δεν υπάρχει αρκετός χώρος στη συσκευή";
 "transfer_web_too_large" = "Πολύ μεγάλο";
 "transfer_web_unsupported" = "Μη υποστηριζόμενος τύπος αρχείου";
+"transfer_web_path_conflict" = "Ένα άλλο αρχείο ή φάκελος που στείλατε έχει ήδη αυτό το όνομα";
 "transfer_web_done_hint" = "Όταν τελειώσετε, επιβεβαιώστε στο BookPlayer για να εισαγάγετε τα αρχεία.";
 "transfer_web_load_error" = "Δεν είναι δυνατή η σύνδεση με το BookPlayer. Ελέγξτε ότι η οθόνη μεταφοράς του είναι ακόμα ανοιχτή.";

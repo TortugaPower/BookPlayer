@@ -87,8 +87,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/TortugaPower/SwiftBrowserDrop.git",
       "state" : {
-        "revision" : "d64f5860e66c28d64366411ed012709c0315f950",
-        "version" : "1.0.0"
+        "revision" : "bda9d95e9ea5b6185be01a4d6b31362037cd831b",
+        "version" : "2.0.1"
       }
     },
     {

@@ -7113,7 +7113,7 @@
 			repositoryURL = "https://github.com/TortugaPower/SwiftBrowserDrop.git";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.0;
+				minimumVersion = 2.0.1;
 			};
 		};
 		41F1A1D5254B07E80043FCF3 /* XCRemoteSwiftPackageReference "MarqueeLabel" */ = {

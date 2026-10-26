@@ -595,5 +595,6 @@
 "transfer_web_not_enough_space" = "Nincs elég hely az eszközön";
 "transfer_web_too_large" = "Túl nagy";
 "transfer_web_unsupported" = "Nem támogatott fájltípus";
+"transfer_web_path_conflict" = "Egy másik általad küldött fájlnak vagy mappának már ez a neve";
 "transfer_web_done_hint" = "Ha végeztél, erősítsd meg a BookPlayerben a fájlok importálásához.";
 "transfer_web_load_error" = "A BookPlayer nem érhető el. Ellenőrizd, hogy az átviteli képernyője még nyitva van-e.";
