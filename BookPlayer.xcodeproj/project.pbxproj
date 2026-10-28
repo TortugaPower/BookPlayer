@@ -1177,7 +1177,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		03ABF38C1641BC9BCAD3213B /* el */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = el; path = el.lproj/Intents.strings; sourceTree = "<group>"; };
 		056B7A76F1A44CEC30562382 /* IntegrationQuickConnectViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationQuickConnectViews.swift; sourceTree = "<group>"; };
+		0AE6A3EFE68BD9DC2E5ACF90 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Intents.strings; sourceTree = "<group>"; };
+		0BBD2E433A39625F4C58CC18 /* uk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = uk; path = uk.lproj/Intents.strings; sourceTree = "<group>"; };
 		0EA09FE5A35CEA0B87F83EF3 /* PreferencesSyncServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesSyncServiceTests.swift; sourceTree = "<group>"; };
 		0FC8B923A5506F865253B97C /* AppServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppServices.swift; sourceTree = "<group>"; };
 		12EDB8401F38342155CBBC91 /* mp3_NO_chapters.mp3 */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = audio.mp3; path = mp3_NO_chapters.mp3; sourceTree = "<group>"; };
@@ -1195,8 +1198,23 @@
 		3373A34FC2536111E50BF868 /* PasskeyEmailInputView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PasskeyEmailInputView.swift; sourceTree = "<group>"; };
 		3451CA062919E03CEB975E92 /* IntegrationHostResolver.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = IntegrationHostResolver.swift; sourceTree = "<group>"; };
 		09CE0C5C0B0003FC174EA8CD /* MediaServerStreams.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MediaServerStreams.swift; sourceTree = "<group>"; };
+		504DC8E5D07AF1AE3EA0F175 /* ro */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ro; path = ro.lproj/Intents.strings; sourceTree = "<group>"; };
+		5F8FE5126A44D3C2B7443420 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/Intents.strings; sourceTree = "<group>"; };
+		64ED5F4A3A1F79BA71DD7FAA /* nl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nl; path = nl.lproj/Intents.strings; sourceTree = "<group>"; };
+		71A9EEFCD93C60BEF13841EB /* sk-SK */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "sk-SK"; path = "sk-SK.lproj/Intents.strings"; sourceTree = "<group>"; };
+		7211EC7F8957727C93AF876F /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/Intents.strings"; sourceTree = "<group>"; };
+		7B260562DA83F6EE200AC685 /* fi */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fi; path = fi.lproj/Intents.strings; sourceTree = "<group>"; };
+		7DBC476C26C5BC7ADAE901F4 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Intents.strings; sourceTree = "<group>"; };
+		824FB2429FB3A9D3AF81B2C2 /* pl */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = pl; path = pl.lproj/Intents.strings; sourceTree = "<group>"; };
+		87FD9555D8CA2FF2B0E36BF8 /* nb */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = nb; path = nb.lproj/Intents.strings; sourceTree = "<group>"; };
+		902550FC9150D53D90FE106F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.intentdefinition; name = Base; path = Base.lproj/Intents.intentdefinition; sourceTree = "<group>"; };
 		A51357B087F7FB3CF6E08296 /* ExternalStreamResolver.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ExternalStreamResolver.swift; sourceTree = "<group>"; };
 		97ADE40DF29059A5B97E37D6 /* MediaServerChapterProviding.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MediaServerChapterProviding.swift; sourceTree = "<group>"; };
+		AAF7ED51017D67386ED5BCD9 /* pt-BR */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-BR"; path = "pt-BR.lproj/Intents.strings"; sourceTree = "<group>"; };
+		AD485E847FC69A019EBCB159 /* pt-PT */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "pt-PT"; path = "pt-PT.lproj/Intents.strings"; sourceTree = "<group>"; };
+		AFE97A33247F359EEB78E262 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Intents.strings; sourceTree = "<group>"; };
+		BB7F4B6A0B072C31C9A319C5 /* cs */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = cs; path = cs.lproj/Intents.strings; sourceTree = "<group>"; };
+		C7ACCFBCFE2362AF34742EC1 /* ar */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ar; path = ar.lproj/Intents.strings; sourceTree = "<group>"; };
 		C85605CDB6C6075AADBE2D15 /* MediaServerChapterRefreshService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MediaServerChapterRefreshService.swift; sourceTree = "<group>"; };
 		35C564A7BDE3A2D98E02BF8B /* IntegrationConnectedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationConnectedView.swift; sourceTree = "<group>"; };
 		3724BB21B1B88177C60BE4D8 /* IntegrationConnectionFormViewModelProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationConnectionFormViewModelProtocol.swift; sourceTree = "<group>"; };
@@ -1297,13 +1315,18 @@
 		4163E312214AC43000072AA2 /* ImportOperationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportOperationTests.swift; sourceTree = "<group>"; };
 		65962B5F03D221629A83C22C /* RefreshTaskOperationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RefreshTaskOperationTests.swift; sourceTree = "<group>"; };
 		098A98893A8783E8BE1C5420 /* ListSyncRefreshServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ListSyncRefreshServiceTests.swift; sourceTree = "<group>"; };
+		CC4A76CE78E2B8171DCAF974 /* hu */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = hu; path = hu.lproj/Intents.strings; sourceTree = "<group>"; };
+		D37317A609DD99B2D1E2E70D /* da */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = da; path = da.lproj/Intents.strings; sourceTree = "<group>"; };
+		D9C59B3616DC6D63A93C7E70 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Intents.strings; sourceTree = "<group>"; };
+		E22B17D4CCD9D53BF9928544 /* tr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = tr; path = tr.lproj/Intents.strings; sourceTree = "<group>"; };
+		E54A5D60F12CF19F4C4B8B27 /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Intents.strings; sourceTree = "<group>"; };
+		E84873CF3268287BC29D85A4 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Intents.strings; sourceTree = "<group>"; };
 		EDC06443EFD052E697036798 /* QueuedTaskDisplayTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueuedTaskDisplayTests.swift; sourceTree = "<group>"; };
 		93B92CBF82FDC0C582ED64AC /* OrientationLockTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OrientationLockTests.swift; sourceTree = "<group>"; };
 		5359C57600F2E373E8F33D39 /* NetworkClientQueryEncodingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkClientQueryEncodingTests.swift; sourceTree = "<group>"; };
 		C8CAECAA7A5A1C6B83EF00EF /* ArtworkServiceLegacyCacheTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ArtworkServiceLegacyCacheTests.swift; sourceTree = "<group>"; };
 		4163E314214ACB4300072AA2 /* DataTestUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataTestUtils.swift; sourceTree = "<group>"; };
 		41640A1F24416774004FB97B /* IntentsUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = IntentsUI.framework; path = System/Library/Frameworks/IntentsUI.framework; sourceTree = SDKROOT; };
-		41640A3624416EE8004FB97B /* Intents.intentdefinition */ = {isa = PBXFileReference; lastKnownFileType = file.intentdefinition; path = Intents.intentdefinition; sourceTree = "<group>"; };
 		4165EDFA20A743D500616EDF /* Audiobook Player.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "Audiobook Player.xcdatamodel"; sourceTree = "<group>"; };
 		4165EE0D20A7AEC600616EDF /* SwiftReorder.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftReorder.framework; path = Carthage/Build/iOS/SwiftReorder.framework; sourceTree = "<group>"; };
 		41670130255B4A2C0054164F /* Sequence+BookPlayer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Sequence+BookPlayer.swift"; sourceTree = "<group>"; };
@@ -2048,6 +2071,8 @@
 		F6291BA47A38D043A49CE7AA /* LibraryOrganizerTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LibraryOrganizerTests.swift; sourceTree = "<group>"; };
 		F6F0D505E060FDAEB6DB68E3 /* IntegrationLibraryListView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = IntegrationLibraryListView.swift; sourceTree = "<group>"; };
 		F78387C7EDD9105363712F34 /* VideoFullscreenViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoFullscreenViewController.swift; sourceTree = "<group>"; };
+		FD0DF0E10755578A6EE030A3 /* sv */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = sv; path = sv.lproj/Intents.strings; sourceTree = "<group>"; };
+		FE496F402E1921113F499E1D /* ca */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ca; path = ca.lproj/Intents.strings; sourceTree = "<group>"; };
 		FEEDBABE0000000000000001 /* SharedWidgetStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedWidgetStore.swift; sourceTree = "<group>"; };
 		FEEDBABE0000000000000004 /* SharedWidgetStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedWidgetStoreTests.swift; sourceTree = "<group>"; };
 		FF75FEB4DEC37DBE232CD140 /* SyncQueueTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SyncQueueTests.swift; sourceTree = "<group>"; };
@@ -5754,6 +5779,39 @@
 				63398E392D654F6D00A6934E /* ca */,
 			);
 			name = Localizable.stringsdict;
+			sourceTree = "<group>";
+		};
+		41640A3624416EE8004FB97B /* Intents.intentdefinition */ = {
+			isa = PBXVariantGroup;
+			children = (
+				902550FC9150D53D90FE106F /* Base */,
+				E84873CF3268287BC29D85A4 /* en */,
+				E54A5D60F12CF19F4C4B8B27 /* es */,
+				7DBC476C26C5BC7ADAE901F4 /* ru */,
+				FD0DF0E10755578A6EE030A3 /* sv */,
+				0AE6A3EFE68BD9DC2E5ACF90 /* de */,
+				BB7F4B6A0B072C31C9A319C5 /* cs */,
+				7211EC7F8957727C93AF876F /* zh-Hans */,
+				D37317A609DD99B2D1E2E70D /* da */,
+				D9C59B3616DC6D63A93C7E70 /* fr */,
+				504DC8E5D07AF1AE3EA0F175 /* ro */,
+				5F8FE5126A44D3C2B7443420 /* it */,
+				E22B17D4CCD9D53BF9928544 /* tr */,
+				0BBD2E433A39625F4C58CC18 /* uk */,
+				71A9EEFCD93C60BEF13841EB /* sk-SK */,
+				AAF7ED51017D67386ED5BCD9 /* pt-BR */,
+				824FB2429FB3A9D3AF81B2C2 /* pl */,
+				CC4A76CE78E2B8171DCAF974 /* hu */,
+				C7ACCFBCFE2362AF34742EC1 /* ar */,
+				7B260562DA83F6EE200AC685 /* fi */,
+				64ED5F4A3A1F79BA71DD7FAA /* nl */,
+				87FD9555D8CA2FF2B0E36BF8 /* nb */,
+				AD485E847FC69A019EBCB159 /* pt-PT */,
+				03ABF38C1641BC9BCAD3213B /* el */,
+				AFE97A33247F359EEB78E262 /* ja */,
+				FE496F402E1921113F499E1D /* ca */,
+			);
+			name = Intents.intentdefinition;
 			sourceTree = "<group>";
 		};
 		418B6D011D2707F800F974FB /* Main.storyboard */ = {
