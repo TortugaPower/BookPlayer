@@ -408,7 +408,9 @@ lines). It is the highest-risk file in the app.
   `.subscribed` for PRO/LITE only, anyone else left `.unknown`, never `.notSubscribed` (decided: free users play
   their whole library). Every intent names the book as `mediaContainer` alone, and `Intents.intentdefinition`'s
   PlayMedia must keep its `mediaContainer`-only supported combination: that combination is the opt-in. PlayMedia is the
-  definition's only entry, compiled into the app target alone (no generated classes). A book is
+  definition's only entry, compiled into the app target alone (no generated classes). The definition lives in
+  `Base.lproj`, with its titles translated in every language's `Intents.strings` (keyed by the definition's IDs): a
+  new app language needs one too, or App Store Connect flags the upload with ITMS-90626. A book is
   named by its uuid, or its path without a real one (`PlayableItem.id`, `SimpleLibraryItem.stableIdentifier`).
   Its donations are deleted when it's finished (`metadataUpdatePublisher`) or deleted (`LibraryService.delete`),
   and when an id played from one is gone, no longer a book (a bound book made a plain folder), or now plays as another
