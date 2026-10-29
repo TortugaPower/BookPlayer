@@ -122,6 +122,13 @@ a build phase) and its output is committed.
   The upgrade scenario drives the *previous* release with labels only, since older builds lack the identifiers,
   and runs it on the frameworks it embeds: its copy of the `.xctestrun` drops the candidate's `DYLD_*` paths, or a
   symbol the candidate removed from `BookPlayerKit` would stop the old app at launch.
+- **Sentry releases** (`ci_scripts/ci_post_xcodebuild.sh`): Xcode Cloud uploads every archive's dSYMs. For an
+  archive of a `release-*` branch, `ci_scripts/sentry_release_commits.sh` also creates the Sentry release
+  (`<bundle id>@<version>+<build>`, read from the archived app, as the SDK names it) and attaches the commits after
+  the previous version tag. That tag is read from GitHub, since Xcode Cloud's clone has no tags. With the commits
+  attached, a `Fixes BOOKPLAYER-<id>` line (see Conventions) resolves the issue in that release. A failure here
+  only prints a warning: this metadata never blocks a release. `DRY_RUN=1 ARCHIVE_PATH=<.xcarchive> COMMIT=<sha>`
+  prints the commands locally.
 - **Lint/format is enforced by tools — do NOT flag style they own.** `.swiftlint.yml` **disables**: `line_length`,
   `identifier_name`, `type_name`, `type_body_length`, `file_length`, `nesting`, `force_try`, `trailing_comma`,
   `trailing_newline`, `trailing_whitespace`, `switch_case_alignment`, `private_over_fileprivate`, `opening_brace`,
@@ -808,6 +815,15 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
   is the norm — match it. A sink that touches UI needs `.receive(on: DispatchQueue.main)`.
 - **`@MainActor` is the UI/service isolation convention.** Off-main → main hops are explicit
   (`Task { @MainActor in … }` / `.receive(on:)`).
+- **Crash fixes carry a Sentry trailer.** When a commit fixes a crash tracked in Sentry, put
+  `Fixes BOOKPLAYER-<id>` on its own line in the **commit message** (the short id is in the Sentry issue URL; one
+  per line). Sentry's GitHub integration then resolves the issue in the release that ships the commit, so a crash
+  from that release or later reopens it and one from an older build doesn't. PRs land as merge commits or
+  squashes: keep the line in the fix commit, or in the squash commit's message. A PR description alone never
+  reaches git history. Don't plain-"Resolve" an issue in the Sentry UI, since any older build's crash reopens it.
+  A fix that shipped without the line is backfilled with
+  `PUT /api/0/organizations/tortuga-power/issues/<id>/` and
+  `{"status":"resolved","statusDetails":{"inRelease":"com.tortugapower.audiobookplayer@X.Y.Z+build"}}`.
 
 ---
 
