@@ -836,14 +836,16 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   }
 
   /// iOS 27 can snap a paused item back to the file start (see `PlayerTimeSample`), so put it back
-  /// where we left it before resuming
-  private func restorePlayerTimeIfNeeded() {
+  /// where we left it before resuming. Awaited so the snap-back cannot finish after Smart Rewind
+  /// and undo it.
+  @MainActor
+  private func restorePlayerTimeIfNeeded() async {
     guard
       case .tracking(let expected, _) = clockState,
       PlayerTimeSample(playerTime: CMTimeGetSeconds(audioPlayer.currentTime()), expected: expected) == .recover
     else { return }
 
-    audioPlayer.seek(to: CMTime(seconds: expected, preferredTimescale: CMTimeScale(NSEC_PER_SEC)))
+    await seekPlayer(to: expected, precise: false)
   }
 
   // Called every second by the timer
@@ -856,18 +858,18 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
       return
     }
 
-    /// A seek back is in flight, and its target is the position we already hold
+    /// A seek we started is in flight (clock recovery, or Smart Rewind). Samples until it
+    /// lands still belong to the pre-seek chapter and must not be published.
     if case .recovering = clockState { return }
 
-    var currentTime: TimeInterval
+    let fileTime: TimeInterval
 
     switch PlayerTimeSample(
       playerTime: CMTimeGetSeconds(self.audioPlayer.currentTime()),
       expected: clockState.expectedTime
     ) {
     case .valid(let playerTime):
-      clockState = .trusting(playerTime)
-      currentTime = playerTime
+      fileTime = playerTime
     case .ignore:
       return
     case .recover:
@@ -875,9 +877,21 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
       return
     }
 
+    var currentTime = fileTime
+
     if currentItem.isBoundBook {
       currentTime += (currentItem.currentChapter.start - currentItem.currentChapter.chapterOffset)
     }
+
+    /// A seek onto the chapter boundary can be reported a frame early. Treating that sample as
+    /// the previous chapter posts `.chapterChange`, and the end-of-chapter timer pauses resume.
+    if currentTime < currentItem.currentChapter.start,
+      currentItem.currentChapter.start - currentTime <= Self.chapterStartSampleTolerance
+    {
+      return
+    }
+
+    clockState = .trusting(fileTime)
 
     if currentTime >= currentItem.currentChapter.end || currentTime < currentItem.currentChapter.start,
       let newChapter = currentItem.getChapter(at: currentTime),
@@ -1458,8 +1472,14 @@ extension PlayerManager {
       let playerTime = CMTimeGetSeconds(audioPlayer.currentTime())
       if playerTime.isFinite && Int(currentItem.duration) == Int(playerTime) { return }
 
-      restorePlayerTimeIfNeeded()
-      handleSmartRewind(currentItem)
+      /// Restoration samples can update lastPlayDate while the seek is suspended.
+      let lastPlayTime = currentItem.lastPlayDate
+      await restorePlayerTimeIfNeeded()
+      guard !Task.isCancelled, self.currentItem === currentItem else { return }
+      await handleSmartRewind(currentItem, lastPlayTime: lastPlayTime)
+      /// Pause cancels this task. Don't arm the timer or start audio for a play that was abandoned
+      /// while the rewind seek was in flight — the seek's pre-target chapter must not be observed.
+      guard !Task.isCancelled else { return }
 
       if !autoPlayed {
         handleAutoTimer()
@@ -1480,47 +1500,151 @@ extension PlayerManager {
     }
   }
 
-  func handleSmartRewind(_ item: PlayableItem) {
-    let smartRewindEnabled = UserDefaults.standard.bool(forKey: Constants.UserDefaults.smartRewindEnabled)
+  /// Where Smart Rewind will put the playhead, in seconds relative to the current file.
+  struct SmartRewindSeekTarget: Equatable {
+    let time: TimeInterval
+    /// `time` is on the chapter's file-relative start. The seek has to be exact: the default
+    /// tolerance is infinite and can resolve a sync sample in the previous chapter.
+    let pinsChapterStart: Bool
+  }
 
-    if smartRewindEnabled,
-      let lastPlayTime = item.lastPlayDate
-    {
-      let timePassed = max(Date().timeIntervalSince(lastPlayTime), 0)
-      let timePassedLimited = min(timePassed, Constants.SmartRewind.threshold)
+  /// A boundary sample this far before the chapter start is still that chapter. One AAC frame
+  /// is ~23 ms; this leaves room for that report without swallowing a real step backward.
+  static let chapterStartSampleTolerance: TimeInterval = 0.05
 
-      let delta = timePassedLimited / Constants.SmartRewind.threshold
-      let baseRewindTime = ease(delta) * getMaxInterval()
+  /// How close to the chapter start a rewind still seeks with zero tolerance.
+  private static let chapterBoundarySeekWindow: TimeInterval = 1
 
-      // Always rewind by at least minRewind...
-      let rewindTimeMin = max(baseRewindTime, Constants.SmartRewind.minRewind)
+  /// File-relative start of the chapter playback must not leave.
+  /// A single file's player timeline is the book timeline (`chapter.start`). A bound book's
+  /// player timeline is the current file, so the floor is `chapter.chapterOffset`.
+  static func chapterFileStart(for item: PlayableItem) -> TimeInterval {
+    guard let chapter = item.currentChapter else { return 0 }
 
-      // ...but don't rewind past the beginning of the chapter, or more than the amount of time passed
-      let timeInChapter = item.currentTime - item.currentChapter.start
-      let rewindTimeLimited = min(rewindTimeMin, timeInChapter, timePassed)
+    return item.isBoundBook ? chapter.chapterOffset : chapter.start
+  }
 
-      /// Rewind from where we know playback is, not the raw player clock (see `PlayerTimeSample`)
-      let playerTime = clockState.expectedTime ?? CMTimeGetSeconds(self.audioPlayer.currentTime())
-      let newPlayerTime = max(playerTime - rewindTimeLimited, 0)
+  static func smartRewindMaxInterval() -> TimeInterval {
+    let userSetInterval = UserDefaults.standard.double(forKey: Constants.UserDefaults.smartRewindMaxInterval)
+    // The interval may be 0 if the setting has never been changed
+    return userSetInterval > 0 ? userSetInterval : 30.0
+  }
 
-      clockState = .trusting(newPlayerTime)
-      self.audioPlayer.seek(to: CMTime(seconds: newPlayerTime, preferredTimescale: CMTimeScale(NSEC_PER_SEC)))
+  /// `nil` when the playhead should stay where it is.
+  ///
+  /// `playerTime` and `chapterFileStart` are file-relative. `chapterElapsed` is
+  /// `currentTime - chapter.start` (global, and the same number of seconds). The rewind is
+  /// subtracted from `playerTime` and then clamped to `chapterFileStart` — the same coordinate
+  /// system — so a mismatch between the model and the player cannot cross into the previous
+  /// chapter. A negative elapsed is not a rewind distance; subtracting it would seek forward.
+  static func smartRewindSeekTarget(
+    playerTime: TimeInterval,
+    chapterElapsed: TimeInterval,
+    chapterFileStart: TimeInterval,
+    timePassed: TimeInterval,
+    maxInterval: TimeInterval
+  ) -> SmartRewindSeekTarget? {
+    guard playerTime.isFinite, chapterFileStart.isFinite, maxInterval.isFinite, maxInterval > 0 else {
+      return nil
     }
 
-    func getMaxInterval() -> TimeInterval {
-      let userSetInterval = UserDefaults.standard.double(forKey: Constants.UserDefaults.smartRewindMaxInterval)
-      // The interval may be 0 if the setting has never been changed
-      return if userSetInterval > 0 {
-        userSetInterval
-      } else {
-        30.0
+    let timePassed = max(timePassed, 0)
+    let timePassedLimited = min(timePassed, Constants.SmartRewind.threshold)
+    let delta = timePassedLimited / Constants.SmartRewind.threshold
+    // Quartic ease out, where 0 ≤ delta ≤ 1. Increases quickly at first, then levels off.
+    let baseRewindTime = (1 - pow(1 - delta, 4)) * maxInterval
+    let rewindTimeMin = max(baseRewindTime, Constants.SmartRewind.minRewind)
+
+    let elapsed = chapterElapsed.isFinite ? max(chapterElapsed, 0) : 0
+    let rewindTimeLimited = min(rewindTimeMin, elapsed, timePassed)
+
+    let fileStart = max(chapterFileStart, 0)
+    let rewound = playerTime - rewindTimeLimited
+    // `<=` snaps a float undershoot (playerTime - elapsed landing just below the start) onto
+    // the chapter's own start, which `getChapter(at:)` treats as this chapter.
+    let pinnedToStart = rewound <= fileStart
+    let time = pinnedToStart ? fileStart : rewound
+
+    // No rewind, and the playhead is already in this chapter.
+    if rewindTimeLimited == 0, playerTime >= fileStart {
+      return nil
+    }
+
+    // Seeking to the position we're already at lets the default tolerance wander backward.
+    if abs(time - playerTime) < 0.000_001 {
+      return nil
+    }
+
+    let pinsChapterStart = pinnedToStart || time - fileStart < Self.chapterBoundarySeekWindow
+    return SmartRewindSeekTarget(time: time, pinsChapterStart: pinsChapterStart)
+  }
+
+  /// Rewind from where we know playback is, not the raw player clock (see `PlayerTimeSample`).
+  /// The seek finishes before returning so `play(autoPlayed:)` can arm the sleep timer against
+  /// the post-seek chapter, not the one the playhead was leaving.
+  @MainActor
+  func handleSmartRewind(_ item: PlayableItem) async {
+    await handleSmartRewind(item, lastPlayTime: item.lastPlayDate)
+  }
+
+  @MainActor
+  func handleSmartRewind(_ item: PlayableItem, lastPlayTime: Date?) async {
+    let smartRewindEnabled = UserDefaults.standard.bool(forKey: Constants.UserDefaults.smartRewindEnabled)
+
+    guard smartRewindEnabled, let lastPlayTime else { return }
+
+    let timePassed = max(Date().timeIntervalSince(lastPlayTime), 0)
+    let playerTime = clockState.expectedTime ?? CMTimeGetSeconds(self.audioPlayer.currentTime())
+    guard
+      let target = Self.smartRewindSeekTarget(
+        playerTime: playerTime,
+        chapterElapsed: item.currentTime - item.currentChapter.start,
+        chapterFileStart: Self.chapterFileStart(for: item),
+        timePassed: timePassed,
+        maxInterval: Self.smartRewindMaxInterval()
+      )
+    else { return }
+
+    /// Drop time jumps while the seek is in flight. A sample from the previous chapter would
+    /// post `.chapterChange` and the just-armed end-of-chapter timer would pause immediately.
+    clockState = .recovering(target: target.time, attempt: 0)
+    await seekPlayer(to: target.time, precise: target.pinsChapterStart)
+
+    var trustedTime = target.time
+    if target.pinsChapterStart {
+      let fileStart = Self.chapterFileStart(for: item)
+      let reported = CMTimeGetSeconds(audioPlayer.currentTime())
+      let undershoot = fileStart - reported
+      /// A frame early is still the previous chapter. Step just inside this one.
+      if reported.isFinite, undershoot > 0, undershoot < Self.chapterStartSampleTolerance {
+        trustedTime = fileStart + undershoot
+        await seekPlayer(to: trustedTime, precise: true)
       }
     }
 
-    // Quartic ease out, where 0 ≤ delta ≤ 1
-    // Increases quickly at first, then levels off closer to 1
-    func ease(_ delta: Double) -> Double {
-      return 1 - pow(1 - delta, 4)
+    if case .recovering(let pending, _) = clockState, pending == target.time {
+      clockState = .trusting(trustedTime)
+    }
+  }
+
+  @MainActor
+  private func seekPlayer(to seconds: TimeInterval, precise: Bool) async {
+    let time = CMTime(seconds: seconds, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
+    await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+      let finish: (Bool) -> Void = { _ in
+        continuation.resume()
+      }
+
+      if precise {
+        audioPlayer.seek(
+          to: time,
+          toleranceBefore: .zero,
+          toleranceAfter: .zero,
+          completionHandler: finish
+        )
+      } else {
+        audioPlayer.seek(to: time, completionHandler: finish)
+      }
     }
   }
 
