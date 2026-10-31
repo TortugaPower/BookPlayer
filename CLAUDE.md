@@ -123,12 +123,17 @@ a build phase) and its output is committed.
   and runs it on the frameworks it embeds: its copy of the `.xctestrun` drops the candidate's `DYLD_*` paths, or a
   symbol the candidate removed from `BookPlayerKit` would stop the old app at launch.
 - **Sentry releases** (`ci_scripts/ci_post_xcodebuild.sh`): Xcode Cloud uploads every archive's dSYMs. For an
-  archive of a `release-*` branch, `ci_scripts/sentry_release_commits.sh` also creates the Sentry release
-  (`<bundle id>@<version>+<build>`, read from the archived app, as the SDK names it) and attaches the commits after
-  the previous version tag. That tag is read from GitHub, since Xcode Cloud's clone has no tags. With the commits
-  attached, a `Fixes BOOKPLAYER-<id>` line (see Conventions) resolves the issue in that release. A failure here
-  only prints a warning: this metadata never blocks a release. `DRY_RUN=1 ARCHIVE_PATH=<.xcarchive> COMMIT=<sha>`
-  prints the commands locally.
+  archive of a `release-*` branch, `ci_scripts/sentry_release_commits.py` also creates the Sentry release
+  (`<bundle id>@<version>+<build>`, read from the archived app, as the SDK names it) and sends it every commit
+  after the previous version tag as one list. Xcode Cloud's clone has no tags or history, so the tag comes from
+  `git ls-remote` and the script first fetches the history it reads, from the same public URL (no build
+  credentials): commits and trees, no file contents (about 2 s and 14 MB on the build machine). Not GitHub's API: without a token it allows 60 requests an
+  hour per IP, which Xcode Cloud's machines share. Don't hand Sentry a ref range
+  instead (`sentry-cli releases set-commits --auto`, `--commit A..B`): it keeps only the newest 100 commits (6.0.0
+  had 103). With the commits attached, a `Fixes BOOKPLAYER-<id>` line (see Conventions) resolves the issue in that
+  release. A failure here only prints a warning: this metadata never blocks a release. The script is the same file
+  as the Android repo's `scripts/sentry-commits/` (change both); `--dry-run` reads everything and sends nothing, and
+  CI runs its tests (`python3 -I -B -m unittest discover -s ci_scripts`).
 - **Lint/format is enforced by tools — do NOT flag style they own.** `.swiftlint.yml` **disables**: `line_length`,
   `identifier_name`, `type_name`, `type_body_length`, `file_length`, `nesting`, `force_try`, `trailing_comma`,
   `trailing_newline`, `trailing_whitespace`, `switch_case_alignment`, `private_over_fileprivate`, `opening_brace`,
