@@ -4,6 +4,7 @@ import os
 import plistlib
 import tempfile
 import unittest
+import urllib.error
 from unittest import mock
 
 import sentry_release_commits as src
@@ -21,10 +22,6 @@ LS_REMOTE = "\n".join([
 
 def git_record(sha, name, email, date, message, files=""):
     return f"\x1e{sha}\x1f{name}\x1f{email}\x1f{date}\x1f{message}\n\x1f\n\n{files}\n"
-
-
-def commit_json(sha, message, date="2026-10-20T10:00:00Z"):
-    return {"sha": sha, "commit": {"message": message, "author": {"name": "Gianni", "email": "g@example.com", "date": date}}}
 
 
 class TagTests(unittest.TestCase):
@@ -49,18 +46,19 @@ class GitCommitTests(unittest.TestCase):
     def test_reads_each_commit_with_its_files_newest_first(self):
         log = (git_record("c2", "Gianni", "g@example.com", "2026-10-26T10:00:00-05:00",
                           "fix(sync): one engine\n\nFixes ANDROID-BOOKPLAYER-2F\nFixes ANDROID-BOOKPLAYER-2E",
-                          "M\tcore/A.kt\nR087\tapp/Old.kt\tapp/New.kt\nA\tapp/Added.kt\nD\tapp/Gone.kt")
+                          "M\tcore/A.kt\nD\tapp/Old.kt\nA\tapp/New.kt\nA\tapp/Added.kt\nD\tapp/Gone.kt\nT\tapp/link")
                + git_record("c1", "Gianni", "g@example.com", "2026-10-20T10:00:00-05:00", "Merge pull request #1"))
         calls = []
         commits = src.git_commits(REPO, "base", "head", run=lambda cmd: calls.append(cmd) or log)
         self.assertEqual(calls[0][-1], "base..head")
+        self.assertIn("--no-renames", calls[0])  # finding renames would read file contents a partial clone lacks
         self.assertEqual([c["id"] for c in commits], ["c2", "c1"])
         self.assertEqual(commits[0]["message"], "fix(sync): one engine\n\nFixes ANDROID-BOOKPLAYER-2F\nFixes ANDROID-BOOKPLAYER-2E")
         self.assertEqual(commits[0]["repository"], REPO)
         self.assertEqual(commits[0]["patch_set"], [
             {"path": "core/A.kt", "type": "M"}, {"path": "app/Old.kt", "type": "D"},
             {"path": "app/New.kt", "type": "A"}, {"path": "app/Added.kt", "type": "A"},
-            {"path": "app/Gone.kt", "type": "D"}])
+            {"path": "app/Gone.kt", "type": "D"}, {"path": "app/link", "type": "M"}])
         self.assertEqual(commits[1]["patch_set"], [])  # git lists no files for a merge
 
     def test_without_an_earlier_tag_reads_only_the_head(self):
@@ -69,34 +67,36 @@ class GitCommitTests(unittest.TestCase):
         self.assertEqual(calls[0][-2:], ["-1", "head"])
 
 
-class GitHubCommitTests(unittest.TestCase):
-    def test_follows_the_pages_and_returns_newest_first(self):
-        pages = {1: [commit_json(f"s{i}", "m") for i in range(100)], 2: [commit_json(f"s{i}", "m") for i in range(100, 150)]}
-        urls = []
+class FetchHistoryTests(unittest.TestCase):
+    def run_recording(self, shallow):
+        calls = []
 
-        def fetch(method, url, body=None, headers=None):
-            urls.append(url)
-            page = int(url.rsplit("page=", 1)[1])
-            return {"total_commits": 150, "commits": pages[page]}
+        def run(cmd):
+            calls.append(cmd)
+            return f"{str(shallow).lower()}\n" if cmd[1] == "rev-parse" else ""
+        return calls, run
 
-        commits = src.github_commits("TortugaPower/BookPlayer", "base", "head", http=fetch)
-        self.assertEqual(len(commits), 150)
-        self.assertEqual((commits[0]["id"], commits[-1]["id"]), ("s149", "s0"))
-        self.assertEqual(len(urls), 2)
-        self.assertIn("/compare/base...head?per_page=100&page=1", urls[0])
-        self.assertNotIn("patch_set", commits[0])
+    def test_a_shallow_checkout_fetches_commits_and_trees_for_both_ends(self):
+        calls, run = self.run_recording(shallow=True)
+        src.fetch_history("base", "head", run=run)
+        self.assertEqual(calls[1], ["git", "fetch", "--quiet", "--filter=blob:none", "--unshallow", "--no-tags",
+                                    "origin", "head", "base"])
 
-    def test_without_an_earlier_tag_reads_only_the_head(self):
-        fetch = mock.Mock(return_value=commit_json("h", "m"))
-        commits = src.github_commits("TortugaPower/BookPlayer", None, "head", http=fetch)
-        self.assertEqual([c["id"] for c in commits], ["h"])
-        self.assertTrue(fetch.call_args[0][1].endswith("/commits/head"))
+    def test_without_an_earlier_tag_only_the_head_is_fetched(self):
+        calls, run = self.run_recording(shallow=True)
+        src.fetch_history(None, "head", run=run)
+        self.assertEqual(calls[1][-2:], ["origin", "head"])
+
+    def test_a_full_checkout_fetches_nothing(self):
+        calls, run = self.run_recording(shallow=False)
+        src.fetch_history("base", "head", run=run)
+        self.assertEqual(len(calls), 1)
 
 
 class FixIdTests(unittest.TestCase):
     def test_finds_what_sentry_reads(self):
         commits = [{"message": "fix(sync): x\n\nFixes ANDROID-BOOKPLAYER-2F\nFixes ANDROID-BOOKPLAYER-2E"},
-                   {"message": "Resolves BOOKPLAYER-11HV, BOOKPLAYER-13HQ\nfixed ANDROID-BOOKPLAYER-2F"},
+                   {"message": "Resolves BOOKPLAYER-11HV, BOOKPLAYER-13HQ,BOOKPLAYER-11HV\nfixed ANDROID-BOOKPLAYER-2F"},
                    {"message": "fix(player): a re-entrant fix-up\nfixes the bug"},
                    {"message": "docs: put `Fixes ANDROID-BOOKPLAYER-<id>` in the commit body"}]
         self.assertEqual(src.fix_ids(commits), ["ANDROID-BOOKPLAYER-2F", "ANDROID-BOOKPLAYER-2E",
@@ -120,15 +120,39 @@ class ArchiveTests(unittest.TestCase):
                 src.archive_release(archive)
 
 
+class HttpTests(unittest.TestCase):
+    def test_an_error_answer_names_the_call_but_not_its_headers(self):
+        answer = urllib.error.HTTPError("https://sentry.io/api/0/x/?q=1", 403, "Forbidden", {},
+                                        io.BytesIO(b'{"detail": "You do not have permission"}'))
+        with mock.patch("urllib.request.urlopen", side_effect=answer):
+            with self.assertRaises(src.Failure) as raised:
+                src.http("PUT", "https://sentry.io/api/0/x/?q=1", {"commits": []}, {"Authorization": "Bearer t0ken"})
+        message = str(raised.exception)
+        self.assertIn("PUT https://sentry.io/api/0/x/ answered 403", message)
+        self.assertIn("You do not have permission", message)
+        self.assertNotIn("t0ken", message)
+
+    def test_sends_the_headers_and_reads_the_json_answer(self):
+        response = mock.MagicMock()
+        response.__enter__.return_value.read.return_value = b'{"commitCount": 3}'
+        with mock.patch("urllib.request.urlopen", return_value=response) as urlopen:
+            self.assertEqual(src.http("PUT", "https://sentry.io/x/", {"a": 1}, {"Authorization": "Bearer t0ken"}),
+                             {"commitCount": 3})
+        request = urlopen.call_args[0][0]
+        self.assertEqual(request.get_header("Authorization"), "Bearer t0ken")
+        self.assertEqual(request.get_header("Content-type"), "application/json")
+        self.assertEqual(request.data, b'{"a": 1}')
+
+
 class MainTests(unittest.TestCase):
     ARGS = ["--release", "com.tortugapower.audiobookplayer@1.3.1+26", "--version", "1.3.1", "--head", "head",
-            "--repo", REPO, "--project", "android-bookplayer", "--source", "git"]
+            "--repo", REPO, "--project", "android-bookplayer"]
     LOG = (git_record("c2", "n", "e", "2026-10-26T10:00:00Z", "fix: x\n\nFixes ANDROID-BOOKPLAYER-2F")
            + git_record("c1", "n", "e", "2026-10-20T10:00:00Z", "chore: y #skipsentry"))
 
     def run_main(self, args, http, token="t0ken"):
         def run(cmd):
-            return LS_REMOTE if cmd[1] == "ls-remote" else self.LOG
+            return {"ls-remote": LS_REMOTE, "rev-parse": "false\n"}.get(cmd[1], self.LOG)
         out, err = io.StringIO(), io.StringIO()
         env = {"SENTRY_AUTH_TOKEN": token} if token else {}
         with mock.patch.dict(os.environ, env, clear=True), contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
@@ -166,12 +190,12 @@ class MainTests(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertIn("holds 0 of the release's 1 commits", err)
 
-    def test_a_sentry_error_fails_without_the_token(self):
+    def test_a_sentry_error_fails(self):
         def http(method, url, body=None, headers=None):
             raise src.Failure("PUT https://sentry.io/api/0/... answered 403: no permission")
-        code, out, err = self.run_main(self.ARGS, http)
+        code, _, err = self.run_main(self.ARGS, http)
         self.assertEqual(code, 1)
-        self.assertNotIn("t0ken", out + err)
+        self.assertIn("answered 403", err)
 
     def test_no_token_fails_before_any_call(self):
         http = mock.Mock()

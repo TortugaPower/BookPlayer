@@ -9,16 +9,18 @@ the git remote ("origin"). A list keeps up to 1000 (Sentry's `releases.set-commi
 The same file is in TortugaPower/bookplayer-android (scripts/sentry-commits/) and TortugaPower/BookPlayer
 (ci_scripts/). Change both.
 
-Android (release.yml, a full clone):
+Android (release.yml):
     sentry_release_commits.py --release <bundle id>@<version>+<code> --version <version> --head <sha> \\
-        --repo TortugaPower/bookplayer-android --project android-bookplayer --source git
-iOS (Xcode Cloud, a clone without history):
+        --repo TortugaPower/bookplayer-android --project android-bookplayer
+iOS (Xcode Cloud):
     sentry_release_commits.py --archive <.xcarchive> --head <sha> \\
-        --repo TortugaPower/BookPlayer --project bookplayer --source github
+        --repo TortugaPower/BookPlayer --project bookplayer
 
 The previous release is the highest version tag below this version, read from GitHub with `git ls-remote` (both repos
-are public). --source git lists the commits from the checkout, with the files each one changed (Sentry's suspect
-commits use them); --source github asks GitHub's compare API, without the files (that's one request per commit).
+are public). The commits come from the checkout, with the files each one changed (Sentry's suspect commits use them).
+A shallow checkout (Xcode Cloud's) first fetches the history of the release's commit and the tag's from origin:
+commits and trees only, no file contents, about 2 s and 14 MB for the iOS repo. GitHub's API isn't used: without a
+token it allows 60 requests an hour per IP, which build machines share.
 --dry-run reads everything and sends nothing. The Sentry calls authenticate with SENTRY_AUTH_TOKEN (project:releases).
 
 Exit code 0 = attached (or a dry run), 1 = it couldn't.
@@ -40,7 +42,6 @@ import urllib.request
 
 SENTRY_ORG = "tortuga-power"
 SENTRY_URL = os.environ.get("SENTRY_URL", "https://sentry.io").rstrip("/")
-GITHUB_API = "https://api.github.com"
 TIMEOUT = 60
 # What Sentry reads in a commit message (simplified): fix, fixes, fixed, close(s/d), resolve(s/d), then short ids.
 # Only for the summary; Sentry does the resolving. An id must end there, so `Fixes ANDROID-BOOKPLAYER-<id>` in a
@@ -109,28 +110,28 @@ def previous_tag(tags: dict[str, str], version: str) -> tuple[str | None, str | 
 
 
 def patch_set(name_status: str) -> list[dict]:
-    """Sentry's patch set (A, M or D per path) from `git log --name-status` lines. A rename is a delete and an add."""
+    """Sentry's patch set (A, M or D per path) from `git log --no-renames --name-status` lines."""
     files = []
     for line in name_status.splitlines():
-        status, *paths = line.split("\t")
-        if not paths:
-            continue
-        kind = status[:1]
-        if kind == "R":
-            files += [{"path": paths[0], "type": "D"}, {"path": paths[-1], "type": "A"}]
-        elif kind == "C":
-            files.append({"path": paths[-1], "type": "A"})
-        elif kind in ("A", "D"):
-            files.append({"path": paths[0], "type": kind})
-        else:  # M, T (a type change), U
-            files.append({"path": paths[0], "type": "M"})
+        status, _, path = line.partition("\t")
+        if path:
+            files.append({"path": path, "type": status if status in ("A", "D") else "M"})  # M, T (type change), U
     return files
 
 
+def fetch_history(base: str | None, head: str, run=run) -> None:
+    """Gives a shallow checkout the history `git_commits` reads: commits and trees, no file contents (a partial clone
+    then, whose missing blobs nothing here asks for)."""
+    if run(["git", "rev-parse", "--is-shallow-repository"]).strip() != "true":
+        return
+    run(["git", "fetch", "--quiet", "--filter=blob:none", "--unshallow", "--no-tags", "origin", head, *([base] if base else [])])
+
+
 def git_commits(repo: str, base: str | None, head: str, run=run) -> list[dict]:
-    """The commits after `base` up to `head`, newest first, read from the checkout. A merge lists no files."""
+    """The commits after `base` up to `head`, newest first, read from the checkout. A merge lists no files, and a
+    rename is a delete and an add (finding renames would read the files' contents)."""
     revs = [f"{base}..{head}"] if base else ["-1", head]
-    log = run(["git", "log", "--format=%x1e%H%x1f%an%x1f%ae%x1f%aI%x1f%B%x1f", "--name-status", *revs])
+    log = run(["git", "log", "--format=%x1e%H%x1f%an%x1f%ae%x1f%aI%x1f%B%x1f", "--no-renames", "--name-status", *revs])
     commits = []
     for record in log.split("\x1e")[1:]:
         sha, name, email, date, message, files = record.split("\x1f")
@@ -139,30 +140,14 @@ def git_commits(repo: str, base: str | None, head: str, run=run) -> list[dict]:
     return commits
 
 
-def github_commits(repo: str, base: str | None, head: str, http=http) -> list[dict]:
-    """The same list from GitHub's compare API, which pages them oldest first."""
-    if base:
-        found, page = [], 1
-        while True:
-            compare = http("GET", f"{GITHUB_API}/repos/{repo}/compare/{base}...{head}?per_page=100&page={page}")
-            batch = compare.get("commits") or []
-            found += batch
-            if not batch or len(found) >= compare.get("total_commits", 0):
-                break
-            page += 1
-        found.reverse()
-    else:
-        found = [http("GET", f"{GITHUB_API}/repos/{repo}/commits/{head}")]
-    return [{"id": commit["sha"], "repository": repo, "message": commit["commit"]["message"].strip(),
-             "author_name": commit["commit"]["author"]["name"], "author_email": commit["commit"]["author"]["email"],
-             "timestamp": commit["commit"]["author"]["date"]} for commit in found]
-
-
 def fix_ids(commits: list[dict]) -> list[str]:
     ids = []
     for commit in commits:
         for match in FIX_LINE.finditer(commit["message"]):
-            ids += [short_id.strip() for short_id in match.group(1).split(",") if short_id.strip() not in ids]
+            for short_id in match.group(1).split(","):
+                short_id = short_id.strip()
+                if short_id not in ids:
+                    ids.append(short_id)
     return ids
 
 
@@ -195,7 +180,6 @@ def main(argv: list[str] | None = None, run=run, http=http) -> int:
     parser.add_argument("--head", required=True, help="the commit being released")
     parser.add_argument("--repo", required=True, help="the GitHub repository, as Sentry names it: owner/name")
     parser.add_argument("--project", required=True, help="the Sentry project")
-    parser.add_argument("--source", choices=("git", "github"), required=True, help="where to list the commits from")
     parser.add_argument("--dry-run", action="store_true", help="read everything, send nothing to Sentry")
     args = parser.parse_args(argv)
     if not args.archive and not (args.release and args.version):
@@ -205,10 +189,8 @@ def main(argv: list[str] | None = None, run=run, http=http) -> int:
         if not version_key(version):
             raise Failure(f"{version!r} isn't a version")
         tag, base = previous_tag(remote_tags(args.repo, run), version)
-        if args.source == "git":
-            commits = git_commits(args.repo, base, args.head, run)
-        else:
-            commits = github_commits(args.repo, base, args.head, http)
+        fetch_history(base, args.head, run)
+        commits = git_commits(args.repo, base, args.head, run)
         if not commits:
             raise Failure(f"no commits after {tag} up to {args.head}")
         print(f"{release}: {len(commits)} commits after {tag or 'no earlier tag'}; "

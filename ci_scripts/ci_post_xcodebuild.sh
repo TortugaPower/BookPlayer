@@ -23,6 +23,6 @@ sentry-cli --auth-token $SENTRY_AUTH_TOKEN \
 if [ "$CI_XCODEBUILD_ACTION" = "archive" ] && [[ "$CI_BRANCH" == release-* ]]; then
     echo "Attaching commits to the Sentry release"
     python3 -I "$(dirname "$0")/sentry_release_commits.py" --archive "$CI_ARCHIVE_PATH" --head "$CI_COMMIT" \
-        --repo TortugaPower/BookPlayer --project bookplayer --source github \
+        --repo TortugaPower/BookPlayer --project bookplayer \
         || echo "warning: couldn't attach the commits to the Sentry release"
 fi

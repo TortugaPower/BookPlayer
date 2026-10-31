@@ -126,7 +126,9 @@ a build phase) and its output is committed.
   archive of a `release-*` branch, `ci_scripts/sentry_release_commits.py` also creates the Sentry release
   (`<bundle id>@<version>+<build>`, read from the archived app, as the SDK names it) and sends it every commit
   after the previous version tag as one list. Xcode Cloud's clone has no tags or history, so the tag comes from
-  `git ls-remote` and the commits from GitHub's compare API (the repo is public). Don't hand Sentry a ref range
+  `git ls-remote` and the script first fetches the history it reads from origin: commits and trees, no file
+  contents (about 2 s and 14 MB on the build machine). Not GitHub's API: without a token it allows 60 requests an
+  hour per IP, which Xcode Cloud's machines share. Don't hand Sentry a ref range
   instead (`sentry-cli releases set-commits --auto`, `--commit A..B`): it keeps only the newest 100 commits (6.0.0
   had 103). With the commits attached, a `Fixes BOOKPLAYER-<id>` line (see Conventions) resolves the issue in that
   release. A failure here only prints a warning: this metadata never blocks a release. The script is the same file
