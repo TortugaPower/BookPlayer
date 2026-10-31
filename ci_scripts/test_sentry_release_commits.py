@@ -79,18 +79,18 @@ class FetchHistoryTests(unittest.TestCase):
 
     def test_a_shallow_checkout_fetches_commits_and_trees_for_both_ends(self):
         calls, run = self.run_recording(shallow=True)
-        src.fetch_history("base", "head", run=run)
+        src.fetch_history(REPO, "base", "head", run=run)
         self.assertEqual(calls[1], ["git", "fetch", "--quiet", "--filter=blob:none", "--unshallow", "--no-tags",
-                                    "origin", "head", "base"])
+                                    f"https://github.com/{REPO}.git", "head", "base"])  # not origin: no credentials
 
     def test_without_an_earlier_tag_only_the_head_is_fetched(self):
         calls, run = self.run_recording(shallow=True)
-        src.fetch_history(None, "head", run=run)
-        self.assertEqual(calls[1][-2:], ["origin", "head"])
+        src.fetch_history(REPO, None, "head", run=run)
+        self.assertEqual(calls[1][-2:], [f"https://github.com/{REPO}.git", "head"])
 
     def test_a_full_checkout_fetches_nothing(self):
         calls, run = self.run_recording(shallow=False)
-        src.fetch_history("base", "head", run=run)
+        src.fetch_history(REPO, "base", "head", run=run)
         self.assertEqual(len(calls), 1)
 
 

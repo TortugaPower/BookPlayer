@@ -18,7 +18,7 @@ iOS (Xcode Cloud):
 
 The previous release is the highest version tag below this version, read from GitHub with `git ls-remote` (both repos
 are public). The commits come from the checkout, with the files each one changed (Sentry's suspect commits use them).
-A shallow checkout (Xcode Cloud's) first fetches the history of the release's commit and the tag's from origin:
+A shallow checkout (Xcode Cloud's) first fetches the history of the release's commit and the tag's from GitHub:
 commits and trees only, no file contents, about 2 s and 14 MB for the iOS repo. GitHub's API isn't used: without a
 token it allows 60 requests an hour per IP, which build machines share.
 --dry-run reads everything and sends nothing. The Sentry calls authenticate with SENTRY_AUTH_TOKEN (project:releases).
@@ -121,12 +121,13 @@ def patch_set(name_status: str) -> list[dict]:
     return files
 
 
-def fetch_history(base: str | None, head: str, run=run) -> None:
-    """Gives a shallow checkout the history `git_commits` reads: commits and trees, no file contents (a partial clone
-    then, whose missing blobs nothing here asks for)."""
+def fetch_history(repo: str, base: str | None, head: str, run=run) -> None:
+    """Gives a shallow checkout the history `git_commits` reads: commits and trees, no file contents, which nothing
+    here asks for. From the public URL, like the tags, so it needs none of the build's git credentials."""
     if run(["git", "rev-parse", "--is-shallow-repository"]).strip() != "true":
         return
-    run(["git", "fetch", "--quiet", "--filter=blob:none", "--unshallow", "--no-tags", "origin", head, *([base] if base else [])])
+    run(["git", "fetch", "--quiet", "--filter=blob:none", "--unshallow", "--no-tags", f"https://github.com/{repo}.git",
+         head, *([base] if base else [])])
 
 
 def git_commits(repo: str, base: str | None, head: str, run=run) -> list[dict]:
@@ -205,7 +206,7 @@ def main(argv: list[str] | None = None, run=run, http=http) -> int:
         if not version_key(version):
             raise Failure(f"{version!r} isn't a version")
         tag, base = previous_tag(remote_tags(args.repo, run), version)
-        fetch_history(base, args.head, run)
+        fetch_history(args.repo, base, args.head, run)
         commits = git_commits(args.repo, base, args.head, run)
         if not commits:
             raise Failure(f"no commits after {tag} up to {args.head}")
