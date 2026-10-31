@@ -415,6 +415,16 @@
 "section_item_hardcover" = "Hardcover";
 "hardcover_api_access_title" = "Accés a l'API";
 "hardcover_api_access_footer" = "Podeu trobar el vostre accés a l'API de Hardcover a https://hardcover.app/account/api.";
+"hardcover_account_title" = "Compte";
+"hardcover_sign_in_button" = "Inicia la sessió amb Hardcover";
+"hardcover_signing_in" = "S'està iniciant la sessió amb Hardcover…";
+"hardcover_sign_in_again_button" = "Torna a iniciar la sessió";
+"hardcover_sign_in_again_footer" = "Torna a iniciar la sessió perquè BookPlayer actualitzi el teu progrés de lectura a Hardcover.";
+"hardcover_sign_in_footer" = "O enganxa una clau d'API a continuació.";
+"hardcover_connected" = "Connectat a Hardcover";
+"hardcover_connected_as" = "Connectat com a %@";
+"hardcover_sign_in_failed_title" = "No s'ha pogut iniciar la sessió";
+"hardcover_sign_in_failed_message" = "Hardcover no ha completat l'inici de sessió. Torna-ho a provar.";
 "hardcover_automation_title" = "Automatització";
 "hardcover_progress_tracking_title" = "Seguiment del progrés";
 "save_button" = "Desar";

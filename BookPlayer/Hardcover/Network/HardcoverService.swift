@@ -14,6 +14,26 @@ protocol HardcoverServiceProtocol {
   /// API key for API requests, stored without the `Bearer` scheme the requests add
   var authorization: String? { get set }
 
+  /// Connected to Hardcover, with an API key or by signing in (OAuth)
+  var isConnected: Bool { get }
+
+  /// Connected by signing in, not with an API key
+  var isSignedInWithOAuth: Bool { get }
+
+  /// The connected account's Hardcover username, once read from `me`
+  var connectedUsername: String? { get }
+
+  /// Signed in without everything the app now asks for (a sign-in from an older version):
+  /// signing in again grants the rest
+  var needsSignInAgain: Bool { get }
+
+  /// Sign in through Hardcover's authorize page, replacing an API key.
+  /// - Parameter authenticate: opens the page and returns the redirect back to the app
+  func signIn(authenticate: (URL) async throws -> URL) async throws
+
+  /// Disconnect: revoke a sign-in and forget the API key
+  func disconnect() async
+
   /// Search for books using the Hardcover API
   /// - Parameters:
   ///   - item: The library item to build search query from
@@ -53,6 +73,7 @@ protocol HardcoverServiceProtocol {
 @Observable
 final class HardcoverService: BPLogger, HardcoverServiceProtocol {
   private var keychain: KeychainServiceProtocol!
+  private var oauthSession: HardcoverOAuthSession!
   private let graphQL = GraphQLClient(baseURL: "https://api.hardcover.app/v1/graphql")
   private var audioMetadataService: AudioMetadataServiceProtocol!
   private var libraryService: LibraryServiceProtocol!
@@ -64,7 +85,13 @@ final class HardcoverService: BPLogger, HardcoverServiceProtocol {
 
   private var metadataSubscription: AnyCancellable?
   private var progressSubscription: AnyCancellable?
+  private var pauseSubscription: AnyCancellable?
   private var cancellables = Set<AnyCancellable>()
+
+  /// Read and written on the main queue only, where the progress and pause events arrive.
+  /// Two minutes keeps a listening session to a request pair every two minutes per book,
+  /// far below Hardcover's rate limit
+  private var progressSchedule = HardcoverProgressSchedule(interval: 120)
 
   private var readingThreshold: Double {
     UserDefaults.sharedDefaults.object(forKey: Constants.UserDefaults.hardcoverReadingThreshold) as? Double ?? 1.0
@@ -89,6 +116,7 @@ final class HardcoverService: BPLogger, HardcoverServiceProtocol {
     self.libraryService = libraryService
     self.syncService = syncService
     self.keychain = keychain
+    self.oauthSession = HardcoverOAuthSession(keychain: keychain)
     self.audioMetadataService = audioMetadataService
 
     bindKeychainObserver()
@@ -105,6 +133,11 @@ final class HardcoverService: BPLogger, HardcoverServiceProtocol {
     set {
       let apiKey = newValue.map(Self.apiKey(from:)) ?? ""
 
+      /// Saving the settings writes the key back unchanged: that's not another account
+      guard apiKey != (authorization ?? "") else { return }
+
+      clearConnectedUser()
+
       if !apiKey.isEmpty {
         try? self.keychain.set(apiKey, key: .hardcoverToken)
       } else {
@@ -113,9 +146,26 @@ final class HardcoverService: BPLogger, HardcoverServiceProtocol {
     }
   }
 
-  /// Hardcover's API still requires the `Bearer` scheme, which its API keys (`hc_pat_…`) no longer include
-  private var authorizationHeader: String? {
-    authorization.map { "Bearer \($0)" }
+  var isConnected: Bool {
+    isSignedInWithOAuth || authorization != nil
+  }
+
+  var isSignedInWithOAuth: Bool {
+    oauthSession.isSignedIn
+  }
+
+  var connectedUsername: String? {
+    UserDefaults.sharedDefaults.string(forKey: Constants.UserDefaults.hardcoverUsername)
+  }
+
+  var needsSignInAgain: Bool {
+    oauthSession.tokens?.missingScopes.isEmpty == false
+  }
+
+  /// The connected account's Hardcover user id, written as `hostId` on the links it makes.
+  /// One account can be connected today; the id lets a later version tell accounts apart
+  private var connectedUserId: String? {
+    UserDefaults.sharedDefaults.string(forKey: Constants.UserDefaults.hardcoverUserId)
   }
 
   /// The API key in what the user entered: trimmed, without a leading `Bearer` (copied from older tokens)
@@ -154,13 +204,12 @@ extension HardcoverService {
         }
         """
 
-    let result = try await graphQL.execute(
+    let result = try await execute(
       query: queryString,
       variables: [
         "query": query,
         "per_page": perPage,
       ],
-      authorization: authorizationHeader,
       responseType: BooksData.self
     )
 
@@ -181,10 +230,9 @@ extension HardcoverService {
         }
         """
 
-    let result = try await graphQL.execute(
+    let result = try await execute(
       query: queryString,
       variables: ["id": id],
-      authorization: authorizationHeader,
       responseType: BookByIdData.self
     )
 
@@ -210,13 +258,12 @@ extension HardcoverService {
         }
         """
 
-    return try await graphQL.execute(
+    return try await execute(
       query: mutation,
       variables: [
         "book_id": bookID,
         "status_id": Int(status.rawValue),
       ],
-      authorization: authorizationHeader,
       responseType: InsertUserBookData.self
     )
   }
@@ -230,32 +277,123 @@ extension HardcoverService {
         }
         """
 
-    return try await graphQL.execute(
+    return try await execute(
       query: mutation,
       variables: [
         "id": userBookID
       ],
-      authorization: authorizationHeader,
       responseType: DeleteUserBookData.self
     )
   }
 }
 
 extension HardcoverService {
+  /// OAuth first, else the API key. Hardcover's API requires the `Bearer` scheme, which its API keys
+  /// (`hc_pat_…`) no longer include. A signed-in token the API refuses is refreshed once and the
+  /// request sent again: it lasts a week, so a refusal means it was revoked or the clock was off
+  private func execute<T: Codable>(
+    query: String,
+    variables: [String: Any]? = nil,
+    responseType: T.Type
+  ) async throws -> T {
+    let oauthToken = try await oauthSession.accessToken()
+    let token = oauthToken ?? authorization
+
+    do {
+      return try await graphQL.execute(
+        query: query,
+        variables: variables,
+        authorization: token.map { "Bearer \($0)" },
+        responseType: responseType
+      )
+    } catch GraphQLClient.Error.httpError(401) where oauthToken != nil {
+      let refreshed = try await oauthSession.accessToken(replacing: oauthToken)
+
+      return try await graphQL.execute(
+        query: query,
+        variables: variables,
+        authorization: refreshed.map { "Bearer \($0)" },
+        responseType: responseType
+      )
+    }
+  }
+
+  func signIn(authenticate: (URL) async throws -> URL) async throws {
+    let attempt = HardcoverOAuth.makeAuthorization()
+    let redirect = try await authenticate(attempt.url)
+    let code = try HardcoverOAuth.authorizationCode(from: redirect, for: attempt)
+
+    try await oauthSession.signIn(code: code, codeVerifier: attempt.codeVerifier)
+    clearConnectedUser()
+    /// One account at a time: the sign-in replaces an API key
+    authorization = nil
+
+    Self.logger.info("Signed in to Hardcover")
+    _ = await fetchConnectedUserId()
+  }
+
+  func disconnect() async {
+    authorization = nil
+    await oauthSession.signOut()
+    clearConnectedUser()
+    Self.logger.info("Disconnected from Hardcover")
+  }
+
+  /// The connected account's user id, read from `me` the first time it's needed: after signing in,
+  /// after an API key is saved, or for an API key saved before ids were stored. Nil when offline
+  func fetchConnectedUserId() async -> String? {
+    if let connectedUserId { return connectedUserId }
+
+    guard isConnected else { return nil }
+
+    do {
+      let result = try await execute(
+        query: "query Me { me { id username } }",
+        responseType: MeData.self
+      )
+
+      guard let user = result.me.first else { return nil }
+
+      let userId = String(user.id)
+      UserDefaults.sharedDefaults.set(userId, forKey: Constants.UserDefaults.hardcoverUserId)
+      UserDefaults.sharedDefaults.set(user.username, forKey: Constants.UserDefaults.hardcoverUsername)
+      return userId
+    } catch {
+      Self.logger.error("Failed to read the connected Hardcover account: \(error)")
+      return nil
+    }
+  }
+
+  private func clearConnectedUser() {
+    UserDefaults.sharedDefaults.removeObject(forKey: Constants.UserDefaults.hardcoverUserId)
+    UserDefaults.sharedDefaults.removeObject(forKey: Constants.UserDefaults.hardcoverUsername)
+  }
+
+  /// Both ways of connecting post here; whether one is left decides, not which changed.
+  /// A sign-in that replaces an API key posts its set before the key's removal
   private func bindKeychainObserver() {
     keychain.valueUpdatedPublisher
-      .filter { $0.key == .hardcoverToken }
-      .sink { [weak self] (_, deleted) in
-        if deleted {
-          self?.stopTrackingLibraryUpdates()
-        } else {
-          self?.startTrackingLibraryUpdates()
-        }
+      .filter { $0.key == .hardcoverToken || $0.key == .hardcoverSession }
+      .sink { [weak self] _ in
+        self?.credentialsChanged()
       }
       .store(in: &cancellables)
 
-    if authorization != nil {
-      startTrackingLibraryUpdates()
+    credentialsChanged()
+  }
+
+  private func credentialsChanged() {
+    guard isConnected else {
+      stopTrackingLibraryUpdates()
+      return
+    }
+
+    startTrackingLibraryUpdates()
+
+    guard connectedUserId == nil else { return }
+
+    Task { [weak self] in
+      _ = await self?.fetchConnectedUserId()
     }
   }
 
@@ -264,6 +402,7 @@ extension HardcoverService {
 
     metadataSubscription?.cancel()
     progressSubscription?.cancel()
+    pauseSubscription?.cancel()
   }
 
   private func startTrackingLibraryUpdates() {
@@ -284,15 +423,38 @@ extension HardcoverService {
       }
 
     progressSubscription = libraryService.progressUpdatePublisher
+      .receive(on: DispatchQueue.main)
       .sink { [weak self] progress in
         guard
+          let self,
           let relativePath = progress["relativePath"] as? String,
           let percentCompleted = progress["percentCompleted"] as? Double
         else { return }
 
+        let percentToSend = self.progressSchedule.record(percentCompleted, for: relativePath, at: Date())
+
         Task { [weak self] in
           guard let self else { return }
           await self.handleBookStarted(relativePath: relativePath, percentCompleted: percentCompleted)
+          if let percentToSend {
+            await self.updateReadProgress(percentToSend, for: relativePath)
+          }
+        }
+      }
+
+    /// A pause sends what the schedule held back, so stopping mid-interval loses nothing
+    pauseSubscription = NotificationCenter.default.publisher(for: .bookPaused)
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] _ in
+        guard let self else { return }
+
+        let held = self.progressSchedule.flush(at: Date())
+        guard !held.isEmpty else { return }
+
+        Task { [weak self] in
+          for entry in held {
+            await self?.updateReadProgress(entry.percent, for: entry.relativePath)
+          }
         }
       }
   }
@@ -302,6 +464,153 @@ extension HardcoverService {
 
     await updateExternalResources(for: relativePath, to: .reading)
   }
+
+  /// Puts the book's progress on its read in progress on Hardcover. Only for a book Currently
+  /// Reading there: the status starts the read, so before it there's nothing to put it on.
+  /// Errors are logged and dropped, like every Hardcover call: the next update sends it again
+  func updateReadProgress(_ percent: Double, for relativePath: String) async {
+    /// Finding the read needs `read:library`, which a sign-in from before progress sync lacks:
+    /// Hardcover answers 403 until the user signs in again, which Settings offers
+    if oauthSession.tokens?.missingScopes.contains("read:library") == true {
+      Self.logger.info("Hardcover progress skipped: the sign-in lacks read:library")
+      return
+    }
+
+    guard
+      let book = await libraryService.getHardcoverBook(for: relativePath),
+      book.status == .reading,
+      let userId = await fetchConnectedUserId().flatMap(Int.init)
+    else { return }
+
+    do {
+      let result = try await execute(
+        query: Self.readInProgressQuery,
+        variables: ["user_id": userId, "book_id": book.id],
+        responseType: ReadInProgressData.self
+      )
+
+      guard
+        let userBook = result.userBooks.first,
+        userBook.statusId == Int(HardcoverBook.Status.reading.rawValue),
+        let read = userBook.userBookReads.first
+      else {
+        Self.logger.info("Hardcover progress skipped for book \(book.id): no read in progress")
+        return
+      }
+
+      let fallbacks = [userBook.edition] + (userBook.book?.defaultEditions ?? [])
+      let progress: HardcoverReadProgress
+      switch HardcoverReadProgress.evaluate(percent: percent, read: read, fallbacks: fallbacks) {
+      case .success(let value):
+        progress = value
+      case .failure(.noLength):
+        Self.logger.info(
+          "Hardcover progress skipped for book \(book.id): no edition with a length (read, entry, default audio, ebook, print, most read audio, paged): \(([read.edition] + fallbacks).map(Self.describe))"
+        )
+        return
+      case .failure(.notAhead(let current, let value)):
+        Self.logger.info("Hardcover progress skipped for book \(book.id): \(value) isn't ahead of \(current)")
+        return
+      case .failure(.outOfRange):
+        return
+      }
+
+      let response = try await execute(
+        query: Self.updateProgressMutation,
+        variables: ["id": read.id, "object": progress.object],
+        responseType: UpdateUserBookReadData.self
+      )
+
+      if let error = response.updateUserBookRead.error {
+        Self.logger.error("Hardcover refused the progress of book \(book.id): \(error)")
+      }
+    } catch {
+      Self.logger.error("Failed to update Hardcover progress for book \(book.id): \(error)")
+    }
+  }
+
+  private static func describe(_ edition: ReadInProgressData.Edition?) -> String {
+    guard let edition else { return "none" }
+
+    return "#\(edition.id) format \(edition.readingFormatId.map(String.init) ?? "?") "
+      + "pages \(edition.pages.map(String.init) ?? "-") seconds \(edition.audioSeconds.map(String.init) ?? "-")"
+  }
+
+  /// The started read that isn't finished (Hardcover's "Read in Progress"), with the editions
+  /// its length can come from; needs `read:library`
+  static let readInProgressQuery = """
+    query ReadInProgress($user_id: Int!, $book_id: Int!) {
+      user_books(where: {user_id: {_eq: $user_id}, book_id: {_eq: $book_id}}) {
+        id
+        status_id
+        edition {
+          id
+          pages
+          audio_seconds
+          reading_format_id
+        }
+        book {
+          default_audio_edition {
+            id
+            pages
+            audio_seconds
+            reading_format_id
+          }
+          default_ebook_edition {
+            id
+            pages
+            audio_seconds
+            reading_format_id
+          }
+          default_physical_edition {
+            id
+            pages
+            audio_seconds
+            reading_format_id
+          }
+          audio_editions: editions(
+            where: {reading_format_id: {_eq: 2}, audio_seconds: {_gt: 0}},
+            order_by: {users_count: desc},
+            limit: 1
+          ) {
+            id
+            pages
+            audio_seconds
+            reading_format_id
+          }
+          paged_editions: editions(
+            where: {pages: {_gt: 0}},
+            order_by: {users_count: desc},
+            limit: 1
+          ) {
+            id
+            pages
+            audio_seconds
+            reading_format_id
+          }
+        }
+        user_book_reads(where: {finished_at: {_is_null: true}}, order_by: {id: desc}, limit: 1) {
+          id
+          progress_pages
+          progress_seconds
+          edition {
+            id
+            pages
+            audio_seconds
+            reading_format_id
+          }
+        }
+      }
+    }
+    """
+
+  static let updateProgressMutation = """
+    mutation UpdateProgress($id: Int!, $object: DatesReadInput!) {
+      update_user_book_read(id: $id, object: $object) {
+        error
+      }
+    }
+    """
 
   private func handleBookFinished(relativePath: String) async {
     await updateExternalResources(for: relativePath, to: .read)
@@ -359,7 +668,7 @@ extension HardcoverService {
   }
 
   func processAutoMatch(for items: [SimpleLibraryItem]) async {
-    guard authorization != nil, autoMatchEnabled, !items.isEmpty else { return }
+    guard isConnected, autoMatchEnabled, !items.isEmpty else { return }
 
     Self.logger.info("Auto-matching \(items.count) new items with Hardcover")
 
@@ -439,7 +748,7 @@ extension HardcoverService {
 
     Self.logger.info("Assigning Hardcover book \(book.id) to '\(item.title)'")
 
-    if autoAddWantToReadEnabled, authorization != nil {
+    if autoAddWantToReadEnabled, isConnected {
       do {
         let response = try await insertUserBook(
           bookID: book.id,
@@ -468,10 +777,14 @@ extension HardcoverService {
     for book: SimpleHardcoverBook,
     to item: SimpleLibraryItem
   ) async {
+    /// Best effort: offline, the link is made without its account
+    let hostId = await fetchConnectedUserId()
+
     guard
       let syncable = await libraryService.setExternalResource(
         providerName: ExternalResource.ProviderName.hardcover.rawValue,
         providerId: String(book.id),
+        hostId: hostId,
         for: item.uuid
       )
     else { return }

@@ -415,6 +415,16 @@
 "section_item_hardcover" = "Hardcover";
 "hardcover_api_access_title" = "Πρόσβαση API";
 "hardcover_api_access_footer" = "Μπορείτε να βρείτε την πρόσβαση API του Hardcover στο https://hardcover.app/account/api.";
+"hardcover_account_title" = "Λογαριασμός";
+"hardcover_sign_in_button" = "Σύνδεση με το Hardcover";
+"hardcover_signing_in" = "Σύνδεση με το Hardcover…";
+"hardcover_sign_in_again_button" = "Συνδεθείτε ξανά";
+"hardcover_sign_in_again_footer" = "Συνδεθείτε ξανά για να μπορεί το BookPlayer να ενημερώνει την πρόοδο ανάγνωσής σας στο Hardcover.";
+"hardcover_sign_in_footer" = "Ή επικολλήστε ένα κλειδί API παρακάτω.";
+"hardcover_connected" = "Συνδέθηκε στο Hardcover";
+"hardcover_connected_as" = "Συνδέθηκε ως %@";
+"hardcover_sign_in_failed_title" = "Η σύνδεση απέτυχε";
+"hardcover_sign_in_failed_message" = "Το Hardcover δεν ολοκλήρωσε τη σύνδεση. Δοκιμάστε ξανά.";
 "hardcover_automation_title" = "Αυτοματισμός";
 "hardcover_progress_tracking_title" = "Παρακολούθηση προόδου";
 "save_button" = "Αποθήκευση";

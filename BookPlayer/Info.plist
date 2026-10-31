@@ -38,6 +38,8 @@
 	<string>$(BP_API_SCHEME)</string>
 	<key>BP_BUNDLE_IDENTIFIER</key>
 	<string>$(BP_BUNDLE_IDENTIFIER)</string>
+	<key>BP_HARDCOVER_CLIENT_ID</key>
+	<string>$(BP_HARDCOVER_CLIENT_ID)</string>
 	<key>BP_REVENUECAT_KEY</key>
 	<string>$(BP_REVENUECAT_KEY)</string>
 	<key>BP_SENTRY_DSN</key>

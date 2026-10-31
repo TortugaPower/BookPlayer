@@ -6,6 +6,7 @@
 //  Copyright © 2025 BookPlayer LLC. All rights reserved.
 //
 
+import AuthenticationServices
 import BookPlayerKit
 import Combine
 import Get
@@ -18,7 +19,7 @@ final class HardcoverSettingsViewModel: HardcoverSettingsView.Model {
 
   @AppStorage(Constants.UserDefaults.hardcoverAutoMatch, store: UserDefaults.sharedDefaults)
   private var storedAutoMatch = false
-  
+
   @AppStorage(Constants.UserDefaults.hardcoverAutoAddWantToRead, store: UserDefaults.sharedDefaults)
   private var storedAutoAddWantToRead = true
 
@@ -27,10 +28,14 @@ final class HardcoverSettingsViewModel: HardcoverSettingsView.Model {
 
   init(hardcoverService: HardcoverServiceProtocol) {
     self.hardcoverService = hardcoverService
-    
+
     super.init(
       accessToken: hardcoverService.authorization ?? "",
-      showUnlinkButton: hardcoverService.authorization != nil
+      isConnected: hardcoverService.isConnected,
+      isSignedInWithOAuth: hardcoverService.isSignedInWithOAuth,
+      connectedUsername: hardcoverService.connectedUsername,
+      needsSignInAgain: hardcoverService.needsSignInAgain,
+      canSignIn: HardcoverOAuth.isAvailable
     )
 
     self.autoMatch = storedAutoMatch
@@ -40,7 +45,10 @@ final class HardcoverSettingsViewModel: HardcoverSettingsView.Model {
 
   @MainActor
   override func onSaveTapped() {
-    hardcoverService.authorization = accessToken
+    /// Signed in, the key field is hidden and empty: there's no key to save
+    if !hardcoverService.isSignedInWithOAuth {
+      hardcoverService.authorization = accessToken
+    }
     storedAutoMatch = autoMatch
     storedAutoAddWantToRead = autoAddWantToRead
     storedReadingThreshold = readingThreshold
@@ -48,6 +56,30 @@ final class HardcoverSettingsViewModel: HardcoverSettingsView.Model {
 
   @MainActor
   override func onUnlinkTapped() {
-    hardcoverService.authorization = nil
+    let hardcoverService = hardcoverService
+
+    Task {
+      await hardcoverService.disconnect()
+    }
+  }
+
+  @MainActor
+  override func onSignInTapped(authenticate: @escaping (URL) async throws -> URL) async {
+    isSigningIn = true
+    defer { isSigningIn = false }
+
+    do {
+      try await hardcoverService.signIn(authenticate: authenticate)
+      accessToken = ""
+    } catch let error as ASWebAuthenticationSessionError where error.code == .canceledLogin {
+      /// Closed by the user: nothing to report
+    } catch {
+      signInFailed = true
+    }
+
+    isConnected = hardcoverService.isConnected
+    isSignedInWithOAuth = hardcoverService.isSignedInWithOAuth
+    connectedUsername = hardcoverService.connectedUsername
+    needsSignInAgain = hardcoverService.needsSignInAgain
   }
 }

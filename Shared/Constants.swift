@@ -102,6 +102,9 @@ public enum Constants {
     public static let hardcoverAutoMatch = "hardcoverAutoMatch"
     public static let hardcoverAutoAddWantToRead = "hardcoverAutoAddWantToRead"
     public static let hardcoverReadingThreshold = "hardcoverReadingThreshold"
+    /// The connected account's Hardcover user id and username, read from `me` after signing in
+    public static let hardcoverUserId = "hardcoverUserId"
+    public static let hardcoverUsername = "hardcoverUsername"
 
     /// Speed controls
     public static let quickSpeedFirstPreference = "quickSpeedFirstPreference"

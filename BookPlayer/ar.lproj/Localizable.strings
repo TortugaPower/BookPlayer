@@ -415,6 +415,16 @@
 "section_item_hardcover" = "Hardcover";
 "hardcover_api_access_title" = "الوصول إلى API";
 "hardcover_api_access_footer" = "يمكنك العثور على وصول Hardcover API الخاص بك في https://hardcover.app/account/api.";
+"hardcover_account_title" = "الحساب";
+"hardcover_sign_in_button" = "تسجيل الدخول باستخدام Hardcover";
+"hardcover_signing_in" = "جارٍ تسجيل الدخول باستخدام Hardcover…";
+"hardcover_sign_in_again_button" = "تسجيل الدخول مرة أخرى";
+"hardcover_sign_in_again_footer" = "سجّل الدخول مرة أخرى للسماح لـ BookPlayer بتحديث تقدّم قراءتك على Hardcover.";
+"hardcover_sign_in_footer" = "أو الصق مفتاح API أدناه.";
+"hardcover_connected" = "متصل بـ Hardcover";
+"hardcover_connected_as" = "متصل باسم %@";
+"hardcover_sign_in_failed_title" = "تعذّر تسجيل الدخول";
+"hardcover_sign_in_failed_message" = "لم يُكمل Hardcover تسجيل الدخول. حاول مرة أخرى.";
 "hardcover_automation_title" = "الأتمتة";
 "hardcover_progress_tracking_title" = "تتبع التقدم";
 "save_button" = "حفظ";

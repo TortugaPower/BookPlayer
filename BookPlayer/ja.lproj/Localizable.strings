@@ -415,6 +415,16 @@
 "section_item_hardcover" = "Hardcover";
 "hardcover_api_access_title" = "APIアクセス";
 "hardcover_api_access_footer" = "Hardcover APIアクセスは https://hardcover.app/account/api で確認できます。";
+"hardcover_account_title" = "アカウント";
+"hardcover_sign_in_button" = "Hardcoverでサインイン";
+"hardcover_signing_in" = "Hardcoverでサインイン中…";
+"hardcover_sign_in_again_button" = "もう一度サインイン";
+"hardcover_sign_in_again_footer" = "BookPlayerがHardcoverの読書の進捗を更新できるよう、もう一度サインインしてください。";
+"hardcover_sign_in_footer" = "または、下にAPIキーを貼り付けてください。";
+"hardcover_connected" = "Hardcoverに接続済み";
+"hardcover_connected_as" = "%@として接続済み";
+"hardcover_sign_in_failed_title" = "サインインできませんでした";
+"hardcover_sign_in_failed_message" = "Hardcoverでサインインが完了しませんでした。もう一度お試しください。";
 "hardcover_automation_title" = "自動化";
 "hardcover_progress_tracking_title" = "進捗追跡";
 "save_button" = "保存";

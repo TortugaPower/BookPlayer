@@ -415,6 +415,16 @@
 "section_item_hardcover" = "Hardcover";
 "hardcover_api_access_title" = "Acces API";
 "hardcover_api_access_footer" = "Îți poți găsi accesul API Hardcover la https://hardcover.app/account/api.";
+"hardcover_account_title" = "Cont";
+"hardcover_sign_in_button" = "Conectează-te cu Hardcover";
+"hardcover_signing_in" = "Se conectează cu Hardcover…";
+"hardcover_sign_in_again_button" = "Conectează-te din nou";
+"hardcover_sign_in_again_footer" = "Conectează-te din nou pentru ca BookPlayer să poată actualiza progresul tău de lectură pe Hardcover.";
+"hardcover_sign_in_footer" = "Sau lipește mai jos o cheie API.";
+"hardcover_connected" = "Conectat la Hardcover";
+"hardcover_connected_as" = "Conectat ca %@";
+"hardcover_sign_in_failed_title" = "Conectarea nu a reușit";
+"hardcover_sign_in_failed_message" = "Hardcover nu a finalizat conectarea. Încearcă din nou.";
 "hardcover_automation_title" = "Automatizare";
 "hardcover_progress_tracking_title" = "Urmărirea progresului";
 "save_button" = "Salvează";

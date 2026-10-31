@@ -415,6 +415,16 @@
 "section_item_hardcover" = "Hardcover";
 "hardcover_api_access_title" = "Přístup k API";
 "hardcover_api_access_footer" = "Váš přístup k API Hardcover najdete na https://hardcover.app/account/api.";
+"hardcover_account_title" = "Účet";
+"hardcover_sign_in_button" = "Přihlásit se přes Hardcover";
+"hardcover_signing_in" = "Přihlašování přes Hardcover…";
+"hardcover_sign_in_again_button" = "Přihlásit se znovu";
+"hardcover_sign_in_again_footer" = "Přihlaste se znovu, aby BookPlayer mohl aktualizovat váš postup čtení na Hardcover.";
+"hardcover_sign_in_footer" = "Nebo níže vložte klíč API.";
+"hardcover_connected" = "Připojeno k Hardcover";
+"hardcover_connected_as" = "Připojeno jako %@";
+"hardcover_sign_in_failed_title" = "Přihlášení se nezdařilo";
+"hardcover_sign_in_failed_message" = "Hardcover přihlášení nedokončil. Zkuste to znovu.";
 "hardcover_automation_title" = "Automatizace";
 "hardcover_progress_tracking_title" = "Sledování pokroku";
 "save_button" = "Uložit";

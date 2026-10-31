@@ -417,6 +417,16 @@
 "hardcover_api_access_footer" = "You can find your Hardcover API access at https://hardcover.app/account/api.";
 "hardcover_automation_title" = "Automation";
 "hardcover_progress_tracking_title" = "Progress Tracking";
+"hardcover_account_title" = "Account";
+"hardcover_sign_in_button" = "Sign In with Hardcover";
+"hardcover_signing_in" = "Signing In with Hardcover…";
+"hardcover_sign_in_again_button" = "Sign In Again";
+"hardcover_sign_in_again_footer" = "Sign in again to let BookPlayer update your reading progress on Hardcover.";
+"hardcover_sign_in_footer" = "Or paste an API key below.";
+"hardcover_connected" = "Connected to Hardcover";
+"hardcover_connected_as" = "Connected as %@";
+"hardcover_sign_in_failed_title" = "Couldn't Sign In";
+"hardcover_sign_in_failed_message" = "Hardcover didn't complete the sign-in. Try again.";
 "save_button" = "Save";
 "hardcover_remove_confirmation_title" = "Remove from Hardcover?";
 "hardcover_remove_confirmation_message" = "Do you want to remove %@, %@ from your Hardcover library?";

@@ -415,6 +415,16 @@
 "section_item_hardcover" = "Hardcover";
 "hardcover_api_access_title" = "API Erişimi";
 "hardcover_api_access_footer" = "Hardcover API erişiminizi https://hardcover.app/account/api adresinde bulabilirsiniz.";
+"hardcover_account_title" = "Hesap";
+"hardcover_sign_in_button" = "Hardcover ile Giriş Yap";
+"hardcover_signing_in" = "Hardcover ile giriş yapılıyor…";
+"hardcover_sign_in_again_button" = "Tekrar Giriş Yap";
+"hardcover_sign_in_again_footer" = "BookPlayer'ın Hardcover'daki okuma ilerlemenizi güncelleyebilmesi için tekrar giriş yapın.";
+"hardcover_sign_in_footer" = "Ya da aşağıya bir API anahtarı yapıştırın.";
+"hardcover_connected" = "Hardcover'a bağlı";
+"hardcover_connected_as" = "%@ olarak bağlı";
+"hardcover_sign_in_failed_title" = "Giriş Yapılamadı";
+"hardcover_sign_in_failed_message" = "Hardcover girişi tamamlamadı. Tekrar deneyin.";
 "hardcover_automation_title" = "Otomasyon";
 "hardcover_progress_tracking_title" = "İlerleme Takibi";
 "save_button" = "Kaydet";

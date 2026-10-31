@@ -415,6 +415,16 @@
 "section_item_hardcover" = "Hardcover";
 "hardcover_api_access_title" = "Acceso a la API";
 "hardcover_api_access_footer" = "Puedes encontrar tu acceso a la API de Hardcover en https://hardcover.app/account/api.";
+"hardcover_account_title" = "Cuenta";
+"hardcover_sign_in_button" = "Iniciar sesión con Hardcover";
+"hardcover_signing_in" = "Iniciando sesión con Hardcover…";
+"hardcover_sign_in_again_button" = "Volver a iniciar sesión";
+"hardcover_sign_in_again_footer" = "Vuelve a iniciar sesión para que BookPlayer actualice tu progreso de lectura en Hardcover.";
+"hardcover_sign_in_footer" = "O pega una clave de API abajo.";
+"hardcover_connected" = "Conectado a Hardcover";
+"hardcover_connected_as" = "Conectado como %@";
+"hardcover_sign_in_failed_title" = "No se pudo iniciar sesión";
+"hardcover_sign_in_failed_message" = "Hardcover no completó el inicio de sesión. Inténtalo de nuevo.";
 "hardcover_automation_title" = "Automatización";
 "hardcover_progress_tracking_title" = "Seguimiento del progreso";
 "save_button" = "Guardar";

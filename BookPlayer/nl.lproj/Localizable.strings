@@ -415,6 +415,16 @@
 "section_item_hardcover" = "Hardcover";
 "hardcover_api_access_title" = "API-toegang";
 "hardcover_api_access_footer" = "U kunt uw Hardcover API-toegang vinden op https://hardcover.app/account/api.";
+"hardcover_account_title" = "Account";
+"hardcover_sign_in_button" = "Inloggen met Hardcover";
+"hardcover_signing_in" = "Inloggen met Hardcover…";
+"hardcover_sign_in_again_button" = "Opnieuw inloggen";
+"hardcover_sign_in_again_footer" = "Log opnieuw in zodat BookPlayer je leesvoortgang op Hardcover kan bijwerken.";
+"hardcover_sign_in_footer" = "Of plak hieronder een API-sleutel.";
+"hardcover_connected" = "Verbonden met Hardcover";
+"hardcover_connected_as" = "Verbonden als %@";
+"hardcover_sign_in_failed_title" = "Kan niet inloggen";
+"hardcover_sign_in_failed_message" = "Hardcover heeft het inloggen niet voltooid. Probeer het opnieuw.";
 "hardcover_automation_title" = "Automatisering";
 "hardcover_progress_tracking_title" = "Voortgang bijhouden";
 "save_button" = "Opslaan";

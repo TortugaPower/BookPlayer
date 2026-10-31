@@ -415,6 +415,16 @@
 "section_item_hardcover" = "Hardcover";
 "hardcover_api_access_title" = "API-käyttöoikeus";
 "hardcover_api_access_footer" = "Löydät Hardcover API -käyttöoikeutesi osoitteesta https://hardcover.app/account/api.";
+"hardcover_account_title" = "Tili";
+"hardcover_sign_in_button" = "Kirjaudu Hardcoverilla";
+"hardcover_signing_in" = "Kirjaudutaan Hardcoverilla…";
+"hardcover_sign_in_again_button" = "Kirjaudu uudelleen";
+"hardcover_sign_in_again_footer" = "Kirjaudu uudelleen, jotta BookPlayer voi päivittää lukuedistymisesi Hardcoveriin.";
+"hardcover_sign_in_footer" = "Tai liitä API-avain alle.";
+"hardcover_connected" = "Yhdistetty Hardcoveriin";
+"hardcover_connected_as" = "Yhdistetty käyttäjänä %@";
+"hardcover_sign_in_failed_title" = "Kirjautuminen epäonnistui";
+"hardcover_sign_in_failed_message" = "Hardcover ei viimeistellyt kirjautumista. Yritä uudelleen.";
 "hardcover_automation_title" = "Automaatio";
 "hardcover_progress_tracking_title" = "Edistymisen seuranta";
 "save_button" = "Tallenna";
