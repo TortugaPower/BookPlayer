@@ -42,6 +42,8 @@ import urllib.request
 
 SENTRY_ORG = "tortuga-power"
 SENTRY_URL = os.environ.get("SENTRY_URL", "https://sentry.io").rstrip("/")
+# The provider of a repository linked through Sentry's GitHub integration.
+GITHUB_PROVIDER = "integrations:github"
 TIMEOUT = 60
 # What Sentry reads in a commit message (simplified): fix, fixes, fixed, close(s/d), resolve(s/d), then short ids.
 # Only for the summary; Sentry does the resolving. An id must end there, so `Fixes ANDROID-BOOKPLAYER-<id>` in a
@@ -131,7 +133,9 @@ def git_commits(repo: str, base: str | None, head: str, run=run) -> list[dict]:
     """The commits after `base` up to `head`, newest first, read from the checkout. A merge lists no files, and a
     rename is a delete and an add (finding renames would read the files' contents)."""
     revs = [f"{base}..{head}"] if base else ["-1", head]
-    log = run(["git", "log", "--format=%x1e%H%x1f%an%x1f%ae%x1f%aI%x1f%B%x1f", "--no-renames", "--name-status", *revs])
+    # core.quotePath=false: paths with other than ASCII characters as they are, not quoted and octal-escaped.
+    log = run(["git", "-c", "core.quotePath=false", "log", "--format=%x1e%H%x1f%an%x1f%ae%x1f%aI%x1f%B%x1f",
+               "--no-renames", "--name-status", *revs])
     commits = []
     for record in log.split("\x1e")[1:]:
         sha, name, email, date, message, files = record.split("\x1f")
@@ -162,14 +166,26 @@ def archive_release(archive: str) -> tuple[str, str]:
     return f"{info['CFBundleIdentifier']}@{version}+{info['CFBundleVersion']}", version
 
 
-def attach(release: str, project: str, commits: list[dict], token: str, http=http) -> int:
-    """Creates the release if it's missing (Sentry answers 208 when it exists), replaces its commits, and returns how
-    many Sentry now holds."""
+def attach(release: str, project: str, commits: list[dict], token: str, http=http) -> dict:
+    """Creates the release if it's missing (Sentry answers 208 when it exists), replaces its commits, and returns
+    Sentry's answer: the release as it now stands."""
     headers = {"Authorization": f"Bearer {token}"}
     releases = f"{SENTRY_URL}/api/0/organizations/{SENTRY_ORG}/releases/"
     http("POST", releases, {"version": release, "projects": [project]}, headers)
-    answer = http("PUT", f"{releases}{urllib.parse.quote(release, safe='')}/", {"commits": commits}, headers)
-    return answer.get("commitCount")
+    return http("PUT", f"{releases}{urllib.parse.quote(release, safe='')}/", {"commits": commits}, headers)
+
+
+def check_attached(answer: dict, repo: str, expected: int) -> None:
+    """Fails unless Sentry holds every commit, under the repository it links to GitHub. Sentry files commits under the
+    repository with exactly that name, and creates an unlinked one when none has it (#149's "origin")."""
+    held = answer.get("commitCount")
+    if held != expected:
+        raise Failure(f"Sentry holds {held} of the release's {expected} commits")
+    repository = (answer.get("lastCommit") or {}).get("repository") or {}
+    provider = (repository.get("provider") or {}).get("id")
+    if repository.get("name") != repo or provider != GITHUB_PROVIDER:
+        raise Failure(f"Sentry filed the commits under {repository.get('name')!r} ({provider}), "
+                      f"not {repo} linked to GitHub ({GITHUB_PROVIDER})")
 
 
 def main(argv: list[str] | None = None, run=run, http=http) -> int:
@@ -201,10 +217,8 @@ def main(argv: list[str] | None = None, run=run, http=http) -> int:
         if not token:
             raise Failure("SENTRY_AUTH_TOKEN isn't set")
         expected = sum(SKIP_MARKER not in commit["message"] for commit in commits)
-        held = attach(release, args.project, commits, token, http)
-        if held != expected:
-            raise Failure(f"Sentry holds {held} of the release's {expected} commits")
-        print(f"Sentry release {release} holds all {held} commits")
+        check_attached(attach(release, args.project, commits, token, http), args.repo, expected)
+        print(f"Sentry release {release} holds all {expected} commits, under {args.repo}")
         return 0
     except (Failure, OSError, subprocess.SubprocessError, ValueError, KeyError, AttributeError) as error:
         print(f"error: {error}", file=sys.stderr)

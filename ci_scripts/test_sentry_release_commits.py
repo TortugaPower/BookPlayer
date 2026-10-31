@@ -52,6 +52,7 @@ class GitCommitTests(unittest.TestCase):
         commits = src.git_commits(REPO, "base", "head", run=lambda cmd: calls.append(cmd) or log)
         self.assertEqual(calls[0][-1], "base..head")
         self.assertIn("--no-renames", calls[0])  # finding renames would read file contents a partial clone lacks
+        self.assertEqual(calls[0][1:3], ["-c", "core.quotePath=false"])  # non-ASCII paths as they are
         self.assertEqual([c["id"] for c in commits], ["c2", "c1"])
         self.assertEqual(commits[0]["message"], "fix(sync): one engine\n\nFixes ANDROID-BOOKPLAYER-2F\nFixes ANDROID-BOOKPLAYER-2E")
         self.assertEqual(commits[0]["repository"], REPO)
@@ -166,12 +167,16 @@ class MainTests(unittest.TestCase):
         self.assertIn("2 commits after 1.3.0; fix lines: ANDROID-BOOKPLAYER-2F", out)
         http.assert_not_called()
 
+    @staticmethod
+    def answer(count, name=REPO, provider="integrations:github"):
+        return {"commitCount": count, "lastCommit": {"repository": {"name": name, "provider": {"id": provider}}}}
+
     def test_creates_the_release_then_replaces_its_commits(self):
         calls = []
 
         def http(method, url, body=None, headers=None):
             calls.append((method, url, body, headers))
-            return {"commitCount": 1} if method == "PUT" else {}
+            return self.answer(1) if method == "PUT" else {}
 
         code, out, _ = self.run_main(self.ARGS, http)
         self.assertEqual(code, 0, out)
@@ -182,13 +187,19 @@ class MainTests(unittest.TestCase):
         self.assertTrue(put[1].endswith("/organizations/tortuga-power/releases/com.tortugapower.audiobookplayer%401.3.1%2B26/"))
         self.assertEqual([c["id"] for c in put[2]["commits"]], ["c2", "c1"])
         self.assertEqual(put[3], {"Authorization": "Bearer t0ken"})
-        self.assertIn("holds all 1 commits", out)  # Sentry drops the #skipsentry one
+        self.assertIn(f"holds all 1 commits, under {REPO}", out)  # Sentry drops the #skipsentry one
         self.assertNotIn("t0ken", out)
 
     def test_fewer_commits_in_sentry_than_sent_fails(self):
-        code, _, err = self.run_main(self.ARGS, lambda *a, **k: {"commitCount": 0})
+        code, _, err = self.run_main(self.ARGS, lambda *a, **k: self.answer(0))
         self.assertEqual(code, 1)
         self.assertIn("holds 0 of the release's 1 commits", err)
+
+    def test_commits_filed_under_a_repository_not_linked_to_github_fail(self):
+        for name, provider in (("origin", "unknown"), ("tortugapower/bookplayer-android", "unknown"), (REPO, None)):
+            code, _, err = self.run_main(self.ARGS, lambda *a, **k: self.answer(1, name, provider))
+            self.assertEqual(code, 1, name)
+            self.assertIn(f"filed the commits under {name!r} ({provider})", err)
 
     def test_a_sentry_error_fails(self):
         def http(method, url, body=None, headers=None):
