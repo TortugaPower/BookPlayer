@@ -8,6 +8,7 @@
 
 @testable import BookPlayer
 @testable import BookPlayerKit
+import Combine
 import XCTest
 
 /// Hardcover's API keys (`hc_pat_…`) come without the `Bearer` scheme its older tokens were copied with
@@ -365,5 +366,132 @@ class HardcoverProgressScheduleTests: XCTestCase {
     XCTAssertEqual(held.map(\.percent), [12])
     XCTAssertTrue(schedule.flush(at: start.addingTimeInterval(31)).isEmpty)
     XCTAssertNil(schedule.record(13, for: "a", at: start.addingTimeInterval(60)))
+  }
+}
+
+/// A `me` lookup still in flight when the credentials change belongs to the previous account
+class HardcoverAccountLookupTests: XCTestCase {
+  var sut: HardcoverService!
+  var mockKeychain: KeychainServiceMock!
+
+  private let defaults = UserDefaults.sharedDefaults
+  private var savedDefaults: [String: Any?] = [:]
+  private let defaultsKeys = [
+    Constants.UserDefaults.hardcoverUserId,
+    Constants.UserDefaults.hardcoverUsername,
+  ]
+
+  override func setUp() {
+    for key in defaultsKeys {
+      savedDefaults[key] = defaults.object(forKey: key)
+      defaults.removeObject(forKey: key)
+    }
+    GatedMeStub.reset()
+  }
+
+  override func tearDown() {
+    GatedMeStub.open()
+    for key in defaultsKeys {
+      if let value = savedDefaults[key] ?? nil {
+        defaults.set(value, forKey: key)
+      } else {
+        defaults.removeObject(forKey: key)
+      }
+    }
+  }
+
+  func testALookupForReplacedCredentialsIsNotCached() async throws {
+    let sentWithOldKey = expectation(description: "both lookups for the old key are in flight")
+    /// The one `setup` starts, and the one below
+    sentWithOldKey.expectedFulfillmentCount = 2
+    GatedMeStub.onOldKeyRequest = { sentWithOldKey.fulfill() }
+
+    mockKeychain = KeychainServiceMock()
+    try mockKeychain.set(GatedMeStub.oldKey, key: .hardcoverToken)
+    let configuration = URLSessionConfiguration.ephemeral
+    configuration.protocolClasses = [GatedMeStub.self]
+    /// Connected from the start, so `setup` starts tracking the library
+    let libraryService = LibraryServiceProtocolMock()
+    libraryService.metadataUpdatePublisher = Empty().eraseToAnyPublisher()
+    libraryService.progressUpdatePublisher = Empty().eraseToAnyPublisher()
+    sut = HardcoverService()
+    sut.setup(
+      libraryService: libraryService,
+      syncService: SyncServiceProtocolMock(),
+      keychain: mockKeychain,
+      graphQLSession: URLSession(configuration: configuration)
+    )
+
+    let lookup = Task { [sut] in await sut!.fetchConnectedUserId() }
+    await fulfillment(of: [sentWithOldKey], timeout: 5)
+
+    sut.authorization = "hc_pat_new"
+    GatedMeStub.open()
+
+    let staleUserId = await lookup.value
+    XCTAssertNil(staleUserId)
+    XCTAssertNotEqual(defaults.string(forKey: Constants.UserDefaults.hardcoverUserId), GatedMeStub.oldUserId)
+
+    let userId = await sut.fetchConnectedUserId()
+    XCTAssertEqual(userId, GatedMeStub.newUserId)
+    XCTAssertEqual(sut.connectedUsername, "new_reader")
+  }
+}
+
+/// Answers `me` by the key sent: user 42 for the old key, 7 for any other. Holds every answer
+/// until `open()`, so a test can change the credentials while a lookup is in flight
+private final class GatedMeStub: URLProtocol {
+  static let oldKey = "hc_pat_old"
+  static let oldUserId = "42"
+  static let newUserId = "7"
+
+  private static let lock = NSLock()
+  private static var isOpen = false
+  private static var waiting = [GatedMeStub]()
+  static var onOldKeyRequest: (() -> Void)?
+
+  static func reset() {
+    lock.withLock {
+      isOpen = false
+      waiting = []
+      onOldKeyRequest = nil
+    }
+  }
+
+  static func open() {
+    let held = lock.withLock {
+      isOpen = true
+      defer { waiting = [] }
+      return waiting
+    }
+    held.forEach { $0.respond() }
+  }
+
+  override class func canInit(with request: URLRequest) -> Bool { true }
+  override class func canonicalRequest(for request: URLRequest) -> URLRequest { request }
+
+  override func startLoading() {
+    let (isOpen, onOldKeyRequest) = Self.lock.withLock {
+      if !Self.isOpen { Self.waiting.append(self) }
+      return (Self.isOpen, Self.onOldKeyRequest)
+    }
+
+    if isOldKey { onOldKeyRequest?() }
+    if isOpen { respond() }
+  }
+
+  override func stopLoading() {}
+
+  private var isOldKey: Bool {
+    request.value(forHTTPHeaderField: "Authorization") == "Bearer \(Self.oldKey)"
+  }
+
+  private func respond() {
+    let (id, username) = isOldKey ? (Self.oldUserId, "old_reader") : (Self.newUserId, "new_reader")
+    let body = #"{"data":{"me":[{"id":\#(id),"username":"\#(username)"}]}}"#
+    let response = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
+    client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
+    client?.urlProtocol(self, didLoad: Data(body.utf8))
+    client?.urlProtocolDidFinishLoading(self)
   }
 }

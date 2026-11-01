@@ -8,6 +8,7 @@
 
 import BookPlayerKit
 import Combine
+import os
 import UIKit
 
 protocol HardcoverServiceProtocol {
@@ -73,8 +74,8 @@ protocol HardcoverServiceProtocol {
 @Observable
 final class HardcoverService: BPLogger, HardcoverServiceProtocol {
   private var keychain: KeychainServiceProtocol!
-  private var oauthSession: HardcoverOAuthSession!
-  private let graphQL = GraphQLClient(baseURL: "https://api.hardcover.app/v1/graphql")
+  @ObservationIgnored private var oauthSession: HardcoverOAuthSession!
+  @ObservationIgnored private var graphQL: GraphQLClient!
   private var audioMetadataService: AudioMetadataServiceProtocol!
   private var libraryService: LibraryServiceProtocol!
   /// IUO like its siblings (two-step init()+setup() DI): always injected by
@@ -83,15 +84,21 @@ final class HardcoverService: BPLogger, HardcoverServiceProtocol {
   /// missed injection into silently un-synced changes instead of a loud failure.
   private var syncService: SyncServiceProtocol!
 
-  private var metadataSubscription: AnyCancellable?
-  private var progressSubscription: AnyCancellable?
-  private var pauseSubscription: AnyCancellable?
-  private var cancellables = Set<AnyCancellable>()
+  /// Internal bookkeeping, not state any view reads: kept out of observation, so progress ticks
+  /// don't go through the registrar. Changed on the main queue only
+  @ObservationIgnored private var metadataSubscription: AnyCancellable?
+  @ObservationIgnored private var progressSubscription: AnyCancellable?
+  @ObservationIgnored private var pauseSubscription: AnyCancellable?
+  @ObservationIgnored private var cancellables = Set<AnyCancellable>()
 
   /// Read and written on the main queue only, where the progress and pause events arrive.
   /// Two minutes keeps a listening session to a request pair every two minutes per book,
   /// far below Hardcover's rate limit
-  private var progressSchedule = HardcoverProgressSchedule(interval: 120)
+  @ObservationIgnored private var progressSchedule = HardcoverProgressSchedule(interval: 120)
+
+  /// Bumped whenever the cached account is cleared, so a `me` lookup that started for the previous
+  /// credentials doesn't cache their account after an unlink, a sign-in or a key change
+  private let connectedUserGeneration = OSAllocatedUnfairLock(initialState: 0)
 
   private var readingThreshold: Double {
     UserDefaults.sharedDefaults.object(forKey: Constants.UserDefaults.hardcoverReadingThreshold) as? Double ?? 1.0
@@ -111,8 +118,10 @@ final class HardcoverService: BPLogger, HardcoverServiceProtocol {
     libraryService: LibraryServiceProtocol,
     syncService: SyncServiceProtocol,
     keychain: KeychainServiceProtocol = KeychainService(),
-    audioMetadataService: AudioMetadataServiceProtocol = AudioMetadataService()
+    audioMetadataService: AudioMetadataServiceProtocol = AudioMetadataService(),
+    graphQLSession: URLSession = .shared
   ) {
+    self.graphQL = GraphQLClient(baseURL: "https://api.hardcover.app/v1/graphql", session: graphQLSession)
     self.libraryService = libraryService
     self.syncService = syncService
     self.keychain = keychain
@@ -346,6 +355,8 @@ extension HardcoverService {
 
     guard isConnected else { return nil }
 
+    let generation = connectedUserGeneration.withLock { $0 }
+
     do {
       let result = try await execute(
         query: "query Me { me { id username } }",
@@ -355,8 +366,20 @@ extension HardcoverService {
       guard let user = result.me.first else { return nil }
 
       let userId = String(user.id)
-      UserDefaults.sharedDefaults.set(userId, forKey: Constants.UserDefaults.hardcoverUserId)
-      UserDefaults.sharedDefaults.set(user.username, forKey: Constants.UserDefaults.hardcoverUsername)
+      /// Under the lock, so a clear can't land between the check and the write
+      let isCurrent = connectedUserGeneration.withLock { current in
+        guard current == generation else { return false }
+
+        UserDefaults.sharedDefaults.set(userId, forKey: Constants.UserDefaults.hardcoverUserId)
+        UserDefaults.sharedDefaults.set(user.username, forKey: Constants.UserDefaults.hardcoverUsername)
+        return true
+      }
+
+      guard isCurrent else {
+        Self.logger.info("Dropped a Hardcover account lookup made for credentials since replaced")
+        return nil
+      }
+
       return userId
     } catch {
       Self.logger.error("Failed to read the connected Hardcover account: \(error)")
@@ -365,15 +388,21 @@ extension HardcoverService {
   }
 
   private func clearConnectedUser() {
-    UserDefaults.sharedDefaults.removeObject(forKey: Constants.UserDefaults.hardcoverUserId)
-    UserDefaults.sharedDefaults.removeObject(forKey: Constants.UserDefaults.hardcoverUsername)
+    connectedUserGeneration.withLock { generation in
+      generation += 1
+      UserDefaults.sharedDefaults.removeObject(forKey: Constants.UserDefaults.hardcoverUserId)
+      UserDefaults.sharedDefaults.removeObject(forKey: Constants.UserDefaults.hardcoverUsername)
+    }
   }
 
   /// Both ways of connecting post here; whether one is left decides, not which changed.
-  /// A sign-in that replaces an API key posts its set before the key's removal
+  /// A sign-in that replaces an API key posts its set before the key's removal.
+  /// The Keychain posts on the writer's thread, often the OAuth session's actor: handled on main,
+  /// where the subscriptions are changed
   private func bindKeychainObserver() {
     keychain.valueUpdatedPublisher
       .filter { $0.key == .hardcoverToken || $0.key == .hardcoverSession }
+      .receive(on: DispatchQueue.main)
       .sink { [weak self] _ in
         self?.credentialsChanged()
       }
@@ -398,14 +427,22 @@ extension HardcoverService {
   }
 
   private func stopTrackingLibraryUpdates() {
+    guard progressSubscription != nil else { return }
+
     Self.logger.info("Stopping library updates for Hardcover sync")
 
     metadataSubscription?.cancel()
     progressSubscription?.cancel()
     pauseSubscription?.cancel()
+    metadataSubscription = nil
+    progressSubscription = nil
+    pauseSubscription = nil
   }
 
+  /// Once per connection: a token refresh, or saving the same key, posts again while tracking
   private func startTrackingLibraryUpdates() {
+    guard progressSubscription == nil else { return }
+
     Self.logger.info("Starting to track library updates for Hardcover sync")
 
     metadataSubscription = libraryService.metadataUpdatePublisher
