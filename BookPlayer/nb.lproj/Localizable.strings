@@ -415,6 +415,16 @@
 "section_item_hardcover" = "Hardcover";
 "hardcover_api_access_title" = "API-tilgang";
 "hardcover_api_access_footer" = "Du kan finne din Hardcover API-tilgang på https://hardcover.app/account/api.";
+"hardcover_account_title" = "Konto";
+"hardcover_sign_in_button" = "Logg på med Hardcover";
+"hardcover_signing_in" = "Logger på med Hardcover…";
+"hardcover_sign_in_again_button" = "Logg på igjen";
+"hardcover_sign_in_again_footer" = "Logg på igjen så BookPlayer kan oppdatere lesefremdriften din på Hardcover.";
+"hardcover_sign_in_footer" = "Eller lim inn en API-nøkkel nedenfor.";
+"hardcover_connected" = "Koblet til Hardcover";
+"hardcover_connected_as" = "Koblet til som %@";
+"hardcover_sign_in_failed_title" = "Kunne ikke logge på";
+"hardcover_sign_in_failed_message" = "Hardcover fullførte ikke påloggingen. Prøv igjen.";
 "hardcover_automation_title" = "Automatisering";
 "hardcover_progress_tracking_title" = "Fremdriftssporing";
 "save_button" = "Lagre";

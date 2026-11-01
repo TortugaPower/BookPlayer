@@ -415,6 +415,16 @@
 "section_item_hardcover" = "Hardcover";
 "hardcover_api_access_title" = "API 访问";
 "hardcover_api_access_footer" = "您可以在 https://hardcover.app/account/api 找到您的 Hardcover API 访问权限。";
+"hardcover_account_title" = "账户";
+"hardcover_sign_in_button" = "使用 Hardcover 登录";
+"hardcover_signing_in" = "正在使用 Hardcover 登录…";
+"hardcover_sign_in_again_button" = "重新登录";
+"hardcover_sign_in_again_footer" = "请重新登录，以便 BookPlayer 在 Hardcover 上更新你的阅读进度。";
+"hardcover_sign_in_footer" = "或在下方粘贴 API 密钥。";
+"hardcover_connected" = "已连接到 Hardcover";
+"hardcover_connected_as" = "已作为 %@ 连接";
+"hardcover_sign_in_failed_title" = "无法登录";
+"hardcover_sign_in_failed_message" = "Hardcover 未完成登录。请重试。";
 "hardcover_automation_title" = "自动化";
 "hardcover_progress_tracking_title" = "进度跟踪";
 "save_button" = "保存";

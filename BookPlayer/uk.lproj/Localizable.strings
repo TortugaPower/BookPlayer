@@ -415,6 +415,16 @@
 "section_item_hardcover" = "Hardcover";
 "hardcover_api_access_title" = "Доступ до API";
 "hardcover_api_access_footer" = "Ви можете знайти свій доступ до API Hardcover за адресою https://hardcover.app/account/api.";
+"hardcover_account_title" = "Обліковий запис";
+"hardcover_sign_in_button" = "Увійти через Hardcover";
+"hardcover_signing_in" = "Вхід через Hardcover…";
+"hardcover_sign_in_again_button" = "Увійти знову";
+"hardcover_sign_in_again_footer" = "Увійдіть знову, щоб BookPlayer міг оновлювати ваш прогрес читання в Hardcover.";
+"hardcover_sign_in_footer" = "Або вставте ключ API нижче.";
+"hardcover_connected" = "Під'єднано до Hardcover";
+"hardcover_connected_as" = "Під'єднано як %@";
+"hardcover_sign_in_failed_title" = "Не вдалося увійти";
+"hardcover_sign_in_failed_message" = "Hardcover не завершив вхід. Спробуйте ще раз.";
 "hardcover_automation_title" = "Автоматизація";
 "hardcover_progress_tracking_title" = "Відстеження прогресу";
 "save_button" = "Зберегти";

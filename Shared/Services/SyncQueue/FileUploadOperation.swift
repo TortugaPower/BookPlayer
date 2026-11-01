@@ -433,16 +433,7 @@ class FileUploadOperation: AsyncOperation, BPLogger, @unchecked Sendable {
         reserve: Self.diskReserve
       )
       let next = Array(plan.pendingParts(done: done, active: active).prefix(slots))
-      if !next.isEmpty {
-        // Fresh URLs every time: an old one may have died with its signing credentials
-        for part in try await partURLs(uploadId: uploadId, partNumbers: next) {
-          // Checked per part: a cancel must not start what nothing will clean up
-          try Task.checkCancellation()
-          let partFile = try slice(part: part.partNumber, of: sourceURL, plan: plan)
-          transport.startPart(uuid: uuid, uploadId: uploadId, partNumber: part.partNumber, file: partFile, url: part.url)
-          active.insert(part.partNumber)
-        }
-      }
+      active.formUnion(try await startParts(next, uploadId: uploadId, from: sourceURL, plan: plan))
       // No room for a part, even with none in flight, waits like any other pass: each 30 s
       // tick re-reads S3's list and the free space is checked again here, so the upload goes
       // on once there's room. Failing instead meant the queue's 5 s retry, a request each time
@@ -509,6 +500,27 @@ class FileUploadOperation: AsyncOperation, BPLogger, @unchecked Sendable {
       )
     }
     return listedEveryPart
+  }
+
+  /// Hands `partNumbers` to the session and returns them. A throw leaves the parts started so far
+  /// running; the pass is over then, and the next one finds them in the session
+  private func startParts(
+    _ partNumbers: [Int],
+    uploadId: String,
+    from sourceURL: URL,
+    plan: MultipartUploadPlan
+  ) async throws -> [Int] {
+    guard !partNumbers.isEmpty else { return [] }
+    var started = [Int]()
+    // Fresh URLs every time: an old one may have died with its signing credentials
+    for part in try await partURLs(uploadId: uploadId, partNumbers: partNumbers) {
+      // Checked per part: a cancel must not start what nothing will clean up
+      try Task.checkCancellation()
+      let partFile = try slice(part: part.partNumber, of: sourceURL, plan: plan)
+      transport.startPart(uuid: uuid, uploadId: uploadId, partNumber: part.partNumber, file: partFile, url: part.url)
+      started.append(part.partNumber)
+    }
+    return started
   }
 
   /// `true` once S3 assembled the file; `false` when parts turned out missing (send them)

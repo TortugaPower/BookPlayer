@@ -415,6 +415,16 @@
 "section_item_hardcover" = "Hardcover";
 "hardcover_api_access_title" = "Доступ к API";
 "hardcover_api_access_footer" = "Вы можете найти свой доступ к API Hardcover по адресу https://hardcover.app/account/api.";
+"hardcover_account_title" = "Учётная запись";
+"hardcover_sign_in_button" = "Войти через Hardcover";
+"hardcover_signing_in" = "Вход через Hardcover…";
+"hardcover_sign_in_again_button" = "Войти снова";
+"hardcover_sign_in_again_footer" = "Войдите снова, чтобы BookPlayer мог обновлять ваш прогресс чтения в Hardcover.";
+"hardcover_sign_in_footer" = "Или вставьте ключ API ниже.";
+"hardcover_connected" = "Подключено к Hardcover";
+"hardcover_connected_as" = "Подключено как %@";
+"hardcover_sign_in_failed_title" = "Не удалось войти";
+"hardcover_sign_in_failed_message" = "Hardcover не завершил вход. Повторите попытку.";
 "hardcover_automation_title" = "Автоматизация";
 "hardcover_progress_tracking_title" = "Отслеживание прогресса";
 "save_button" = "Сохранить";

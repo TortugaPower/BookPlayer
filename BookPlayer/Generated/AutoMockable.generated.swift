@@ -1,4 +1,4 @@
-// Generated using Sourcery 2.3.0 — https://github.com/krzysztofzablocki/Sourcery
+// Generated using Sourcery 2.2.5 — https://github.com/krzysztofzablocki/Sourcery
 // DO NOT EDIT
 
 import Foundation
@@ -1082,22 +1082,22 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
     }
     //MARK: - setExternalResource
 
-    var setExternalResourceProviderNameProviderIdForCallsCount = 0
-    var setExternalResourceProviderNameProviderIdForCalled: Bool {
-        return setExternalResourceProviderNameProviderIdForCallsCount > 0
+    var setExternalResourceProviderNameProviderIdHostIdForCallsCount = 0
+    var setExternalResourceProviderNameProviderIdHostIdForCalled: Bool {
+        return setExternalResourceProviderNameProviderIdHostIdForCallsCount > 0
     }
-    var setExternalResourceProviderNameProviderIdForReceivedArguments: (providerName: String, providerId: String, uuid: String)?
-    var setExternalResourceProviderNameProviderIdForReceivedInvocations: [(providerName: String, providerId: String, uuid: String)] = []
-    var setExternalResourceProviderNameProviderIdForReturnValue: SyncableExternalResource?
-    var setExternalResourceProviderNameProviderIdForClosure: ((String, String, String) async -> SyncableExternalResource?)?
-    func setExternalResource(providerName: String, providerId: String, for uuid: String) async -> SyncableExternalResource? {
-        setExternalResourceProviderNameProviderIdForCallsCount += 1
-        setExternalResourceProviderNameProviderIdForReceivedArguments = (providerName: providerName, providerId: providerId, uuid: uuid)
-        setExternalResourceProviderNameProviderIdForReceivedInvocations.append((providerName: providerName, providerId: providerId, uuid: uuid))
-        if let setExternalResourceProviderNameProviderIdForClosure = setExternalResourceProviderNameProviderIdForClosure {
-            return await setExternalResourceProviderNameProviderIdForClosure(providerName, providerId, uuid)
+    var setExternalResourceProviderNameProviderIdHostIdForReceivedArguments: (providerName: String, providerId: String, hostId: String?, uuid: String)?
+    var setExternalResourceProviderNameProviderIdHostIdForReceivedInvocations: [(providerName: String, providerId: String, hostId: String?, uuid: String)] = []
+    var setExternalResourceProviderNameProviderIdHostIdForReturnValue: SyncableExternalResource?
+    var setExternalResourceProviderNameProviderIdHostIdForClosure: ((String, String, String?, String) async -> SyncableExternalResource?)?
+    func setExternalResource(providerName: String, providerId: String, hostId: String?, for uuid: String) async -> SyncableExternalResource? {
+        setExternalResourceProviderNameProviderIdHostIdForCallsCount += 1
+        setExternalResourceProviderNameProviderIdHostIdForReceivedArguments = (providerName: providerName, providerId: providerId, hostId: hostId, uuid: uuid)
+        setExternalResourceProviderNameProviderIdHostIdForReceivedInvocations.append((providerName: providerName, providerId: providerId, hostId: hostId, uuid: uuid))
+        if let setExternalResourceProviderNameProviderIdHostIdForClosure = setExternalResourceProviderNameProviderIdHostIdForClosure {
+            return await setExternalResourceProviderNameProviderIdHostIdForClosure(providerName, providerId, hostId, uuid)
         } else {
-            return setExternalResourceProviderNameProviderIdForReturnValue
+            return setExternalResourceProviderNameProviderIdHostIdForReturnValue
         }
     }
     //MARK: - removeExternalResource

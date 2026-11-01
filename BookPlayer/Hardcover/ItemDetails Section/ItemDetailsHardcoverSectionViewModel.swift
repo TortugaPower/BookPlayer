@@ -18,7 +18,7 @@ final class ItemDetailsHardcoverSectionViewModel: ItemDetailsHardcoverSectionVie
   private let item: SimpleLibraryItem
 
   init?(item: SimpleLibraryItem, hardcoverService: HardcoverServiceProtocol) {
-    guard hardcoverService.authorization != nil else { return nil }
+    guard hardcoverService.isConnected else { return nil }
 
     self.item = item
 

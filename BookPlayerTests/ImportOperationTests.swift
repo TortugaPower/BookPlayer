@@ -769,10 +769,14 @@ final class MediaServersShortcutTests: XCTestCase {
 /// unstructured task that reaches the network.
 @MainActor
 final class ItemDetailsLoadTests: XCTestCase {
-  /// HardcoverServiceProtocol isn't AutoMockable, and its seven members are few enough to
+  /// HardcoverServiceProtocol isn't AutoMockable, and its members are few enough to
   /// stub by hand rather than pull Sourcery into the change.
   private final class HardcoverServiceStub: HardcoverServiceProtocol {
     var authorization: String?
+    var isConnected: Bool { authorization != nil }
+    var isSignedInWithOAuth: Bool { false }
+    var connectedUsername: String? { nil }
+    var needsSignInAgain: Bool { false }
     var getBookCallCount = 0
     var bookToReturn: SimpleHardcoverBook?
 
@@ -790,6 +794,8 @@ final class ItemDetailsLoadTests: XCTestCase {
     func processAutoMatch(for items: [SimpleLibraryItem]) async {}
     func assignItem(_ book: SimpleHardcoverBook?, to item: SimpleLibraryItem) async {}
     func removeFromLibrary(_ book: SimpleHardcoverBook) async throws {}
+    func signIn(authenticate: (URL) async throws -> URL) async throws {}
+    func disconnect() async {}
   }
 
   private func makeSUT() -> (ItemDetailsViewModel, LibraryServiceProtocolMock, HardcoverServiceStub) {

@@ -16,3 +16,4 @@ echo "BP_REVENUECAT_KEY = $BP_REVENUECAT_KEY" >> ../BuildConfiguration/Release.x
 echo "BP_API_SCHEME = $BP_API_SCHEME" >> ../BuildConfiguration/Release.xcconfig
 echo "BP_API_DOMAIN = $BP_API_DOMAIN" >> ../BuildConfiguration/Release.xcconfig
 echo "BP_API_PORT = $BP_API_PORT" >> ../BuildConfiguration/Release.xcconfig
+echo "BP_HARDCOVER_CLIENT_ID = $BP_HARDCOVER_CLIENT_ID" >> ../BuildConfiguration/Release.xcconfig

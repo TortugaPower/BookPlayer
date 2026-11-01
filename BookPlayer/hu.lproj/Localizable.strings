@@ -415,6 +415,16 @@
 "section_item_hardcover" = "Hardcover";
 "hardcover_api_access_title" = "API hozzáférés";
 "hardcover_api_access_footer" = "A Hardcover API hozzáférését a https://hardcover.app/account/api címen találhatja meg";
+"hardcover_account_title" = "Fiók";
+"hardcover_sign_in_button" = "Bejelentkezés Hardcoverrel";
+"hardcover_signing_in" = "Bejelentkezés Hardcoverrel…";
+"hardcover_sign_in_again_button" = "Újra bejelentkezés";
+"hardcover_sign_in_again_footer" = "Jelentkezzen be újra, hogy a BookPlayer frissíthesse az olvasási előrehaladását a Hardcoveren.";
+"hardcover_sign_in_footer" = "Vagy illesszen be alább egy API-kulcsot.";
+"hardcover_connected" = "Csatlakozva a Hardcoverhez";
+"hardcover_connected_as" = "Csatlakozva mint %@";
+"hardcover_sign_in_failed_title" = "Nem sikerült bejelentkezni";
+"hardcover_sign_in_failed_message" = "A Hardcover nem fejezte be a bejelentkezést. Próbálja újra.";
 "hardcover_automation_title" = "Automatizálás";
 "hardcover_progress_tracking_title" = "Haladás követése";
 "save_button" = "Mentés";
