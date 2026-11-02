@@ -31,7 +31,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   private let shakeMotionService: ShakeMotionServiceProtocol
   private let widgetReloadService: WidgetReloadServiceProtocol
 
-  private var audioPlayer = AVPlayer()
+  var audioPlayer = AVPlayer()
 
   private var fadeTimer: Timer?
 
@@ -70,6 +70,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   private var hasObserverRegistered = false
   /// How far we trust the player's clock: the baseline for spotting moves the player makes on its own
   private var clockState: ClockState = .unknown
+  /// The last seek started, as only its completion ends `ClockState.seeking`
+  private var latestSeek = 0
   private var observeStatus: Bool = false {
     didSet {
       guard oldValue != self.observeStatus else { return }
@@ -87,7 +89,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   weak var syncProgressDelegate: PlaybackSyncProgressDelegate?
   /// Reference to the ongoing play task
   private var playTask: Task<(), Error>?
-  private var playerItem: AVPlayerItem?
+  var playerItem: AVPlayerItem?
   /// The chapter file `playerItem` plays. A chapter change moves `currentItem.currentChapter`
   /// before its file loads, so a load cancelled midway (a pause) leaves the previous file's item
   /// behind; `prepareForPlayback` reloads instead of playing it.
@@ -793,8 +795,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     /// Readings are judged against `expected`, which comes from our own seeks and from every
     /// accepted reading. `recoveries` counts the seeks back since the last accepted reading
     case tracking(expected: TimeInterval, recoveries: Int)
-    /// A seek back to `target` is in flight
-    case recovering(target: TimeInterval, attempt: Int)
+    /// A seek of ours to `target` is in flight, and the player still reports the position it left
+    case seeking(target: TimeInterval, recoveries: Int)
 
     /// Trust a position we just put the player at, or that it just reported
     static func trusting(_ time: TimeInterval) -> ClockState {
@@ -807,7 +809,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
         return nil
       case .tracking(let expected, _):
         return expected
-      case .recovering(let target, _):
+      case .seeking(let target, _):
         return target
       }
     }
@@ -823,14 +825,29 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
       recoveries < Self.maxClockRecoveries
     else { return }
 
-    clockState = .recovering(target: expected, attempt: recoveries + 1)
+    seekPlayer(to: expected, recoveries: recoveries + 1)
+  }
+
+  /// Every seek of ours goes through here. Readings before it lands are the position it's leaving:
+  /// accepting one would make the landing look like the player moved on its own, and the clock
+  /// recovery would undo the seek (GH #1641)
+  private func seekPlayer(to time: TimeInterval, recoveries: Int = 0) {
+    clockState = .seeking(target: time, recoveries: recoveries)
+    latestSeek += 1
+    let seek = latestSeek
+
     audioPlayer.seek(
-      to: CMTime(seconds: expected, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
+      to: CMTime(seconds: time, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
     ) { [weak self] _ in
       DispatchQueue.main.async {
-        /// Unless a seek of ours has set a newer baseline since
-        guard let self, case .recovering(let target, let attempt) = self.clockState else { return }
-        self.clockState = .tracking(expected: target, recoveries: attempt)
+        /// Unless a newer seek took over, or the item it was for is gone
+        guard
+          let self,
+          seek == self.latestSeek,
+          case .seeking(let target, let recoveries) = self.clockState
+        else { return }
+
+        self.clockState = .tracking(expected: target, recoveries: recoveries)
       }
     }
   }
@@ -843,7 +860,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
       PlayerTimeSample(playerTime: CMTimeGetSeconds(audioPlayer.currentTime()), expected: expected) == .recover
     else { return }
 
-    audioPlayer.seek(to: CMTime(seconds: expected, preferredTimescale: CMTimeScale(NSEC_PER_SEC)))
+    seekPlayer(to: expected)
   }
 
   // Called every second by the timer
@@ -856,8 +873,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
       return
     }
 
-    /// A seek back is in flight, and its target is the position we already hold
-    if case .recovering = clockState { return }
+    /// A seek is in flight, and its target is the position we already hold
+    if case .seeking = clockState { return }
 
     var currentTime: TimeInterval
 
@@ -1121,8 +1138,7 @@ extension PlayerManager {
       currentItem.isBoundBook
       ? currentItem.getChapterTime(in: currentItem.currentChapter, for: boundedTime)
       : boundedTime
-    clockState = .trusting(newTime)
-    self.audioPlayer.seek(to: CMTime(seconds: newTime, preferredTimescale: CMTimeScale(NSEC_PER_SEC)))
+    seekPlayer(to: newTime)
   }
 
   func jumpTo(_ time: Double, recordBookmark: Bool = true) {
@@ -1159,8 +1175,7 @@ extension PlayerManager {
       currentItem.isBoundBook
       ? currentItem.getChapterTime(in: currentItem.currentChapter, for: boundedTime)
       : boundedTime
-    clockState = .trusting(newTime)
-    self.audioPlayer.seek(to: CMTime(seconds: newTime, preferredTimescale: CMTimeScale(NSEC_PER_SEC)))
+    seekPlayer(to: newTime)
   }
 
   func forward() {
@@ -1503,8 +1518,7 @@ extension PlayerManager {
       let playerTime = clockState.expectedTime ?? CMTimeGetSeconds(self.audioPlayer.currentTime())
       let newPlayerTime = max(playerTime - rewindTimeLimited, 0)
 
-      clockState = .trusting(newPlayerTime)
-      self.audioPlayer.seek(to: CMTime(seconds: newPlayerTime, preferredTimescale: CMTimeScale(NSEC_PER_SEC)))
+      seekPlayer(to: newPlayerTime)
     }
 
     func getMaxInterval() -> TimeInterval {
