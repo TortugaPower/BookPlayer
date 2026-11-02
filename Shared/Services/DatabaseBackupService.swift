@@ -16,10 +16,13 @@ public class DatabaseBackupService: BPLogger {
 
   private let fileManager = FileManager.default
   private let backupRetentionCount = 2
+  private let databaseURL: URL?
 
   // MARK: - Public API
 
-  public init() {}
+  public init(databaseURL: URL? = nil) {
+    self.databaseURL = databaseURL
+  }
 
   /// Performs a complete backup operation: copy, validate, and cleanup
   public func performBackup() async {
@@ -106,18 +109,27 @@ public class DatabaseBackupService: BPLogger {
       return false
     }
 
-    try? fileManager.removeItem(at: destinationURL)
-    deleteAssociatedFiles(for: destinationURL)
+    // Prepared beside the database, which isn't touched until there's a valid copy to replace it
+    let stagingURL = destinationURL.deletingLastPathComponent()
+      .appendingPathComponent("BookPlayer-restoring.sqlite")
+    deleteDatabaseFiles(at: stagingURL)
 
-    guard copyDatabaseFiles(from: backupURL, to: destinationURL) else {
+    guard copyDatabaseFiles(from: backupURL, to: stagingURL) else {
       Self.logger.error("Failed to copy backup files during restoration")
+      deleteDatabaseFiles(at: stagingURL)
       return false
     }
 
-    guard validateBackup(at: destinationURL) else {
+    guard validateBackup(at: stagingURL) else {
       Self.logger.error("Restored database validation failed, cleaning up")
-      try? fileManager.removeItem(at: destinationURL)
-      deleteAssociatedFiles(for: destinationURL)
+      deleteDatabaseFiles(at: stagingURL)
+      return false
+    }
+
+    deleteDatabaseFiles(at: destinationURL)
+
+    guard moveDatabaseFiles(from: stagingURL, to: destinationURL) else {
+      Self.logger.error("Failed to move restored database into place")
       return false
     }
 
@@ -129,6 +141,8 @@ public class DatabaseBackupService: BPLogger {
 
   /// Returns the URL of the source CoreData database file
   private func getSourceDatabaseURL() -> URL? {
+    if let databaseURL { return databaseURL }
+
     guard
       let containerURL = fileManager.containerURL(
         forSecurityApplicationGroupIdentifier: Constants.ApplicationGroupIdentifier
@@ -179,6 +193,28 @@ public class DatabaseBackupService: BPLogger {
     }
   }
 
+  /// Moves the database files (including WAL and SHM) within the same volume
+  private func moveDatabaseFiles(from sourceURL: URL, to destinationURL: URL) -> Bool {
+    do {
+      try fileManager.moveItem(at: sourceURL, to: destinationURL)
+
+      for pathExtension in ["sqlite-wal", "sqlite-shm"] {
+        let source = sourceURL.deletingPathExtension().appendingPathExtension(pathExtension)
+        if fileManager.fileExists(atPath: source.path) {
+          try fileManager.moveItem(
+            at: source,
+            to: destinationURL.deletingPathExtension().appendingPathExtension(pathExtension)
+          )
+        }
+      }
+
+      return true
+    } catch {
+      Self.logger.error("Failed to move database files: \(error.localizedDescription)")
+      return false
+    }
+  }
+
   /// Validates that the backup can be loaded by CoreData without errors
   /// Uses a read-only check without applying migrations for speed
   private func validateBackup(at backupURL: URL) -> Bool {
@@ -217,6 +253,12 @@ public class DatabaseBackupService: BPLogger {
       Self.logger.error("Backup validation failed: \(error.localizedDescription)")
       return false
     }
+  }
+
+  /// Deletes a database and its associated WAL and SHM files
+  private func deleteDatabaseFiles(at databaseURL: URL) {
+    try? fileManager.removeItem(at: databaseURL)
+    deleteAssociatedFiles(for: databaseURL)
   }
 
   /// Deletes associated WAL and SHM files for a given database URL

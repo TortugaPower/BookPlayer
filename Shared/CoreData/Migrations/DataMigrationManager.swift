@@ -16,9 +16,9 @@ public final class DataMigrationManager: BPLogger {
   private let storeURL: URL
   private var storeModel: NSManagedObjectModel?
 
-  public init() {
+  public init(storeURL: URL? = nil) {
     self.currentModel = .model(named: self.modelName)
-    let storeURL = FileManager.default.containerURL(
+    let storeURL = storeURL ?? FileManager.default.containerURL(
       forSecurityApplicationGroupIdentifier: Constants.ApplicationGroupIdentifier
     )!
     .appendingPathComponent("\(self.modelName).sqlite")
@@ -108,14 +108,8 @@ public final class DataMigrationManager: BPLogger {
   }
 
   public func cleanupStoreFile() {
-    let storeURL = self.storeURL
-    let fileManager = FileManager.default
-    let wal = storeURL.appendingPathComponent("-wal")
-    let shm = storeURL.appendingPathComponent("-shm")
-    // cleanup in case
-    try? fileManager.removeItem(at: wal)
-    try? fileManager.removeItem(at: shm)
-    try? fileManager.removeItem(at: storeURL)
+    try? FileManager.default.removeItem(at: self.storeURL)
+    cleanupAssociatedFiles()
   }
 
   /// Deletes associated WAL and SHM files for a given database URL

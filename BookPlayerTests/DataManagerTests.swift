@@ -120,3 +120,124 @@ class MigrationV11ToV12Tests: XCTestCase {
     )
   }
 }
+
+// MARK: - Database recovery
+
+class DatabaseRecoveryTests: XCTestCase {
+  private var folder: URL!
+
+  override func setUpWithError() throws {
+    folder = FileManager.default.temporaryDirectory
+      .appendingPathComponent("DatabaseRecoveryTests-\(UUID().uuidString)")
+    try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+  }
+
+  override func tearDownWithError() throws {
+    try FileManager.default.removeItem(at: folder)
+  }
+
+  private func write(_ content: String, to name: String) throws -> URL {
+    let url = folder.appendingPathComponent(name)
+    try Data(content.utf8).write(to: url)
+    return url
+  }
+
+  func testOutOfSpaceErrorsAreRecognized() {
+    let outOfSpace = [
+      NSError(domain: NSPOSIXErrorDomain, code: Int(ENOSPC)),
+      NSError(domain: NSCocoaErrorDomain, code: NSFileWriteOutOfSpaceError),
+      // GH #1324: what opening the store reported with no space left
+      NSError(
+        domain: NSCocoaErrorDomain,
+        code: NSFileWriteUnknownError,
+        userInfo: ["reason": "Failed to create file; code = 28"]
+      ),
+      NSError(domain: "NSSQLiteErrorDomain", code: 13),
+      NSError(
+        domain: NSCocoaErrorDomain,
+        code: NSPersistentStoreSaveError,
+        userInfo: ["NSSQLiteErrorDomain": 13]
+      ),
+      // A failed migration wraps the cause
+      NSError(
+        domain: NSCocoaErrorDomain,
+        code: NSMigrationError,
+        userInfo: [NSUnderlyingErrorKey: NSError(domain: NSPOSIXErrorDomain, code: Int(ENOSPC))]
+      ),
+    ]
+
+    for error in outOfSpace {
+      XCTAssertTrue(DatabaseInitializer.isOutOfSpaceError(error), "\(error)")
+    }
+  }
+
+  func testOtherErrorsAreNotOutOfSpace() {
+    let others = [
+      NSError(domain: NSPOSIXErrorDomain, code: Int(EACCES)),
+      NSError(domain: NSCocoaErrorDomain, code: NSFileWriteUnknownError),
+      NSError(
+        domain: NSCocoaErrorDomain,
+        code: NSFileWriteUnknownError,
+        userInfo: ["reason": "Failed to create file; code = 13"]
+      ),
+      // SQLITE_CORRUPT
+      NSError(domain: "NSSQLiteErrorDomain", code: 11),
+      NSError(domain: NSCocoaErrorDomain, code: NSMigrationError),
+    ]
+
+    for error in others {
+      XCTAssertFalse(DatabaseInitializer.isOutOfSpaceError(error), "\(error)")
+    }
+  }
+
+  /// A -wal left beside a fresh store belongs to the database that was reset
+  func testCleanupRemovesTheStoreAndItsJournalFiles() throws {
+    let storeURL = try write("store", to: "BookPlayer.sqlite")
+    let wal = try write("wal", to: "BookPlayer.sqlite-wal")
+    let shm = try write("shm", to: "BookPlayer.sqlite-shm")
+
+    DataMigrationManager(storeURL: storeURL).cleanupStoreFile()
+
+    for url in [storeURL, wal, shm] {
+      XCTAssertFalse(FileManager.default.fileExists(atPath: url.path), url.lastPathComponent)
+    }
+  }
+
+  /// GH #1541: a backup that can't be restored must not cost the library it was meant to replace
+  func testAFailedRestoreKeepsTheCurrentDatabase() async throws {
+    let databaseURL = try write("current library", to: "BookPlayer.sqlite")
+    let walURL = try write("recent changes", to: "BookPlayer.sqlite-wal")
+    let backupURL = try write("not a database", to: "backup.sqlite")
+
+    let restored = await DatabaseBackupService(databaseURL: databaseURL)
+      .restoreDatabase(from: backupURL)
+
+    XCTAssertFalse(restored)
+    XCTAssertEqual(try String(contentsOf: databaseURL, encoding: .utf8), "current library")
+    XCTAssertEqual(try String(contentsOf: walURL, encoding: .utf8), "recent changes")
+    XCTAssertEqual(try FileManager.default.contentsOfDirectory(atPath: folder.path).count, 3)
+  }
+
+  func testARestoreReplacesTheDatabaseWithTheBackup() async throws {
+    let databaseURL = folder.appendingPathComponent("BookPlayer.sqlite")
+    let backupURL = folder.appendingPathComponent("backup.sqlite")
+    let backupStack = CoreDataStack(testPath: backupURL.path)
+    _ = backupStack.managedContext
+    let staleWal = try write("stale", to: "BookPlayer.sqlite-wal")
+    try Data("current library".utf8).write(to: databaseURL)
+
+    let restored = await DatabaseBackupService(databaseURL: databaseURL)
+      .restoreDatabase(from: backupURL)
+
+    XCTAssertTrue(restored)
+    XCTAssertNotEqual(try Data(contentsOf: databaseURL), Data("current library".utf8))
+    XCTAssertNotEqual(try? Data(contentsOf: staleWal), Data("stale".utf8))
+    XCTAssertTrue(
+      try NSPersistentStoreCoordinator.metadataForPersistentStore(
+        ofType: NSSQLiteStoreType,
+        at: databaseURL,
+        options: nil
+      ).isEmpty == false
+    )
+  }
+}

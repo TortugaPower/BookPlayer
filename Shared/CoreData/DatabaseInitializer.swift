@@ -6,6 +6,7 @@
 //  Copyright © 2023 BookPlayer LLC. All rights reserved.
 //
 
+import CoreData
 import Foundation
 
 /// Wrapper for `DataMigrationManager` to simplify handling all the migrations
@@ -43,6 +44,38 @@ public class DatabaseInitializer: BPLogger {
   /// - Returns: true if at least one backup exists
   public func hasAvailableBackups() -> Bool {
     return databaseBackupService.getLatestBackup() != nil
+  }
+
+  /// Whether the store failed only because the device has no free space. It's intact then, so
+  /// resetting it or restoring an older backup would lose data to a problem that clears by itself
+  public static func isOutOfSpaceError(_ error: NSError) -> Bool {
+    /// `SQLITE_FULL`
+    let sqliteFull = 13
+
+    switch (error.domain, error.code) {
+    case (NSPOSIXErrorDomain, Int(ENOSPC)),
+      (NSCocoaErrorDomain, NSFileWriteOutOfSpaceError),
+      (NSSQLiteErrorDomain, sqliteFull):
+      return true
+    default:
+      break
+    }
+
+    if error.userInfo[NSSQLiteErrorDomain] as? Int == sqliteFull {
+      return true
+    }
+
+    /// Core Data fails to create a store's files with a generic write error, and only this text
+    /// carries the errno (GH #1324)
+    if let reason = error.userInfo["reason"] as? String, reason.hasSuffix("code = \(ENOSPC)") {
+      return true
+    }
+
+    if let underlyingError = error.userInfo[NSUnderlyingErrorKey] as? NSError {
+      return isOutOfSpaceError(underlyingError)
+    }
+
+    return false
   }
 
   /// Attempt to restore database from the latest backup
