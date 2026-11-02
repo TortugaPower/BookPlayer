@@ -44,10 +44,7 @@ class DataInitializerCoordinator: BPLogger {
   }
 
   func handleError(_ error: NSError) async {
-    if error.domain == NSPOSIXErrorDomain
-      && (error.code == ENOSPC
-        || error.code == NSFileWriteOutOfSpaceError)
-    {
+    if DatabaseInitializer.isOutOfSpaceError(error) {
       // CoreData may fail if device doesn't have space
       await MainActor.run {
         alertPresenter.showAlert(
