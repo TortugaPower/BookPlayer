@@ -28,14 +28,7 @@ class AppNavigationController: UINavigationController, Storyboarded {
   }
 
   override var supportedInterfaceOrientations: UIInterfaceOrientationMask {
-    if UserDefaults.standard.object(forKey: Constants.UserDefaults.orientationLock) != nil,
-       let orientation = UIDeviceOrientation(rawValue: UserDefaults.standard.integer(forKey: Constants.UserDefaults.orientationLock)) {
-      return (orientation == .landscapeLeft || orientation == .landscapeRight)
-      ? .landscape
-      : .portrait
-    } else {
-      return .all
-    }
+    OrientationLock.supportedOrientations()
   }
 
   override func viewDidLoad() {

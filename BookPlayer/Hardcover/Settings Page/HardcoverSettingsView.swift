@@ -22,7 +22,7 @@ struct HardcoverSettingsView: View {
     Form {
       ThemedSection {
         TextField(
-          "Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXV…",
+          "hc_pat_…",
           text: $viewModel.accessToken
         )
         .foregroundStyle(theme.primaryColor)
@@ -34,7 +34,7 @@ struct HardcoverSettingsView: View {
           isTextFieldFocused = false
         }
         .onChange(of: viewModel.accessToken) { _, new in
-          isValid = new.isEmpty || !new.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+          isValid = new.isEmpty || !HardcoverService.apiKey(from: new).isEmpty
         }
       } header: {
         Text("hardcover_api_access_title".localized)
@@ -83,8 +83,11 @@ struct HardcoverSettingsView: View {
         Text("hardcover_progress_tracking_title".localized)
           .foregroundStyle(theme.secondaryColor)
       } footer: {
-        Text("hardcover_progress_tracking_footer".localized)
-          .foregroundStyle(theme.secondaryColor)
+        /// Its "Currently Reading" is Markdown bold, which `Text` only reads in a literal
+        if let attributedString = try? AttributedString(markdown: "hardcover_progress_tracking_footer".localized) {
+          Text(attributedString)
+            .foregroundStyle(theme.secondaryColor)
+        }
       }
       .navigationBarTitleDisplayMode(.inline)
 

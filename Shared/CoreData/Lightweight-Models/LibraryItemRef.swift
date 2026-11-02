@@ -22,3 +22,15 @@ public struct LibraryItemRef: Equatable, Hashable {
     self.uuid = uuid
   }
 }
+
+/// What a move did: the items it moved, and those it left where they were because their name is
+/// taken at the destination. An item gone from the library is in neither.
+public struct MoveOutcome: Equatable {
+  public let moved: [LibraryItemRef]
+  public let notMoved: [LibraryItemRef]
+
+  public init(moved: [LibraryItemRef], notMoved: [LibraryItemRef]) {
+    self.moved = moved
+    self.notMoved = notMoved
+  }
+}

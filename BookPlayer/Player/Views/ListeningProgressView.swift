@@ -38,34 +38,44 @@ struct ListeningProgressView: View {
       )
       .frame(height: 18)
       
+      /// The times come first: each side takes the width of the longer one (the other is laid out
+      /// hidden), so they stay on one line and the label between them stays centered. That label
+      /// is the one that gives way when the row is short; only at the largest text sizes, when
+      /// even the times don't fit, do they wrap
       HStack {
-        Text(currentTime)
-          .bpFont(.miniPlayerTitle).monospacedDigit()
-          .frame(maxWidth: .infinity, alignment: .leading)
-          .accessibilityLabel(currentTimeAccessLabel)
-          .accessibilityIdentifier("player.currentTime")
-        
-        Spacer()
-        
+        ZStack(alignment: .leading) {
+          Text(remainingTime)
+            .hidden()
+          Text(currentTime)
+            .accessibilityLabel(currentTimeAccessLabel)
+            .accessibilityIdentifier("player.currentTime")
+        }
+        .bpFont(.miniPlayerTitle).monospacedDigit()
+        .layoutPriority(1)
+
         Button {
           onProgressToggle?()
         } label: {
           Text(progressLabel)
             .lineLimit(1)
+            /// The end ("3 of 6") is the part worth keeping
+            .truncationMode(.head)
             .bpFont(.miniPlayerTitle)
             .animation(nil, value: progressLabel)
         }
-        .layoutPriority(1)
-        
-        Spacer()
-        
+        .frame(maxWidth: .infinity)
+
         Button {
           onRemainingToggle?()
         } label: {
-          Text(remainingTime)
-            .bpFont(.miniPlayerTitle).monospacedDigit()
-            .frame(maxWidth: .infinity, alignment: .trailing)
+          ZStack(alignment: .trailing) {
+            Text(currentTime)
+              .hidden()
+            Text(remainingTime)
+          }
+          .bpFont(.miniPlayerTitle).monospacedDigit()
         }
+        .layoutPriority(1)
         .accessibilityLabel(remainingTimeAccessLabel)
       }
       .foregroundColor(.secondary)

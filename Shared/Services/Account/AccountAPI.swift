@@ -62,9 +62,9 @@ extension AccountAPI: Endpoint {
 struct LoginResponse: Decodable {
   let email: String
   let token: String
-  /// The account's canonical RevenueCat id (its `external_id`), resolved server-side.
-  /// Optional to stay decodable against older API responses that omit it.
-  let revenuecatId: String?
+  /// The account's canonical RevenueCat id (its `external_id`), resolved server-side. Every
+  /// login answer carries it, and every account has one
+  let revenuecatId: String
 
   enum CodingKeys: String, CodingKey {
     case email

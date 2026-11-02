@@ -15,7 +15,7 @@ struct ProfileView: View {
   @Environment(\.accountService) private var accountService
   @Environment(\.playerState) private var playerState
   @EnvironmentObject private var theme: ThemeViewModel
-
+  
   var body: some View {
     NavigationStack(path: $path) {
       VStack(spacing: 0) {
@@ -26,7 +26,7 @@ struct ProfileView: View {
         }
 
         Spacer()
-
+        
         if accountService.account.hasSubscription,
           !accountService.account.id.isEmpty
         {
@@ -43,8 +43,8 @@ struct ProfileView: View {
         switch destination {
         case .account:
           AccountView()
-        case .tasks:
-          QueuedSyncTasksView()
+        case .queueTasks:
+          QueuedTasksView()
             .miniPlayerSafeAreaInset()
         }
       }

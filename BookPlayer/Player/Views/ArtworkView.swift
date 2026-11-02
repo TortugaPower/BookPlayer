@@ -18,7 +18,9 @@ struct ArtworkView: View {
   var imagePath: String?
   /// Item to offer SharePlay for; the button is hidden when nil.
   var sharePlayItem: PlayableItem?
-  
+  /// Where the square sits when it's narrower than the space it's given
+  var alignment: Alignment = .center
+
   var body: some View {
     ZStack(alignment: .top) {
       ZStack {
@@ -111,7 +113,7 @@ struct ArtworkView: View {
       .cornerRadius(12)
       .clipped()
     }
-    .frame(maxWidth: .infinity, maxHeight: .infinity)
+    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: alignment)
   }
 }
 

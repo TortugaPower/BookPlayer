@@ -13,6 +13,7 @@ class CoreServices: ObservableObject {
   let dataManager: DataManager
   let accountService: AccountServiceProtocol
   var syncService: SyncServiceProtocol
+  var syncQueueService: SyncQueueServiceProtocol
   let libraryService: LibraryService
   let playbackService: PlaybackServiceProtocol
   let playerManager: PlayerManager
@@ -29,6 +30,7 @@ class CoreServices: ObservableObject {
     dataManager: DataManager,
     accountService: AccountServiceProtocol,
     syncService: SyncServiceProtocol,
+    syncQueueService: SyncQueueServiceProtocol,
     libraryService: LibraryService,
     playbackService: PlaybackServiceProtocol,
     playerManager: PlayerManager,
@@ -39,6 +41,7 @@ class CoreServices: ObservableObject {
     self.dataManager = dataManager
     self.accountService = accountService
     self.syncService = syncService
+    self.syncQueueService = syncQueueService
     self.libraryService = libraryService
     self.playbackService = playbackService
     self.hasSyncEnabled = accountService.hasSyncEnabled()
@@ -50,10 +53,13 @@ class CoreServices: ObservableObject {
 
   func checkAndReloadIfSyncIsEnabled() {
     self.hasSyncEnabled = accountService.hasSyncEnabled()
+    // SyncQueueService re-derives its own policy from .accountUpdate (posted by the
+    // Shared AccountService update this flow just ran) — no manual forwarding needed.
   }
 
   func updateSyncEnabled(_ enabled: Bool) {
     hasSyncEnabled = enabled
     syncService.updateSyncEnabled(enabled)
   }
+
 }

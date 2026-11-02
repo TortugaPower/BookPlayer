@@ -7,48 +7,8 @@
 //
 
 import Foundation
-import Combine
 
-/// Reference: https://www.avanderlee.com/swift/asynchronous-operations/
-class LibraryItemSyncOperation: Operation, BPLogger {
-  // MARK: - Async operation properties
-
-  private var cellularDataObserver: NSKeyValueObservation?
-  private let lockQueue = DispatchQueue(label: "com.bookplayer.asyncoperation.synctask", attributes: .concurrent)
-  override var isAsynchronous: Bool { true }
-
-  private var _isExecuting: Bool = false
-  override private(set) var isExecuting: Bool {
-    get {
-      return lockQueue.sync { () -> Bool in
-        return _isExecuting
-      }
-    }
-    set {
-      willChangeValue(forKey: "isExecuting")
-      lockQueue.sync(flags: [.barrier]) {
-        _isExecuting = newValue
-      }
-      didChangeValue(forKey: "isExecuting")
-    }
-  }
-
-  private var _isFinished: Bool = false
-  override private(set) var isFinished: Bool {
-    get {
-      return lockQueue.sync { () -> Bool in
-        return _isFinished
-      }
-    }
-    set {
-      willChangeValue(forKey: "isFinished")
-      lockQueue.sync(flags: [.barrier]) {
-        _isFinished = newValue
-      }
-      didChangeValue(forKey: "isFinished")
-    }
-  }
-
+class LibraryItemSyncOperation: AsyncOperation, BPLogger, @unchecked Sendable {
   // MARK: - Library sync properties
 
   let client: NetworkClientProtocol
@@ -57,19 +17,46 @@ class LibraryItemSyncOperation: Operation, BPLogger {
   let uuid: String
   let jobType: SyncJobType
   let parameters: [String: Any]
-  var results: ApiResponse?
-  var error: Error?
-  
-  private var progressSubscriber: AnyCancellable?
-  private var completionSubscriber: AnyCancellable?
+  /// Whether the account's tier stores files in S3 (PRO). A book's `synced` means "its file
+  /// is in S3", so on any other tier the app never confirms one
+  let canUploadFiles: Bool
 
+  /// Written from the operation's detached Task (and `cancel()`), read from the
+  /// queue-thread completionBlock — lock-guarded like the base class's `didSucceed`
+  /// so the reads have a happens-before edge with the writes.
+  private let propertyLock = NSLock()
+  private var _results: ApiResponse?
+  var results: ApiResponse? {
+    get {
+      propertyLock.lock(); defer { propertyLock.unlock() }
+      return _results
+    }
+    set {
+      propertyLock.lock(); defer { propertyLock.unlock() }
+      _results = newValue
+    }
+  }
+  private var _error: Error?
+  var error: Error? {
+    get {
+      propertyLock.lock(); defer { propertyLock.unlock() }
+      return _error
+    }
+    set {
+      propertyLock.lock(); defer { propertyLock.unlock() }
+      _error = newValue
+    }
+  }
+  
   /// Initializer
   /// - Parameters:
   ///   - client: Network client
   ///   - task: Sync task to be handled in the operation
+  ///   - canUploadFiles: Whether the account's tier stores files in S3
   init(
     client: NetworkClientProtocol,
-    task: SyncTask
+    task: SyncTask,
+    canUploadFiles: Bool
   ) {
     self.client = client
     self.provider = NetworkProvider(client: client)
@@ -77,23 +64,40 @@ class LibraryItemSyncOperation: Operation, BPLogger {
     self.jobType = task.jobType
     self.parameters = task.parameters
     self.uuid = task.uuid
+    self.canUploadFiles = canUploadFiles
   }
 
-  override func start() {
-    guard !isCancelled else {
-      finish()
-      return
+  /// Written in main() on the queue thread, read/cancelled by cancel() from any thread
+  /// (logout/lapse) — same lock discipline as error/results, or cancel() can read a
+  /// stale nil and skip cancelling the in-flight Task.
+  private var _executionTask: Task<Void, Never>?
+  private var executionTask: Task<Void, Never>? {
+    get {
+      propertyLock.lock(); defer { propertyLock.unlock() }
+      return _executionTask
     }
-
-    isFinished = false
-    isExecuting = true
-    main()
+    set {
+      propertyLock.lock(); defer { propertyLock.unlock() }
+      _executionTask = newValue
+    }
   }
 
   // TODO: split into separate Operations
   override func main() {
-    Task {
+    executionTask = Task {
       do {
+        // Two flags cover every cancel interleaving — an in-flight op must not finish
+        // a PUT or post confirmations under the NEXT signed-in account's token
+        // (NetworkClient reads the keychain token per request):
+        // 1. cancel() ran BEFORE this Task existed (the start()→assignment window):
+        //    executionTask was nil there, so only the OPERATION flag catches it.
+        guard !isCancelled else {
+          finish()
+          return
+        }
+        // 2. cancel() ran after: the propertyLock guarantees it saw the Task and set
+        //    the TASK flag — checked here and at every URLSession suspension point.
+        try Task.checkCancellation()
         switch jobType {
         case .upload:
           guard
@@ -141,6 +145,26 @@ class LibraryItemSyncOperation: Operation, BPLogger {
         case .matchUuid:
           try await handleMatchUuids()
           finish()
+        case .externalResource:
+          let _: Empty = try await self.provider.request(.externalResource(params: self.parameters))
+          finish()
+        case .externalResourceToDownload:
+          try await handleExternalResourceToDownload()
+          finish()
+        case .deleteExternalResource:
+          guard
+            let providerName = parameters["providerName"] as? String,
+            let providerId = parameters["providerId"] as? String
+          else {
+            throw BookPlayerError.runtimeError("Missing parameters for deleting an external resource")
+          }
+          let _: Empty = try await self.provider.request(
+            .deleteExternalResource(uuid: uuid, providerName: providerName, providerId: providerId)
+          )
+          finish()
+        case .externalUpdate, .uploadFile:
+          /// Handled by their dedicated operations, never routed here
+          throw BookPlayerError.runtimeError("Unsupported job type for sync operation: \(jobType.rawValue)")
         }
       } catch {
         self.error = error
@@ -149,9 +173,21 @@ class LibraryItemSyncOperation: Operation, BPLogger {
     }
   }
 
-  func finish() {
-    isExecuting = false
-    isFinished = true
+  override func finish() {
+    didSucceed = error == nil
+    super.finish()
+  }
+
+  override func cancel() {
+    super.cancel()
+    // Mark failed BEFORE finishing so a logout-cancelled op can never be treated
+    // as succeeded, then release the queue slot; finish() is idempotent, so the
+    // cancelled Task's own finish() later is a no-op.
+    if error == nil {
+      error = BookPlayerError.cancelledTask
+    }
+    executionTask?.cancel()
+    if isExecuting { finish() }
   }
 }
 
@@ -159,11 +195,20 @@ class LibraryItemSyncOperation: Operation, BPLogger {
 
 extension LibraryItemSyncOperation {
   func handleUploadJob(type: SimpleItemType) async throws {
-    let response: UploadItemResponse = try await provider.request(.upload(params: parameters))
-
+    /// `provider` is client-side metadata (gates the follow-up file upload); keep it out of the request
+    let uploadParams = parameters.filter { $0.key != "provider" }
+    let response: UploadItemResponse = try await provider.request(.upload(params: uploadParams))
     guard let remoteURL = response.content.url else {
-      /// The file is already present in the storage
-      try await markUploadAsSynced(uuid: self.uuid)
+      /// The file is already present in the storage (or the tier doesn't store files): the
+      /// book's hard link scheduled for the upload will never be read
+      if type == .book {
+        SyncJobScheduler.removeHardLink(at: SyncJobScheduler.hardLinkURL(for: self.relativePath))
+      }
+      /// Without S3 access no URL only means "this tier stores no file", so a book stays
+      /// unconfirmed: it's what lets its file go up if the account becomes PRO
+      if type != .book || canUploadFiles {
+        try await markUploadAsSynced(uuid: self.uuid)
+      }
       finish()
       return
     }
@@ -180,7 +225,7 @@ extension LibraryItemSyncOperation {
       return
     }
 
-    let hardLinkURL = FileManager.default.temporaryDirectory.appendingPathComponent(self.relativePath)
+    let hardLinkURL = SyncJobScheduler.hardLinkURL(for: self.relativePath)
 
     /// Prefer the hard link URL and fallback to recorded item path
     /// Note: the recorded item path may not have the item if the user moved it
@@ -196,114 +241,10 @@ extension LibraryItemSyncOperation {
       return
     }
 
-    await uploadFile(
-      fileURL: fileURL,
-      remoteURL: remoteURL,
-      relativePath: self.relativePath
-    )
-  }
-
-  /// Upload file on a background thread
-  func uploadFile(
-    fileURL: URL,
-    remoteURL: URL,
-    relativePath: String
-  ) async {
-    let session: URLSession = UserDefaults.standard.bool(forKey: Constants.UserDefaults.allowCellularData)
-    ? BPURLSession.shared.backgroundCellularSession
-    : BPURLSession.shared.backgroundSession
-
-    let uploadTask = await self.client.uploadTask(
-      fileURL,
-      remoteURL: remoteURL,
-      taskDescription: relativePath,
-      session: session
-    )
-
-    bindUploadObservers()
-
-    cellularDataObserver?.invalidate()
-    cellularDataObserver = UserDefaults.standard.observe(
-      \.userSettingsAllowCellularData,
-       options: [.new]
-    ) { [weak self] _, change in
-      guard let newValue = change.newValue else { return }
-
-      let previousSession: URLSession = newValue
-      ? BPURLSession.shared.backgroundSession
-      : BPURLSession.shared.backgroundCellularSession
-
-      self?.rescheduleUploadFile(
-        fileURL: fileURL,
-        remoteURL: remoteURL,
-        relativePath: relativePath,
-        previousSession: previousSession
-      )
-    }
-
-    uploadTask.resume()
-  }
-
-  func bindUploadObservers() {
-    progressSubscriber?.cancel()
-    progressSubscriber = BPURLSession.shared.progressPublisher.sink(receiveValue: { [uuid, relativePath] (path, progress) in
-      guard path == relativePath else { return }
-      NotificationCenter.default.post(
-        name: .uploadProgressUpdated,
-        object: nil,
-        userInfo: [
-          "progress": progress,
-          "relativePath": path,
-          "uuid": uuid
-        ]
-      )
-    })
-
-    completionSubscriber?.cancel()
-    completionSubscriber = BPURLSession.shared.completionPublisher.sink(receiveValue: { [weak self] (task, error) in
-      self?.cellularDataObserver?.invalidate()
-      if let nserror = error as? NSError,
-         nserror.domain == NSURLErrorDomain,
-         nserror.code == NSURLErrorCancelled {
-        /// Do nothing, as the task is already being rescheduled
-      } else if let error {
-        self?.error = error
-        self?.finish()
-      } else {
-        self?.handleUploadFinished(task)
-      }
-    })
-  }
-
-  func rescheduleUploadFile(
-    fileURL: URL,
-    remoteURL: URL,
-    relativePath: String,
-    previousSession: URLSession
-  ) {
-    Task {
-      let task = await previousSession.allTasks.filter({ $0.taskDescription == relativePath }).first
-      task?.cancel()
-
-      await self.uploadFile(
-        fileURL: fileURL,
-        remoteURL: remoteURL,
-        relativePath: relativePath
-      )
-    }
-  }
-
-  func handleUploadFinished(_ task: URLSessionTask) {
-    Task { [task] in
-      do {
-        try await markUploadAsSynced(uuid: uuid)
-        NotificationCenter.default.post(name: .uploadCompleted, object: task)
-        finish()
-      } catch {
-        self.error = error
-        finish()
-      }
-    }
+    // The URL only says the server needs the bytes: the upload lane sends them as a
+    // multipart upload, and the server marks the row synced when it assembles the file
+    results = .uploadMetadata(UploadResponse(uuid: self.uuid, filePath: fileURL.absoluteString, relativePath: self.relativePath))
+    finish()
   }
 
   func markUploadAsSynced(uuid: String) async throws {
@@ -373,6 +314,25 @@ extension LibraryItemSyncOperation {
 
     let _: Empty = try await self.provider.request(
       .uploadArtwork(path: relativePath, filename: filename, uploaded: true, uuid: uuid)
+    )
+  }
+}
+
+extension LibraryItemSyncOperation {
+  /// A media-server book finished downloading on a PRO account: its file goes to S3 like
+  /// any book's, through the upload lane. Run from the sync lane so it follows the task
+  /// that created the item's row; `complete` marks its media-server resources downloaded.
+  func handleExternalResourceToDownload() async throws {
+    let hardLinkURL = SyncJobScheduler.hardLinkURL(for: self.relativePath)
+    let fileURL = FileManager.default.fileExists(atPath: hardLinkURL.path)
+      ? hardLinkURL
+      : DataManager.getProcessedFolderURL().appendingPathComponent(self.relativePath)
+
+    // No file (or no uuid to name the book by): nothing to upload, and retrying can't heal it
+    guard !uuid.isEmpty, FileManager.default.fileExists(atPath: fileURL.path) else { return }
+
+    results = .uploadMetadata(
+      UploadResponse(uuid: uuid, filePath: fileURL.absoluteString, relativePath: relativePath)
     )
   }
 }

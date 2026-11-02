@@ -67,7 +67,12 @@ struct BPFontModifier: ViewModifier {
 
   /// Scale factor for macOS (1.0 to 1.6 based on slider position 0-6)
   private var macOSScaleFactor: CGFloat {
-    1.0 + (textScaleIndex * 0.1)
+    Self.macOSScaleFactor(forIndex: textScaleIndex)
+  }
+
+  /// The Text Size setting's factor on a Mac, where it stands in for Dynamic Type
+  static func macOSScaleFactor(forIndex index: Double) -> CGFloat {
+    1.0 + (index * 0.1)
   }
 
   func body(content: Content) -> some View {
@@ -104,22 +109,17 @@ struct ItemListSearchableModifier: ViewModifier {
   @Binding var selectedScope: ItemListSearchScope
 
   func body(content: Content) -> some View {
-    if #available(iOS 26.0, *), UIDevice.current.userInterfaceIdiom == .phone {
-      /// New tab bar role handles searches
-      content
-    } else {
-      content
-        .searchable(
-          text: $text,
-          isPresented: $isSearchFocused,
-          prompt: prompt
-        )
-        .searchScopes($selectedScope) {
-          ForEach(ItemListSearchScope.allCases) { scope in
-            Text(scope.title).tag(scope)
-          }
+    content
+      .searchable(
+        text: $text,
+        isPresented: $isSearchFocused,
+        prompt: prompt
+      )
+      .searchScopes($selectedScope) {
+        ForEach(ItemListSearchScope.allCases) { scope in
+          Text(scope.title).tag(scope)
         }
-    }
+      }
   }
 }
 
@@ -142,35 +142,14 @@ extension View {
 }
 
 struct MiniPlayerSafeAreaInsetModifier: ViewModifier {
-  @Environment(\.playerState) var playerState
-  @Environment(\.miniPlayerBottomInset) private var miniPlayerBottomInset
   @StateObject private var keyboardObserver = KeyboardObserver()
 
-  private var spacerHeight: CGFloat {
-    // When keyboard is visible, let iOS handle the safe area adjustment
-    guard !keyboardObserver.isKeyboardVisible else { return 0 }
-
-    return playerState.loadedBookRelativePath != nil ? miniPlayerBottomInset : Spacing.M
-  }
-
+  /// The tab view's bottom accessory already insets the content for the mini player
   func body(content: Content) -> some View {
-    if #available(iOS 26.1, *) {
-      content
-        .safeAreaInset(edge: .bottom) {
-          Spacer().frame(height: spacerHeight)
-        }
-    } else if #available(iOS 26.0, *) {
-      /// New accessory view already insets the entire view
-      content
-        .safeAreaInset(edge: .bottom) {
-          Spacer().frame(height: keyboardObserver.isKeyboardVisible ? 0 : Spacing.M)
-        }
-    } else {
-      content
-        .safeAreaInset(edge: .bottom) {
-          Spacer().frame(height: spacerHeight)
-        }
-    }
+    content
+      .safeAreaInset(edge: .bottom) {
+        Spacer().frame(height: keyboardObserver.isKeyboardVisible ? 0 : Spacing.M)
+      }
   }
 }
 
@@ -193,109 +172,37 @@ extension View {
   }
 }
 
-// MARK: - Tab Bar Height Reader
+// MARK: - Mini Player
 
-/// Reads the actual UITabBar height from UIKit to avoid hardcoding tab bar dimensions.
-/// On iOS 26+ with liquid glass, the tab bar can be taller than the traditional 49pt.
-struct TabBarHeightReader: UIViewControllerRepresentable {
-  let onHeightChange: (CGFloat) -> Void
-
-  func makeUIViewController(context: Context) -> TabBarHeightReaderController {
-    let controller = TabBarHeightReaderController()
-    controller.onHeightChange = onHeightChange
-    return controller
-  }
-
-  func updateUIViewController(_ controller: TabBarHeightReaderController, context: Context) {
-    controller.onHeightChange = onHeightChange
-  }
-
-  class TabBarHeightReaderController: UIViewController {
-    var onHeightChange: ((CGFloat) -> Void)?
-    private var lastContentHeight: CGFloat = 0
-
-    override func viewDidLayoutSubviews() {
-      super.viewDidLayoutSubviews()
-      guard let tabBar = tabBarController?.tabBar else { return }
-      let windowBottomSafeArea = view.window?.safeAreaInsets.bottom ?? 0
-      let contentHeight = tabBar.frame.height - windowBottomSafeArea
-      guard contentHeight > 0,
-            abs(contentHeight - lastContentHeight) > 1 else { return }
-      lastContentHeight = contentHeight
-      onHeightChange?(contentHeight)
-    }
-  }
-}
-
-// MARK: - Mini Player Layout
-
-struct MiniPlayerSizePreferenceKey: PreferenceKey {
-  static var defaultValue: CGSize = .zero
-  static func reduce(value: inout CGSize, nextValue: () -> CGSize) {
-    value = nextValue()
-  }
-}
-
-struct MiniPlayerModifier<Regular: View, Accessory: View>: ViewModifier {
-  @ViewBuilder let regular: () -> Regular
+struct MiniPlayerModifier<Accessory: View>: ViewModifier {
+  let isEnabled: Bool
   @ViewBuilder let accessory: () -> Accessory
 
-  @Environment(\.horizontalSizeClass) var hSize
-  @Environment(\.tabBarContentHeight) var tabBarContentHeight
-  @State private var miniPlayerBottomInset: CGFloat = 80
-
   func body(content: Content) -> some View {
-    iOSBody(content)
-  }
-
-  @ViewBuilder
-  private func iOSBody(_ content: Content) -> some View {
     if #available(iOS 26.1, *) {
-      defaultBody(content)
-    } else if #available(iOS 26.0, *) {
+      /// Since 26.1 an accessory with empty content still shows as an empty bar
       content
         .tabBarMinimizeBehavior(.onScrollDown)
-        .tabViewBottomAccessory(content: accessory)
+        .tabViewBottomAccessory(isEnabled: isEnabled, content: accessory)
     } else {
-      defaultBody(content)
+      /// 26.0 hides the accessory when its content is empty
+      content
+        .tabBarMinimizeBehavior(.onScrollDown)
+        .tabViewBottomAccessory {
+          if isEnabled {
+            accessory()
+          }
+        }
     }
   }
-
-  @ViewBuilder
-  private func defaultBody(_ content: Content) -> some View {
-    content
-      .overlay(alignment: .bottom) {
-        regular()
-          .fixedSize(horizontal: false, vertical: true)
-          .overlay(
-            GeometryReader { geo in
-              Color.clear.preference(
-                key: MiniPlayerSizePreferenceKey.self,
-                value: geo.size
-              )
-            }
-          )
-      }
-      .onPreferenceChange(MiniPlayerSizePreferenceKey.self) {
-        guard $0.height > 0 else { return }
-        let miniPlayerHeight = $0.height
-        let topPadding: CGFloat = 20
-        // In compact width (iPhone, iPad split/slide-over), reduce inset by tab bar
-        // content height since the mini player's own bottom padding already clears it
-        let reduceSize = hSize == .compact ? tabBarContentHeight : 0
-        let reduceTopPadding = miniPlayerHeight > reduceSize ? reduceSize : 0
-        miniPlayerBottomInset = miniPlayerHeight + topPadding - reduceTopPadding
-      }
-      .environment(\.miniPlayerBottomInset, miniPlayerBottomInset)
-  }
-
 }
+
 extension View {
-  func miniPlayer<Regular: View, Accessory: View>(
-    @ViewBuilder regularContent: @escaping () -> Regular,
-    @ViewBuilder accessoryContent: @escaping () -> Accessory
+  func miniPlayer<Accessory: View>(
+    isEnabled: Bool,
+    @ViewBuilder content: @escaping () -> Accessory
   ) -> some View {
-    self.modifier(MiniPlayerModifier<Regular, Accessory>(regular: regularContent, accessory: accessoryContent))
+    self.modifier(MiniPlayerModifier(isEnabled: isEnabled, accessory: content))
   }
 }
 
@@ -333,12 +240,13 @@ extension View {
 }
 
 extension View {
-  @ViewBuilder
+  /// Glass in an explicit rounded rect rather than the default capsule, for panels that span
+  /// a width instead of floating as a pill.
+  func glassCard(cornerRadius: CGFloat = 16) -> some View {
+    glassEffect(in: .rect(cornerRadius: cornerRadius))
+  }
+
   func liquidGlassBackground() -> some View {
-    if #available(iOS 26.0, *) {
-      glassEffect()
-    } else {
-      background(.ultraThinMaterial)
-    }
+    glassEffect()
   }
 }

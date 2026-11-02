@@ -20,5 +20,7 @@ struct CoreServices {
   let preferencesService: PreferencesSyncService
   let sharePlayCoordinator: SharePlayCoordinator
   let syncService: SyncService
+  let syncQueueService: SyncQueueService
+  let mediaServerChapterService: MediaServerChapterRefreshService
   let watchService: PhoneWatchConnectivityService
 }

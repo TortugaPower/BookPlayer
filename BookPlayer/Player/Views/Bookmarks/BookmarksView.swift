@@ -9,6 +9,8 @@
 import BookPlayerKit
 import SwiftUI
 
+/// The current book's bookmarks. Whatever shows it (a sheet, the panel beside the player)
+/// provides the navigation stack and the way out
 struct BookmarksView: View {
   @AppStorage(Constants.UserDefaults.isAutomaticBookmarksSectionCollapsed)
   private var isAutomaticBookmarksSectionCollapsed: Bool = false
@@ -19,7 +21,8 @@ struct BookmarksView: View {
   @State private var bookmarkToDelete: SimpleBookmark?
   @State private var noteText: String = ""
 
-  @Environment(\.dismiss) private var dismiss
+  /// Called after a bookmark is picked, e.g. to close the sheet the list is in
+  private let onSelect: () -> Void
 
   var deleteAlertTitle: String {
     if let bookmarkToDelete {
@@ -29,130 +32,120 @@ struct BookmarksView: View {
     }
   }
 
-  init(initModel: @escaping () -> Self.Model) {
+  init(onSelect: @escaping () -> Void = {}, initModel: @escaping () -> Self.Model) {
+    self.onSelect = onSelect
     self._model = .init(wrappedValue: initModel())
   }
 
   var body: some View {
-    NavigationStack {
-      List {
-        // Automatic bookmarks section
-        Section(
-          isExpanded: $isAutomaticBookmarksSectionCollapsed,
-          content: {
-            ForEach(model.automaticBookmarks) { bookmark in
-              bookmarkRow(bookmark)
-            }
-          },
-          header: {
-            Text("bookmark_type_automatic_title")
-              .foregroundStyle(theme.primaryColor)
-          }
-        )
-
-        // User bookmarks section
-        ThemedSection {
-          ForEach(model.userBookmarks) { bookmark in
+    List {
+      // Automatic bookmarks section
+      Section(
+        isExpanded: $isAutomaticBookmarksSectionCollapsed,
+        content: {
+          ForEach(model.automaticBookmarks) { bookmark in
             bookmarkRow(bookmark)
-              .swipeActions(edge: .trailing, allowsFullSwipe: false) {
-                Button(role: .destructive) {
-                  bookmarkToDelete = bookmark
-                } label: {
-                  Image(systemName: "trash")
-                }
-                .tint(.red)
-                .accessibilityLabel("delete_button")
-
-                Button {
-                  noteText = bookmark.note ?? ""
-                  showingNoteAlert = bookmark
-                } label: {
-                  Image(systemName: "pencil")
-                }
-                .accessibilityLabel("bookmark_note_edit_title")
-              }
-              .macContextMenu {
-                Button {
-                  noteText = bookmark.note ?? ""
-                  showingNoteAlert = bookmark
-                } label: {
-                  Label("bookmark_note_edit_title", systemImage: "pencil")
-                }
-
-                Button(role: .destructive) {
-                  bookmarkToDelete = bookmark
-                } label: {
-                  Label("delete_button", systemImage: "trash")
-                }
-              }
           }
-        } header: {
-          Text("bookmark_type_user_title")
+        },
+        header: {
+          Text("bookmark_type_automatic_title")
             .foregroundStyle(theme.primaryColor)
         }
+      )
+
+      // User bookmarks section
+      ThemedSection {
+        ForEach(model.userBookmarks) { bookmark in
+          bookmarkRow(bookmark)
+            .swipeActions(edge: .trailing, allowsFullSwipe: false) {
+              Button(role: .destructive) {
+                bookmarkToDelete = bookmark
+              } label: {
+                Image(systemName: "trash")
+              }
+              .tint(.red)
+              .accessibilityLabel("delete_button")
+
+              Button {
+                noteText = bookmark.note ?? ""
+                showingNoteAlert = bookmark
+              } label: {
+                Image(systemName: "pencil")
+              }
+              .accessibilityLabel("bookmark_note_edit_title")
+            }
+            .macContextMenu {
+              Button {
+                noteText = bookmark.note ?? ""
+                showingNoteAlert = bookmark
+              } label: {
+                Label("bookmark_note_edit_title", systemImage: "pencil")
+              }
+
+              Button(role: .destructive) {
+                bookmarkToDelete = bookmark
+              } label: {
+                Label("delete_button", systemImage: "trash")
+              }
+            }
+        }
+      } header: {
+        Text("bookmark_type_user_title")
+          .foregroundStyle(theme.primaryColor)
       }
-      .environmentObject(theme)
-      .listStyle(.sidebar)
-      .applyListStyle(with: theme, background: theme.systemBackgroundColor)
-      .navigationTitle("bookmarks_title")
-      .navigationBarTitleDisplayMode(.inline)
-      .toolbar {
-        ToolbarItem(placement: .cancellationAction) {
-          Button {
-            dismiss()
-          } label: {
-            Image(systemName: "xmark")
+    }
+    .environmentObject(theme)
+    .listStyle(.sidebar)
+    .applyListStyle(with: theme, background: theme.systemBackgroundColor)
+    .navigationTitle("bookmarks_title")
+    .navigationBarTitleDisplayMode(.inline)
+    .toolbar {
+      ToolbarItem(placement: .primaryAction) {
+        if let currentItem = model.currentItem {
+          ShareLink(
+            item: BookmarksFileTransferable(
+              currentItem: currentItem,
+              bookmarks: model.userBookmarks
+            ),
+            preview: SharePreview(
+              "bookmarks_title".localized + " \(currentItem.title).txt",
+              image: Image(systemName: "bookmark")
+            )
+          ) {
+            Image(systemName: "square.and.arrow.up")
               .foregroundStyle(theme.linkColor)
           }
         }
-
-        ToolbarItem(placement: .confirmationAction) {
-          if let currentItem = model.currentItem {
-            ShareLink(
-              item: BookmarksFileTransferable(
-                currentItem: currentItem,
-                bookmarks: model.userBookmarks
-              ),
-              preview: SharePreview(
-                "bookmarks_title".localized + " \(currentItem.title).txt",
-                image: Image(systemName: "bookmark")
-              )
-            ) {
-              Image(systemName: "square.and.arrow.up")
-                .foregroundStyle(theme.linkColor)
-            }
-          }
-        }
       }
-      .alert(
-        "bookmark_note_action_title",
-        isPresented: Binding(
-          get: { showingNoteAlert != nil },
-          set: { if !$0 { showingNoteAlert = nil; noteText = "" } }
-        ),
-        presenting: showingNoteAlert
-      ) { bookmark in
-        TextField("note_title", text: $noteText)
-        Button("cancel_button", role: .cancel) {}
-        Button("ok_button") {
-          model.addNote(noteText, bookmark: bookmark)
-        }
+    }
+    .alert(
+      "bookmark_note_action_title",
+      isPresented: Binding(
+        get: { showingNoteAlert != nil },
+        set: { if !$0 { showingNoteAlert = nil; noteText = "" } }
+      ),
+      presenting: showingNoteAlert
+    ) { bookmark in
+      TextField("note_title", text: $noteText)
+      Button("cancel_button", role: .cancel) {}
+      Button("ok_button") {
+        model.addNote(noteText, bookmark: bookmark)
       }
-      .alert(
-        "",
-        isPresented: Binding(
-          get: { bookmarkToDelete != nil },
-          set: { if !$0 { bookmarkToDelete = nil } }
-        ),
-        presenting: bookmarkToDelete
-      ) { bookmark in
-        Button("cancel_button", role: .cancel) {}
-        Button("delete_button", role: .destructive) {
-          model.deleteBookmark(bookmark)
-        }
-      } message: { bookmark in
-        Text(String(format: "delete_single_item_title".localized, TimeParser.formatTime(bookmark.time)))
+    }
+    .alert(
+      "",
+      isPresented: Binding(
+        get: { bookmarkToDelete != nil },
+        set: { if !$0 { bookmarkToDelete = nil } }
+      ),
+      presenting: bookmarkToDelete
+    ) { bookmark in
+      Button("cancel_button", role: .cancel) {}
+      Button("delete_button", role: .destructive) {
+        model.deleteBookmark(bookmark)
       }
+    } message: { bookmark in
+      Text(String(format: "delete_single_item_title".localized, TimeParser.formatTime(bookmark.time)))
     }
   }
 
@@ -160,7 +153,7 @@ struct BookmarksView: View {
   private func bookmarkRow(_ bookmark: SimpleBookmark) -> some View {
     Button {
       model.handleBookmarkSelected(bookmark)
-      dismiss()
+      onSelect()
     } label: {
       HStack(spacing: Spacing.S2) {
         Text(TimeParser.formatTime(bookmark.time))

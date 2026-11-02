@@ -14,7 +14,6 @@ import UIKit
   import BookPlayerWatchKit
 #else
   import BookPlayerKit
-  import IntentsUI
 #endif
 
 /// Available sleep timer states
@@ -91,17 +90,6 @@ final class SleepTimer {
     NotificationCenter.default.removeObserver(self, name: .chapterChange, object: nil)
   }
 
-  /// Siri intents integration
-  private func donateTimerIntent(with option: TimerOption) {
-    let intent = SleepTimerIntent()
-    intent.option = option
-
-    #if os(iOS)
-      let interaction = INInteraction(intent: intent, response: nil)
-      interaction.donate(completion: nil)
-    #endif
-  }
-
   /// Periodic function used for the `countdown` case of ``SleepTimerState``
   @objc private func update() {
     guard case .countdown(let interval) = state else { return }
@@ -135,11 +123,8 @@ final class SleepTimer {
 
     switch newState {
     case .off:
-      donateTimerIntent(with: .cancel)
-    case .countdown(let interval):
-      if let option = TimeParser.getTimerOption(from: interval) {
-        donateTimerIntent(with: option)
-      }
+      break
+    case .countdown:
       subscription = Timer.publish(every: 1, on: .main, in: .common)
         .autoconnect()
         .sink { [weak self] _ in
@@ -147,7 +132,6 @@ final class SleepTimer {
         }
       timerTurnedOnPublisher.send(newState)
     case .endOfChapter:
-      donateTimerIntent(with: .endChapter)
       NotificationCenter.default.addObserver(self, selector: #selector(self.end), name: .chapterChange, object: nil)
       NotificationCenter.default.addObserver(self, selector: #selector(self.end), name: .bookEnd, object: nil)
       timerTurnedOnPublisher.send(newState)

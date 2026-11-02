@@ -164,6 +164,15 @@ final class PreferencesSyncServiceTests: XCTestCase {
     XCTAssertEqual(defaults.string(forKey: unrelatedKey), "keep-me")
   }
 
+  func testHandleLogoutResetsLibraryLayout() {
+    // The layout belongs to the account, as the display prefs do: signing out goes back to the list
+    defaults.set(LibraryLayout.covers.rawValue, forKey: Constants.UserDefaults.libraryLayout)
+
+    sut.handleLogout()
+
+    XCTAssertNil(defaults.string(forKey: Constants.UserDefaults.libraryLayout))
+  }
+
   // MARK: - Dirty-list round-trip
 
   func testDirtyListPersistsAcrossInstances() async {
@@ -336,6 +345,69 @@ final class PreferencesSyncServiceTests: XCTestCase {
     await sut.pullFromServer(force: true)
 
     XCTAssertTrue(defaults.bool(forKey: Constants.UserDefaults.libraryDisplayProgressStyle))
+  }
+
+  func testPullAppliesLibraryLayoutValue() async {
+    account.syncEnabled = true
+    let response = makeRawServerResponse(rawEntries: [
+      [
+        "key": Constants.UserDefaults.libraryLayout,
+        "value": ["layout": LibraryLayout.covers.rawValue],
+        "updated_at": iso8601String(Date())
+      ]
+    ])
+
+    sut = PreferencesSyncService()
+    sut.setup(
+      accountService: account,
+      libraryService: LibraryServiceProtocolMock(),
+      defaults: defaults,
+      client: NetworkClientMock(mockedResponse: response)
+    )
+
+    await sut.pullFromServer(force: true)
+
+    XCTAssertEqual(defaults.string(forKey: Constants.UserDefaults.libraryLayout), "covers")
+  }
+
+  func testPullSkipsUnknownLibraryLayout() async {
+    // A layout this build doesn't know (a newer app's, or a bad payload) must leave the local
+    // one alone
+    account.syncEnabled = true
+    defaults.set(LibraryLayout.grid.rawValue, forKey: Constants.UserDefaults.libraryLayout)
+
+    let response = makeRawServerResponse(rawEntries: [
+      [
+        "key": Constants.UserDefaults.libraryLayout,
+        "value": ["layout": "shelves"],
+        "updated_at": iso8601String(Date())
+      ]
+    ])
+
+    sut = PreferencesSyncService()
+    sut.setup(
+      accountService: account,
+      libraryService: LibraryServiceProtocolMock(),
+      defaults: defaults,
+      client: NetworkClientMock(mockedResponse: response)
+    )
+
+    await sut.pullFromServer(force: true)
+
+    XCTAssertEqual(defaults.string(forKey: Constants.UserDefaults.libraryLayout), "grid")
+  }
+
+  func testLocalLibraryLayoutWriteIsTracked() async {
+    // Switching the layout on this device must reach the others: the key is observed
+    // from bootstrap, so a write marks it dirty for the next flush
+    await sut.bootstrap()
+    defaults.set(LibraryLayout.covers.rawValue, forKey: Constants.UserDefaults.libraryLayout)
+
+    try? await Task.sleep(nanoseconds: 50_000_000)
+
+    let persisted = defaults.data(forKey: Constants.UserDefaults.userPreferencesDirty)
+    let raw = persisted.flatMap { try? JSONSerialization.jsonObject(with: $0) as? [String: String] }
+    XCTAssertNotNil(raw?[Constants.UserDefaults.libraryLayout])
   }
 
   func testPullAcceptsIntZeroOneAsBoolAndRejectsOtherTypes() async {
@@ -615,6 +687,7 @@ private final class SyncToggleAccountStub: AccountServiceProtocol {
 
   func hasSyncEnabled() -> Bool { syncEnabled }
   func hasPlusAccess() -> Bool { syncEnabled }
+  func hasEverSubscribed() -> Bool { false }
   func hasAccount() -> Bool { false }
   func getAccountId() -> String? { nil }
   func getAccount() -> Account? { nil }
@@ -624,7 +697,7 @@ private final class SyncToggleAccountStub: AccountServiceProtocol {
   func updateAccount(id: String?, email: String?, donationMade: Bool?, hasSubscription: Bool?) {}
   func setDelegate(_ delegate: PurchasesDelegate) {}
   func loginIfUserExists(delegate: PurchasesDelegate) {}
-  func login(with token: String, userId: String) async throws -> Account? { nil }
+  func login(with token: String) async throws -> Account? { nil }
   func loginWithTransferredCredentials(
     token: String,
     accountId: String,
@@ -641,4 +714,7 @@ private final class SyncToggleAccountStub: AccountServiceProtocol {
   func restorePurchases() async throws -> CustomerInfo { try await Purchases.shared.customerInfo() }
   func logout() throws {}
   func deleteAccount() async throws -> String { "" }
+  func getAccessLevel() -> BookPlayerKit.AccessLevel {
+    return .plus
+  }
 }

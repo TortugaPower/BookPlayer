@@ -13,7 +13,6 @@
 #endif
 import Combine
 import Foundation
-
 /// sourcery: AutoMockable
 public protocol PlayerManagerProtocol: AnyObject {
   var currentItem: PlayableItem? { get set }

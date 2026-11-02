@@ -10,10 +10,16 @@ import BookPlayerKit
 import Combine
 import Foundation
 
+/// Keeps a background-refresh window open until the watched queue reports drained.
+/// The POLICY (which lane counts) lives at the call site: `AppDelegate.handleAppRefresh`
+/// waits on the `sync` lane only — provider pushes retry forever against an unreachable
+/// home server and S3 uploads already run on a background URLSession, so neither should
+/// hold the process awake.
+///
 /// Reference: https://www.avanderlee.com/swift/asynchronous-operations/
 class RefreshTaskOperation: Operation {
-  let syncService: SyncServiceProtocol
-  private var syncTasksObserver: AnyCancellable?
+  private let queueDrained: AnyPublisher<Bool, Never>
+  private var drainObserver: AnyCancellable?
 
   private let lockQueue = DispatchQueue(label: "com.bookplayer.asyncoperation.refreshtask", attributes: .concurrent)
   override var isAsynchronous: Bool { true }
@@ -50,8 +56,15 @@ class RefreshTaskOperation: Operation {
     }
   }
 
-  init(syncService: SyncServiceProtocol) {
-    self.syncService = syncService
+  /// `finish()` is reachable from the drain sink (main) and the expiration handler
+  /// (a background queue); the KVO transition must happen exactly once.
+  private var _hasFinished = false
+
+  /// - Parameter queueDrained: `true` while nothing the caller cares about is queued.
+  ///   A replaying publisher (e.g. `CurrentValueSubject`) finishes an already-idle
+  ///   refresh immediately.
+  init(queueDrained: AnyPublisher<Bool, Never>) {
+    self.queueDrained = queueDrained
   }
 
   override func start() {
@@ -66,17 +79,21 @@ class RefreshTaskOperation: Operation {
   }
 
   override func main() {
-    syncTasksObserver = syncService.observeTasksCount().sink { [weak self] count in
-      guard let self else { return }
+    drainObserver = queueDrained.sink { [weak self] drained in
+      guard let self, drained else { return }
 
-      if count == 0 {
-        self.finish()
-      }
+      self.finish()
     }
   }
 
   func finish() {
-    syncTasksObserver = nil
+    let alreadyFinished: Bool = lockQueue.sync(flags: [.barrier]) {
+      defer { _hasFinished = true }
+      return _hasFinished
+    }
+    guard !alreadyFinished else { return }
+
+    drainObserver = nil
     isExecuting = false
     isFinished = true
   }

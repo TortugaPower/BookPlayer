@@ -15,7 +15,7 @@ struct IntegrationLibraryGridView<
   @ObservedObject var viewModel: Model
   @ViewBuilder let cellContent: (Model.Item) -> CellContent
 
-  @ScaledMetric var accessabilityScale: CGFloat = 1
+  @ScaledMetric var accessibilityScale: CGFloat = 1
   private let itemMinSizeBase = CGSize(width: 100, height: 100)
   private let itemMaxSizeBase = CGSize(width: 250, height: 250)
   private let itemSpacingBase = 20.0
@@ -26,12 +26,12 @@ struct IntegrationLibraryGridView<
         minimum: itemMinSizeBase.width,
         maximum: itemMaxSizeBase.width
       ),
-      spacing: itemSpacingBase * accessabilityScale
+      spacing: itemSpacingBase * accessibilityScale
     )]
   }
 
   var body: some View {
-    LazyVGrid(columns: columns, spacing: itemSpacingBase * accessabilityScale) {
+    LazyVGrid(columns: columns, spacing: itemSpacingBase * accessibilityScale) {
       ForEach(viewModel.items, id: \.id) { item in
         cellContent(item)
           .accessibilityAddTraits(.isButton)

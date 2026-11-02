@@ -14,6 +14,7 @@ import WidgetKit
   import BookPlayerWatchKit
 #else
   import BookPlayerKit
+  import ImageIO
   import UIKit
 #endif
 
@@ -215,82 +216,50 @@ class WidgetUtils {
 
 extension View {
   public func widgetBackground(backgroundView: some View) -> some View {
-    if #available(watchOS 10.0, iOSApplicationExtension 17.0, iOS 17.0, macOSApplicationExtension 14.0, *) {
-      return containerBackground(for: .widget) {
-        backgroundView
-      }
-    } else {
-      return background(backgroundView)
-    }
-  }
-}
-
-extension WidgetConfiguration {
-  public func contentMarginsDisabledIfAvailable() -> some WidgetConfiguration {
-    if #available(iOSApplicationExtension 17.0, *) {
-      return self.contentMarginsDisabled()
-    } else {
-      return self
+    return containerBackground(for: .widget) {
+      backgroundView
     }
   }
 }
 
 #if os(iOS)
   extension WidgetUtils {
-    class func isValidSize(image: UIImage) -> Bool {
-      let maxArea: CGFloat = 718_080.0
+    /// An item's artwork decoded at the size the widget draws it, `length` points square, or the
+    /// default artwork. ImageIO builds that thumbnail straight from the cached file, never decoding
+    /// the whole cover: a widget extension has a few tens of MB, which one large cover decoded at full
+    /// size can use up. The result also stays well under WidgetKit's limit of 718,080 pixels an image
+    class func getArtworkImage(
+      for relativePath: String,
+      length: CGFloat,
+      scale: CGFloat,
+      theme: SimpleTheme
+    ) -> UIImage? {
+      let url = ArtworkService.getCachedImageURL(for: relativePath)
 
-      let originalWidth = image.size.width
-      let originalHeight = image.size.height
-      let originalArea = originalWidth * originalHeight
-
-      return originalArea <= maxArea
+      return thumbnail(at: url, maxPixelSize: length * scale)
+        ?? ArtworkService.generateDefaultArtwork(from: theme.linkColor)
     }
 
-    class func getArtworkImage(for relativePath: String, theme: SimpleTheme) -> UIImage? {
-      let path = ArtworkService.getCachedImageURL(for: relativePath).path
-
+    private class func thumbnail(at url: URL, maxPixelSize: CGFloat) -> UIImage? {
       guard
-        let image = UIImage(contentsOfFile: path)
-          ?? ArtworkService.generateDefaultArtwork(from: theme.linkColor)
+        let source = CGImageSourceCreateWithURL(url as CFURL, [kCGImageSourceShouldCache: false] as CFDictionary)
       else {
         return nil
       }
 
-      return Self.resizedForWidget(image)
-    }
+      let options: [CFString: Any] = [
+        /// Not a small thumbnail the file may embed
+        kCGImageSourceCreateThumbnailFromImageAlways: true,
+        kCGImageSourceCreateThumbnailWithTransform: true,
+        kCGImageSourceShouldCacheImmediately: true,
+        kCGImageSourceThumbnailMaxPixelSize: maxPixelSize,
+      ]
 
-    /// Base logic taken from: https://stackoverflow.com/q/79409995
-    /// Resize the image to strictly fit within WidgetKit’s max allowed pixel area (718,080 pixels)
-    class func resizedForWidget(_ image: UIImage) -> UIImage? {
-      if Self.isValidSize(image: image) {
-        return image
+      guard let image = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else {
+        return nil
       }
 
-      let maxArea: CGFloat = 718_080.0
-      let originalWidth = image.size.width
-      let originalHeight = image.size.height
-      let originalArea = originalWidth * originalHeight
-
-      /// Calculate the exact scale factor to fit within maxArea
-      let scaleFactor = sqrt(maxArea / originalArea)
-      /// Use `floor` to ensure area is always within limits
-      let newWidth = floor(originalWidth * scaleFactor)
-      let newHeight = floor(originalHeight * scaleFactor)
-      let newSize = CGSize(width: newWidth, height: newHeight)
-
-      /// Force bitmap rendering to ensure the resized image is properly stored
-      let format = UIGraphicsImageRendererFormat()
-      format.opaque = true
-      /// Ensures we are not letting UIKit auto-scale it back up
-      format.scale = 1
-
-      let renderer = UIGraphicsImageRenderer(size: newSize, format: format)
-      let resizedImage = renderer.image { _ in
-        image.draw(in: CGRect(origin: .zero, size: newSize))
-      }
-
-      return resizedImage
+      return UIImage(cgImage: image)
     }
 
     class func getTestDataPlaybackRecords(_ family: WidgetFamily) -> [PlaybackRecordViewer] {

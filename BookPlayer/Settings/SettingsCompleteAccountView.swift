@@ -13,7 +13,7 @@ struct SettingsCompleteAccountView: View {
 
   var body: some View {
     NavigationStack {
-      CompleteAccountView {
+      CompleteAccountView(subType: .pro) {
         dismiss()
       }
     }

@@ -10,7 +10,7 @@ import BookPlayerKit
 import SwiftUI
 import WidgetKit
 
-struct TimeListenedProvider: IntentTimelineProvider {
+struct TimeListenedProvider: AppIntentTimelineProvider {
   typealias Entry = TimeListenedEntry
 
   let decoder = JSONDecoder()
@@ -52,28 +52,14 @@ struct TimeListenedProvider: IntentTimelineProvider {
     }
   }
 
-  func getSnapshot(
-    for configuration: PlayAndSleepActionIntent,
-    in context: Context,
-    completion: @escaping (TimeListenedEntry) -> Void
-  ) {
-    let entry = getEntryForTimeline(
-      for: configuration,
-      context: context
-    )
-    completion(entry)
+  func snapshot(for configuration: TimeListenedConfigurationIntent, in context: Context) async -> TimeListenedEntry {
+    getEntryForTimeline(for: configuration, context: context)
   }
 
-  func getTimeline(
-    for configuration: PlayAndSleepActionIntent,
-    in context: Context,
-    completion: @escaping (Timeline<TimeListenedEntry>) -> Void
-  ) {
+  func timeline(for configuration: TimeListenedConfigurationIntent, in context: Context) async -> Timeline<TimeListenedEntry> {
     let entry = getEntryForTimeline(for: configuration, context: context)
 
-    completion(
-      Timeline(entries: [entry], policy: .after(WidgetUtils.getNextDayDate()))
-    )
+    return Timeline(entries: [entry], policy: .after(WidgetUtils.getNextDayDate()))
   }
 
   func getRecordsFromDefaults() -> [SimplePlaybackRecord] {
@@ -109,7 +95,7 @@ struct TimeListenedProvider: IntentTimelineProvider {
   }
 
   func getEntryForTimeline(
-    for configuration: PlayAndSleepActionIntent,
+    for configuration: TimeListenedConfigurationIntent,
     context: Context
   ) -> TimeListenedEntry {
     let lastPlayed = getLastPlayedFromDefaults()
@@ -122,15 +108,12 @@ struct TimeListenedProvider: IntentTimelineProvider {
       records = [WidgetUtils.getLastPlaybackRecord()]
     }
 
-    let autoplay = configuration.autoplay?.boolValue ?? true
-    let seconds = TimeParser.getSeconds(from: configuration.sleepTimer)
-
     return TimeListenedEntry(
       date: Date(),
       title: lastPlayed?.title,
       theme: theme,
-      timerSeconds: seconds,
-      autoplay: autoplay,
+      timerSeconds: (configuration.sleepTimer ?? .cancel).seconds,
+      autoplay: configuration.autoplay ?? true,
       playbackRecords: records
     )
   }
@@ -178,12 +161,12 @@ struct TimeListenedWidget: Widget {
   let kind: String = "com.bookplayer.widget.small.timeListened"
 
   var body: some WidgetConfiguration {
-    IntentConfiguration(kind: kind, intent: PlayAndSleepActionIntent.self, provider: TimeListenedProvider()) { entry in
+    AppIntentConfiguration(kind: kind, intent: TimeListenedConfigurationIntent.self, provider: TimeListenedProvider()) { entry in
       TimeListenedWidgetView(entry: entry)
     }
     .configurationDisplayName("Time Listened")
     .description("See how much time you have spent listening to audiobooks in the last few days")
     .supportedFamilies([.systemSmall, .systemMedium])
-    .contentMarginsDisabledIfAvailable()
+    .contentMarginsDisabled()
   }
 }

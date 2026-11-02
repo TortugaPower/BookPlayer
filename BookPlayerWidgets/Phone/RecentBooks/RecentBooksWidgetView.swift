@@ -17,22 +17,20 @@ struct BookView: View {
   var theme: SimpleTheme
   var isPlaying: Bool
 
+  @Environment(\.displayScale) private var displayScale
+
   var body: some View {
     let title = item.title
-    let identifier = item.relativePath
     let pauseImage: String? = isPlaying ? "pause.fill" : nil
-
-    let cachedImageURL = ArtworkService.getCachedImageURL(for: identifier)
 
     return VStack(spacing: 5) {
       ZStack {
-        let uiImage =
-          UIImage(contentsOfFile: cachedImageURL.path)
-          ?? ArtworkService.generateDefaultArtwork(from: theme.linkColor)
-
-        if let uiImage,
-          WidgetUtils.isValidSize(image: uiImage)
-        {
+        if let uiImage = WidgetUtils.getArtworkImage(
+          for: item.relativePath,
+          length: 60,
+          scale: displayScale,
+          theme: theme
+        ) {
           Image(uiImage: uiImage)
             .resizable()
             .frame(minWidth: 60, maxWidth: 60, minHeight: 60, maxHeight: 60)
@@ -103,18 +101,7 @@ struct RecentBooksWidgetView: View {
       .widgetAccentable()
       HStack {
         ForEach(items, id: \.relativePath) { item in
-          if #available(iOSApplicationExtension 17.0, iOS 17.0, *) {
-            Button(intent: BookPlaybackToggleIntent(relativePath: item.relativePath)) {
-              BookView(
-                item: item,
-                titleColor: widgetColors.primaryColor,
-                theme: entry.theme,
-                isPlaying: item.relativePath == entry.currentlyPlaying
-              )
-              .frame(minWidth: 0, maxWidth: .infinity)
-            }
-            .buttonStyle(.plain)
-          } else {
+          Button(intent: BookPlaybackToggleIntent(relativePath: item.relativePath)) {
             BookView(
               item: item,
               titleColor: widgetColors.primaryColor,
@@ -123,6 +110,7 @@ struct RecentBooksWidgetView: View {
             )
             .frame(minWidth: 0, maxWidth: .infinity)
           }
+          .buttonStyle(.plain)
         }
       }
       .padding([.leading, .trailing])
@@ -148,7 +136,7 @@ struct RecentBooksWidget: Widget {
     .configurationDisplayName("Recent Books")
     .description("See the recent played books")
     .supportedFamilies([.systemMedium])
-    .contentMarginsDisabledIfAvailable()
+    .contentMarginsDisabled()
   }
 }
 

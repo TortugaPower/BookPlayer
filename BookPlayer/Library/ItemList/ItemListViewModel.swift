@@ -10,7 +10,7 @@ import BookPlayerKit
 import SwiftUI
 
 @MainActor
-final class ItemListViewModel: ObservableObject {
+final class ItemListViewModel: ObservableObject, BPLogger {
   let libraryNode: LibraryNode
   private let libraryService: LibraryService
   private let playbackService: PlaybackService
@@ -23,10 +23,9 @@ final class ItemListViewModel: ObservableObject {
   }
   private let listState: ListStateManager
   let singleFileDownloadService: SingleFileDownloadService
-
   /// Reference to ongoing library fetch task
   var contentsFetchTask: Task<(), Error>?
-
+  
   @Published var items: [SimpleLibraryItem] = []
   @Published var isLoading: Bool = false
   @Published var canLoadMore: Bool = true
@@ -93,6 +92,10 @@ final class ItemListViewModel: ObservableObject {
       listState.isSearching = isSearchFocused
       if isSearchFocused {
         editMode = .inactive
+      } else {
+        /// Closing search clears the text but not the scope, and a scope other than All would keep
+        /// the list filtered with the scope bar hidden
+        scope = .all
       }
     }
   }
@@ -332,6 +335,41 @@ final class ItemListViewModel: ObservableObject {
     reloadItems()
   }
 
+  /// The grid's reorder, which names the moved items and the one they now sit before (nil: after
+  /// the last loaded one)
+  func reorderItems(ids: [SimpleLibraryItem.ID], before targetID: SimpleLibraryItem.ID?) {
+    guard
+      let (source, destination) = Self.moveOffsets(of: ids, before: targetID, in: items.map(\.id))
+    else { return }
+
+    reorderItems(source: source, destination: destination)
+  }
+
+  /// The offsets the list's `onMove` would give for that move, or nil when it changes nothing: a
+  /// tile dropped back where it was must not turn the folder's sort into Custom
+  static func moveOffsets(
+    of ids: [SimpleLibraryItem.ID],
+    before targetID: SimpleLibraryItem.ID?,
+    in order: [SimpleLibraryItem.ID]
+  ) -> (source: IndexSet, destination: Int)? {
+    let source = IndexSet(ids.compactMap { order.firstIndex(of: $0) })
+    guard !source.isEmpty else { return nil }
+
+    let destination: Int
+    if let targetID {
+      guard let index = order.firstIndex(of: targetID) else { return nil }
+      destination = index
+    } else {
+      destination = order.count
+    }
+
+    var reordered = order
+    reordered.move(fromOffsets: source, toOffset: destination)
+    guard reordered != order else { return nil }
+
+    return (source, destination)
+  }
+
   func handleSelectAll() {
     Task {
       if canLoadMore {
@@ -371,6 +409,7 @@ final class ItemListViewModel: ObservableObject {
       isUnfinished: true
     )
 
+    // loadPlayer's contract is a RELATIVE PATH — a uuid silently no-ops the lookup.
     return nextPlayableItem?.relativePath
   }
 }
@@ -423,13 +462,10 @@ extension ItemListViewModel {
 
   func handleMoveIntoLibrary() {
     let selectedItemPaths = selectedItems.compactMap({ LibraryItemRef(relativePath: $0.relativePath, uuid: $0.uuid) })
-    let parentFolder = selectedItems.first?.parentFolder
 
     do {
+      // The folder they left is refreshed by the move itself
       try organizer.move(selectedItemPaths, into: nil)
-      if let parentFolder {
-        libraryService.rebuildFolderDetails(parentFolder)
-      }
     } catch {
       loadingState.error = error
     }
@@ -454,6 +490,10 @@ extension ItemListViewModel {
         editMode = .inactive
       } catch {
         loadingState.error = error
+        // A clash is reported after the folder was made and the rest moved into it: the selection
+        // still holds their old paths
+        listState.reloadAll(padding: 1)
+        editMode = .inactive
       }
     }
   }
@@ -704,7 +744,7 @@ extension ItemListViewModel {
         if item.type == .folder || item.type == .bound {
           try DataManager.createBackingFolderIfNeeded(fileURL)
         }
-
+        
         try await syncService.downloadRemoteFiles(for: item)
         loadingState.show = false
       } catch {

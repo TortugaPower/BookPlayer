@@ -42,10 +42,15 @@ class SecondOnboardingCoordinator: Coordinator {
 
   @MainActor
   func showOnboarding(data: SecondOnboardingResponse) async {
+    guard
+      let stories = await Self.parseStoryData(
+        data.support,
+        loadProductPrices: Self.loadStoreProductPrices
+      )
+    else { return }
+
     switch data.type {
     case .support:
-      let stories = await parseStoryData(data.support)
-
       let coordinator = SupportFlowCoordinator(
         flow: flow,
         anonymousId: anonymousId,
@@ -57,8 +62,6 @@ class SecondOnboardingCoordinator: Coordinator {
       )
       coordinator.start()
     case .tips:
-      let stories = await parseStoryData(data.support)
-
       let coordinator = SupportFlowCoordinator(
         flow: flow,
         anonymousId: anonymousId,
@@ -72,27 +75,45 @@ class SecondOnboardingCoordinator: Coordinator {
     }
   }
 
-  func parseStoryData(_ data: [StoryResponseModel]) async -> [StoryViewModel] {
+  /// The App Store prices of the given products. A product that didn't load is missing from the result:
+  /// RevenueCat's `products(_:)` turns every failure (StoreKit error or timeout, unknown id) into an empty list.
+  typealias ProductPricesLoader = ([String]) async -> [PricingModel]
+
+  nonisolated static func loadStoreProductPrices(_ productIds: [String]) async -> [PricingModel] {
+    return await Purchases.shared.products(productIds).map {
+      PricingModel(
+        id: $0.productIdentifier,
+        title: $0.localizedPriceString,
+        price: $0.priceDecimalNumber.doubleValue
+      )
+    }
+  }
+
+  /// Builds the stories, pricing each action's products. Returns nil when any of those prices didn't load:
+  /// the paywall can't be shown without them, so the onboarding is skipped. Nothing was started, so the
+  /// server offers it again on a later launch.
+  static func parseStoryData(
+    _ data: [StoryResponseModel],
+    loadProductPrices: ProductPricesLoader
+  ) async -> [StoryViewModel]? {
     var stories: [StoryViewModel] = []
     for model in data {
       var parsedAction: StoryActionType?
 
       if let action = model.action {
-        let products = await Purchases.shared.products(action.options)
-        let pricingModels = products.map { PricingModel(
-          id: $0.productIdentifier,
-          title: $0.localizedPriceString,
-          price: $0.priceDecimalNumber.doubleValue
-        ) }.sorted { $0.price < $1.price }
-        let defaultProduct = await Purchases.shared.products([action.defaultOption]).first!
+        let prices = await loadProductPrices(action.options + [action.defaultOption])
+        let pricesById = Dictionary(prices.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
+
+        guard
+          let defaultOption = pricesById[action.defaultOption],
+          action.options.allSatisfy({ pricesById[$0] != nil })
+        else {
+          return nil
+        }
 
         parsedAction = StoryActionType(
-          options: pricingModels,
-          defaultOption: PricingModel(
-            id: defaultProduct.productIdentifier,
-            title: defaultProduct.localizedPriceString,
-            price: defaultProduct.priceDecimalNumber.doubleValue
-          ),
+          options: action.options.compactMap { pricesById[$0] }.sorted { $0.price < $1.price },
+          defaultOption: defaultOption,
           sliderOptions: action.sliderOptions,
           button: action.button,
           dismiss: action.dismiss,
