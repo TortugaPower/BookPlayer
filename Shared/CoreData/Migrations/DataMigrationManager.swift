@@ -23,10 +23,17 @@ public final class DataMigrationManager: BPLogger {
     )!
     .appendingPathComponent("\(self.modelName).sqlite")
     self.storeURL = storeURL
+    self.refreshStoreModel()
+  }
+
+  /// Reads which model version the store on disk uses. A load later in the same launch (a retry, or
+  /// after a restore) needs a fresh read: the first one fails on a full disk, and a restore replaces
+  /// the store
+  public func refreshStoreModel() {
     self.storeModel =
       NSManagedObjectModel.modelVersionsFor(modelNamed: self.modelName)
       .filter {
-        self.store(at: storeURL, isCompatibleWithModel: $0)
+        self.store(at: self.storeURL, isCompatibleWithModel: $0)
       }.first
   }
 

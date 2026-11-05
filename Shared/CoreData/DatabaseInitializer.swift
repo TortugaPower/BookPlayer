@@ -22,6 +22,10 @@ public class DatabaseInitializer: BPLogger {
 
   /// Handle applying all the migrations to the CoreData stack before returning it
   public func loadCoreDataStack() async throws -> CoreDataStack {
+    // This runs again in the same launch after a retry or a restore, when the store's model can
+    // differ from what was read at launch
+    dataMigrationManager.refreshStoreModel()
+
     if dataMigrationManager.canPeformMigration() {
       return try await handleMigrations()
     } else {
