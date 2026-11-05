@@ -248,12 +248,27 @@ extension HardcoverService {
     )
   }
 
-  private func insertUserBook(bookID: Int, status: HardcoverBook.Status) async throws -> HardcoverInsertUserBookData {
+  /// Adds the book to the user's Hardcover library, or sets its status there. A book they don't have
+  /// yet goes in as its audiobook edition: Hardcover would pick the print one, and the read it starts
+  /// takes the entry's edition, so listening would count as pages. A book they have keeps its edition.
+  /// - Parameter userBookID: the user's entry for the book, when it's known to exist
+  private func insertUserBook(
+    bookID: Int,
+    status: HardcoverBook.Status,
+    userBookID: Int? = nil
+  ) async throws -> HardcoverInsertUserBookData {
+    var object: [String: Any] = [
+      "book_id": bookID,
+      "status_id": Int(status.rawValue),
+    ]
+
+    if userBookID == nil, let editionID = await audiobookEditionForNewEntry(bookID: bookID) {
+      object["edition_id"] = editionID
+    }
+
     let mutation = """
-        mutation InsertUserBook($book_id: Int!, $status_id: Int!) {
-          insert_user_book(
-            object: {book_id: $book_id, status_id: $status_id}
-          ) {
+        mutation InsertUserBook($object: UserBookCreateInput!) {
+          insert_user_book(object: $object) {
             id
           }
         }
@@ -261,13 +276,55 @@ extension HardcoverService {
 
     return try await execute(
       query: mutation,
-      variables: [
-        "book_id": bookID,
-        "status_id": Int(status.rawValue),
-      ],
+      variables: ["object": object],
       responseType: HardcoverInsertUserBookData.self
     )
   }
+
+  /// The audiobook edition to add `bookID` with. Nil when the user already has the book, it has no
+  /// audiobook edition with a duration, or the lookup fails: then Hardcover picks, as before
+  private func audiobookEditionForNewEntry(bookID: Int) async -> Int? {
+    guard let userId = await fetchConnectedUserId().flatMap(Int.init) else { return nil }
+
+    do {
+      let entry = try await execute(
+        query: Self.libraryEntryQuery,
+        variables: ["user_id": userId, "book_id": bookID],
+        responseType: HardcoverLibraryEntryData.self
+      )
+
+      guard entry.userBooks.isEmpty else { return nil }
+
+      return entry.book?.audiobookEditionID
+    } catch {
+      Self.logger.error("Failed to look up book \(bookID) before adding it to Hardcover: \(error)")
+      return nil
+    }
+  }
+
+  /// Whether the user already has the book, and its audiobook editions with a duration; needs
+  /// `read:library` and `read:catalog`
+  static let libraryEntryQuery = """
+    query LibraryEntry($user_id: Int!, $book_id: Int!) {
+      user_books(where: {user_id: {_eq: $user_id}, book_id: {_eq: $book_id}}) {
+        id
+      }
+      books_by_pk(id: $book_id) {
+        default_audio_edition {
+          id
+          audio_seconds
+        }
+        audio_editions: editions(
+          where: {reading_format_id: {_eq: 2}, audio_seconds: {_gt: 0}},
+          order_by: {users_count: desc},
+          limit: 1
+        ) {
+          id
+          audio_seconds
+        }
+      }
+    }
+    """
 
   private func deleteUserBook(userBookID: Int) async throws -> HardcoverDeleteUserBookData {
     let mutation = """
@@ -677,7 +734,7 @@ extension HardcoverService {
 
     do {
       Self.logger.info("Updating Hardcover API: book \(bookID) to '\(String(describing: status))' status")
-      let response = try await insertUserBook(bookID: bookID, status: status)
+      let response = try await insertUserBook(bookID: bookID, status: status, userBookID: existing?.userBookID)
 
       var updated = existing ?? SimpleHardcoverBook(
         id: bookID,

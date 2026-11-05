@@ -495,3 +495,207 @@ private final class GatedMeStub: URLProtocol {
     client?.urlProtocolDidFinishLoading(self)
   }
 }
+
+/// A book BookPlayer adds to the user's Hardcover library goes in as its audiobook edition, so the
+/// read Hardcover starts on it counts listening time; a book they already have keeps its edition
+class HardcoverAddToLibraryTests: XCTestCase {
+  var sut: HardcoverService!
+
+  private let defaults = UserDefaults.sharedDefaults
+  private var savedDefaults: [String: Any?] = [:]
+  private let defaultsKeys = [
+    Constants.UserDefaults.hardcoverUserId,
+    Constants.UserDefaults.hardcoverUsername,
+    Constants.UserDefaults.hardcoverAutoAddWantToRead,
+  ]
+
+  override func setUp() {
+    for key in defaultsKeys {
+      savedDefaults[key] = defaults.object(forKey: key)
+      defaults.removeObject(forKey: key)
+    }
+    LibraryEntryStub.reset()
+
+    let configuration = URLSessionConfiguration.ephemeral
+    configuration.protocolClasses = [LibraryEntryStub.self]
+    sut = HardcoverService()
+    sut.setup(
+      libraryService: LibraryServiceProtocolMock(),
+      syncService: SyncServiceProtocolMock(),
+      keychain: KeychainServiceMock(),
+      graphQLSession: URLSession(configuration: configuration)
+    )
+    sut.authorization = "hc_pat_abc123"
+    /// The account is known, so no `me` lookup is made
+    defaults.set("42", forKey: Constants.UserDefaults.hardcoverUserId)
+    defaults.set(true, forKey: Constants.UserDefaults.hardcoverAutoAddWantToRead)
+  }
+
+  override func tearDown() {
+    for key in defaultsKeys {
+      if let value = savedDefaults[key] ?? nil {
+        defaults.set(value, forKey: key)
+      } else {
+        defaults.removeObject(forKey: key)
+      }
+    }
+  }
+
+  func testANewBookGoesInAsItsDefaultAudiobookEdition() async throws {
+    LibraryEntryStub.entry = Self.entry(
+      userBooks: "[]",
+      defaultAudio: #"{"id":300,"audio_seconds":88764}"#,
+      audioEditions: #"[{"id":301,"audio_seconds":88740}]"#
+    )
+
+    await sut.assignItem(makeBook(), to: makeItem())
+
+    let object = try XCTUnwrap(LibraryEntryStub.insertedObjects.first)
+    XCTAssertEqual(object["book_id"] as? Int, 12345)
+    XCTAssertEqual(object["status_id"] as? Int, 1)
+    XCTAssertEqual(object["edition_id"] as? Int, 300)
+  }
+
+  func testADefaultAudiobookEditionWithoutADurationGivesWayToTheMostReadOne() async throws {
+    LibraryEntryStub.entry = Self.entry(
+      userBooks: "[]",
+      defaultAudio: #"{"id":300,"audio_seconds":null}"#,
+      audioEditions: #"[{"id":301,"audio_seconds":56880}]"#
+    )
+
+    await sut.assignItem(makeBook(), to: makeItem())
+
+    let object = try XCTUnwrap(LibraryEntryStub.insertedObjects.first)
+    XCTAssertEqual(object["edition_id"] as? Int, 301)
+  }
+
+  func testABookAlreadyInTheLibraryKeepsItsEdition() async throws {
+    LibraryEntryStub.entry = Self.entry(
+      userBooks: #"[{"id":9}]"#,
+      defaultAudio: #"{"id":300,"audio_seconds":88764}"#,
+      audioEditions: "[]"
+    )
+
+    await sut.assignItem(makeBook(), to: makeItem())
+
+    let object = try XCTUnwrap(LibraryEntryStub.insertedObjects.first)
+    XCTAssertEqual(object["book_id"] as? Int, 12345)
+    XCTAssertNil(object["edition_id"])
+  }
+
+  func testABookWithoutAnAudiobookEditionLeavesTheEditionToHardcover() async throws {
+    LibraryEntryStub.entry = Self.entry(userBooks: "[]", defaultAudio: "null", audioEditions: "[]")
+
+    await sut.assignItem(makeBook(), to: makeItem())
+
+    let object = try XCTUnwrap(LibraryEntryStub.insertedObjects.first)
+    XCTAssertNil(object["edition_id"])
+  }
+
+  func testAFailedLookupStillAddsTheBook() async throws {
+    LibraryEntryStub.entry = #"{"errors":[{"message":"down"}]}"#
+
+    await sut.assignItem(makeBook(), to: makeItem())
+
+    let object = try XCTUnwrap(LibraryEntryStub.insertedObjects.first)
+    XCTAssertEqual(object["book_id"] as? Int, 12345)
+    XCTAssertNil(object["edition_id"])
+  }
+
+  private static func entry(userBooks: String, defaultAudio: String, audioEditions: String) -> String {
+    #"{"data":{"user_books":\#(userBooks),"books_by_pk":{"default_audio_edition":\#(defaultAudio),"audio_editions":\#(audioEditions)}}}"#
+  }
+
+  private func makeBook() -> SimpleHardcoverBook {
+    SimpleHardcoverBook(id: 12345, artworkURL: nil, title: "Book", author: "Author", status: .local)
+  }
+
+  private func makeItem() -> SimpleLibraryItem {
+    SimpleLibraryItem(
+      title: "Book",
+      details: "Author",
+      speed: 1,
+      currentTime: 0,
+      duration: 100,
+      percentCompleted: 0,
+      isFinished: false,
+      relativePath: "book.m4b",
+      remoteURL: nil,
+      artworkURL: nil,
+      orderRank: 0,
+      parentFolder: nil,
+      originalFileName: "book.m4b",
+      lastPlayDate: nil,
+      type: .book,
+      uuid: "UUID"
+    )
+  }
+}
+
+/// Answers the lookup made before adding a book (`LibraryEntry`) with `entry`, and records the object
+/// of every `insert_user_book`
+private final class LibraryEntryStub: URLProtocol {
+  private static let lock = NSLock()
+  private static var storedEntry = ""
+  private static var storedInsertedObjects = [[String: Any]]()
+
+  static var entry: String {
+    get { lock.withLock { storedEntry } }
+    set { lock.withLock { storedEntry = newValue } }
+  }
+
+  static var insertedObjects: [[String: Any]] {
+    lock.withLock { storedInsertedObjects }
+  }
+
+  static func reset() {
+    lock.withLock {
+      storedEntry = ""
+      storedInsertedObjects = []
+    }
+  }
+
+  override class func canInit(with request: URLRequest) -> Bool { true }
+  override class func canonicalRequest(for request: URLRequest) -> URLRequest { request }
+  override func stopLoading() {}
+
+  override func startLoading() {
+    let payload = (try? JSONSerialization.jsonObject(with: bodyData())) as? [String: Any]
+    let query = payload?["query"] as? String ?? ""
+    let variables = payload?["variables"] as? [String: Any]
+
+    let body: String
+    if query.contains("insert_user_book") {
+      let object = variables?["object"] as? [String: Any] ?? [:]
+      Self.lock.withLock { Self.storedInsertedObjects.append(object) }
+      body = #"{"data":{"insert_user_book":{"id":555}}}"#
+    } else if query.contains("LibraryEntry") {
+      body = Self.entry
+    } else {
+      body = #"{"errors":[{"message":"not stubbed"}]}"#
+    }
+
+    let response = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
+    client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
+    client?.urlProtocol(self, didLoad: Data(body.utf8))
+    client?.urlProtocolDidFinishLoading(self)
+  }
+
+  /// URLSession hands a protocol the body as a stream
+  private func bodyData() -> Data {
+    if let body = request.httpBody { return body }
+    guard let stream = request.httpBodyStream else { return Data() }
+
+    stream.open()
+    defer { stream.close() }
+
+    var data = Data()
+    var buffer = [UInt8](repeating: 0, count: 4096)
+    while stream.hasBytesAvailable {
+      let count = stream.read(&buffer, maxLength: buffer.count)
+      guard count > 0 else { break }
+      data.append(buffer, count: count)
+    }
+    return data
+  }
+}
