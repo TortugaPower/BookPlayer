@@ -79,18 +79,18 @@ public class DatabaseInitializer: BPLogger {
   }
 
   /// Attempt to restore database from the latest backup
-  /// - Returns: true if restoration succeeded and database loaded successfully
-  public func restoreFromLatestBackup() async -> Bool {
+  /// - Throws: The error that stopped the restore
+  public func restoreFromLatestBackup() async throws {
     // Get latest backup
     guard let backupURL = databaseBackupService.getLatestBackup() else {
       Self.logger.error("No backup available for restoration")
-      return false
+      throw BookPlayerError.runtimeError("No backup available for restoration")
     }
-    
+
     Self.logger.info("Found backup to restore: \(backupURL.lastPathComponent)")
-    
+
     // Restore database from backup
-    return await databaseBackupService.restoreDatabase(from: backupURL)
+    try await databaseBackupService.restoreDatabase(from: backupURL)
   }
 
   private func handleMigrations() async throws -> CoreDataStack {

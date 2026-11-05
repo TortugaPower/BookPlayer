@@ -209,13 +209,44 @@ class DatabaseRecoveryTests: XCTestCase {
     let walURL = try write("recent changes", to: "BookPlayer.sqlite-wal")
     let backupURL = try write("not a database", to: "backup.sqlite")
 
-    let restored = await DatabaseBackupService(databaseURL: databaseURL)
-      .restoreDatabase(from: backupURL)
+    do {
+      try await DatabaseBackupService(databaseURL: databaseURL).restoreDatabase(from: backupURL)
+      XCTFail("A file that isn't a database can't be restored")
+    } catch {
+      // A bad backup still leads to the recovery options, not to the disk-full alert
+      XCTAssertFalse(DatabaseInitializer.isOutOfSpaceError(error as NSError), "\(error)")
+    }
 
-    XCTAssertFalse(restored)
     XCTAssertEqual(try String(contentsOf: databaseURL, encoding: .utf8), "current library")
     XCTAssertEqual(try String(contentsOf: walURL, encoding: .utf8), "recent changes")
     XCTAssertEqual(try FileManager.default.contentsOfDirectory(atPath: folder.path).count, 3)
+  }
+
+  /// A restore the file system stops reports why, so a full disk isn't taken for a bad backup and
+  /// answered with a reset
+  func testARestoreThatCantBeCopiedReportsTheFileError() async throws {
+    let databaseURL = try write("current library", to: "BookPlayer.sqlite")
+    let backupFolder = folder.appendingPathComponent("Backups")
+    try FileManager.default.createDirectory(at: backupFolder, withIntermediateDirectories: true)
+    let backupURL = backupFolder.appendingPathComponent("backup.sqlite")
+    try Data("backup".utf8).write(to: backupURL)
+
+    // Nothing new can be written beside the database
+    try FileManager.default.setAttributes([.posixPermissions: 0o555], ofItemAtPath: folder.path)
+    defer {
+      try? FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: folder.path)
+    }
+
+    do {
+      try await DatabaseBackupService(databaseURL: databaseURL).restoreDatabase(from: backupURL)
+      XCTFail("The backup can't be copied into a read-only folder")
+    } catch {
+      let error = error as NSError
+      XCTAssertEqual(error.domain, NSCocoaErrorDomain, "\(error)")
+      XCTAssertEqual(error.code, NSFileWriteNoPermissionError, "\(error)")
+    }
+
+    XCTAssertEqual(try String(contentsOf: databaseURL, encoding: .utf8), "current library")
   }
 
   func testARestoreReplacesTheDatabaseWithTheBackup() async throws {
@@ -226,10 +257,8 @@ class DatabaseRecoveryTests: XCTestCase {
     let staleWal = try write("stale", to: "BookPlayer.sqlite-wal")
     try Data("current library".utf8).write(to: databaseURL)
 
-    let restored = await DatabaseBackupService(databaseURL: databaseURL)
-      .restoreDatabase(from: backupURL)
+    try await DatabaseBackupService(databaseURL: databaseURL).restoreDatabase(from: backupURL)
 
-    XCTAssertTrue(restored)
     XCTAssertNotEqual(try Data(contentsOf: databaseURL), Data("current library".utf8))
     XCTAssertNotEqual(try? Data(contentsOf: staleWal), Data("stale".utf8))
     XCTAssertTrue(
