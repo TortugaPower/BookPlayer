@@ -250,7 +250,7 @@ class DatabaseRecoveryTests: XCTestCase {
   }
 
   /// A backup's latest changes are only in its -wal until SQLite checkpoints them, so the restore
-  /// has to bring that file along with the database
+  /// has to merge that file into the database it puts in place
   @MainActor
   func testARestoreReplacesTheDatabaseWithTheBackup() async throws {
     let databaseURL = try write("current library", to: "BookPlayer.sqlite")
@@ -275,14 +275,20 @@ class DatabaseRecoveryTests: XCTestCase {
 
     try await DatabaseBackupService(databaseURL: databaseURL).restoreDatabase(from: backupURL)
 
+    // A single file: the stale -wal is gone and nothing is left of the copy it was prepared in
+    XCTAssertEqual(
+      try FileManager.default.contentsOfDirectory(atPath: folder.path).sorted(),
+      ["BookPlayer.sqlite", "backup.sqlite", "backup.sqlite-shm", "backup.sqlite-wal"]
+    )
     XCTAssertEqual(try storeUUID(at: databaseURL), backupID)
-    XCTAssertEqual(try Data(contentsOf: restoredWal), try Data(contentsOf: backupWal))
 
     let restoredStack = CoreDataStack(testPath: databaseURL.path)
     let accountIDs = try restoredStack.managedContext
       .fetch(NSFetchRequest<NSManagedObject>(entityName: "Account"))
       .compactMap { $0.value(forKey: "id") as? String }
     XCTAssertEqual(accountIDs, ["saved-in-the-backup"])
+    // Opening it puts it back in WAL mode
+    XCTAssertTrue(FileManager.default.fileExists(atPath: restoredWal.path))
 
     withExtendedLifetime(backupStack) {}
   }
