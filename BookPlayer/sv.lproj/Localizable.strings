@@ -413,8 +413,7 @@
 "hardcover_progress_tracking_footer" = "Ställer in den minsta procentuella framsteg som krävs innan en bok markeras som **Läser för närvarande** i ditt Hardcover-bibliotek.";
 "hardcover_automation_description" = "Synkronisera automatiskt ditt läsframsteg med Hardcover. När aktiverat kommer böcker att matchas automatiskt och läggas till i ditt bibliotek.";
 "section_item_hardcover" = "Hardcover";
-"hardcover_api_access_title" = "API-åtkomst";
-"hardcover_api_access_footer" = "Du kan hitta din Hardcover API-åtkomst på https://hardcover.app/account/api.";
+"hardcover_sign_in_failed_message" = "Hardcover slutförde inte inloggningen. Försök igen.";
 "hardcover_automation_title" = "Automatisering";
 "hardcover_progress_tracking_title" = "Framstegsspårning";
 "save_button" = "Spara";

@@ -1,12 +1,12 @@
 //
-//  AudiobookEditionsData.swift
+//  HardcoverAudiobookEditionsData.swift
 //  BookPlayer
 //
 //  Created by Jeremy Grenier on 6/27/25.
 //  Copyright © 2025 BookPlayer LLC. All rights reserved.
 //
 
-struct AudiobookEditionsData: Codable {
+struct HardcoverAudiobookEditionsData: Codable {
   let editions: [Edition]
 
   struct Edition: Codable {

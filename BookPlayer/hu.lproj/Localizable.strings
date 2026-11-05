@@ -413,8 +413,7 @@
 "hardcover_progress_tracking_footer" = "Beállítja a minimális haladási százalékot, amely szükséges ahhoz, hogy egy könyv **Jelenleg olvasom** jelöléssel legyen ellátva a Hardcover könyvtárában";
 "hardcover_automation_description" = "Automatikusan szinkronizálja olvasási haladását a Hardcoverrel. Ha engedélyezve van, a könyvek automatikusan párosítva lesznek és hozzáadódnak a könyvtárához";
 "section_item_hardcover" = "Hardcover";
-"hardcover_api_access_title" = "API hozzáférés";
-"hardcover_api_access_footer" = "A Hardcover API hozzáférését a https://hardcover.app/account/api címen találhatja meg";
+"hardcover_sign_in_failed_message" = "A Hardcover nem fejezte be a bejelentkezést. Próbálja újra.";
 "hardcover_automation_title" = "Automatizálás";
 "hardcover_progress_tracking_title" = "Haladás követése";
 "save_button" = "Mentés";

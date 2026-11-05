@@ -413,8 +413,7 @@
 "hardcover_progress_tracking_footer" = "Setter minimum fremdriftsprosent som kreves før en bok merkes som **Leser for øyeblikket** i ditt Hardcover-bibliotek.";
 "hardcover_automation_description" = "Synkroniser lesefremdriften automatisk med Hardcover. Når aktivert, vil bøker automatisk kobles og legges til i biblioteket ditt.";
 "section_item_hardcover" = "Hardcover";
-"hardcover_api_access_title" = "API-tilgang";
-"hardcover_api_access_footer" = "Du kan finne din Hardcover API-tilgang på https://hardcover.app/account/api.";
+"hardcover_sign_in_failed_message" = "Hardcover fullførte ikke påloggingen. Prøv igjen.";
 "hardcover_automation_title" = "Automatisering";
 "hardcover_progress_tracking_title" = "Fremdriftssporing";
 "save_button" = "Lagre";

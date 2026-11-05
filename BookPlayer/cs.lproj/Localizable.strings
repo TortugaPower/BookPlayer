@@ -413,8 +413,7 @@
 "hardcover_progress_tracking_footer" = "Nastavuje minimální procento pokroku potřebné před tím, než je kniha označena jako **Právě čtu** ve vaší knihovně Hardcover.";
 "hardcover_automation_description" = "Automaticky synchronizuje váš pokrok ve čtení s Hardcover. Pokud je povoleno, knihy budou automaticky párovány a přidány do vaší knihovny.";
 "section_item_hardcover" = "Hardcover";
-"hardcover_api_access_title" = "Přístup k API";
-"hardcover_api_access_footer" = "Váš přístup k API Hardcover najdete na https://hardcover.app/account/api.";
+"hardcover_sign_in_failed_message" = "Hardcover přihlášení nedokončil. Zkuste to znovu.";
 "hardcover_automation_title" = "Automatizace";
 "hardcover_progress_tracking_title" = "Sledování pokroku";
 "save_button" = "Uložit";

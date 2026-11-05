@@ -413,8 +413,7 @@
 "hardcover_progress_tracking_footer" = "Establece el porcentaje mínimo de progreso requerido antes de que un libro se marque como **Leyendo actualmente** en tu biblioteca de Hardcover.";
 "hardcover_automation_description" = "Sincroniza automáticamente tu progreso de lectura con Hardcover. Cuando está habilitado, los libros se emparejarán automáticamente y se agregarán a tu biblioteca.";
 "section_item_hardcover" = "Hardcover";
-"hardcover_api_access_title" = "Acceso a la API";
-"hardcover_api_access_footer" = "Puedes encontrar tu acceso a la API de Hardcover en https://hardcover.app/account/api.";
+"hardcover_sign_in_failed_message" = "Hardcover no completó el inicio de sesión. Inténtalo de nuevo.";
 "hardcover_automation_title" = "Automatización";
 "hardcover_progress_tracking_title" = "Seguimiento del progreso";
 "save_button" = "Guardar";

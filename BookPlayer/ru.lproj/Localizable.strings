@@ -413,8 +413,7 @@
 "hardcover_progress_tracking_footer" = "Устанавливает минимальный процент прогресса, необходимый для того, чтобы книга была отмечена как **Читаю сейчас** в вашей библиотеке Hardcover.";
 "hardcover_automation_description" = "Автоматически синхронизировать прогресс чтения с Hardcover. Когда включено, книги будут автоматически сопоставляться и добавляться в вашу библиотеку.";
 "section_item_hardcover" = "Hardcover";
-"hardcover_api_access_title" = "Доступ к API";
-"hardcover_api_access_footer" = "Вы можете найти свой доступ к API Hardcover по адресу https://hardcover.app/account/api.";
+"hardcover_sign_in_failed_message" = "Hardcover не завершил вход. Повторите попытку.";
 "hardcover_automation_title" = "Автоматизация";
 "hardcover_progress_tracking_title" = "Отслеживание прогресса";
 "save_button" = "Сохранить";

@@ -413,8 +413,7 @@
 "hardcover_progress_tracking_footer" = "本がHardcoverライブラリで**現在読書中**としてマークされる前に必要な最小進捗パーセンテージを設定します。";
 "hardcover_automation_description" = "読書進捗をHardcoverと自動的に同期します。有効にすると、本が自動的にマッチングされ、ライブラリに追加されます。";
 "section_item_hardcover" = "Hardcover";
-"hardcover_api_access_title" = "APIアクセス";
-"hardcover_api_access_footer" = "Hardcover APIアクセスは https://hardcover.app/account/api で確認できます。";
+"hardcover_sign_in_failed_message" = "Hardcoverでサインインが完了しませんでした。もう一度お試しください。";
 "hardcover_automation_title" = "自動化";
 "hardcover_progress_tracking_title" = "進捗追跡";
 "save_button" = "保存";
