@@ -58,13 +58,27 @@ class DataInitializerCoordinator: BPLogger {
     }
   }
 
-  /// Present alert explaining the library can't load until there's free space
+  /// Present alert explaining the library can't load until there's free space. The database is
+  /// intact, so the way forward is loading it again once the user has made room
   private func presentOutOfSpaceAlert() async {
     await MainActor.run {
       alertPresenter.showAlert(
-        "error_title".localized,
-        message: "coredata_error_diskfull_description".localized,
-        completion: nil
+        BPAlertContent(
+          title: "error_title".localized,
+          message: "coredata_error_diskfull_description".localized,
+          style: .alert,
+          actionItems: [
+            BPActionItem(
+              title: "integration_retry_button".localized,
+              style: .default,
+              handler: {
+                Task {
+                  await self.reloadLibrary()
+                }
+              }
+            )
+          ]
+        )
       )
     }
   }
@@ -156,7 +170,9 @@ class DataInitializerCoordinator: BPLogger {
     } catch {
       if DatabaseInitializer.isOutOfSpaceError(error as NSError) {
         // Copying the backup needs free space, and the current database is kept when there isn't
-        // any, so don't offer to reset it
+        // any, so don't offer to reset it. Nothing was restored, so the backup is offered again
+        // if the library still fails to load after a retry
+        hasAttemptedBackupRestore = false
         await presentOutOfSpaceAlert()
       } else {
         await presentFinalRecoveryAlert(originalError)
@@ -164,6 +180,11 @@ class DataInitializerCoordinator: BPLogger {
       return
     }
 
+    await reloadLibrary()
+  }
+
+  /// Set up the core services from scratch and load the library again
+  private func reloadLibrary() async {
     AppServices.shared.resetCoreServices()
     await initializeLibrary(shouldRebuildFromFiles: false)
   }

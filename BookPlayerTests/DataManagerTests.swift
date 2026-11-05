@@ -270,3 +270,47 @@ class DatabaseRecoveryTests: XCTestCase {
     )
   }
 }
+
+// MARK: - Database load errors
+
+class DataInitializerCoordinatorTests: XCTestCase {
+  private final class AlertPresenterSpy: AlertPresenter {
+    var alerts = [BPAlertContent]()
+    var simpleAlertCount = 0
+
+    func showAlert(_ title: String?, message: String?, completion: (() -> Void)?) {
+      simpleAlertCount += 1
+    }
+
+    func showAlert(_ content: BPAlertContent) {
+      alerts.append(content)
+    }
+
+    func showLoader() {}
+    func stopLoader() {}
+  }
+
+  /// GH #1324: with no free space the library can only be loaded again, never reset, and the alert
+  /// mustn't leave the app stuck on the loading screen
+  @MainActor
+  func testOutOfSpaceOffersARetryAndNothingElse() async {
+    let presenter = AlertPresenterSpy()
+    let coordinator = DataInitializerCoordinator(alertPresenter: presenter)
+
+    await coordinator.handleError(
+      NSError(
+        domain: NSCocoaErrorDomain,
+        code: NSFileWriteUnknownError,
+        userInfo: ["reason": "Failed to create file; code = 28"]
+      )
+    )
+
+    XCTAssertEqual(presenter.simpleAlertCount, 0)
+    XCTAssertEqual(presenter.alerts.count, 1)
+    XCTAssertEqual(presenter.alerts.first?.message, "coredata_error_diskfull_description".localized)
+    XCTAssertEqual(
+      presenter.alerts.first?.actionItems.map(\.title),
+      ["integration_retry_button".localized]
+    )
+  }
+}
