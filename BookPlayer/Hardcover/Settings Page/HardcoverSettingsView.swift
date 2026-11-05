@@ -38,8 +38,7 @@ struct HardcoverSettingsView: View {
         signInSection
       }
     }
-    .scrollContentBackground(.hidden)
-    .background(theme.systemBackgroundColor)
+    .applyListStyle(with: theme, background: theme.systemBackgroundColor)
     .navigationBarTitleDisplayMode(.inline)
     .toolbar {
       ToolbarItem(placement: .principal) {
