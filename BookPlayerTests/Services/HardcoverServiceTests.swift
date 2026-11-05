@@ -218,15 +218,14 @@ class HardcoverReadProgressTests: XCTestCase {
 
   func testAudiobookEditionGetsSeconds() {
     let progress = HardcoverReadProgress.update(percent: 25, read: read(edition: audiobook))
-    XCTAssertEqual(progress, HardcoverReadProgress(unit: .seconds, value: 9_000, editionId: nil))
+    XCTAssertEqual(progress, HardcoverReadProgress(unit: .seconds, value: 9_000))
     XCTAssertEqual(progress?.object, ["progress_seconds": 9_000])
   }
 
   func testPrintEditionGetsPages() {
-    XCTAssertEqual(
-      HardcoverReadProgress.update(percent: 50, read: read(edition: paperback)),
-      HardcoverReadProgress(unit: .pages, value: 150, editionId: nil)
-    )
+    let progress = HardcoverReadProgress.update(percent: 50, read: read(edition: paperback))
+    XCTAssertEqual(progress, HardcoverReadProgress(unit: .pages, value: 150))
+    XCTAssertEqual(progress?.object, ["progress_pages": 150])
   }
 
   /// The format decides, as in Hardcover's SDK: a print edition's recording length isn't used
@@ -235,80 +234,34 @@ class HardcoverReadProgressTests: XCTestCase {
     XCTAssertEqual(HardcoverReadProgress.update(percent: 50, read: read(edition: print))?.unit, .pages)
   }
 
-  /// A read started by a status change has no edition: it takes the book's default audiobook
-  /// one, written with the progress
-  func testReadWithoutEditionTakesTheDefaultAudiobookOne() {
-    let progress = HardcoverReadProgress.update(percent: 50, read: read(), fallbacks: [audiobook])
-    XCTAssertEqual(progress, HardcoverReadProgress(unit: .seconds, value: 18_000, editionId: 10))
-    XCTAssertEqual(progress?.object, ["progress_seconds": 18_000, "edition_id": 10])
-  }
-
-  func testLibraryEntryEditionComesBeforeTheDefault() {
+  /// An edition without a format counts as an audiobook only with a duration: a zero one with
+  /// pages is a paged edition
+  func testAnEditionWithoutAFormatIsAnAudiobookOnlyWithADuration() {
+    let unformatted = Edition(id: 30, pages: 200, audioSeconds: 0, readingFormatId: nil)
     XCTAssertEqual(
-      HardcoverReadProgress.update(percent: 50, read: read(), fallbacks: [paperback, audiobook]),
-      HardcoverReadProgress(unit: .pages, value: 150, editionId: 20)
+      HardcoverReadProgress.update(percent: 50, read: read(edition: unformatted)),
+      HardcoverReadProgress(unit: .pages, value: 100)
     )
   }
 
-  func testEditionWithoutLengthIsPassedOver() {
-    let unknown = Edition(id: 40, pages: nil, audioSeconds: nil, readingFormatId: 2)
-    XCTAssertEqual(
-      HardcoverReadProgress.update(percent: 50, read: read(), fallbacks: [unknown, audiobook])?
-        .editionId,
-      10
-    )
-  }
-
-  /// A read's own edition with a length is kept, even with others available
-  func testReadsOwnEditionWithALengthIsKept() {
-    XCTAssertEqual(
-      HardcoverReadProgress.update(percent: 50, read: read(edition: paperback), fallbacks: [audiobook]),
-      HardcoverReadProgress(unit: .pages, value: 150, editionId: nil)
-    )
-  }
-
-  /// Hardcover gives a read the default print edition, which can have no page count: another
-  /// edition with a length replaces it, and progress recorded against the old one doesn't count
-  func testReadsOwnEditionWithoutALengthIsReplaced() {
+  /// The read's edition is the user's: one without a length isn't swapped for another, so nothing
+  /// is sent (Hardcover's default print edition can have no page count)
+  func testAReadsEditionWithoutALengthSendsNothing() {
     let noPages = Edition(id: 40, pages: nil, audioSeconds: nil, readingFormatId: 1)
     XCTAssertEqual(
-      HardcoverReadProgress.update(percent: 50, read: read(pages: 999, edition: noPages), fallbacks: [audiobook]),
-      HardcoverReadProgress(unit: .seconds, value: 18_000, editionId: 10)
+      HardcoverReadProgress.evaluate(percent: 50, read: read(pages: 10, edition: noPages)),
+      .failure(.noLength)
     )
-  }
-
-  /// No audiobook edition (common for translations): the default print edition, in pages
-  func testBookWithoutAudiobookEditionFallsBackToPrint() {
-    let progress = HardcoverReadProgress.update(percent: 50, read: read(), fallbacks: [nil, nil, nil, paperback])
-    XCTAssertEqual(progress, HardcoverReadProgress(unit: .pages, value: 150, editionId: 20))
   }
 
   func testSkipsSayWhy() {
     XCTAssertEqual(
-      HardcoverReadProgress.evaluate(percent: 50, read: read(), fallbacks: [nil]),
+      HardcoverReadProgress.evaluate(percent: 50, read: read()),
       .failure(.noLength)
     )
     XCTAssertEqual(
       HardcoverReadProgress.evaluate(percent: 10, read: read(seconds: 9_000, edition: audiobook)),
       .failure(.notAhead(current: 9_000, value: 3_600))
-    )
-  }
-
-  /// Defaults without a length (this book's only one was print with no page count): the most
-  /// read edition with a length
-  func testDefaultsWithoutALengthFallBackToTheMostReadEditions() throws {
-    let json = """
-      {"default_audio_edition": null, "default_ebook_edition": null,
-       "default_physical_edition": {"id": 40, "pages": null, "audio_seconds": null, "reading_format_id": 1},
-       "audio_editions": [{"id": 10, "pages": null, "audio_seconds": 36000, "reading_format_id": 2}],
-       "paged_editions": []}
-      """
-    let book = try JSONDecoder().decode(HardcoverReadInProgressData.Book.self, from: Data(json.utf8))
-    let noPages = Edition(id: 40, pages: nil, audioSeconds: nil, readingFormatId: 1)
-
-    XCTAssertEqual(
-      HardcoverReadProgress.update(percent: 50, read: read(edition: noPages), fallbacks: [noPages] + book.defaultEditions),
-      HardcoverReadProgress(unit: .seconds, value: 18_000, editionId: 10)
     )
   }
 
@@ -496,10 +449,11 @@ private final class GatedMeStub: URLProtocol {
   }
 }
 
-/// A book BookPlayer adds to the user's Hardcover library goes in as its audiobook edition, so the
-/// read Hardcover starts on it counts listening time; a book they already have keeps its edition
-class HardcoverAddToLibraryTests: XCTestCase {
+/// Drives `HardcoverService` against `HardcoverAPIStub`, signed in with an API key and with the
+/// account already known, so no `me` lookup is made
+class HardcoverAPITestCase: XCTestCase {
   var sut: HardcoverService!
+  var libraryService: LibraryServiceProtocolMock!
 
   private let defaults = UserDefaults.sharedDefaults
   private var savedDefaults: [String: Any?] = [:]
@@ -514,21 +468,20 @@ class HardcoverAddToLibraryTests: XCTestCase {
       savedDefaults[key] = defaults.object(forKey: key)
       defaults.removeObject(forKey: key)
     }
-    LibraryEntryStub.reset()
+    HardcoverAPIStub.reset()
 
     let configuration = URLSessionConfiguration.ephemeral
-    configuration.protocolClasses = [LibraryEntryStub.self]
+    configuration.protocolClasses = [HardcoverAPIStub.self]
+    libraryService = LibraryServiceProtocolMock()
     sut = HardcoverService()
     sut.setup(
-      libraryService: LibraryServiceProtocolMock(),
+      libraryService: libraryService,
       syncService: SyncServiceProtocolMock(),
       keychain: KeychainServiceMock(),
       graphQLSession: URLSession(configuration: configuration)
     )
     sut.authorization = "hc_pat_abc123"
-    /// The account is known, so no `me` lookup is made
     defaults.set("42", forKey: Constants.UserDefaults.hardcoverUserId)
-    defaults.set(true, forKey: Constants.UserDefaults.hardcoverAutoAddWantToRead)
   }
 
   override func tearDown() {
@@ -541,76 +494,7 @@ class HardcoverAddToLibraryTests: XCTestCase {
     }
   }
 
-  func testANewBookGoesInAsItsDefaultAudiobookEdition() async throws {
-    LibraryEntryStub.entry = Self.entry(
-      userBooks: "[]",
-      defaultAudio: #"{"id":300,"audio_seconds":88764}"#,
-      audioEditions: #"[{"id":301,"audio_seconds":88740}]"#
-    )
-
-    await sut.assignItem(makeBook(), to: makeItem())
-
-    let object = try XCTUnwrap(LibraryEntryStub.insertedObjects.first)
-    XCTAssertEqual(object["book_id"] as? Int, 12345)
-    XCTAssertEqual(object["status_id"] as? Int, 1)
-    XCTAssertEqual(object["edition_id"] as? Int, 300)
-  }
-
-  func testADefaultAudiobookEditionWithoutADurationGivesWayToTheMostReadOne() async throws {
-    LibraryEntryStub.entry = Self.entry(
-      userBooks: "[]",
-      defaultAudio: #"{"id":300,"audio_seconds":null}"#,
-      audioEditions: #"[{"id":301,"audio_seconds":56880}]"#
-    )
-
-    await sut.assignItem(makeBook(), to: makeItem())
-
-    let object = try XCTUnwrap(LibraryEntryStub.insertedObjects.first)
-    XCTAssertEqual(object["edition_id"] as? Int, 301)
-  }
-
-  func testABookAlreadyInTheLibraryKeepsItsEdition() async throws {
-    LibraryEntryStub.entry = Self.entry(
-      userBooks: #"[{"id":9}]"#,
-      defaultAudio: #"{"id":300,"audio_seconds":88764}"#,
-      audioEditions: "[]"
-    )
-
-    await sut.assignItem(makeBook(), to: makeItem())
-
-    let object = try XCTUnwrap(LibraryEntryStub.insertedObjects.first)
-    XCTAssertEqual(object["book_id"] as? Int, 12345)
-    XCTAssertNil(object["edition_id"])
-  }
-
-  func testABookWithoutAnAudiobookEditionLeavesTheEditionToHardcover() async throws {
-    LibraryEntryStub.entry = Self.entry(userBooks: "[]", defaultAudio: "null", audioEditions: "[]")
-
-    await sut.assignItem(makeBook(), to: makeItem())
-
-    let object = try XCTUnwrap(LibraryEntryStub.insertedObjects.first)
-    XCTAssertNil(object["edition_id"])
-  }
-
-  func testAFailedLookupStillAddsTheBook() async throws {
-    LibraryEntryStub.entry = #"{"errors":[{"message":"down"}]}"#
-
-    await sut.assignItem(makeBook(), to: makeItem())
-
-    let object = try XCTUnwrap(LibraryEntryStub.insertedObjects.first)
-    XCTAssertEqual(object["book_id"] as? Int, 12345)
-    XCTAssertNil(object["edition_id"])
-  }
-
-  private static func entry(userBooks: String, defaultAudio: String, audioEditions: String) -> String {
-    #"{"data":{"user_books":\#(userBooks),"books_by_pk":{"default_audio_edition":\#(defaultAudio),"audio_editions":\#(audioEditions)}}}"#
-  }
-
-  private func makeBook() -> SimpleHardcoverBook {
-    SimpleHardcoverBook(id: 12345, artworkURL: nil, title: "Book", author: "Author", status: .local)
-  }
-
-  private func makeItem() -> SimpleLibraryItem {
+  func makeItem() -> SimpleLibraryItem {
     SimpleLibraryItem(
       title: "Book",
       details: "Author",
@@ -632,27 +516,204 @@ class HardcoverAddToLibraryTests: XCTestCase {
   }
 }
 
-/// Answers the lookup made before adding a book (`LibraryEntry`) with `entry`, and records the object
-/// of every `insert_user_book`
-private final class LibraryEntryStub: URLProtocol {
+/// A book BookPlayer adds to the user's Hardcover library goes in as its audiobook edition, so the
+/// read Hardcover starts on it counts listening time; a book they already have keeps its edition
+class HardcoverAddToLibraryTests: HardcoverAPITestCase {
+  override func setUp() {
+    super.setUp()
+    UserDefaults.sharedDefaults.set(true, forKey: Constants.UserDefaults.hardcoverAutoAddWantToRead)
+    HardcoverAPIStub.answer("InsertUserBook", with: #"{"data":{"insert_user_book":{"id":555}}}"#)
+  }
+
+  func testANewBookGoesInAsItsDefaultAudiobookEdition() async throws {
+    answerLookup(
+      userBooks: "[]",
+      defaultAudio: #"{"id":300,"audio_seconds":88764}"#,
+      audioEditions: #"[{"id":301,"audio_seconds":88740}]"#
+    )
+
+    await sut.assignItem(makeBook(), to: makeItem())
+
+    let object = try XCTUnwrap(insertedObjects.first)
+    XCTAssertEqual(object["book_id"] as? Int, 12345)
+    XCTAssertEqual(object["status_id"] as? Int, 1)
+    XCTAssertEqual(object["edition_id"] as? Int, 300)
+    let lookup = try XCTUnwrap(HardcoverAPIStub.variables(of: "LibraryEntry").first)
+    XCTAssertEqual(lookup["user_id"] as? Int, 42)
+    XCTAssertEqual(lookup["book_id"] as? Int, 12345)
+  }
+
+  func testADefaultAudiobookEditionWithoutADurationGivesWayToTheMostReadOne() async throws {
+    answerLookup(
+      userBooks: "[]",
+      defaultAudio: #"{"id":300,"audio_seconds":null}"#,
+      audioEditions: #"[{"id":301,"audio_seconds":56880}]"#
+    )
+
+    await sut.assignItem(makeBook(), to: makeItem())
+
+    let object = try XCTUnwrap(insertedObjects.first)
+    XCTAssertEqual(object["edition_id"] as? Int, 301)
+  }
+
+  func testABookAlreadyInTheLibraryKeepsItsEdition() async throws {
+    answerLookup(
+      userBooks: #"[{"id":9}]"#,
+      defaultAudio: #"{"id":300,"audio_seconds":88764}"#,
+      audioEditions: "[]"
+    )
+
+    await sut.assignItem(makeBook(), to: makeItem())
+
+    let object = try XCTUnwrap(insertedObjects.first)
+    XCTAssertEqual(object["book_id"] as? Int, 12345)
+    XCTAssertNil(object["edition_id"])
+  }
+
+  func testABookWithoutAnAudiobookEditionLeavesTheEditionToHardcover() async throws {
+    answerLookup(userBooks: "[]", defaultAudio: "null", audioEditions: "[]")
+
+    await sut.assignItem(makeBook(), to: makeItem())
+
+    let object = try XCTUnwrap(insertedObjects.first)
+    XCTAssertNil(object["edition_id"])
+  }
+
+  func testAFailedLookupStillAddsTheBook() async throws {
+    HardcoverAPIStub.answer("LibraryEntry", with: #"{"errors":[{"message":"down"}]}"#)
+
+    await sut.assignItem(makeBook(), to: makeItem())
+
+    let object = try XCTUnwrap(insertedObjects.first)
+    XCTAssertEqual(object["book_id"] as? Int, 12345)
+    XCTAssertNil(object["edition_id"])
+  }
+
+  private var insertedObjects: [[String: Any]] {
+    HardcoverAPIStub.variables(of: "InsertUserBook").compactMap { $0["object"] as? [String: Any] }
+  }
+
+  private func answerLookup(userBooks: String, defaultAudio: String, audioEditions: String) {
+    HardcoverAPIStub.answer(
+      "LibraryEntry",
+      with: #"{"data":{"user_books":\#(userBooks),"books_by_pk":{"default_audio_edition":\#(defaultAudio),"audio_editions":\#(audioEditions)}}}"#
+    )
+  }
+
+  private func makeBook() -> SimpleHardcoverBook {
+    SimpleHardcoverBook(id: 12345, artworkURL: nil, title: "Book", author: "Author", status: .local)
+  }
+}
+
+/// A book's progress goes on its read in progress on Hardcover, measured against the read's own
+/// edition, and only while it's Currently Reading there
+class HardcoverProgressSyncTests: HardcoverAPITestCase {
+  override func setUp() {
+    super.setUp()
+    libraryService.getHardcoverBookForReturnValue = makeBook(status: .reading)
+    HardcoverAPIStub.answer("UpdateProgress", with: #"{"data":{"update_user_book_read":{"error":null}}}"#)
+  }
+
+  func testProgressGoesOnTheReadInProgressInItsEditionsUnit() async throws {
+    answerReadInProgress(statusId: 2, progressSeconds: 100, edition: Self.audiobook)
+
+    await sut.updateReadProgress(50, for: "book.m4b")
+
+    let query = try XCTUnwrap(HardcoverAPIStub.variables(of: "ReadInProgress").first)
+    XCTAssertEqual(query["user_id"] as? Int, 42)
+    XCTAssertEqual(query["book_id"] as? Int, 12345)
+
+    let mutation = try XCTUnwrap(HardcoverAPIStub.variables(of: "UpdateProgress").first)
+    XCTAssertEqual(mutation["id"] as? Int, 77)
+    let object = try XCTUnwrap(mutation["object"] as? [String: Any])
+    XCTAssertEqual(object["progress_seconds"] as? Int, 500)
+    XCTAssertEqual(object.count, 1, "Only the progress: the read's edition and dates stay as they are")
+  }
+
+  func testAPrintEditionGetsPages() async throws {
+    answerReadInProgress(statusId: 2, progressPages: nil, edition: #"{"id":20,"pages":300,"audio_seconds":null,"reading_format_id":1}"#)
+
+    await sut.updateReadProgress(50, for: "book.m4b")
+
+    let mutation = try XCTUnwrap(HardcoverAPIStub.variables(of: "UpdateProgress").first)
+    XCTAssertEqual((mutation["object"] as? [String: Any])?["progress_pages"] as? Int, 150)
+  }
+
+  func testNothingIsSentUnlessItsCurrentlyReadingOnHardcover() async {
+    answerReadInProgress(statusId: 1, progressSeconds: nil, edition: Self.audiobook)
+
+    await sut.updateReadProgress(50, for: "book.m4b")
+
+    XCTAssertTrue(HardcoverAPIStub.variables(of: "UpdateProgress").isEmpty)
+  }
+
+  func testNothingIsAskedBeforeTheBookIsCurrentlyReading() async {
+    libraryService.getHardcoverBookForReturnValue = makeBook(status: .library)
+
+    await sut.updateReadProgress(50, for: "book.m4b")
+
+    XCTAssertTrue(HardcoverAPIStub.variables(of: "ReadInProgress").isEmpty)
+    XCTAssertTrue(HardcoverAPIStub.variables(of: "UpdateProgress").isEmpty)
+  }
+
+  func testAReadsEditionWithoutALengthGetsNothing() async {
+    answerReadInProgress(statusId: 2, progressPages: nil, edition: #"{"id":40,"pages":null,"audio_seconds":null,"reading_format_id":1}"#)
+
+    await sut.updateReadProgress(50, for: "book.m4b")
+
+    XCTAssertTrue(HardcoverAPIStub.variables(of: "UpdateProgress").isEmpty)
+  }
+
+  func testProgressBehindHardcoversIsNotSent() async {
+    answerReadInProgress(statusId: 2, progressSeconds: 600, edition: Self.audiobook)
+
+    await sut.updateReadProgress(50, for: "book.m4b")
+
+    XCTAssertTrue(HardcoverAPIStub.variables(of: "UpdateProgress").isEmpty)
+  }
+
+  private static let audiobook = #"{"id":10,"pages":null,"audio_seconds":1000,"reading_format_id":2}"#
+
+  private func answerReadInProgress(
+    statusId: Int,
+    progressSeconds: Int? = nil,
+    progressPages: Int? = nil,
+    edition: String
+  ) {
+    let seconds = progressSeconds.map(String.init) ?? "null"
+    let pages = progressPages.map(String.init) ?? "null"
+    HardcoverAPIStub.answer(
+      "ReadInProgress",
+      with: #"{"data":{"user_books":[{"id":9,"status_id":\#(statusId),"user_book_reads":[{"id":77,"progress_seconds":\#(seconds),"progress_pages":\#(pages),"edition":\#(edition)}]}]}}"#
+    )
+  }
+
+  private func makeBook(status: HardcoverBook.Status) -> SimpleHardcoverBook {
+    SimpleHardcoverBook(id: 12345, artworkURL: nil, title: "Book", author: "Author", status: status)
+  }
+}
+
+/// Hardcover's GraphQL API, answering each operation (`query ReadInProgress`, `mutation
+/// InsertUserBook`, …) with the body set for it, and recording the variables of every request.
+/// An operation without an answer gets a GraphQL error
+private final class HardcoverAPIStub: URLProtocol {
   private static let lock = NSLock()
-  private static var storedEntry = ""
-  private static var storedInsertedObjects = [[String: Any]]()
-
-  static var entry: String {
-    get { lock.withLock { storedEntry } }
-    set { lock.withLock { storedEntry = newValue } }
-  }
-
-  static var insertedObjects: [[String: Any]] {
-    lock.withLock { storedInsertedObjects }
-  }
+  private static var answers = [String: String]()
+  private static var requests = [(operation: String, variables: [String: Any])]()
 
   static func reset() {
     lock.withLock {
-      storedEntry = ""
-      storedInsertedObjects = []
+      answers = [:]
+      requests = []
     }
+  }
+
+  static func answer(_ operation: String, with body: String) {
+    lock.withLock { answers[operation] = body }
+  }
+
+  static func variables(of operation: String) -> [[String: Any]] {
+    lock.withLock { requests.filter { $0.operation == operation }.map(\.variables) }
   }
 
   override class func canInit(with request: URLRequest) -> Bool { true }
@@ -662,23 +723,27 @@ private final class LibraryEntryStub: URLProtocol {
   override func startLoading() {
     let payload = (try? JSONSerialization.jsonObject(with: bodyData())) as? [String: Any]
     let query = payload?["query"] as? String ?? ""
-    let variables = payload?["variables"] as? [String: Any]
+    let operation = Self.operationName(in: query)
 
-    let body: String
-    if query.contains("insert_user_book") {
-      let object = variables?["object"] as? [String: Any] ?? [:]
-      Self.lock.withLock { Self.storedInsertedObjects.append(object) }
-      body = #"{"data":{"insert_user_book":{"id":555}}}"#
-    } else if query.contains("LibraryEntry") {
-      body = Self.entry
-    } else {
-      body = #"{"errors":[{"message":"not stubbed"}]}"#
-    }
+    let body = Self.lock.withLock {
+      Self.requests.append((operation, payload?["variables"] as? [String: Any] ?? [:]))
+      return Self.answers[operation]
+    } ?? #"{"errors":[{"message":"not stubbed"}]}"#
 
     let response = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
     client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
     client?.urlProtocol(self, didLoad: Data(body.utf8))
     client?.urlProtocolDidFinishLoading(self)
+  }
+
+  /// The name after `query` or `mutation`
+  private static func operationName(in query: String) -> String {
+    let words = query.split(whereSeparator: { !$0.isLetter && !$0.isNumber && $0 != "_" })
+    guard let keyword = words.firstIndex(where: { $0 == "query" || $0 == "mutation" }),
+      words.index(after: keyword) < words.endIndex
+    else { return "" }
+
+    return String(words[words.index(after: keyword)])
   }
 
   /// URLSession hands a protocol the body as a stream

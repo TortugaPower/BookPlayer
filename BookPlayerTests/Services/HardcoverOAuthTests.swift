@@ -285,6 +285,24 @@ class HardcoverOAuthTests: XCTestCase {
     XCTAssertFalse(session.isSignedIn)
   }
 
+  /// An answer without a refresh token or scope keeps the ones it had: stored as missing, the
+  /// sign-in could never refresh again
+  func testARefreshAnswerWithoutARefreshTokenOrScopeKeepsTheCurrentOnes() async throws {
+    let keychain = KeychainServiceMock()
+    let current = storedTokens(expiresIn: 30)
+    try keychain.set(current, key: .hardcoverSession)
+    let server = TokenServerStub(answer: .accessTokenOnly)
+    let session = makeSession(keychain: keychain, server: server)
+
+    let token = try await session.accessToken()
+
+    XCTAssertEqual(token, "hc_at_new1")
+    let stored: HardcoverTokenSet? = try keychain.get(.hardcoverSession)
+    XCTAssertEqual(stored?.accessToken, "hc_at_new1")
+    XCTAssertEqual(stored?.refreshToken, "hc_rt_old")
+    XCTAssertEqual(stored?.scope, current.scope)
+  }
+
   func testAFailedRefreshKeepsAnUnexpiredTokenAndWaitsBeforeTryingAgain() async throws {
     let keychain = KeychainServiceMock()
     try keychain.set(storedTokens(expiresIn: 30), key: .hardcoverSession)
@@ -352,6 +370,8 @@ class HardcoverOAuthTests: XCTestCase {
 private actor TokenServerStub {
   enum Answer {
     case tokens
+    /// A new access token only: no refresh token, no scope
+    case accessTokenOnly
     case invalidGrant
     case offline
   }
@@ -386,6 +406,13 @@ private actor TokenServerStub {
     case .invalidGrant:
       let body = try JSONSerialization.data(withJSONObject: ["error": "invalid_grant"])
       return (body, Self.response(url, status: 400))
+    case .accessTokenOnly:
+      let body = try JSONSerialization.data(withJSONObject: [
+        "access_token": "hc_at_new\(issued)",
+        "token_type": "Bearer",
+        "expires_in": 604800,
+      ])
+      return (body, Self.response(url, status: 200))
     case .tokens:
       let body = try JSONSerialization.data(withJSONObject: [
         "access_token": "hc_at_new\(issued)",

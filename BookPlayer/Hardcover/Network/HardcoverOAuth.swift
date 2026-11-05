@@ -310,10 +310,20 @@ actor HardcoverOAuthSession {
 
   private func refresh(_ current: HardcoverTokenSet, using refreshToken: String) async throws -> HardcoverTokenSet {
     do {
-      let refreshed = try await requestTokens([
+      var refreshed = try await requestTokens([
         "grant_type": "refresh_token",
         "refresh_token": refreshToken,
       ])
+
+      /// What the answer leaves out stays as it was (RFC 6749 §5.1, §6): no new refresh token means
+      /// the one sent is still good, and no scope means the same scopes. Stored as missing, the
+      /// sign-in couldn't refresh again, and would read as granted everything
+      if refreshed.refreshToken == nil {
+        refreshed.refreshToken = refreshToken
+      }
+      if refreshed.scope.isEmpty {
+        refreshed.scope = current.scope
+      }
 
       /// Signed out, or signed in again, while it ran: the answer belongs to a sign-in that's gone
       guard tokens?.refreshToken == refreshToken else {

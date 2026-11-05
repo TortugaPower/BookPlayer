@@ -9,7 +9,7 @@
 import Foundation
 
 /// Response model for the read in progress of a book in the user's library: the started read
-/// that isn't finished, where progress goes, with the editions its length can come from
+/// that isn't finished, where progress goes, with its edition, which progress is measured against
 struct HardcoverReadInProgressData: Codable {
   let userBooks: [UserBook]
 
@@ -20,47 +20,12 @@ struct HardcoverReadInProgressData: Codable {
   struct UserBook: Codable {
     let id: Int
     let statusId: Int
-    /// The library entry's edition, which a read without its own goes by
-    let edition: Edition?
-    let book: Book?
     let userBookReads: [Read]
 
     enum CodingKeys: String, CodingKey {
       case id
       case statusId = "status_id"
-      case edition
-      case book
       case userBookReads = "user_book_reads"
-    }
-  }
-
-  struct Book: Codable {
-    let defaultAudioEdition: Edition?
-    let defaultEbookEdition: Edition?
-    let defaultPhysicalEdition: Edition?
-    /// The most read audiobook edition with a duration, for books whose defaults have no length
-    let audioEditions: [Edition]?
-    /// The most read edition with a page count
-    let pagedEditions: [Edition]?
-
-    enum CodingKeys: String, CodingKey {
-      case defaultAudioEdition = "default_audio_edition"
-      case defaultEbookEdition = "default_ebook_edition"
-      case defaultPhysicalEdition = "default_physical_edition"
-      case audioEditions = "audio_editions"
-      case pagedEditions = "paged_editions"
-    }
-
-    /// Audiobook first, this being an audiobook app; ebook and print ones count in pages.
-    /// The defaults, then the most read editions with a length: a book's defaults can have none
-    var defaultEditions: [Edition?] {
-      [
-        defaultAudioEdition,
-        defaultEbookEdition,
-        defaultPhysicalEdition,
-        audioEditions?.first,
-        pagedEditions?.first,
-      ]
     }
   }
 
@@ -107,9 +72,9 @@ struct HardcoverUpdateUserBookReadData: Codable {
   }
 }
 
-/// What a book's progress writes on Hardcover's read (`DatesReadInput`): seconds of an audiobook
-/// edition, else pages. Hardcover's edition can be another recording than the file, so the
-/// percentage is carried over, never the position
+/// What a book's progress writes on Hardcover's read (`DatesReadInput`): seconds when the read's
+/// edition is an audiobook, else pages. Hardcover's edition can be another recording than the file,
+/// so the percentage is carried over, never the position
 struct HardcoverReadProgress: Equatable {
   enum Unit: Equatable {
     case seconds
@@ -120,76 +85,57 @@ struct HardcoverReadProgress: Equatable {
 
   let unit: Unit
   let value: Int
-  /// The edition measured against, when the read had none: written with the progress, as
-  /// Hardcover needs the read's edition to show it. Reads started by a status change have none
-  let editionId: Int?
 
   var object: [String: Int] {
-    var object = [unit == .seconds ? "progress_seconds" : "progress_pages": value]
-    if let editionId {
-      object["edition_id"] = editionId
-    }
-    return object
+    [unit == .seconds ? "progress_seconds" : "progress_pages": value]
   }
 
   /// Why nothing is sent, for the log
   enum Skip: Error, Equatable {
     case outOfRange
-    /// No edition with a length in its unit, the read's own nor any other
+    /// The read has no edition, or its edition has no length in its unit. No other edition is
+    /// picked for it: the edition on a user's read is theirs, and BookPlayer only chooses one when
+    /// it adds the book
     case noLength
     case notAhead(current: Int, value: Int)
   }
 
-  /// Measured against the read's edition when it has a length. Hardcover gives a read the book's
-  /// default print edition by itself, which may have none: then, as with a read without one, the
-  /// first of `fallbacks` with a length (the library entry's edition, then the book's defaults),
-  /// written on the read with the progress. Nothing when the progress isn't ahead of what Hardcover
-  /// has (a book listened to again from earlier, or another device ahead). Kept short of the end:
-  /// reaching it finishes the read, and finishing is the Read status, set when the book is marked
-  /// finished
+  /// Measured against the read's own edition. Nothing when it has no length, or when the progress
+  /// isn't ahead of what Hardcover has (a book listened to again from earlier, or another device
+  /// ahead). Kept short of the end: reaching it finishes the read, and finishing is the Read status,
+  /// set when the book is marked finished
   static func evaluate(
     percent: Double,
-    read: HardcoverReadInProgressData.Read,
-    fallbacks: [HardcoverReadInProgressData.Edition?] = []
+    read: HardcoverReadInProgressData.Read
   ) -> Result<HardcoverReadProgress, Skip> {
     guard percent > 0, percent < 100 else { return .failure(.outOfRange) }
 
-    let candidates = ([read.edition] + fallbacks).compactMap { $0 }
     guard
-      let (edition, unit, total) = candidates.lazy.compactMap(measure).first
+      let edition = read.edition,
+      let (unit, total) = measure(edition)
     else { return .failure(.noLength) }
 
-    /// Progress already on the read counts only in the edition it was recorded against
-    let keepsEdition = edition.id == read.edition?.id
-    let recorded = keepsEdition ? (unit == .seconds ? read.progressSeconds : read.progressPages) : nil
-    let current = recorded ?? 0
+    let current = (unit == .seconds ? read.progressSeconds : read.progressPages) ?? 0
     let value = min(Int(Double(total) * percent / 100), total - 1)
     guard value > current else { return .failure(.notAhead(current: current, value: value)) }
 
-    return .success(HardcoverReadProgress(
-      unit: unit,
-      value: value,
-      editionId: keepsEdition ? nil : edition.id
-    ))
+    return .success(HardcoverReadProgress(unit: unit, value: value))
   }
 
   static func update(
     percent: Double,
-    read: HardcoverReadInProgressData.Read,
-    fallbacks: [HardcoverReadInProgressData.Edition?] = []
+    read: HardcoverReadInProgressData.Read
   ) -> HardcoverReadProgress? {
-    try? evaluate(percent: percent, read: read, fallbacks: fallbacks).get()
+    try? evaluate(percent: percent, read: read).get()
   }
 
   /// The edition's unit and length: seconds for an audiobook, pages otherwise (as Hardcover's
   /// SDK does); an edition without a format counts as an audiobook when it has a recording length
-  private static func measure(
-    _ edition: HardcoverReadInProgressData.Edition
-  ) -> (HardcoverReadInProgressData.Edition, Unit, Int)? {
-    let isAudiobook = edition.readingFormatId.map { $0 == audiobookFormat } ?? (edition.audioSeconds != nil)
+  private static func measure(_ edition: HardcoverReadInProgressData.Edition) -> (Unit, Int)? {
+    let isAudiobook = edition.readingFormatId.map { $0 == audiobookFormat } ?? ((edition.audioSeconds ?? 0) > 0)
     guard let total = isAudiobook ? edition.audioSeconds : edition.pages, total > 1 else { return nil }
 
-    return (edition, isAudiobook ? .seconds : .pages, total)
+    return (isAudiobook ? .seconds : .pages, total)
   }
 }
 

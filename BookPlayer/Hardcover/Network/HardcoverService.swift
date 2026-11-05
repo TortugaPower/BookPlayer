@@ -486,6 +486,8 @@ extension HardcoverService {
     metadataSubscription = nil
     progressSubscription = nil
     pauseSubscription = nil
+    /// Held progress and send times belong to the account just left, not one signed in next
+    progressSchedule = HardcoverProgressSchedule(interval: progressSchedule.interval)
   }
 
   /// Once per connection: a token refresh, or saving the same key, posts again while tracking
@@ -585,14 +587,13 @@ extension HardcoverService {
         return
       }
 
-      let fallbacks = [userBook.edition] + (userBook.book?.defaultEditions ?? [])
       let progress: HardcoverReadProgress
-      switch HardcoverReadProgress.evaluate(percent: percent, read: read, fallbacks: fallbacks) {
+      switch HardcoverReadProgress.evaluate(percent: percent, read: read) {
       case .success(let value):
         progress = value
       case .failure(.noLength):
         Self.logger.info(
-          "Hardcover progress skipped for book \(book.id): no edition with a length (read, entry, default audio, ebook, print, most read audio, paged): \(([read.edition] + fallbacks).map(Self.describe))"
+          "Hardcover progress skipped for book \(book.id): the read's edition has no length: \(Self.describe(read.edition))"
         )
         return
       case .failure(.notAhead(let current, let value)):
@@ -623,59 +624,13 @@ extension HardcoverService {
       + "pages \(edition.pages.map(String.init) ?? "-") seconds \(edition.audioSeconds.map(String.init) ?? "-")"
   }
 
-  /// The started read that isn't finished (Hardcover's "Read in Progress"), with the editions
-  /// its length can come from; needs `read:library`
+  /// The started read that isn't finished (Hardcover's "Read in Progress"), with its edition, which
+  /// progress is measured against; needs `read:library`
   static let readInProgressQuery = """
     query ReadInProgress($user_id: Int!, $book_id: Int!) {
       user_books(where: {user_id: {_eq: $user_id}, book_id: {_eq: $book_id}}) {
         id
         status_id
-        edition {
-          id
-          pages
-          audio_seconds
-          reading_format_id
-        }
-        book {
-          default_audio_edition {
-            id
-            pages
-            audio_seconds
-            reading_format_id
-          }
-          default_ebook_edition {
-            id
-            pages
-            audio_seconds
-            reading_format_id
-          }
-          default_physical_edition {
-            id
-            pages
-            audio_seconds
-            reading_format_id
-          }
-          audio_editions: editions(
-            where: {reading_format_id: {_eq: 2}, audio_seconds: {_gt: 0}},
-            order_by: {users_count: desc},
-            limit: 1
-          ) {
-            id
-            pages
-            audio_seconds
-            reading_format_id
-          }
-          paged_editions: editions(
-            where: {pages: {_gt: 0}},
-            order_by: {users_count: desc},
-            limit: 1
-          ) {
-            id
-            pages
-            audio_seconds
-            reading_format_id
-          }
-        }
         user_book_reads(where: {finished_at: {_is_null: true}}, order_by: {id: desc}, limit: 1) {
           id
           progress_pages
