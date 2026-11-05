@@ -776,7 +776,6 @@ final class ItemDetailsLoadTests: XCTestCase {
     var isConnected: Bool { authorization != nil }
     var isSignedInWithOAuth: Bool { false }
     var connectedUsername: String? { nil }
-    var needsSignInAgain: Bool { false }
     var getBookCallCount = 0
     var bookToReturn: SimpleHardcoverBook?
 

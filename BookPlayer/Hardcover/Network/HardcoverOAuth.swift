@@ -16,9 +16,9 @@ import Security
 enum HardcoverOAuth {
   /// The public client id of BookPlayer's "native" app at hardcover.app → Account → Developer apps.
   /// Set per build in the xcconfig's `BP_HARDCOVER_CLIENT_ID` (Xcode Cloud writes it from its
-  /// environment). A public client has no secret, so the id isn't one. Read without the crashing
-  /// `configurationValue(for:)`: left empty or missing, the sign-in button stays hidden and only
-  /// API keys can be used
+  /// environment), always set: signing in is the only way to connect. A public client has no
+  /// secret, so the id isn't one. Read without the crashing `configurationValue(for:)`, so a local
+  /// xcconfig copied before the key existed still launches; signing in just fails there
   static let clientId: String =
     (try? Bundle.main.configurationValue(for: ConfigurationKeys.hardcoverClientId.rawValue)) ?? ""
 
@@ -40,8 +40,6 @@ enum HardcoverOAuth {
   /// After a refresh fails without a verdict (offline, rate limited, down), the unexpired token is
   /// used for this long before trying again
   static let refreshRetryDelay: TimeInterval = 10
-
-  static var isAvailable: Bool { !clientId.isEmpty }
 }
 
 /// One sign-in attempt: open `url`, then read the redirect with the attempt that asked for it

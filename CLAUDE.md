@@ -571,7 +571,7 @@ lines). It is the highest-risk file in the app.
 - `BuildConfiguration/*.xcconfig` define `BP_*` keys; `Info.plist` substitutes them (`$(BP_…)`);
   `Shared/Configuration.swift` (`ConfigurationKeys`) reads them. **`Bundle.configurationValue(for:)` uses `try!`
   — a missing key crashes at launch.** Keys: API scheme/domain/port, bundle id, RevenueCat key, Sentry DSN, Hardcover client id
-  (`BP_HARDCOVER_CLIENT_ID`, the one key read without `try!`: empty or missing hides Hardcover's sign-in).
+  (`BP_HARDCOVER_CLIENT_ID`, the one key read without `try!`: always set, as signing in is the only way to connect Hardcover; a local xcconfig without it still launches, but signing in fails).
 - **`Debug.xcconfig` and `Release.xcconfig` are gitignored and hold the working-tree real values —
   never commit or overwrite them.** Nuance a reviewer should know: `Debug.xcconfig` is untracked and holds real
   prod secrets; `Release.xcconfig` is *also* gitignored **but is already tracked** with placeholder values
@@ -672,16 +672,18 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
   POSTed** (`.local` is a local-only marker). Monotonic guards prevent backwards writes; auto-match on import has
   explicit duplicate detection. Progress goes on the book's read in progress (`update_user_book_read`), only while it's Currently Reading there, since that status starts the read: the percentage carried onto the read's edition, seconds or pages by its `reading_format_id` (kept when it has a length; Hardcover gives a new read the default print edition itself, which may have no page count, so a read without one, or without a length, gets the first with a length of the library entry's and the book's default audiobook, ebook and print editions, then its most read audiobook edition with a duration and most read edition with pages, written with the progress as `edition_id`), only forward, and kept short of the end, which would finish the read (finishing stays the Read status). Sent at most every 2 minutes per book, plus on pause (`HardcoverProgressSchedule`). API failures are log-and-swallowed so a Hardcover outage never blocks local
   playback. **One account at a time** (decided), connected one of two ways; neither connected → subscriptions torn
-  down. An API key in Keychain `.hardcoverToken`, the bare key (`hc_pat_…`): `HardcoverService.apiKey(from:)`
+  down. Settings shows only Sign In until the user signs in (OAuth), then its toggles, which apply as they change
+  (`@AppStorage`, no Save). An API key in Keychain `.hardcoverToken`, the bare key (`hc_pat_…`), can no longer be
+  entered: one saved by an earlier version keeps syncing, but Settings shows Sign In for it, and signing in
+  replaces it. `HardcoverService.apiKey(from:)`
   drops a pasted `Bearer ` (older tokens were copied with it, and ones saved that way read without it), and
   requests send `Authorization: Bearer <key>`, which the API requires. Or an OAuth sign-in (`HardcoverOAuth`):
   authorization code + PKCE through `ASWebAuthenticationSession`, redirect `bookplayer://hardcover/callback`,
-  scopes `read:catalog read:library write:library read:me`, public client id `HardcoverOAuth.clientId` from `BP_HARDCOVER_CLIENT_ID` (no secret; empty
-  hides the button). Its tokens are one `HardcoverTokenSet` in `.hardcoverSession`, owned by the
+  scopes `read:catalog read:library write:library read:me`, public client id `HardcoverOAuth.clientId` from `BP_HARDCOVER_CLIENT_ID` (no secret). Its tokens are one `HardcoverTokenSet` in `.hardcoverSession`, owned by the
   `HardcoverOAuthSession` actor: access tokens last a week, refresh tokens rotate on every use and a spent one sent
   again revokes the whole sign-in, so refreshes run one at a time and are never retried; only `invalid_grant` ends
   the sign-in. A refresh keeps the scopes first granted, so adding one to `HardcoverOAuth.scopes` leaves existing sign-ins without it
-  (`HardcoverTokenSet.missingScopes`): Settings offers Sign In Again, and calls that need it are skipped, not sent to a 403. A sign-in replaces the key; OAuth wins if both exist. A link records the account's Hardcover user id
+  (`HardcoverTokenSet.missingScopes`): calls that need it are skipped, not sent to a 403. Settings has no Sign In Again prompt yet (logging out and signing in again grants the scope): add one along with the first new scope. A sign-in replaces the key; OAuth wins if both exist. A link records the account's Hardcover user id
   (`me`, cached in `hardcoverUserId`) as its `hostId`; links made before that, or offline, have none. The
   server identifies a link by (item, provider, providerId) without the host, so letting several accounts link one
   item would need a server change first.

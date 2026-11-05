@@ -24,10 +24,6 @@ protocol HardcoverServiceProtocol {
   /// The connected account's Hardcover username, once read from `me`
   var connectedUsername: String? { get }
 
-  /// Signed in without everything the app now asks for (a sign-in from an older version):
-  /// signing in again grants the rest
-  var needsSignInAgain: Bool { get }
-
   /// Sign in through Hardcover's authorize page, replacing an API key.
   /// - Parameter authenticate: opens the page and returns the redirect back to the app
   func signIn(authenticate: (URL) async throws -> URL) async throws
@@ -165,10 +161,6 @@ final class HardcoverService: BPLogger, HardcoverServiceProtocol {
 
   var connectedUsername: String? {
     UserDefaults.sharedDefaults.string(forKey: Constants.UserDefaults.hardcoverUsername)
-  }
-
-  var needsSignInAgain: Bool {
-    oauthSession.tokens?.missingScopes.isEmpty == false
   }
 
   /// The connected account's Hardcover user id, written as `hostId` on the links it makes.
@@ -506,8 +498,9 @@ extension HardcoverService {
   /// Reading there: the status starts the read, so before it there's nothing to put it on.
   /// Errors are logged and dropped, like every Hardcover call: the next update sends it again
   func updateReadProgress(_ percent: Double, for relativePath: String) async {
-    /// Finding the read needs `read:library`, which a sign-in from before progress sync lacks:
-    /// Hardcover answers 403 until the user signs in again, which Settings offers
+    /// Finding the read needs `read:library`. A sign-in granted without it would get a 403, so it's
+    /// skipped; logging out and signing in again grants it. Settings has no prompt for this yet:
+    /// add one along with the first scope added to `HardcoverOAuth.scopes`
     if oauthSession.tokens?.missingScopes.contains("read:library") == true {
       Self.logger.info("Hardcover progress skipped: the sign-in lacks read:library")
       return

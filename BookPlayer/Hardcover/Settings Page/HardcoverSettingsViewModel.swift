@@ -17,50 +17,26 @@ import SwiftUI
 final class HardcoverSettingsViewModel: HardcoverSettingsView.Model {
   private var hardcoverService: HardcoverServiceProtocol
 
-  @AppStorage(Constants.UserDefaults.hardcoverAutoMatch, store: UserDefaults.sharedDefaults)
-  private var storedAutoMatch = false
-
-  @AppStorage(Constants.UserDefaults.hardcoverAutoAddWantToRead, store: UserDefaults.sharedDefaults)
-  private var storedAutoAddWantToRead = true
-
-  @AppStorage(Constants.UserDefaults.hardcoverReadingThreshold, store: UserDefaults.sharedDefaults)
-  private var storedReadingThreshold = 1.0
-
   init(hardcoverService: HardcoverServiceProtocol) {
     self.hardcoverService = hardcoverService
 
     super.init(
-      accessToken: hardcoverService.authorization ?? "",
-      isConnected: hardcoverService.isConnected,
-      isSignedInWithOAuth: hardcoverService.isSignedInWithOAuth,
-      connectedUsername: hardcoverService.connectedUsername,
-      needsSignInAgain: hardcoverService.needsSignInAgain,
-      canSignIn: HardcoverOAuth.isAvailable
+      isSignedIn: hardcoverService.isSignedInWithOAuth,
+      connectedUsername: hardcoverService.connectedUsername
     )
-
-    self.autoMatch = storedAutoMatch
-    self.autoAddWantToRead = storedAutoAddWantToRead
-    self.readingThreshold = storedReadingThreshold
   }
 
+  /// Shown as signed out right away: the sign-in is forgotten at once, but revoking it waits on the network
   @MainActor
-  override func onSaveTapped() {
-    /// Signed in, the key field is hidden and empty: there's no key to save
-    if !hardcoverService.isSignedInWithOAuth {
-      hardcoverService.authorization = accessToken
-    }
-    storedAutoMatch = autoMatch
-    storedAutoAddWantToRead = autoAddWantToRead
-    storedReadingThreshold = readingThreshold
-  }
-
-  @MainActor
-  override func onUnlinkTapped() {
+  override func onLogOutTapped() {
     let hardcoverService = hardcoverService
 
     Task {
       await hardcoverService.disconnect()
     }
+
+    isSignedIn = false
+    connectedUsername = nil
   }
 
   @MainActor
@@ -70,16 +46,13 @@ final class HardcoverSettingsViewModel: HardcoverSettingsView.Model {
 
     do {
       try await hardcoverService.signIn(authenticate: authenticate)
-      accessToken = ""
     } catch let error as ASWebAuthenticationSessionError where error.code == .canceledLogin {
       /// Closed by the user: nothing to report
     } catch {
       signInFailed = true
     }
 
-    isConnected = hardcoverService.isConnected
-    isSignedInWithOAuth = hardcoverService.isSignedInWithOAuth
+    isSignedIn = hardcoverService.isSignedInWithOAuth
     connectedUsername = hardcoverService.connectedUsername
-    needsSignInAgain = hardcoverService.needsSignInAgain
   }
 }
