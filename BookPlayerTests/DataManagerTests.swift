@@ -190,6 +190,46 @@ class DatabaseRecoveryTests: XCTestCase {
     }
   }
 
+  /// What opening the store reported on a full disk when SQLite couldn't create the -shm: it says
+  /// the file couldn't be opened, not why, so the free space decides
+  func testAnUnexplainedOpenFailureIsOutOfSpaceOnlyOnANearlyFullDisk() {
+    let cantOpen = NSError(
+      domain: NSCocoaErrorDomain,
+      code: NSFileReadUnknownError,
+      userInfo: ["NSSQLiteErrorDomain": 14]
+    )
+    // SQLITE_IOERR_SHMSIZE, an extended code of SQLITE_IOERR
+    let shmSizeError = NSError(domain: "NSSQLiteErrorDomain", code: 4874)
+    let wrapped = NSError(
+      domain: NSCocoaErrorDomain,
+      code: NSMigrationError,
+      userInfo: [NSUnderlyingErrorKey: cantOpen]
+    )
+    let nearlyFull = DatabaseInitializer.nearlyFullCapacity - 1
+    let plentyOfSpace = 10 * 1024 * 1024 * 1024
+
+    for error in [cantOpen, shmSizeError, wrapped] {
+      XCTAssertTrue(DatabaseInitializer.isOutOfSpaceError(error, availableCapacity: 0), "\(error)")
+      XCTAssertTrue(
+        DatabaseInitializer.isOutOfSpaceError(error, availableCapacity: nearlyFull),
+        "\(error)"
+      )
+      XCTAssertFalse(
+        DatabaseInitializer.isOutOfSpaceError(error, availableCapacity: plentyOfSpace),
+        "\(error)"
+      )
+      XCTAssertFalse(DatabaseInitializer.isOutOfSpaceError(error), "\(error)")
+    }
+
+    // A corrupt database isn't explained by a full disk
+    let corrupt = NSError(
+      domain: NSCocoaErrorDomain,
+      code: NSFileReadCorruptFileError,
+      userInfo: ["NSSQLiteErrorDomain": 11]
+    )
+    XCTAssertFalse(DatabaseInitializer.isOutOfSpaceError(corrupt, availableCapacity: 0))
+  }
+
   /// A -wal left beside a fresh store belongs to the database that was reset
   func testCleanupRemovesTheStoreAndItsJournalFiles() throws {
     let storeURL = try write("store", to: "BookPlayer.sqlite")

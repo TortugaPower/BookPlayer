@@ -46,9 +46,16 @@ public class DatabaseInitializer: BPLogger {
     return databaseBackupService.getLatestBackup() != nil
   }
 
+  /// Free space below which an error that doesn't say why a file failed is put down to a full disk.
+  /// Generous on purpose: a wrong guess only asks the user to free up space and retry, while missing
+  /// a full disk offers to restore or reset a library that's intact
+  static let nearlyFullCapacity = 100 * 1024 * 1024
+
   /// Whether the store failed only because the device has no free space. It's intact then, so
   /// resetting it or restoring an older backup would lose data to a problem that clears by itself
-  public static func isOutOfSpaceError(_ error: NSError) -> Bool {
+  /// - Parameter availableCapacity: Free bytes on the database's volume. Without it, only errors
+  ///   that name a lack of space count
+  public static func isOutOfSpaceError(_ error: NSError, availableCapacity: Int? = nil) -> Bool {
     /// `SQLITE_FULL`
     let sqliteFull = 13
 
@@ -71,11 +78,49 @@ public class DatabaseInitializer: BPLogger {
       return true
     }
 
+    /// On a full device SQLite can fail to create the -shm, and reports only that it couldn't open
+    /// the database, so the free space decides
+    if isUnexplainedFileError(error),
+      let availableCapacity,
+      availableCapacity < nearlyFullCapacity
+    {
+      return true
+    }
+
     if let underlyingError = error.userInfo[NSUnderlyingErrorKey] as? NSError {
-      return isOutOfSpaceError(underlyingError)
+      return isOutOfSpaceError(underlyingError, availableCapacity: availableCapacity)
     }
 
     return false
+  }
+
+  /// Free bytes on the volume that holds the database
+  public static func availableCapacityForDatabase() -> Int? {
+    guard
+      let containerURL = FileManager.default.containerURL(
+        forSecurityApplicationGroupIdentifier: Constants.ApplicationGroupIdentifier
+      )
+    else { return nil }
+
+    return try? containerURL.resourceValues(forKeys: [.volumeAvailableCapacityKey])
+      .volumeAvailableCapacity
+  }
+
+  /// `SQLITE_CANTOPEN` and the `SQLITE_IOERR` family, which say a file failed but not why
+  private static func isUnexplainedFileError(_ error: NSError) -> Bool {
+    let sqliteCode =
+      error.domain == NSSQLiteErrorDomain
+      ? error.code
+      : error.userInfo[NSSQLiteErrorDomain] as? Int
+
+    guard let sqliteCode else { return false }
+
+    // Extended result codes keep the primary code in the low byte
+    let primaryCode = sqliteCode & 0xFF
+    let sqliteIOError = 10
+    let sqliteCantOpen = 14
+
+    return primaryCode == sqliteIOError || primaryCode == sqliteCantOpen
   }
 
   /// Attempt to restore database from the latest backup

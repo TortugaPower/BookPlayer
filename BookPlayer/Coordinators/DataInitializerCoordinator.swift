@@ -44,7 +44,7 @@ class DataInitializerCoordinator: BPLogger {
   }
 
   func handleError(_ error: NSError) async {
-    if DatabaseInitializer.isOutOfSpaceError(error) {
+    if isOutOfSpace(error) {
       // CoreData may fail if device doesn't have space
       await presentOutOfSpaceAlert()
     } else {
@@ -56,6 +56,15 @@ class DataInitializerCoordinator: BPLogger {
         await presentFinalRecoveryAlert(error)
       }
     }
+  }
+
+  /// Whether the error comes down to a lack of free space: from the error itself, or from the free
+  /// space left when the error doesn't say why a file failed
+  private func isOutOfSpace(_ error: NSError) -> Bool {
+    DatabaseInitializer.isOutOfSpaceError(
+      error,
+      availableCapacity: DatabaseInitializer.availableCapacityForDatabase()
+    )
   }
 
   /// Present alert explaining the library can't load until there's free space. The database is
@@ -168,7 +177,7 @@ class DataInitializerCoordinator: BPLogger {
     do {
       try await databaseInitializer.restoreFromLatestBackup()
     } catch {
-      if DatabaseInitializer.isOutOfSpaceError(error as NSError) {
+      if isOutOfSpace(error as NSError) {
         // Copying the backup needs free space, and the current database is kept when there isn't
         // any, so don't offer to reset it. Nothing was restored, so the backup is offered again
         // if the library still fails to load after a retry
