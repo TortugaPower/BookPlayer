@@ -23,28 +23,21 @@ public final class DataMigrationManager: BPLogger {
     )!
     .appendingPathComponent("\(self.modelName).sqlite")
     self.storeURL = storeURL
-    self.refreshStoreModel()
   }
 
-  /// Reads which model version the store on disk uses. A load later in the same launch (a retry, or
-  /// after a restore) needs a fresh read: the first one fails on a full disk, and a restore replaces
-  /// the store
+  /// Reads which model version the store on disk uses. Called before every load, since a load later
+  /// in the same launch (a retry, or after a restore) can find a different store: the first read
+  /// fails on a full disk, and a restore replaces the store
   public func refreshStoreModel() {
-    self.storeModel =
-      NSManagedObjectModel.modelVersionsFor(modelNamed: self.modelName)
-      .filter {
-        self.store(at: self.storeURL, isCompatibleWithModel: $0)
-      }.first
+    let storeMetadata = self.metadataForStoreAtURL(storeURL: self.storeURL)
+
+    self.storeModel = NSManagedObjectModel.modelVersionsFor(modelNamed: self.modelName).first {
+      $0.isConfiguration(withName: nil, compatibleWithStoreMetadata: storeMetadata)
+    }
   }
 
   public func getCoreDataStack() -> CoreDataStack {
     return CoreDataStack(modelName: self.modelName)
-  }
-
-  private func store(at storeURL: URL, isCompatibleWithModel model: NSManagedObjectModel) -> Bool {
-    let storeMetadata = self.metadataForStoreAtURL(storeURL: storeURL)
-
-    return model.isConfiguration(withName: nil, compatibleWithStoreMetadata: storeMetadata)
   }
 
   private func metadataForStoreAtURL(storeURL: URL) -> [String: Any] {
