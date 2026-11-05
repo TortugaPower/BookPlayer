@@ -84,13 +84,12 @@ final class HardcoverService: BPLogger, HardcoverServiceProtocol {
   /// don't go through the registrar. Changed on the main queue only
   @ObservationIgnored private var metadataSubscription: AnyCancellable?
   @ObservationIgnored private var progressSubscription: AnyCancellable?
-  @ObservationIgnored private var pauseSubscription: AnyCancellable?
   @ObservationIgnored private var cancellables = Set<AnyCancellable>()
 
-  /// Read and written on the main queue only, where the progress and pause events arrive.
-  /// Two minutes keeps a listening session to a request pair every two minutes per book,
-  /// far below Hardcover's rate limit
-  @ObservationIgnored private var progressSchedule = HardcoverProgressSchedule(interval: 120)
+  /// Read and written on the main queue only, where the progress events arrive. A request pair
+  /// per whole percent: about 20 requests an hour on a 10-hour book, far below Hardcover's
+  /// per-user limits (5,000 a day, 60 a minute)
+  @ObservationIgnored private var progressChanges = HardcoverProgressChanges()
 
   /// Bumped whenever the cached account is cleared, so a `me` lookup that started for the previous
   /// credentials doesn't cache their account after an unlink, a sign-in or a key change
@@ -482,12 +481,11 @@ extension HardcoverService {
 
     metadataSubscription?.cancel()
     progressSubscription?.cancel()
-    pauseSubscription?.cancel()
     metadataSubscription = nil
     progressSubscription = nil
-    pauseSubscription = nil
-    /// Held progress and send times belong to the account just left, not one signed in next
-    progressSchedule = HardcoverProgressSchedule(interval: progressSchedule.interval)
+    /// What was sent belongs to the account just left: one signed in next gets each book's
+    /// progress again
+    progressChanges = HardcoverProgressChanges()
   }
 
   /// Once per connection: a token refresh, or saving the same key, posts again while tracking
@@ -519,29 +517,13 @@ extension HardcoverService {
           let percentCompleted = progress["percentCompleted"] as? Double
         else { return }
 
-        let percentToSend = self.progressSchedule.record(percentCompleted, for: relativePath, at: Date())
+        let isNewPercent = self.progressChanges.isNew(percentCompleted, for: relativePath)
 
         Task { [weak self] in
           guard let self else { return }
           await self.handleBookStarted(relativePath: relativePath, percentCompleted: percentCompleted)
-          if let percentToSend {
-            await self.updateReadProgress(percentToSend, for: relativePath)
-          }
-        }
-      }
-
-    /// A pause sends what the schedule held back, so stopping mid-interval loses nothing
-    pauseSubscription = NotificationCenter.default.publisher(for: .bookPaused)
-      .receive(on: DispatchQueue.main)
-      .sink { [weak self] _ in
-        guard let self else { return }
-
-        let held = self.progressSchedule.flush(at: Date())
-        guard !held.isEmpty else { return }
-
-        Task { [weak self] in
-          for entry in held {
-            await self?.updateReadProgress(entry.percent, for: entry.relativePath)
+          if isNewPercent {
+            await self.updateReadProgress(percentCompleted, for: relativePath)
           }
         }
       }

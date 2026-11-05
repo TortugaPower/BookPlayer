@@ -284,41 +284,37 @@ class HardcoverReadProgressTests: XCTestCase {
   }
 }
 
-class HardcoverProgressScheduleTests: XCTestCase {
-  let start = Date(timeIntervalSince1970: 1_000)
-
-  func testFirstUpdateGoesRightAway() {
-    var schedule = HardcoverProgressSchedule(interval: 120)
-    XCTAssertEqual(schedule.record(10, for: "a", at: start), 10)
+/// A book's progress goes to Hardcover when its percentage changes, not on every progress tick
+class HardcoverProgressChangesTests: XCTestCase {
+  func testABooksFirstPercentIsSent() {
+    var changes = HardcoverProgressChanges()
+    XCTAssertTrue(changes.isNew(10, for: "a"))
   }
 
-  func testUpdatesWithinTheIntervalAreHeldThenSent() {
-    var schedule = HardcoverProgressSchedule(interval: 120)
-    _ = schedule.record(10, for: "a", at: start)
+  /// Ticks every 10 s while the whole percent stays the same: one send for all of them
+  func testTheSamePercentIsNotSentAgain() {
+    var changes = HardcoverProgressChanges()
+    _ = changes.isNew(10, for: "a")
 
-    XCTAssertNil(schedule.record(11, for: "a", at: start.addingTimeInterval(30)))
-    XCTAssertNil(schedule.record(12, for: "a", at: start.addingTimeInterval(60)))
-    XCTAssertEqual(schedule.record(13, for: "a", at: start.addingTimeInterval(120)), 13)
-    XCTAssertTrue(schedule.flush(at: start.addingTimeInterval(121)).isEmpty)
+    XCTAssertFalse(changes.isNew(10, for: "a"))
+    XCTAssertFalse(changes.isNew(10, for: "a"))
+    XCTAssertTrue(changes.isNew(11, for: "a"))
+    XCTAssertFalse(changes.isNew(11, for: "a"))
   }
 
-  func testBooksAreScheduledApart() {
-    var schedule = HardcoverProgressSchedule(interval: 120)
-    _ = schedule.record(10, for: "a", at: start)
-    XCTAssertEqual(schedule.record(50, for: "b", at: start.addingTimeInterval(1)), 50)
+  /// Going back is a change too; Hardcover keeps the higher value (the write is only forward)
+  func testAPercentGoingBackIsSent() {
+    var changes = HardcoverProgressChanges()
+    _ = changes.isNew(40, for: "a")
+
+    XCTAssertTrue(changes.isNew(20, for: "a"))
   }
 
-  func testFlushSendsTheLatestHeldAndRestartsTheInterval() {
-    var schedule = HardcoverProgressSchedule(interval: 120)
-    _ = schedule.record(10, for: "a", at: start)
-    _ = schedule.record(11, for: "a", at: start.addingTimeInterval(10))
-    _ = schedule.record(12, for: "a", at: start.addingTimeInterval(20))
+  func testBooksAreTrackedApart() {
+    var changes = HardcoverProgressChanges()
+    _ = changes.isNew(10, for: "a")
 
-    let held = schedule.flush(at: start.addingTimeInterval(30))
-    XCTAssertEqual(held.map(\.relativePath), ["a"])
-    XCTAssertEqual(held.map(\.percent), [12])
-    XCTAssertTrue(schedule.flush(at: start.addingTimeInterval(31)).isEmpty)
-    XCTAssertNil(schedule.record(13, for: "a", at: start.addingTimeInterval(60)))
+    XCTAssertTrue(changes.isNew(10, for: "b"))
   }
 }
 

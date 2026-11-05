@@ -139,36 +139,17 @@ struct HardcoverReadProgress: Equatable {
   }
 }
 
-/// When to send a book's progress: its first update right away, then at most once per
-/// `interval`, with the latest one held until then or until playback pauses
-struct HardcoverProgressSchedule {
-  let interval: TimeInterval
-  private var lastSent = [String: Date]()
-  private var pending = [String: Double]()
+/// When to send a book's progress: whenever its percentage changes. BookPlayer's is a whole number,
+/// so a 10-hour book moves every 6 minutes, and the progress feed it comes from arrives at most
+/// every 10 seconds, with the latest value after playback stops: nothing is held back to send later
+struct HardcoverProgressChanges {
+  private var lastSent = [String: Double]()
 
-  init(interval: TimeInterval) {
-    self.interval = interval
-  }
+  /// Whether `percent` is new for the book; it's then recorded as sent
+  mutating func isNew(_ percent: Double, for relativePath: String) -> Bool {
+    guard lastSent[relativePath] != percent else { return false }
 
-  /// The percentage to send now, if any; otherwise it's kept for later
-  mutating func record(_ percent: Double, for relativePath: String, at now: Date) -> Double? {
-    if let last = lastSent[relativePath], now.timeIntervalSince(last) < interval {
-      pending[relativePath] = percent
-      return nil
-    }
-
-    lastSent[relativePath] = now
-    pending[relativePath] = nil
-    return percent
-  }
-
-  /// Everything held back, to send now
-  mutating func flush(at now: Date) -> [(relativePath: String, percent: Double)] {
-    let held = pending.map { (relativePath: $0.key, percent: $0.value) }
-    pending.removeAll()
-    for entry in held {
-      lastSent[entry.relativePath] = now
-    }
-    return held
+    lastSent[relativePath] = percent
+    return true
   }
 }
