@@ -207,13 +207,13 @@ class HardcoverConnectionTests: XCTestCase {
 
 /// A book's percentage carried onto Hardcover's read: kept ahead of what's there and short of the end
 class HardcoverReadProgressTests: XCTestCase {
-  typealias Edition = ReadInProgressData.Edition
+  typealias Edition = HardcoverReadInProgressData.Edition
 
   let audiobook = Edition(id: 10, pages: nil, audioSeconds: 36_000, readingFormatId: 2)
   let paperback = Edition(id: 20, pages: 300, audioSeconds: nil, readingFormatId: 1)
 
-  private func read(seconds: Int? = nil, pages: Int? = nil, edition: Edition? = nil) -> ReadInProgressData.Read {
-    ReadInProgressData.Read(id: 1, progressPages: pages, progressSeconds: seconds, edition: edition)
+  private func read(seconds: Int? = nil, pages: Int? = nil, edition: Edition? = nil) -> HardcoverReadInProgressData.Read {
+    HardcoverReadInProgressData.Read(id: 1, progressPages: pages, progressSeconds: seconds, edition: edition)
   }
 
   func testAudiobookEditionGetsSeconds() {
@@ -303,7 +303,7 @@ class HardcoverReadProgressTests: XCTestCase {
        "audio_editions": [{"id": 10, "pages": null, "audio_seconds": 36000, "reading_format_id": 2}],
        "paged_editions": []}
       """
-    let book = try JSONDecoder().decode(ReadInProgressData.Book.self, from: Data(json.utf8))
+    let book = try JSONDecoder().decode(HardcoverReadInProgressData.Book.self, from: Data(json.utf8))
     let noPages = Edition(id: 40, pages: nil, audioSeconds: nil, readingFormatId: 1)
 
     XCTAssertEqual(

@@ -785,10 +785,10 @@ final class ItemDetailsLoadTests: XCTestCase {
       return bookToReturn
     }
 
-    func getBooks(for item: SimpleLibraryItem, perPage: Int) async throws -> BooksData {
+    func getBooks(for item: SimpleLibraryItem, perPage: Int) async throws -> HardcoverBooksData {
       throw BookPlayerError.runtimeError("not used")
     }
-    func searchBooks(query: String, perPage: Int) async throws -> BooksData {
+    func searchBooks(query: String, perPage: Int) async throws -> HardcoverBooksData {
       throw BookPlayerError.runtimeError("not used")
     }
     func processAutoMatch(for items: [SimpleLibraryItem]) async {}

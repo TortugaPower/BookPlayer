@@ -1,5 +1,5 @@
 //
-//  MeData.swift
+//  HardcoverMeData.swift
 //  BookPlayer
 //
 //  Created by Pedro Iniguez on 10/31/26.
@@ -10,7 +10,7 @@ import Foundation
 
 /// Response model for `me`, the signed-in Hardcover user.
 /// Hardcover answers it as a list with the one user; a single object is read the same way
-struct MeData: Codable {
+struct HardcoverMeData: Codable {
   let me: [User]
 
   struct User: Codable {

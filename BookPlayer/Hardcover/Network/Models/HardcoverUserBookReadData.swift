@@ -1,5 +1,5 @@
 //
-//  UserBookReadData.swift
+//  HardcoverUserBookReadData.swift
 //  BookPlayer
 //
 //  Created by Pedro Iniguez on 10/31/26.
@@ -10,7 +10,7 @@ import Foundation
 
 /// Response model for the read in progress of a book in the user's library: the started read
 /// that isn't finished, where progress goes, with the editions its length can come from
-struct ReadInProgressData: Codable {
+struct HardcoverReadInProgressData: Codable {
   let userBooks: [UserBook]
 
   enum CodingKeys: String, CodingKey {
@@ -95,7 +95,7 @@ struct ReadInProgressData: Codable {
 }
 
 /// Response model for `update_user_book_read`
-struct UpdateUserBookReadData: Codable {
+struct HardcoverUpdateUserBookReadData: Codable {
   let updateUserBookRead: Result
 
   enum CodingKeys: String, CodingKey {
@@ -149,8 +149,8 @@ struct HardcoverReadProgress: Equatable {
   /// finished
   static func evaluate(
     percent: Double,
-    read: ReadInProgressData.Read,
-    fallbacks: [ReadInProgressData.Edition?] = []
+    read: HardcoverReadInProgressData.Read,
+    fallbacks: [HardcoverReadInProgressData.Edition?] = []
   ) -> Result<HardcoverReadProgress, Skip> {
     guard percent > 0, percent < 100 else { return .failure(.outOfRange) }
 
@@ -175,8 +175,8 @@ struct HardcoverReadProgress: Equatable {
 
   static func update(
     percent: Double,
-    read: ReadInProgressData.Read,
-    fallbacks: [ReadInProgressData.Edition?] = []
+    read: HardcoverReadInProgressData.Read,
+    fallbacks: [HardcoverReadInProgressData.Edition?] = []
   ) -> HardcoverReadProgress? {
     try? evaluate(percent: percent, read: read, fallbacks: fallbacks).get()
   }
@@ -184,8 +184,8 @@ struct HardcoverReadProgress: Equatable {
   /// The edition's unit and length: seconds for an audiobook, pages otherwise (as Hardcover's
   /// SDK does); an edition without a format counts as an audiobook when it has a recording length
   private static func measure(
-    _ edition: ReadInProgressData.Edition
-  ) -> (ReadInProgressData.Edition, Unit, Int)? {
+    _ edition: HardcoverReadInProgressData.Edition
+  ) -> (HardcoverReadInProgressData.Edition, Unit, Int)? {
     let isAudiobook = edition.readingFormatId.map { $0 == audiobookFormat } ?? (edition.audioSeconds != nil)
     guard let total = isAudiobook ? edition.audioSeconds : edition.pages, total > 1 else { return nil }
 

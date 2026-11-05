@@ -39,15 +39,15 @@ protocol HardcoverServiceProtocol {
   /// - Parameters:
   ///   - item: The library item to build search query from
   ///   - perPage: Number of results per page
-  /// - Returns: BooksData containing search results
-  func getBooks(for item: SimpleLibraryItem, perPage: Int) async throws -> BooksData
+  /// - Returns: HardcoverBooksData containing search results
+  func getBooks(for item: SimpleLibraryItem, perPage: Int) async throws -> HardcoverBooksData
 
   /// Search for books using a custom search query
   /// - Parameters:
   ///   - query: The search query string
   ///   - perPage: Number of results per page
-  /// - Returns: BooksData containing search results
-  func searchBooks(query: String, perPage: Int) async throws -> BooksData
+  /// - Returns: HardcoverBooksData containing search results
+  func searchBooks(query: String, perPage: Int) async throws -> HardcoverBooksData
 
   /// Auto-match newly imported books with Hardcover if enabled
   /// Uses smart duplicate detection to avoid matching multiple files to the same book
@@ -190,14 +190,14 @@ final class HardcoverService: BPLogger, HardcoverServiceProtocol {
 }
 
 extension HardcoverService {
-  func getBooks(for item: SimpleLibraryItem, perPage: Int) async throws -> BooksData {
+  func getBooks(for item: SimpleLibraryItem, perPage: Int) async throws -> HardcoverBooksData {
     let searchQuery = await buildSearchQuery(for: item)
     Self.logger.info("Using search query for '\(item.title)': '\(searchQuery)'")
 
     return try await searchBooks(query: searchQuery, perPage: perPage)
   }
 
-  func searchBooks(query: String, perPage: Int) async throws -> BooksData {
+  func searchBooks(query: String, perPage: Int) async throws -> HardcoverBooksData {
     Self.logger.info("Using custom search query: '\(query)'")
 
     let queryString = """
@@ -219,7 +219,7 @@ extension HardcoverService {
         "query": query,
         "per_page": perPage,
       ],
-      responseType: BooksData.self
+      responseType: HardcoverBooksData.self
     )
 
     return result
@@ -242,7 +242,7 @@ extension HardcoverService {
     let result = try await execute(
       query: queryString,
       variables: ["id": id],
-      responseType: BookByIdData.self
+      responseType: HardcoverBookByIdData.self
     )
 
     guard let book = result.books.first else { return nil }
@@ -256,7 +256,7 @@ extension HardcoverService {
     )
   }
 
-  private func insertUserBook(bookID: Int, status: HardcoverBook.Status) async throws -> InsertUserBookData {
+  private func insertUserBook(bookID: Int, status: HardcoverBook.Status) async throws -> HardcoverInsertUserBookData {
     let mutation = """
         mutation InsertUserBook($book_id: Int!, $status_id: Int!) {
           insert_user_book(
@@ -273,11 +273,11 @@ extension HardcoverService {
         "book_id": bookID,
         "status_id": Int(status.rawValue),
       ],
-      responseType: InsertUserBookData.self
+      responseType: HardcoverInsertUserBookData.self
     )
   }
 
-  private func deleteUserBook(userBookID: Int) async throws -> DeleteUserBookData {
+  private func deleteUserBook(userBookID: Int) async throws -> HardcoverDeleteUserBookData {
     let mutation = """
         mutation DeleteUserBook($id: Int!) {
           delete_user_book(id: $id) {
@@ -291,7 +291,7 @@ extension HardcoverService {
       variables: [
         "id": userBookID
       ],
-      responseType: DeleteUserBookData.self
+      responseType: HardcoverDeleteUserBookData.self
     )
   }
 }
@@ -360,7 +360,7 @@ extension HardcoverService {
     do {
       let result = try await execute(
         query: "query Me { me { id username } }",
-        responseType: MeData.self
+        responseType: HardcoverMeData.self
       )
 
       guard let user = result.me.first else { return nil }
@@ -523,7 +523,7 @@ extension HardcoverService {
       let result = try await execute(
         query: Self.readInProgressQuery,
         variables: ["user_id": userId, "book_id": book.id],
-        responseType: ReadInProgressData.self
+        responseType: HardcoverReadInProgressData.self
       )
 
       guard
@@ -555,7 +555,7 @@ extension HardcoverService {
       let response = try await execute(
         query: Self.updateProgressMutation,
         variables: ["id": read.id, "object": progress.object],
-        responseType: UpdateUserBookReadData.self
+        responseType: HardcoverUpdateUserBookReadData.self
       )
 
       if let error = response.updateUserBookRead.error {
@@ -566,7 +566,7 @@ extension HardcoverService {
     }
   }
 
-  private static func describe(_ edition: ReadInProgressData.Edition?) -> String {
+  private static func describe(_ edition: HardcoverReadInProgressData.Edition?) -> String {
     guard let edition else { return "none" }
 
     return "#\(edition.id) format \(edition.readingFormatId.map(String.init) ?? "?") "
@@ -988,7 +988,7 @@ extension HardcoverService {
 }
 
 extension SimpleHardcoverBook {
-  fileprivate init(from book: BooksData.SearchResults.SearchResponse.Hit.Book, status: HardcoverBook.Status) {
+  fileprivate init(from book: HardcoverBooksData.SearchResults.SearchResponse.Hit.Book, status: HardcoverBook.Status) {
     self.init(
       id: book.id,
       artworkURL: book.image?.url.flatMap(URL.init(string:)),

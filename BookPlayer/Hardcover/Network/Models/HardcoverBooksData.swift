@@ -1,12 +1,12 @@
 //
-//  BooksData.swift
+//  HardcoverBooksData.swift
 //  BookPlayer
 //
 //  Created by Jeremy Grenier on 6/27/25.
 //  Copyright © 2025 BookPlayer LLC. All rights reserved.
 //
 
-struct BooksData: Codable {
+struct HardcoverBooksData: Codable {
   let search: SearchResults
 
   struct SearchResults: Codable {
