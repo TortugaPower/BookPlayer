@@ -24,11 +24,11 @@ final class TransferViewModel: ObservableObject, BPLogger {
     case running
   }
 
-  /// What the browser may send: the file picker's audio, movie and zip types, by extension, since the page
+  /// What the browser may send: the file picker's audio, movie, zip, tar and gzip types, by extension, since the page
   /// filters before uploading.
   static let acceptedExtensions: Set<String> = [
     "mp3", "m4a", "m4b", "aac", "aax", "aaxc", "wav", "aif", "aiff", "caf", "flac", "opus", "ogg", "oga",
-    "mp4", "m4v", "mov", "avi", "zip", "lpf",
+    "mp4", "m4v", "mov", "avi", "zip", "lpf", "tar", "tgz", "gz",
   ]
 
   @Published private(set) var status = Status.starting
