@@ -249,25 +249,50 @@ class DatabaseRecoveryTests: XCTestCase {
     XCTAssertEqual(try String(contentsOf: databaseURL, encoding: .utf8), "current library")
   }
 
+  /// A backup's latest changes are only in its -wal until SQLite checkpoints them, so the restore
+  /// has to bring that file along with the database
+  @MainActor
   func testARestoreReplacesTheDatabaseWithTheBackup() async throws {
-    let databaseURL = folder.appendingPathComponent("BookPlayer.sqlite")
+    let databaseURL = try write("current library", to: "BookPlayer.sqlite")
+    let restoredWal = try write("stale", to: "BookPlayer.sqlite-wal")
+
     let backupURL = folder.appendingPathComponent("backup.sqlite")
     let backupStack = CoreDataStack(testPath: backupURL.path)
-    _ = backupStack.managedContext
-    let staleWal = try write("stale", to: "BookPlayer.sqlite-wal")
-    try Data("current library".utf8).write(to: databaseURL)
+    let account = NSEntityDescription.insertNewObject(
+      forEntityName: "Account",
+      into: backupStack.managedContext
+    )
+    account.setValue("saved-in-the-backup", forKey: "id")
+    account.setValue("", forKey: "email")
+    account.setValue(false, forKey: "donationMade")
+    account.setValue(false, forKey: "hasSubscription")
+    try backupStack.managedContext.save()
+
+    // The backup stays open, so nothing has checkpointed the record out of its -wal
+    let backupWal = folder.appendingPathComponent("backup.sqlite-wal")
+    XCTAssertGreaterThan(try Data(contentsOf: backupWal).count, 0)
+    let backupID = try XCTUnwrap(storeUUID(at: backupURL))
 
     try await DatabaseBackupService(databaseURL: databaseURL).restoreDatabase(from: backupURL)
 
-    XCTAssertNotEqual(try Data(contentsOf: databaseURL), Data("current library".utf8))
-    XCTAssertNotEqual(try? Data(contentsOf: staleWal), Data("stale".utf8))
-    XCTAssertTrue(
-      try NSPersistentStoreCoordinator.metadataForPersistentStore(
-        ofType: NSSQLiteStoreType,
-        at: databaseURL,
-        options: nil
-      ).isEmpty == false
-    )
+    XCTAssertEqual(try storeUUID(at: databaseURL), backupID)
+    XCTAssertEqual(try Data(contentsOf: restoredWal), try Data(contentsOf: backupWal))
+
+    let restoredStack = CoreDataStack(testPath: databaseURL.path)
+    let accountIDs = try restoredStack.managedContext
+      .fetch(NSFetchRequest<NSManagedObject>(entityName: "Account"))
+      .compactMap { $0.value(forKey: "id") as? String }
+    XCTAssertEqual(accountIDs, ["saved-in-the-backup"])
+
+    withExtendedLifetime(backupStack) {}
+  }
+
+  private func storeUUID(at url: URL) throws -> String? {
+    try NSPersistentStoreCoordinator.metadataForPersistentStore(
+      ofType: NSSQLiteStoreType,
+      at: url,
+      options: nil
+    )[NSStoreUUIDKey] as? String
   }
 }
 
