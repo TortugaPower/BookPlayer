@@ -39,6 +39,8 @@ public class DatabaseBackupService: BPLogger {
     // Copy database files (.sqlite, .sqlite-wal, .sqlite-shm)
     guard (try? copyDatabaseFiles(from: sourceURL, to: backupURL)) != nil else {
       Self.logger.error("Failed to copy database files")
+      // Whatever was copied would otherwise be listed as the latest backup
+      deleteDatabaseFiles(at: backupURL)
       return
     }
 
@@ -176,11 +178,12 @@ public class DatabaseBackupService: BPLogger {
       // Copy main .sqlite file
       try fileManager.copyItem(at: sourceURL, to: destinationURL)
 
-      // Copy WAL file if it exists
+      // Copy WAL file if it exists. It holds the latest changes until SQLite checkpoints them, so a
+      // copy without it is an older database
       let walSource = sourceURL.deletingPathExtension().appendingPathExtension("sqlite-wal")
       if fileManager.fileExists(atPath: walSource.path) {
         let walDestination = destinationURL.deletingPathExtension().appendingPathExtension("sqlite-wal")
-        try? fileManager.copyItem(at: walSource, to: walDestination)
+        try fileManager.copyItem(at: walSource, to: walDestination)
       }
 
       // Copy SHM file if it exists
