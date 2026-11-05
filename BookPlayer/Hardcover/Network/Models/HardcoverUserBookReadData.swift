@@ -141,15 +141,16 @@ struct HardcoverReadProgress: Equatable {
 
 /// When to send a book's progress: whenever its percentage changes. BookPlayer's is a whole number,
 /// so a 10-hour book moves every 6 minutes, and the progress feed it comes from arrives at most
-/// every 10 seconds, with the latest value after playback stops: nothing is held back to send later
+/// every 10 seconds, with the latest value after playback stops: nothing is held back to send later.
+/// Kept by the item's uuid, which stays the same when the book is moved or renamed
 struct HardcoverProgressChanges {
   private var lastSent = [String: Double]()
 
-  /// Whether `percent` is new for the book; it's then recorded as sent
-  mutating func isNew(_ percent: Double, for relativePath: String) -> Bool {
-    guard lastSent[relativePath] != percent else { return false }
+  /// Whether `percent` is new for the item; it's then recorded as sent
+  mutating func isNew(_ percent: Double, forItem uuid: String) -> Bool {
+    guard lastSent[uuid] != percent else { return false }
 
-    lastSent[relativePath] = percent
+    lastSent[uuid] = percent
     return true
   }
 }

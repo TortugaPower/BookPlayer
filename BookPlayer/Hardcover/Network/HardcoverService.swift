@@ -514,10 +514,11 @@ extension HardcoverService {
         guard
           let self,
           let relativePath = progress["relativePath"] as? String,
+          let uuid = progress["uuid"] as? String,
           let percentCompleted = progress["percentCompleted"] as? Double
         else { return }
 
-        let isNewPercent = self.progressChanges.isNew(percentCompleted, for: relativePath)
+        let isNewPercent = self.progressChanges.isNew(percentCompleted, forItem: uuid)
 
         Task { [weak self] in
           guard let self else { return }

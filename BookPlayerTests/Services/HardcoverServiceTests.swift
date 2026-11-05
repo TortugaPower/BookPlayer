@@ -288,33 +288,33 @@ class HardcoverReadProgressTests: XCTestCase {
 class HardcoverProgressChangesTests: XCTestCase {
   func testABooksFirstPercentIsSent() {
     var changes = HardcoverProgressChanges()
-    XCTAssertTrue(changes.isNew(10, for: "a"))
+    XCTAssertTrue(changes.isNew(10, forItem: "a"))
   }
 
   /// Ticks every 10 s while the whole percent stays the same: one send for all of them
   func testTheSamePercentIsNotSentAgain() {
     var changes = HardcoverProgressChanges()
-    _ = changes.isNew(10, for: "a")
+    _ = changes.isNew(10, forItem: "a")
 
-    XCTAssertFalse(changes.isNew(10, for: "a"))
-    XCTAssertFalse(changes.isNew(10, for: "a"))
-    XCTAssertTrue(changes.isNew(11, for: "a"))
-    XCTAssertFalse(changes.isNew(11, for: "a"))
+    XCTAssertFalse(changes.isNew(10, forItem: "a"))
+    XCTAssertFalse(changes.isNew(10, forItem: "a"))
+    XCTAssertTrue(changes.isNew(11, forItem: "a"))
+    XCTAssertFalse(changes.isNew(11, forItem: "a"))
   }
 
   /// Going back is a change too; Hardcover keeps the higher value (the write is only forward)
   func testAPercentGoingBackIsSent() {
     var changes = HardcoverProgressChanges()
-    _ = changes.isNew(40, for: "a")
+    _ = changes.isNew(40, forItem: "a")
 
-    XCTAssertTrue(changes.isNew(20, for: "a"))
+    XCTAssertTrue(changes.isNew(20, forItem: "a"))
   }
 
   func testBooksAreTrackedApart() {
     var changes = HardcoverProgressChanges()
-    _ = changes.isNew(10, for: "a")
+    _ = changes.isNew(10, forItem: "a")
 
-    XCTAssertTrue(changes.isNew(10, for: "b"))
+    XCTAssertTrue(changes.isNew(10, forItem: "b"))
   }
 }
 
