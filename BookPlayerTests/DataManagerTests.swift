@@ -370,7 +370,8 @@ class DataInitializerCoordinatorTests: XCTestCase {
     func stopLoader() {}
   }
 
-  /// Stands in for the database layer: a backup is always available, and restoring it fails as told
+  /// Stands in for the database layer: a backup is always available, restoring it fails as told, and
+  /// nothing touches the test host's own store
   private final class DatabaseInitializerStub: DatabaseInitializer {
     var restoreError: Error?
 
@@ -379,25 +380,67 @@ class DataInitializerCoordinatorTests: XCTestCase {
     override func restoreFromLatestBackup() async throws {
       if let restoreError { throw restoreError }
     }
+
+    override func cleanupStoreFiles() {}
+    override func cleanupAssociatedFiles() {}
   }
 
   private let corruptStore = NSError(domain: NSCocoaErrorDomain, code: NSFileReadCorruptFileError)
   private let plentyOfSpace = 10 * 1024 * 1024 * 1024
 
-  /// Taps the first action of the latest alert and waits for the alert it leads to
+  /// Taps the latest alert's action with this title and waits for the alert it leads to. By title, so
+  /// a regression can't make it tap Reset or Cancel instead
   @MainActor
-  private func tapFirstAction(on presenter: AlertPresenterSpy) async {
+  private func tap(_ title: String, on presenter: AlertPresenterSpy) async throws {
+    let action = try XCTUnwrap(
+      presenter.alerts.last?.actionItems.first { $0.title == title },
+      "No \(title) action in \(presenter.alerts.last?.actionItems.map(\.title) ?? [])"
+    )
     let nextAlert = expectation(description: "next alert")
     presenter.onAlert = { nextAlert.fulfill() }
-    presenter.alerts.last?.actionItems.first?.handler()
+    action.handler()
     await fulfillment(of: [nextAlert], timeout: 5)
     presenter.onAlert = nil
+  }
+
+  /// An error that doesn't say why a file failed stops a restore as a full disk only when the disk is
+  /// nearly full; otherwise it's a failed restore, answered with the reset
+  @MainActor
+  func testAnUnexplainedRestoreFailureFollowsTheFreeSpace() async throws {
+    let cantOpen = NSError(
+      domain: NSCocoaErrorDomain,
+      code: NSFileReadUnknownError,
+      userInfo: ["NSSQLiteErrorDomain": 14]
+    )
+
+    for (capacity, expectedMessage) in [
+      (0, "coredata_error_diskfull_description".localized),
+      (plentyOfSpace, "database_restore_failed_message".localized),
+    ] {
+      let presenter = AlertPresenterSpy()
+      let databaseInitializer = DatabaseInitializerStub()
+      databaseInitializer.restoreError = cantOpen
+      let coordinator = DataInitializerCoordinator(
+        alertPresenter: presenter,
+        databaseInitializer: databaseInitializer,
+        availableCapacity: { capacity }
+      )
+
+      await coordinator.handleError(corruptStore)
+      try await tap("database_restore_button".localized, on: presenter)
+
+      XCTAssertEqual(
+        presenter.alerts.last?.message?.hasPrefix(expectedMessage),
+        true,
+        "\(capacity) bytes free"
+      )
+    }
   }
 
   /// A restore stopped by a full disk leaves the library in place: it's answered with Retry, and if the
   /// library still fails to load afterwards the backup is offered again rather than the reset
   @MainActor
-  func testARestoreStoppedByAFullDiskOffersRetryAndThenTheBackupAgain() async {
+  func testARestoreStoppedByAFullDiskOffersRetryAndThenTheBackupAgain() async throws {
     let presenter = AlertPresenterSpy()
     let databaseInitializer = DatabaseInitializerStub()
     databaseInitializer.restoreError = NSError(
@@ -413,7 +456,7 @@ class DataInitializerCoordinatorTests: XCTestCase {
     await coordinator.handleError(corruptStore)
     XCTAssertEqual(presenter.alerts.last?.message, "database_backup_available_message".localized)
 
-    await tapFirstAction(on: presenter)
+    try await tap("database_restore_button".localized, on: presenter)
     XCTAssertEqual(presenter.alerts.last?.message, "coredata_error_diskfull_description".localized)
     XCTAssertEqual(
       presenter.alerts.last?.actionItems.map(\.title),
@@ -427,7 +470,7 @@ class DataInitializerCoordinatorTests: XCTestCase {
 
   /// Any other restore failure still ends in the recovery options
   @MainActor
-  func testARestoreThatFailsForAnotherReasonOffersTheReset() async {
+  func testARestoreThatFailsForAnotherReasonOffersTheReset() async throws {
     let presenter = AlertPresenterSpy()
     let databaseInitializer = DatabaseInitializerStub()
     databaseInitializer.restoreError = BookPlayerError.runtimeError("Not a database")
@@ -438,7 +481,7 @@ class DataInitializerCoordinatorTests: XCTestCase {
     )
 
     await coordinator.handleError(corruptStore)
-    await tapFirstAction(on: presenter)
+    try await tap("database_restore_button".localized, on: presenter)
 
     XCTAssertEqual(presenter.alerts.count, 2)
     XCTAssertEqual(
