@@ -678,7 +678,7 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
   replaces it. `HardcoverService.apiKey(from:)`
   drops a pasted `Bearer ` (older tokens were copied with it, and ones saved that way read without it), and
   requests send `Authorization: Bearer <key>`, which the API requires. Or an OAuth sign-in (`HardcoverOAuth`):
-  authorization code + PKCE through `ASWebAuthenticationSession`, redirect `bookplayer://hardcover/callback`,
+  authorization code + PKCE through `ASWebAuthenticationSession` in a private (`.ephemeral`) browser session, so Hardcover's login form always shows and a logged-out user can switch accounts (Hardcover advertises no `prompt` values), redirect `bookplayer://hardcover/callback`,
   scopes `read:catalog read:library write:library read:me`, public client id `HardcoverOAuth.clientId` from `BP_HARDCOVER_CLIENT_ID` (no secret). Its tokens are one `HardcoverTokenSet` in `.hardcoverSession`, owned by the
   `HardcoverOAuthSession` actor: access tokens last a week, refresh tokens rotate on every use and a spent one sent
   again revokes the whole sign-in, so refreshes run one at a time and are never retried; only `invalid_grant` ends

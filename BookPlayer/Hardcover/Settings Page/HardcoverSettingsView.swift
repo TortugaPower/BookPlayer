@@ -14,7 +14,6 @@ import SwiftUI
 /// an earlier version keeps syncing, but isn't shown here; signing in replaces it. Once signed in, the
 /// settings apply as they change, like the rest of Settings: there's nothing to save
 struct HardcoverSettingsView: View {
-  @Environment(\.dismiss) var dismiss
   @Environment(\.webAuthenticationSession) private var webAuthenticationSession
   @EnvironmentObject var theme: ThemeViewModel
 
@@ -117,11 +116,11 @@ struct HardcoverSettingsView: View {
     }
   }
 
+  /// The page stays, showing Sign In, so another account can be signed in right away
   var logOutSection: some View {
     ThemedSection {
       Button("logout_title".localized, role: .destructive) {
         viewModel.onLogOutTapped()
-        dismiss()
       }
       .frame(maxWidth: .infinity)
       .foregroundStyle(.red)
@@ -164,7 +163,8 @@ struct HardcoverSettingsView: View {
     }
   }
 
-  /// Hardcover's authorize page in the shared browser session, so a signed-in browser isn't asked to sign in again
+  /// Hardcover's authorize page in a private browser session, without Safari's cookies: Hardcover's
+  /// login form always shows, so after logging out the user can sign in to another account
   func signIn() {
     let webAuthenticationSession = webAuthenticationSession
 
@@ -173,7 +173,7 @@ struct HardcoverSettingsView: View {
         try await webAuthenticationSession.authenticate(
           using: url,
           callback: .customScheme(HardcoverOAuth.callbackScheme),
-          preferredBrowserSession: .shared,
+          preferredBrowserSession: .ephemeral,
           additionalHeaderFields: [:]
         )
       }
