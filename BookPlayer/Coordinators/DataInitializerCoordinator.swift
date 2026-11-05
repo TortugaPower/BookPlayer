@@ -13,16 +13,24 @@ import Foundation
 
 @MainActor
 class DataInitializerCoordinator: BPLogger {
-  var databaseInitializer: DatabaseInitializer { AppServices.shared.databaseInitializer }
+  let databaseInitializer: DatabaseInitializer
   let alertPresenter: AlertPresenter
+  /// Free bytes on the database's volume
+  private let availableCapacity: () -> Int?
 
   var onFinish: (() -> Void)?
 
   // Track if we've already attempted backup restoration to prevent infinite loops
   private var hasAttemptedBackupRestore: Bool = false
 
-  init(alertPresenter: AlertPresenter) {
+  init(
+    alertPresenter: AlertPresenter,
+    databaseInitializer: DatabaseInitializer = AppServices.shared.databaseInitializer,
+    availableCapacity: @escaping () -> Int? = DatabaseInitializer.availableCapacityForDatabase
+  ) {
     self.alertPresenter = alertPresenter
+    self.databaseInitializer = databaseInitializer
+    self.availableCapacity = availableCapacity
   }
 
   public func start() {
@@ -61,10 +69,7 @@ class DataInitializerCoordinator: BPLogger {
   /// Whether the error comes down to a lack of free space: from the error itself, or from the free
   /// space left when the error doesn't say why a file failed
   private func isOutOfSpace(_ error: NSError) -> Bool {
-    DatabaseInitializer.isOutOfSpaceError(
-      error,
-      availableCapacity: DatabaseInitializer.availableCapacityForDatabase()
-    )
+    DatabaseInitializer.isOutOfSpaceError(error, availableCapacity: availableCapacity())
   }
 
   /// Present alert explaining the library can't load until there's free space. The database is

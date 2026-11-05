@@ -253,8 +253,15 @@ class DatabaseRecoveryTests: XCTestCase {
       try await DatabaseBackupService(databaseURL: databaseURL).restoreDatabase(from: backupURL)
       XCTFail("A file that isn't a database can't be restored")
     } catch {
-      // A bad backup still leads to the recovery options, not to the disk-full alert
-      XCTAssertFalse(DatabaseInitializer.isOutOfSpaceError(error as NSError), "\(error)")
+      // SQLite rejected the file itself (SQLITE_NOTADB), and even on a full disk that leads to the
+      // recovery options rather than the disk-full alert
+      let error = error as NSError
+      let sqliteCode =
+        error.domain == NSSQLiteErrorDomain
+        ? error.code
+        : error.userInfo[NSSQLiteErrorDomain] as? Int
+      XCTAssertEqual(sqliteCode, 26, "\(error)")
+      XCTAssertFalse(DatabaseInitializer.isOutOfSpaceError(error, availableCapacity: 0), "\(error)")
     }
 
     XCTAssertEqual(try String(contentsOf: databaseURL, encoding: .utf8), "current library")
@@ -348,6 +355,7 @@ class DataInitializerCoordinatorTests: XCTestCase {
   private final class AlertPresenterSpy: AlertPresenter {
     var alerts = [BPAlertContent]()
     var simpleAlertCount = 0
+    var onAlert: (() -> Void)?
 
     func showAlert(_ title: String?, message: String?, completion: (() -> Void)?) {
       simpleAlertCount += 1
@@ -355,10 +363,92 @@ class DataInitializerCoordinatorTests: XCTestCase {
 
     func showAlert(_ content: BPAlertContent) {
       alerts.append(content)
+      onAlert?()
     }
 
     func showLoader() {}
     func stopLoader() {}
+  }
+
+  /// Stands in for the database layer: a backup is always available, and restoring it fails as told
+  private final class DatabaseInitializerStub: DatabaseInitializer {
+    var restoreError: Error?
+
+    override func hasAvailableBackups() -> Bool { true }
+
+    override func restoreFromLatestBackup() async throws {
+      if let restoreError { throw restoreError }
+    }
+  }
+
+  private let corruptStore = NSError(domain: NSCocoaErrorDomain, code: NSFileReadCorruptFileError)
+  private let plentyOfSpace = 10 * 1024 * 1024 * 1024
+
+  /// Taps the first action of the latest alert and waits for the alert it leads to
+  @MainActor
+  private func tapFirstAction(on presenter: AlertPresenterSpy) async {
+    let nextAlert = expectation(description: "next alert")
+    presenter.onAlert = { nextAlert.fulfill() }
+    presenter.alerts.last?.actionItems.first?.handler()
+    await fulfillment(of: [nextAlert], timeout: 5)
+    presenter.onAlert = nil
+  }
+
+  /// A restore stopped by a full disk leaves the library in place: it's answered with Retry, and if the
+  /// library still fails to load afterwards the backup is offered again rather than the reset
+  @MainActor
+  func testARestoreStoppedByAFullDiskOffersRetryAndThenTheBackupAgain() async {
+    let presenter = AlertPresenterSpy()
+    let databaseInitializer = DatabaseInitializerStub()
+    databaseInitializer.restoreError = NSError(
+      domain: NSCocoaErrorDomain,
+      code: NSFileWriteOutOfSpaceError
+    )
+    let coordinator = DataInitializerCoordinator(
+      alertPresenter: presenter,
+      databaseInitializer: databaseInitializer,
+      availableCapacity: { self.plentyOfSpace }
+    )
+
+    await coordinator.handleError(corruptStore)
+    XCTAssertEqual(presenter.alerts.last?.message, "database_backup_available_message".localized)
+
+    await tapFirstAction(on: presenter)
+    XCTAssertEqual(presenter.alerts.last?.message, "coredata_error_diskfull_description".localized)
+    XCTAssertEqual(
+      presenter.alerts.last?.actionItems.map(\.title),
+      ["integration_retry_button".localized]
+    )
+
+    await coordinator.handleError(corruptStore)
+    XCTAssertEqual(presenter.alerts.last?.message, "database_backup_available_message".localized)
+    XCTAssertEqual(presenter.alerts.count, 3)
+  }
+
+  /// Any other restore failure still ends in the recovery options
+  @MainActor
+  func testARestoreThatFailsForAnotherReasonOffersTheReset() async {
+    let presenter = AlertPresenterSpy()
+    let databaseInitializer = DatabaseInitializerStub()
+    databaseInitializer.restoreError = BookPlayerError.runtimeError("Not a database")
+    let coordinator = DataInitializerCoordinator(
+      alertPresenter: presenter,
+      databaseInitializer: databaseInitializer,
+      availableCapacity: { self.plentyOfSpace }
+    )
+
+    await coordinator.handleError(corruptStore)
+    await tapFirstAction(on: presenter)
+
+    XCTAssertEqual(presenter.alerts.count, 2)
+    XCTAssertEqual(
+      presenter.alerts.last?.message?.hasPrefix("database_restore_failed_message".localized),
+      true
+    )
+    XCTAssertEqual(
+      presenter.alerts.last?.actionItems.map(\.title),
+      ["database_reset_button".localized, "cancel_button".localized]
+    )
   }
 
   /// GH #1324: with no free space the library can only be loaded again, never reset, and the alert
