@@ -120,3 +120,401 @@ class MigrationV11ToV12Tests: XCTestCase {
     )
   }
 }
+
+// MARK: - Database recovery
+
+class DatabaseRecoveryTests: XCTestCase {
+  private var folder: URL!
+
+  override func setUpWithError() throws {
+    folder = FileManager.default.temporaryDirectory
+      .appendingPathComponent("DatabaseRecoveryTests-\(UUID().uuidString)")
+    try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+  }
+
+  override func tearDownWithError() throws {
+    try FileManager.default.removeItem(at: folder)
+  }
+
+  private func write(_ content: String, to name: String) throws -> URL {
+    let url = folder.appendingPathComponent(name)
+    try Data(content.utf8).write(to: url)
+    return url
+  }
+
+  func testOutOfSpaceErrorsAreRecognized() {
+    let outOfSpace = [
+      NSError(domain: NSPOSIXErrorDomain, code: Int(ENOSPC)),
+      NSError(domain: NSCocoaErrorDomain, code: NSFileWriteOutOfSpaceError),
+      // GH #1324: what opening the store reported with no space left
+      NSError(
+        domain: NSCocoaErrorDomain,
+        code: NSFileWriteUnknownError,
+        userInfo: ["reason": "Failed to create file; code = 28"]
+      ),
+      NSError(domain: "NSSQLiteErrorDomain", code: 13),
+      NSError(
+        domain: NSCocoaErrorDomain,
+        code: NSPersistentStoreSaveError,
+        userInfo: ["NSSQLiteErrorDomain": 13]
+      ),
+      // A failed migration wraps the cause
+      NSError(
+        domain: NSCocoaErrorDomain,
+        code: NSMigrationError,
+        userInfo: [NSUnderlyingErrorKey: NSError(domain: NSPOSIXErrorDomain, code: Int(ENOSPC))]
+      ),
+    ]
+
+    for error in outOfSpace {
+      XCTAssertTrue(DatabaseInitializer.isOutOfSpaceError(error), "\(error)")
+    }
+  }
+
+  func testOtherErrorsAreNotOutOfSpace() {
+    let others = [
+      NSError(domain: NSPOSIXErrorDomain, code: Int(EACCES)),
+      NSError(domain: NSCocoaErrorDomain, code: NSFileWriteUnknownError),
+      NSError(
+        domain: NSCocoaErrorDomain,
+        code: NSFileWriteUnknownError,
+        userInfo: ["reason": "Failed to create file; code = 13"]
+      ),
+      // SQLITE_CORRUPT
+      NSError(domain: "NSSQLiteErrorDomain", code: 11),
+      NSError(domain: NSCocoaErrorDomain, code: NSMigrationError),
+    ]
+
+    for error in others {
+      XCTAssertFalse(DatabaseInitializer.isOutOfSpaceError(error), "\(error)")
+    }
+  }
+
+  /// What opening the store reported on a full disk when SQLite couldn't create the -shm: it says
+  /// the file couldn't be opened, not why, so the free space decides
+  func testAnUnexplainedOpenFailureIsOutOfSpaceOnlyOnANearlyFullDisk() {
+    let cantOpen = NSError(
+      domain: NSCocoaErrorDomain,
+      code: NSFileReadUnknownError,
+      userInfo: ["NSSQLiteErrorDomain": 14]
+    )
+    // SQLITE_IOERR_SHMSIZE, an extended code of SQLITE_IOERR
+    let shmSizeError = NSError(domain: "NSSQLiteErrorDomain", code: 4874)
+    let wrapped = NSError(
+      domain: NSCocoaErrorDomain,
+      code: NSMigrationError,
+      userInfo: [NSUnderlyingErrorKey: cantOpen]
+    )
+    let nearlyFull = DatabaseInitializer.nearlyFullCapacity - 1
+    let plentyOfSpace = 10 * 1024 * 1024 * 1024
+
+    for error in [cantOpen, shmSizeError, wrapped] {
+      XCTAssertTrue(DatabaseInitializer.isOutOfSpaceError(error, availableCapacity: 0), "\(error)")
+      XCTAssertTrue(
+        DatabaseInitializer.isOutOfSpaceError(error, availableCapacity: nearlyFull),
+        "\(error)"
+      )
+      XCTAssertFalse(
+        DatabaseInitializer.isOutOfSpaceError(error, availableCapacity: plentyOfSpace),
+        "\(error)"
+      )
+      XCTAssertFalse(DatabaseInitializer.isOutOfSpaceError(error), "\(error)")
+    }
+
+    // A corrupt database isn't explained by a full disk
+    let corrupt = NSError(
+      domain: NSCocoaErrorDomain,
+      code: NSFileReadCorruptFileError,
+      userInfo: ["NSSQLiteErrorDomain": 11]
+    )
+    XCTAssertFalse(DatabaseInitializer.isOutOfSpaceError(corrupt, availableCapacity: 0))
+  }
+
+  /// A -wal left beside a fresh store belongs to the database that was reset
+  func testCleanupRemovesTheStoreAndItsJournalFiles() throws {
+    let storeURL = try write("store", to: "BookPlayer.sqlite")
+    let wal = try write("wal", to: "BookPlayer.sqlite-wal")
+    let shm = try write("shm", to: "BookPlayer.sqlite-shm")
+
+    DataMigrationManager(storeURL: storeURL).cleanupStoreFile()
+
+    for url in [storeURL, wal, shm] {
+      XCTAssertFalse(FileManager.default.fileExists(atPath: url.path), url.lastPathComponent)
+    }
+  }
+
+  /// GH #1541: a backup that can't be restored must not cost the library it was meant to replace
+  func testAFailedRestoreKeepsTheCurrentDatabase() async throws {
+    let databaseURL = try write("current library", to: "BookPlayer.sqlite")
+    let walURL = try write("recent changes", to: "BookPlayer.sqlite-wal")
+    let backupURL = try write("not a database", to: "backup.sqlite")
+
+    do {
+      try await DatabaseBackupService(databaseURL: databaseURL).restoreDatabase(from: backupURL)
+      XCTFail("A file that isn't a database can't be restored")
+    } catch {
+      // SQLite rejected the file itself (SQLITE_NOTADB), and even on a full disk that leads to the
+      // recovery options rather than the disk-full alert
+      let error = error as NSError
+      let sqliteCode =
+        error.domain == NSSQLiteErrorDomain
+        ? error.code
+        : error.userInfo[NSSQLiteErrorDomain] as? Int
+      XCTAssertEqual(sqliteCode, 26, "\(error)")
+      XCTAssertFalse(DatabaseInitializer.isOutOfSpaceError(error, availableCapacity: 0), "\(error)")
+    }
+
+    XCTAssertEqual(try String(contentsOf: databaseURL, encoding: .utf8), "current library")
+    XCTAssertEqual(try String(contentsOf: walURL, encoding: .utf8), "recent changes")
+    XCTAssertEqual(try FileManager.default.contentsOfDirectory(atPath: folder.path).count, 3)
+  }
+
+  /// A restore the file system stops reports why, so a full disk isn't taken for a bad backup and
+  /// answered with a reset
+  func testARestoreThatCantBeCopiedReportsTheFileError() async throws {
+    let databaseURL = try write("current library", to: "BookPlayer.sqlite")
+    let backupFolder = folder.appendingPathComponent("Backups")
+    try FileManager.default.createDirectory(at: backupFolder, withIntermediateDirectories: true)
+    let backupURL = backupFolder.appendingPathComponent("backup.sqlite")
+    try Data("backup".utf8).write(to: backupURL)
+
+    // Nothing new can be written beside the database
+    try FileManager.default.setAttributes([.posixPermissions: 0o555], ofItemAtPath: folder.path)
+    defer {
+      try? FileManager.default.setAttributes([.posixPermissions: 0o755], ofItemAtPath: folder.path)
+    }
+
+    do {
+      try await DatabaseBackupService(databaseURL: databaseURL).restoreDatabase(from: backupURL)
+      XCTFail("The backup can't be copied into a read-only folder")
+    } catch {
+      let error = error as NSError
+      XCTAssertEqual(error.domain, NSCocoaErrorDomain, "\(error)")
+      XCTAssertEqual(error.code, NSFileWriteNoPermissionError, "\(error)")
+    }
+
+    XCTAssertEqual(try String(contentsOf: databaseURL, encoding: .utf8), "current library")
+  }
+
+  /// A backup's latest changes are only in its -wal until SQLite checkpoints them, so the restore
+  /// has to merge that file into the database it puts in place
+  @MainActor
+  func testARestoreReplacesTheDatabaseWithTheBackup() async throws {
+    let databaseURL = try write("current library", to: "BookPlayer.sqlite")
+    let restoredWal = try write("stale", to: "BookPlayer.sqlite-wal")
+
+    let backupURL = folder.appendingPathComponent("backup.sqlite")
+    let backupStack = CoreDataStack(testPath: backupURL.path)
+    let account = NSEntityDescription.insertNewObject(
+      forEntityName: "Account",
+      into: backupStack.managedContext
+    )
+    account.setValue("saved-in-the-backup", forKey: "id")
+    account.setValue("", forKey: "email")
+    account.setValue(false, forKey: "donationMade")
+    account.setValue(false, forKey: "hasSubscription")
+    try backupStack.managedContext.save()
+
+    // The backup stays open, so nothing has checkpointed the record out of its -wal
+    let backupWal = folder.appendingPathComponent("backup.sqlite-wal")
+    XCTAssertGreaterThan(try Data(contentsOf: backupWal).count, 0)
+    let backupID = try XCTUnwrap(storeUUID(at: backupURL))
+
+    try await DatabaseBackupService(databaseURL: databaseURL).restoreDatabase(from: backupURL)
+
+    // A single file: the stale -wal is gone and nothing is left of the copy it was prepared in
+    XCTAssertEqual(
+      try FileManager.default.contentsOfDirectory(atPath: folder.path).sorted(),
+      ["BookPlayer.sqlite", "backup.sqlite", "backup.sqlite-shm", "backup.sqlite-wal"]
+    )
+    XCTAssertEqual(try storeUUID(at: databaseURL), backupID)
+
+    let restoredStack = CoreDataStack(testPath: databaseURL.path)
+    let accountIDs = try restoredStack.managedContext
+      .fetch(NSFetchRequest<NSManagedObject>(entityName: "Account"))
+      .compactMap { $0.value(forKey: "id") as? String }
+    XCTAssertEqual(accountIDs, ["saved-in-the-backup"])
+    // Opening it puts it back in WAL mode
+    XCTAssertTrue(FileManager.default.fileExists(atPath: restoredWal.path))
+
+    withExtendedLifetime(backupStack) {}
+  }
+
+  private func storeUUID(at url: URL) throws -> String? {
+    try NSPersistentStoreCoordinator.metadataForPersistentStore(
+      ofType: NSSQLiteStoreType,
+      at: url,
+      options: nil
+    )[NSStoreUUIDKey] as? String
+  }
+}
+
+// MARK: - Database load errors
+
+class DataInitializerCoordinatorTests: XCTestCase {
+  private final class AlertPresenterSpy: AlertPresenter {
+    var alerts = [BPAlertContent]()
+    var simpleAlertCount = 0
+    var onAlert: (() -> Void)?
+
+    func showAlert(_ title: String?, message: String?, completion: (() -> Void)?) {
+      simpleAlertCount += 1
+    }
+
+    func showAlert(_ content: BPAlertContent) {
+      alerts.append(content)
+      onAlert?()
+    }
+
+    func showLoader() {}
+    func stopLoader() {}
+  }
+
+  /// Stands in for the database layer: a backup is always available, restoring it fails as told, and
+  /// nothing touches the test host's own store
+  private final class DatabaseInitializerStub: DatabaseInitializer {
+    var restoreError: Error?
+
+    override func hasAvailableBackups() -> Bool { true }
+
+    override func restoreFromLatestBackup() async throws {
+      if let restoreError { throw restoreError }
+    }
+
+    override func cleanupStoreFiles() {}
+    override func cleanupAssociatedFiles() {}
+  }
+
+  private let corruptStore = NSError(domain: NSCocoaErrorDomain, code: NSFileReadCorruptFileError)
+  private let plentyOfSpace = 10 * 1024 * 1024 * 1024
+
+  /// Taps the latest alert's action with this title and waits for the alert it leads to. By title, so
+  /// a regression can't make it tap Reset or Cancel instead
+  @MainActor
+  private func tap(_ title: String, on presenter: AlertPresenterSpy) async throws {
+    let action = try XCTUnwrap(
+      presenter.alerts.last?.actionItems.first { $0.title == title },
+      "No \(title) action in \(presenter.alerts.last?.actionItems.map(\.title) ?? [])"
+    )
+    let nextAlert = expectation(description: "next alert")
+    presenter.onAlert = { nextAlert.fulfill() }
+    action.handler()
+    await fulfillment(of: [nextAlert], timeout: 5)
+    presenter.onAlert = nil
+  }
+
+  /// An error that doesn't say why a file failed stops a restore as a full disk only when the disk is
+  /// nearly full; otherwise it's a failed restore, answered with the reset
+  @MainActor
+  func testAnUnexplainedRestoreFailureFollowsTheFreeSpace() async throws {
+    let cantOpen = NSError(
+      domain: NSCocoaErrorDomain,
+      code: NSFileReadUnknownError,
+      userInfo: ["NSSQLiteErrorDomain": 14]
+    )
+
+    for (capacity, expectedMessage) in [
+      (0, "coredata_error_diskfull_description".localized),
+      (plentyOfSpace, "database_restore_failed_message".localized),
+    ] {
+      let presenter = AlertPresenterSpy()
+      let databaseInitializer = DatabaseInitializerStub()
+      databaseInitializer.restoreError = cantOpen
+      let coordinator = DataInitializerCoordinator(
+        alertPresenter: presenter,
+        databaseInitializer: databaseInitializer,
+        availableCapacity: { capacity }
+      )
+
+      await coordinator.handleError(corruptStore)
+      try await tap("database_restore_button".localized, on: presenter)
+
+      XCTAssertEqual(
+        presenter.alerts.last?.message?.hasPrefix(expectedMessage),
+        true,
+        "\(capacity) bytes free"
+      )
+    }
+  }
+
+  /// A restore stopped by a full disk leaves the library in place: it's answered with Retry, and if the
+  /// library still fails to load afterwards the backup is offered again rather than the reset
+  @MainActor
+  func testARestoreStoppedByAFullDiskOffersRetryAndThenTheBackupAgain() async throws {
+    let presenter = AlertPresenterSpy()
+    let databaseInitializer = DatabaseInitializerStub()
+    databaseInitializer.restoreError = NSError(
+      domain: NSCocoaErrorDomain,
+      code: NSFileWriteOutOfSpaceError
+    )
+    let coordinator = DataInitializerCoordinator(
+      alertPresenter: presenter,
+      databaseInitializer: databaseInitializer,
+      availableCapacity: { self.plentyOfSpace }
+    )
+
+    await coordinator.handleError(corruptStore)
+    XCTAssertEqual(presenter.alerts.last?.message, "database_backup_available_message".localized)
+
+    try await tap("database_restore_button".localized, on: presenter)
+    XCTAssertEqual(presenter.alerts.last?.message, "coredata_error_diskfull_description".localized)
+    XCTAssertEqual(
+      presenter.alerts.last?.actionItems.map(\.title),
+      ["integration_retry_button".localized]
+    )
+
+    await coordinator.handleError(corruptStore)
+    XCTAssertEqual(presenter.alerts.last?.message, "database_backup_available_message".localized)
+    XCTAssertEqual(presenter.alerts.count, 3)
+  }
+
+  /// Any other restore failure still ends in the recovery options
+  @MainActor
+  func testARestoreThatFailsForAnotherReasonOffersTheReset() async throws {
+    let presenter = AlertPresenterSpy()
+    let databaseInitializer = DatabaseInitializerStub()
+    databaseInitializer.restoreError = BookPlayerError.runtimeError("Not a database")
+    let coordinator = DataInitializerCoordinator(
+      alertPresenter: presenter,
+      databaseInitializer: databaseInitializer,
+      availableCapacity: { self.plentyOfSpace }
+    )
+
+    await coordinator.handleError(corruptStore)
+    try await tap("database_restore_button".localized, on: presenter)
+
+    XCTAssertEqual(presenter.alerts.count, 2)
+    XCTAssertEqual(
+      presenter.alerts.last?.message?.hasPrefix("database_restore_failed_message".localized),
+      true
+    )
+    XCTAssertEqual(
+      presenter.alerts.last?.actionItems.map(\.title),
+      ["database_reset_button".localized, "cancel_button".localized]
+    )
+  }
+
+  /// GH #1324: with no free space the library can only be loaded again, never reset, and the alert
+  /// mustn't leave the app stuck on the loading screen
+  @MainActor
+  func testOutOfSpaceOffersARetryAndNothingElse() async {
+    let presenter = AlertPresenterSpy()
+    let coordinator = DataInitializerCoordinator(alertPresenter: presenter)
+
+    await coordinator.handleError(
+      NSError(
+        domain: NSCocoaErrorDomain,
+        code: NSFileWriteUnknownError,
+        userInfo: ["reason": "Failed to create file; code = 28"]
+      )
+    )
+
+    XCTAssertEqual(presenter.simpleAlertCount, 0)
+    XCTAssertEqual(presenter.alerts.count, 1)
+    XCTAssertEqual(presenter.alerts.first?.message, "coredata_error_diskfull_description".localized)
+    XCTAssertEqual(
+      presenter.alerts.first?.actionItems.map(\.title),
+      ["integration_retry_button".localized]
+    )
+  }
+}

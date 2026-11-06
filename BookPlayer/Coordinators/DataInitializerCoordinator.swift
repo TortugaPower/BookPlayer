@@ -13,16 +13,24 @@ import Foundation
 
 @MainActor
 class DataInitializerCoordinator: BPLogger {
-  var databaseInitializer: DatabaseInitializer { AppServices.shared.databaseInitializer }
+  let databaseInitializer: DatabaseInitializer
   let alertPresenter: AlertPresenter
+  /// Free bytes on the database's volume
+  private let availableCapacity: () -> Int?
 
   var onFinish: (() -> Void)?
 
   // Track if we've already attempted backup restoration to prevent infinite loops
   private var hasAttemptedBackupRestore: Bool = false
 
-  init(alertPresenter: AlertPresenter) {
+  init(
+    alertPresenter: AlertPresenter,
+    databaseInitializer: DatabaseInitializer = AppServices.shared.databaseInitializer,
+    availableCapacity: @escaping () -> Int? = DatabaseInitializer.availableCapacityForDatabase
+  ) {
     self.alertPresenter = alertPresenter
+    self.databaseInitializer = databaseInitializer
+    self.availableCapacity = availableCapacity
   }
 
   public func start() {
@@ -44,18 +52,9 @@ class DataInitializerCoordinator: BPLogger {
   }
 
   func handleError(_ error: NSError) async {
-    if error.domain == NSPOSIXErrorDomain
-      && (error.code == ENOSPC
-        || error.code == NSFileWriteOutOfSpaceError)
-    {
+    if isOutOfSpace(error) {
       // CoreData may fail if device doesn't have space
-      await MainActor.run {
-        alertPresenter.showAlert(
-          "error_title".localized,
-          message: "coredata_error_diskfull_description".localized,
-          completion: nil
-        )
-      }
+      await presentOutOfSpaceAlert()
     } else {
       // For other database errors, check if backups are available
       if !hasAttemptedBackupRestore && databaseInitializer.hasAvailableBackups() {
@@ -64,6 +63,37 @@ class DataInitializerCoordinator: BPLogger {
         // No backups available OR backup restoration already failed
         await presentFinalRecoveryAlert(error)
       }
+    }
+  }
+
+  /// Whether the error comes down to a lack of free space: from the error itself, or from the free
+  /// space left when the error doesn't say why a file failed
+  private func isOutOfSpace(_ error: NSError) -> Bool {
+    DatabaseInitializer.isOutOfSpaceError(error, availableCapacity: availableCapacity())
+  }
+
+  /// Present alert explaining the library can't load until there's free space. The database is
+  /// intact, so the way forward is loading it again once the user has made room
+  private func presentOutOfSpaceAlert() async {
+    await MainActor.run {
+      alertPresenter.showAlert(
+        BPAlertContent(
+          title: "error_title".localized,
+          message: "coredata_error_diskfull_description".localized,
+          style: .alert,
+          actionItems: [
+            BPActionItem(
+              title: "integration_retry_button".localized,
+              style: .default,
+              handler: {
+                Task {
+                  await self.reloadLibrary()
+                }
+              }
+            )
+          ]
+        )
+      )
     }
   }
 
@@ -149,14 +179,28 @@ class DataInitializerCoordinator: BPLogger {
   private func restoreFromBackup(originalError: NSError) async {
     hasAttemptedBackupRestore = true
 
-    let restoreSuccess = await databaseInitializer.restoreFromLatestBackup()
-
-    if restoreSuccess {
-      AppServices.shared.resetCoreServices()
-      await initializeLibrary(shouldRebuildFromFiles: false)
-    } else {
-      await presentFinalRecoveryAlert(originalError)
+    do {
+      try await databaseInitializer.restoreFromLatestBackup()
+    } catch {
+      if isOutOfSpace(error as NSError) {
+        // Copying the backup needs free space, and the current database is kept when there isn't
+        // any, so don't offer to reset it. Nothing was restored, so the backup is offered again
+        // if the library still fails to load after a retry
+        hasAttemptedBackupRestore = false
+        await presentOutOfSpaceAlert()
+      } else {
+        await presentFinalRecoveryAlert(originalError)
+      }
+      return
     }
+
+    await reloadLibrary()
+  }
+
+  /// Set up the core services from scratch and load the library again
+  private func reloadLibrary() async {
+    AppServices.shared.resetCoreServices()
+    await initializeLibrary(shouldRebuildFromFiles: false)
   }
 
   func recoverLibraryFromFailedMigration() {
