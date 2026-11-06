@@ -10,6 +10,14 @@
 		02C668174D24A70B4CD6FCB1 /* IntegrationConnectionStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 269BB56618B150DCAA2CA5FB /* IntegrationConnectionStoreTests.swift */; };
 		048E8DAA13C4530F4419A030 /* MediaServerProvider+Icon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56AC45C580EED027394A645B /* MediaServerProvider+Icon.swift */; };
 		058C840BB5E944B2899BC769 /* ReviewPromptServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F83542FF9A240EC87E55AC8 /* ReviewPromptServiceTests.swift */; };
+		5BADBEEF000000000000B001 /* AudioBookActivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BADBEEF000000000000F001 /* AudioBookActivity.swift */; };
+		5BADBEEF000000000000B002 /* BookFingerprint.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BADBEEF000000000000F002 /* BookFingerprint.swift */; };
+		5BADBEEF000000000000B003 /* BookLibraryMatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BADBEEF000000000000F003 /* BookLibraryMatcher.swift */; };
+		5BADBEEF000000000000B004 /* SharePlayCoordinating.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BADBEEF000000000000F004 /* SharePlayCoordinating.swift */; };
+		5BADBEEF000000000000B005 /* SharePlayService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BADBEEF000000000000F005 /* SharePlayService.swift */; };
+		5BADBEEF000000000000B006 /* SharePlayCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BADBEEF000000000000F006 /* SharePlayCoordinator.swift */; };
+		5BADBEEF000000000000B007 /* ActivitySharingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BADBEEF000000000000F007 /* ActivitySharingView.swift */; };
+		5BADBEEF000000000000B008 /* SharePlayButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BADBEEF000000000000F008 /* SharePlayButton.swift */; };
 		07416E5AD384927D90BFB6EE /* PasskeyCreatingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C084D4BC05BF6B413C86C6F0 /* PasskeyCreatingView.swift */; };
 		0CEC6B48350FC9C0A0B7D1C0 /* SyncTasksStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 700DFD61111AC10253D6EBAA /* SyncTasksStorageTests.swift */; };
 		0EF52614EF6770D09CA81CE4 /* IntegrationConnectedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35C564A7BDE3A2D98E02BF8B /* IntegrationConnectedView.swift */; };
@@ -1183,6 +1191,14 @@
 /* Begin PBXFileReference section */
 		03ABF38C1641BC9BCAD3213B /* el */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = el; path = el.lproj/Intents.strings; sourceTree = "<group>"; };
 		056B7A76F1A44CEC30562382 /* IntegrationQuickConnectViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationQuickConnectViews.swift; sourceTree = "<group>"; };
+		5BADBEEF000000000000F001 /* AudioBookActivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AudioBookActivity.swift; sourceTree = "<group>"; };
+		5BADBEEF000000000000F002 /* BookFingerprint.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookFingerprint.swift; sourceTree = "<group>"; };
+		5BADBEEF000000000000F003 /* BookLibraryMatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BookLibraryMatcher.swift; sourceTree = "<group>"; };
+		5BADBEEF000000000000F004 /* SharePlayCoordinating.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharePlayCoordinating.swift; sourceTree = "<group>"; };
+		5BADBEEF000000000000F005 /* SharePlayService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharePlayService.swift; sourceTree = "<group>"; };
+		5BADBEEF000000000000F006 /* SharePlayCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharePlayCoordinator.swift; sourceTree = "<group>"; };
+		5BADBEEF000000000000F007 /* ActivitySharingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActivitySharingView.swift; sourceTree = "<group>"; };
+		5BADBEEF000000000000F008 /* SharePlayButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharePlayButton.swift; sourceTree = "<group>"; };
 		0AE6A3EFE68BD9DC2E5ACF90 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Intents.strings; sourceTree = "<group>"; };
 		0BBD2E433A39625F4C58CC18 /* uk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = uk; path = uk.lproj/Intents.strings; sourceTree = "<group>"; };
 		0EA09FE5A35CEA0B87F83EF3 /* PreferencesSyncServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreferencesSyncServiceTests.swift; sourceTree = "<group>"; };
@@ -2528,6 +2544,21 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		5BADBEEF000000000000A001 /* SharePlay */ = {
+			isa = PBXGroup;
+			children = (
+				5BADBEEF000000000000F001 /* AudioBookActivity.swift */,
+				5BADBEEF000000000000F002 /* BookFingerprint.swift */,
+				5BADBEEF000000000000F003 /* BookLibraryMatcher.swift */,
+				5BADBEEF000000000000F004 /* SharePlayCoordinating.swift */,
+				5BADBEEF000000000000F005 /* SharePlayService.swift */,
+				5BADBEEF000000000000F006 /* SharePlayCoordinator.swift */,
+				5BADBEEF000000000000F007 /* ActivitySharingView.swift */,
+				5BADBEEF000000000000F008 /* SharePlayButton.swift */,
+			);
+			path = SharePlay;
+			sourceTree = "<group>";
+		};
 		418B6CFA1D2707F800F974FB /* BookPlayer */ = {
 			isa = PBXGroup;
 			children = (
@@ -2543,6 +2574,7 @@
 				9EDB4EF25480E070F2786662 /* MediaServerIntegration */,
 				C35E04F1207E8D0F007D3370 /* Library */,
 				C3EC372A206EDB9A0094B4E8 /* Player */,
+				5BADBEEF000000000000A001 /* SharePlay */,
 				C35E04F2207E8D4C007D3370 /* Settings */,
 				9FBDDB9A27DD1346005FB447 /* Profile */,
 				637968802E76546D00D0FCB0 /* Search */,
@@ -5032,6 +5064,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5BADBEEF000000000000B001 /* AudioBookActivity.swift in Sources */,
+				5BADBEEF000000000000B002 /* BookFingerprint.swift in Sources */,
+				5BADBEEF000000000000B003 /* BookLibraryMatcher.swift in Sources */,
+				5BADBEEF000000000000B004 /* SharePlayCoordinating.swift in Sources */,
+				5BADBEEF000000000000B005 /* SharePlayService.swift in Sources */,
+				5BADBEEF000000000000B006 /* SharePlayCoordinator.swift in Sources */,
+				5BADBEEF000000000000B007 /* ActivitySharingView.swift in Sources */,
+				5BADBEEF000000000000B008 /* SharePlayButton.swift in Sources */,
 				C451596D6866C856F3E5F7D1 /* IntegrationConnectionView.swift in Sources */,
 				C86098383F7FC099EED24AF7 /* IntegrationQuickConnectViews.swift in Sources */,
 				B14881000000000000000001 /* IntegrationCustomHeadersSectionView.swift in Sources */,

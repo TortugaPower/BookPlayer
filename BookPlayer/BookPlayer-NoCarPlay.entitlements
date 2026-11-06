@@ -10,6 +10,8 @@
 	<array>
 		<string>iCloud.$(CFBundleIdentifier)</string>
 	</array>
+	<key>com.apple.developer.group-session</key>
+	<true/>
 	<key>com.apple.developer.icloud-services</key>
 	<array>
 		<string>CloudDocuments</string>

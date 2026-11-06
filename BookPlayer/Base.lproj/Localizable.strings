@@ -598,3 +598,14 @@
 "transfer_web_path_conflict" = "Another file or folder you sent has this name";
 "transfer_web_done_hint" = "When you’re done, confirm in BookPlayer to import the files.";
 "transfer_web_load_error" = "Can’t reach BookPlayer. Check that its Transfer screen is still open.";
+
+"shareplay_title" = "SharePlay";
+"shareplay_activity_title" = "Listen to \"%@\" together";
+"shareplay_book_subject_title" = "\"%@\" by %@";
+"shareplay_book_not_found_description" = "%@ isn't in your library yet. Import the same audiobook to listen together.";
+"shareplay_book_load_failed_description" = "%@ couldn't be loaded for SharePlay. Check that it's downloaded and try again.";
+"shareplay_leave_title" = "Leave SharePlay";
+"shareplay_end_title" = "End for Everyone";
+"shareplay_unavailable_description" = "SharePlay is unavailable right now. Start a FaceTime call and try again.";
+"voiceover_shareplay_active_title" = "In SharePlay session";
+"voiceover_shareplay_start_title" = "Start SharePlay";
