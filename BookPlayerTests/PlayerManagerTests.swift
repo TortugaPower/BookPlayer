@@ -771,11 +771,27 @@ class PlayerManagerTests: XCTestCase {
     sut.updateTime()
     player.finishSeek()
     drainMainQueue()
+    player.reportedTime = 1.1
     sut.updateTime()
 
     XCTAssertEqual(player.seekTargets.count, 1)
     XCTAssertEqual(player.seekTargets.first ?? -1, 0.1, accuracy: 0.0001)
-    XCTAssertEqual(sut.currentItem?.currentTime ?? -1, 0.1, accuracy: 0.0001)
+    /// `jumpTo` already wrote 0.1, so only a reading past it shows playback is tracked from the restart
+    XCTAssertEqual(sut.currentItem?.currentTime ?? -1, 1.1, accuracy: 0.0001)
+  }
+
+  /// Paused, the player's only tick for a seek arrives before it lands, so the landing has to publish
+  /// the position itself, or the player screen and Now Playing keep the old one
+  func testALandedSeekPublishesThePositionWithoutWaitingForATick() {
+    let player = installLongChapterItem(currentTime: 120)
+
+    sut.jumpTo(300, recordBookmark: false)
+    sut.updateTime()
+    let published = expectation(forNotification: .bookPlaying, object: nil)
+    player.finishSeek()
+
+    wait(for: [published], timeout: 1)
+    XCTAssertEqual(sut.currentItem?.currentTime ?? -1, 300, accuracy: 0.0001)
   }
 
   func testATickBeforeASeekLandsDoesNotRecordTheOldPosition() {

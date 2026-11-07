@@ -31,6 +31,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   private let shakeMotionService: ShakeMotionServiceProtocol
   private let widgetReloadService: WidgetReloadServiceProtocol
 
+  /// Internal for tests, which install a player whose seeks land on demand
   var audioPlayer = AVPlayer()
 
   private var fadeTimer: Timer?
@@ -89,6 +90,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   weak var syncProgressDelegate: PlaybackSyncProgressDelegate?
   /// Reference to the ongoing play task
   private var playTask: Task<(), Error>?
+  /// Internal for tests, which install an item that is ready to play
   var playerItem: AVPlayerItem?
   /// The chapter file `playerItem` plays. A chapter change moves `currentItem.currentChapter`
   /// before its file loads, so a load cancelled midway (a pause) leaves the previous file's item
@@ -848,6 +850,9 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
         else { return }
 
         self.clockState = .tracking(expected: target, recoveries: recoveries)
+        /// While paused, the tick for this seek arrived before it landed and was dropped, and no
+        /// other tick follows: publish the landed position now, or the UI keeps the old one
+        self.updateTime()
       }
     }
   }
