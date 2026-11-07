@@ -771,13 +771,14 @@ class PlayerManagerTests: XCTestCase {
     sut.updateTime()
     player.finishSeek()
     drainMainQueue()
-    player.reportedTime = 1.1
+    /// Inside `PlayerTimeSample`'s file-start window: against the old position this reading is the
+    /// snap-back that triggers the recovery, and `jumpTo` already wrote 0.1, so 0.3 shows it was accepted
+    player.reportedTime = 0.3
     sut.updateTime()
 
     XCTAssertEqual(player.seekTargets.count, 1)
     XCTAssertEqual(player.seekTargets.first ?? -1, 0.1, accuracy: 0.0001)
-    /// `jumpTo` already wrote 0.1, so only a reading past it shows playback is tracked from the restart
-    XCTAssertEqual(sut.currentItem?.currentTime ?? -1, 1.1, accuracy: 0.0001)
+    XCTAssertEqual(sut.currentItem?.currentTime ?? -1, 0.3, accuracy: 0.0001)
   }
 
   /// Paused, the player's only tick for a seek arrives before it lands, so the landing has to publish
