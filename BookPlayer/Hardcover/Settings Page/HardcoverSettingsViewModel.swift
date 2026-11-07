@@ -6,6 +6,7 @@
 //  Copyright © 2025 BookPlayer LLC. All rights reserved.
 //
 
+import AuthenticationServices
 import BookPlayerKit
 import Combine
 import Get
@@ -16,38 +17,42 @@ import SwiftUI
 final class HardcoverSettingsViewModel: HardcoverSettingsView.Model {
   private var hardcoverService: HardcoverServiceProtocol
 
-  @AppStorage(Constants.UserDefaults.hardcoverAutoMatch, store: UserDefaults.sharedDefaults)
-  private var storedAutoMatch = false
-  
-  @AppStorage(Constants.UserDefaults.hardcoverAutoAddWantToRead, store: UserDefaults.sharedDefaults)
-  private var storedAutoAddWantToRead = true
-
-  @AppStorage(Constants.UserDefaults.hardcoverReadingThreshold, store: UserDefaults.sharedDefaults)
-  private var storedReadingThreshold = 1.0
-
   init(hardcoverService: HardcoverServiceProtocol) {
     self.hardcoverService = hardcoverService
-    
+
     super.init(
-      accessToken: hardcoverService.authorization ?? "",
-      showUnlinkButton: hardcoverService.authorization != nil
+      isSignedIn: hardcoverService.isSignedInWithOAuth,
+      connectedUsername: hardcoverService.connectedUsername
     )
+  }
 
-    self.autoMatch = storedAutoMatch
-    self.autoAddWantToRead = storedAutoAddWantToRead
-    self.readingThreshold = storedReadingThreshold
+  /// Shown as signed out right away: the sign-in is forgotten at once, but revoking it waits on the network
+  @MainActor
+  override func onLogOutTapped() {
+    let hardcoverService = hardcoverService
+
+    Task {
+      await hardcoverService.disconnect()
+    }
+
+    isSignedIn = false
+    connectedUsername = nil
   }
 
   @MainActor
-  override func onSaveTapped() {
-    hardcoverService.authorization = accessToken
-    storedAutoMatch = autoMatch
-    storedAutoAddWantToRead = autoAddWantToRead
-    storedReadingThreshold = readingThreshold
-  }
+  override func onSignInTapped(authenticate: @escaping (URL) async throws -> URL) async {
+    isSigningIn = true
+    defer { isSigningIn = false }
 
-  @MainActor
-  override func onUnlinkTapped() {
-    hardcoverService.authorization = nil
+    do {
+      try await hardcoverService.signIn(authenticate: authenticate)
+    } catch let error as ASWebAuthenticationSessionError where error.code == .canceledLogin {
+      /// Closed by the user: nothing to report
+    } catch {
+      signInFailed = true
+    }
+
+    isSignedIn = hardcoverService.isSignedInWithOAuth
+    connectedUsername = hardcoverService.connectedUsername
   }
 }

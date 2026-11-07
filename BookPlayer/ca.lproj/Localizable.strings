@@ -413,8 +413,7 @@
 "hardcover_progress_tracking_footer" = "Estableix el percentatge mínim de progrés necessari abans que un llibre es marqui com a **Llegint actualment** a la vostra biblioteca de Hardcover.";
 "hardcover_automation_description" = "Sincronitza automàticament el vostre progrés de lectura amb Hardcover. Quan s'activa, els llibres es coincidiran automàticament i s'afegiran a la vostra biblioteca.";
 "section_item_hardcover" = "Hardcover";
-"hardcover_api_access_title" = "Accés a l'API";
-"hardcover_api_access_footer" = "Podeu trobar el vostre accés a l'API de Hardcover a https://hardcover.app/account/api.";
+"hardcover_sign_in_failed_message" = "Hardcover no ha completat l'inici de sessió. Torna-ho a provar.";
 "hardcover_automation_title" = "Automatització";
 "hardcover_progress_tracking_title" = "Seguiment del progrés";
 "save_button" = "Desar";

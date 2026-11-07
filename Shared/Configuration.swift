@@ -37,4 +37,5 @@ public enum ConfigurationKeys: String, RawRepresentable {
   case apiScheme = "BP_API_SCHEME"
   case apiDomain = "BP_API_DOMAIN"
   case apiPort = "BP_API_PORT"
+  case hardcoverClientId = "BP_HARDCOVER_CLIENT_ID"
 }

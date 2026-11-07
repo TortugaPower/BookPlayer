@@ -1,5 +1,5 @@
 //
-//  BookByIdData.swift
+//  HardcoverBookByIdData.swift
 //  BookPlayer
 //
 //  Created by Gianni Carlo on 5/9/26.
@@ -9,7 +9,7 @@
 import Foundation
 
 /// Response model for fetching a single book by its Hardcover id.
-struct BookByIdData: Codable {
+struct HardcoverBookByIdData: Codable {
   let books: [Book]
 
   struct Book: Codable {

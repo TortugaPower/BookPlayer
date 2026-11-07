@@ -413,8 +413,7 @@
 "hardcover_progress_tracking_footer" = "Asettaa minimiedistymisprosentin, joka vaaditaan ennen kuin kirja merkitään **Parhaillaan lukemassa** -tilaan Hardcover-kirjastossasi.";
 "hardcover_automation_description" = "Synkronoi lukuedistyksesi automaattisesti Hardcoverin kanssa. Kun käytössä, kirjat vastaavat automaattisesti ja lisätään kirjastoosi.";
 "section_item_hardcover" = "Hardcover";
-"hardcover_api_access_title" = "API-käyttöoikeus";
-"hardcover_api_access_footer" = "Löydät Hardcover API -käyttöoikeutesi osoitteesta https://hardcover.app/account/api.";
+"hardcover_sign_in_failed_message" = "Hardcover ei viimeistellyt kirjautumista. Yritä uudelleen.";
 "hardcover_automation_title" = "Automaatio";
 "hardcover_progress_tracking_title" = "Edistymisen seuranta";
 "save_button" = "Tallenna";

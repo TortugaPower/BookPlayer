@@ -413,8 +413,7 @@
 "hardcover_progress_tracking_footer" = "设置在图书被标记为**正在阅读**之前在您的 Hardcover 图书馆中所需的最小进度百分比。";
 "hardcover_automation_description" = "自动与 Hardcover 同步您的阅读进度。启用后，图书将自动匹配并添加到您的图书馆。";
 "section_item_hardcover" = "Hardcover";
-"hardcover_api_access_title" = "API 访问";
-"hardcover_api_access_footer" = "您可以在 https://hardcover.app/account/api 找到您的 Hardcover API 访问权限。";
+"hardcover_sign_in_failed_message" = "Hardcover 未完成登录。请重试。";
 "hardcover_automation_title" = "自动化";
 "hardcover_progress_tracking_title" = "进度跟踪";
 "save_button" = "保存";

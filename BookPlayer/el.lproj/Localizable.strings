@@ -413,8 +413,7 @@
 "hardcover_progress_tracking_footer" = "Ορίζει το ελάχιστο ποσοστό προόδου που απαιτείται πριν ένα βιβλίο επισημανθεί ως **Διαβάζω αυτή τη στιγμή** στη βιβλιοθήκη Hardcover σας.";
 "hardcover_automation_description" = "Αυτόματος συγχρονισμός της προόδου ανάγνωσής σας με το Hardcover. Όταν είναι ενεργοποιημένο, τα βιβλία θα ταιριάζουν αυτόματα και θα προστίθενται στη βιβλιοθήκη σας.";
 "section_item_hardcover" = "Hardcover";
-"hardcover_api_access_title" = "Πρόσβαση API";
-"hardcover_api_access_footer" = "Μπορείτε να βρείτε την πρόσβαση API του Hardcover στο https://hardcover.app/account/api.";
+"hardcover_sign_in_failed_message" = "Το Hardcover δεν ολοκλήρωσε τη σύνδεση. Δοκιμάστε ξανά.";
 "hardcover_automation_title" = "Αυτοματισμός";
 "hardcover_progress_tracking_title" = "Παρακολούθηση προόδου";
 "save_button" = "Αποθήκευση";

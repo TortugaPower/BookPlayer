@@ -182,9 +182,9 @@ public protocol LibraryServiceProtocol: AnyObject {
   func setHardcoverBook(_ hardcoverBook: SimpleHardcoverBook?, for relativePath: String) async
   /// Get hardcover book for an item
   func getHardcoverBook(for relativePath: String) async -> SimpleHardcoverBook?
-  /// Create an external resource linking the item (by uuid) to a provider's resource.
+  /// Create an external resource linking the item (by uuid) to a provider's resource, on the given host.
   /// Returns the syncable representation to upload, or nil if it already exists or the item is missing.
-  func setExternalResource(providerName: String, providerId: String, for uuid: String) async -> SyncableExternalResource?
+  func setExternalResource(providerName: String, providerId: String, hostId: String?, for uuid: String) async -> SyncableExternalResource?
   /// Remove the external resource of the given provider from the item (by uuid).
   /// Returns the deleted resource's providerId, or nil if there was nothing to delete.
   func removeExternalResource(providerName: String, for uuid: String) async -> String?
@@ -3390,6 +3390,7 @@ extension LibraryService {
   public func setExternalResource(
     providerName: String,
     providerId: String,
+    hostId: String?,
     for uuid: String
   ) async -> SyncableExternalResource? {
     return await withCheckedContinuation { continuation in
@@ -3419,7 +3420,7 @@ extension LibraryService {
           syncStatus: ExternalResource.SyncStatus.notSynced.rawValue,
           lastSyncedAt: nil,
           processedFile: true,
-          hostId: nil
+          hostId: hostId
         )
 
         _ = ExternalResource.create(syncable, libraryItem: item, in: context)

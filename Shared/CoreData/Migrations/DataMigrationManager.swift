@@ -16,28 +16,28 @@ public final class DataMigrationManager: BPLogger {
   private let storeURL: URL
   private var storeModel: NSManagedObjectModel?
 
-  public init() {
+  public init(storeURL: URL? = nil) {
     self.currentModel = .model(named: self.modelName)
-    let storeURL = FileManager.default.containerURL(
+    let storeURL = storeURL ?? FileManager.default.containerURL(
       forSecurityApplicationGroupIdentifier: Constants.ApplicationGroupIdentifier
     )!
     .appendingPathComponent("\(self.modelName).sqlite")
     self.storeURL = storeURL
-    self.storeModel =
-      NSManagedObjectModel.modelVersionsFor(modelNamed: self.modelName)
-      .filter {
-        self.store(at: storeURL, isCompatibleWithModel: $0)
-      }.first
+  }
+
+  /// Reads which model version the store on disk uses. Called before every load, since a load later
+  /// in the same launch (a retry, or after a restore) can find a different store: the first read
+  /// fails on a full disk, and a restore replaces the store
+  public func refreshStoreModel() {
+    let storeMetadata = self.metadataForStoreAtURL(storeURL: self.storeURL)
+
+    self.storeModel = NSManagedObjectModel.modelVersionsFor(modelNamed: self.modelName).first {
+      $0.isConfiguration(withName: nil, compatibleWithStoreMetadata: storeMetadata)
+    }
   }
 
   public func getCoreDataStack() -> CoreDataStack {
     return CoreDataStack(modelName: self.modelName)
-  }
-
-  private func store(at storeURL: URL, isCompatibleWithModel model: NSManagedObjectModel) -> Bool {
-    let storeMetadata = self.metadataForStoreAtURL(storeURL: storeURL)
-
-    return model.isConfiguration(withName: nil, compatibleWithStoreMetadata: storeMetadata)
   }
 
   private func metadataForStoreAtURL(storeURL: URL) -> [String: Any] {
@@ -108,14 +108,8 @@ public final class DataMigrationManager: BPLogger {
   }
 
   public func cleanupStoreFile() {
-    let storeURL = self.storeURL
-    let fileManager = FileManager.default
-    let wal = storeURL.appendingPathComponent("-wal")
-    let shm = storeURL.appendingPathComponent("-shm")
-    // cleanup in case
-    try? fileManager.removeItem(at: wal)
-    try? fileManager.removeItem(at: shm)
-    try? fileManager.removeItem(at: storeURL)
+    try? FileManager.default.removeItem(at: self.storeURL)
+    cleanupAssociatedFiles()
   }
 
   /// Deletes associated WAL and SHM files for a given database URL
