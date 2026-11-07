@@ -17,7 +17,7 @@ struct MainView: View {
   @StateObject private var theme = ThemeViewModel()
   @StateObject private var keyboardObserver = KeyboardObserver()
   /// A wire between SwiftUI views that MainCoordinator never touches, so it's owned here.
-  /// Injected below, where the integration sheets and the library tab both inherit it.
+  /// Injected below, where the library sheets and the library tab both inherit it.
   @StateObject private var externalImportEvents = ExternalImportEvents()
   @Environment(\.libraryService) private var libraryService
   @Environment(\.playerState) private var playerState
@@ -29,6 +29,7 @@ struct MainView: View {
 
   @EnvironmentObject private var listSyncRefreshService: ListSyncRefreshService
   @EnvironmentObject private var playerManager: PlayerManager
+  @EnvironmentObject private var importManager: ImportManager
 
   var body: some View {
     TabView {
@@ -40,13 +41,6 @@ struct MainView: View {
         .toolbarBackground(.visible, for: .tabBar)
         .toolbarBackground(theme.systemBackgroundColor, for: .tabBar)
         .toolbar(listState.isEditing ? .hidden : .visible, for: .tabBar)
-        .onDrop(
-          of: ImportableItem.readableTypeIdentifiers,
-          isTargeted: nil
-        ) { providers in
-          handleDrop(providers)
-          return true
-        }
       }
       Tab("profile_title", systemImage: "person.crop.circle") {
         ProfileView()
@@ -68,8 +62,9 @@ struct MainView: View {
         MiniPlayerAccessoryView(relativePath: relativePath, showPlayer: showPlayer)
       }
     }
-    .sheet(item: $listState.activeIntegrationSheet, onDismiss: {
+    .sheet(item: $listState.activeLibrarySheet, onDismiss: {
       listState.coversOnScreen.remove(.mediaServers)
+      listState.coversOnScreen.remove(.transferFromComputer)
     }) { sheet in
       switch sheet {
       case .mediaServers:
@@ -80,8 +75,13 @@ struct MainView: View {
             style: .libraryEntry
           )
         }
-        .environment(\.closeMediaServers, CloseMediaServersAction { listState.activeIntegrationSheet = nil })
+        .environment(\.closeMediaServers, CloseMediaServersAction { listState.activeLibrarySheet = nil })
         .onAppear { listState.coversOnScreen.insert(.mediaServers) }
+      case .transferFromComputer:
+        TransferView {
+          TransferViewModel(importManager: importManager, libraryService: libraryService)
+        }
+        .onAppear { listState.coversOnScreen.insert(.transferFromComputer) }
       }
     }
     .fullScreenCover(isPresented: playerState.isShowingPlayerBinding, onDismiss: {
@@ -105,7 +105,7 @@ struct MainView: View {
     // can present, since the sheet is attached underneath it.
     .onReceive(NotificationCenter.default.publisher(for: .showMediaServers)) { _ in
       playerState.isShowingPlayer = false
-      listState.activeIntegrationSheet = .mediaServers
+      listState.activeLibrarySheet = .mediaServers
     }
     // Sibling copy (see PlaybackAlerts): playback also starts with the player CLOSED —
     // mini-player, CarPlay, remote commands, last-book restore — and the copy inside the cover
@@ -163,50 +163,15 @@ struct MainView: View {
   }
 
   func showPlayer() {
+    /// The import screen is a UIKit presentation from the same screen as the player's cover, so the
+    /// cover can't present over it, and `isShowingPlayer` would stay true with no player showing,
+    /// leaving every later request (the mini player included) a no-op. The import wins
+    guard !importManager.isImportScreenShown else { return }
     playerState.isShowingPlayer = true
   }
   
   func hasPlayerShown() -> Bool {
     return playerState.isShowingPlayer
-  }
-
-  func handleDrop(_ providers: [NSItemProvider]) {
-    for provider in providers {
-      let suggestedName = provider.suggestedName
-      provider.loadObject(ofClass: ImportableItem.self) { [suggestedName] (object, _) in
-        guard let item = object as? ImportableItem else { return }
-        /// Set `suggesteName` from the provider
-        item.suggestedName = suggestedName
-
-        importData(from: item)
-      }
-    }
-  }
-
-  func importData(from item: ImportableItem) {
-    let filename: String
-
-    if let suggestedName = item.suggestedName {
-      let pathExtension = (suggestedName as NSString).pathExtension
-      /// Use  `suggestedFileExtension` only if the curret name does not include an extension
-      if pathExtension.isEmpty {
-        filename = "\(suggestedName).\(item.suggestedFileExtension)"
-      } else {
-        filename = suggestedName
-      }
-    } else {
-      /// Fallback if the provider didn't have a suggested name
-      filename = "\(Date().timeIntervalSince1970).\(item.suggestedFileExtension)"
-    }
-
-    let destinationURL = DataManager.getDocumentsFolderURL()
-      .appendingPathComponent(filename)
-
-    do {
-      try item.data.write(to: destinationURL)
-    } catch {
-      print("Fail to move dropped file to the Documents directory: \(error.localizedDescription)")
-    }
   }
 }
 

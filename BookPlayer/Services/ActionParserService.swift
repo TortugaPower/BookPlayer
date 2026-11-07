@@ -10,10 +10,6 @@ import BookPlayerKit
 import Foundation
 import Intents
 
-public enum BPParseError: Error {
-  case unrecognizedIntent
-}
-
 @MainActor
 class ActionParserService {
   public class func process(_ url: URL) {
@@ -23,15 +19,14 @@ class ActionParserService {
   }
 
   public class func process(_ activity: NSUserActivity) {
-    guard let action = CommandParser.parse(activity) else { return }
-
-    self.handleAction(action)
-  }
-
-  public class func process(_ intent: INIntent) throws {
-    guard let action = CommandParser.parse(intent) else {
-      throw BPParseError.unrecognizedIntent
+    /// The system can open the app with a media intent instead of handing it to the handler in the
+    /// background: it plays the book the intent names, not just the last one
+    if let intent = activity.interaction?.intent as? INPlayMediaIntent {
+      Task { _ = await PlayMediaIntentHandler().handle(intent: intent) }
+      return
     }
+
+    guard let action = CommandParser.parse(activity) else { return }
 
     self.handleAction(action)
   }

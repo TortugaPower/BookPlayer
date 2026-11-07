@@ -69,7 +69,7 @@ final class HardcoverBookPickerViewModel: HardcoverBookPickerView.Model, BPLogge
     }
   }
   
-  private func processSearchResults(_ result: BooksData) async {
+  private func processSearchResults(_ result: HardcoverBooksData) async {
     let books = result.search.results.hits.map(\.document)
 
     var rows = [HardcoverBookRow.Model]()

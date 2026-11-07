@@ -13,6 +13,9 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
+      - name: Release script tests
+        run: python3 -I -B -m unittest discover -s ci_scripts
+
       - name: Select Xcode 27.1
         run: |
           ls -1 /Applications | grep -E '^Xcode_27' || true

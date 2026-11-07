@@ -12,6 +12,11 @@ public struct SimpleLibraryItem: Identifiable, Hashable, Equatable {
   public var id: String {
     return self.relativePath
   }
+  /// The uuid, or the path for an item without a real one (the same rule as `PlayableItem.id`).
+  /// Unlike `id`, it survives moves and renames
+  public var stableIdentifier: String {
+    Constants.isRealUuid(uuid) ? uuid : relativePath
+  }
   public let title: String
   public let details: String
   public let speed: Double

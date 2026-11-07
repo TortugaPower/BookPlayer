@@ -16,10 +16,13 @@ public class DatabaseBackupService: BPLogger {
 
   private let fileManager = FileManager.default
   private let backupRetentionCount = 2
+  private let databaseURL: URL?
 
   // MARK: - Public API
 
-  public init() {}
+  public init(databaseURL: URL? = nil) {
+    self.databaseURL = databaseURL
+  }
 
   /// Performs a complete backup operation: copy, validate, and cleanup
   public func performBackup() async {
@@ -34,13 +37,15 @@ public class DatabaseBackupService: BPLogger {
     let backupURL = createBackupURL()
 
     // Copy database files (.sqlite, .sqlite-wal, .sqlite-shm)
-    guard copyDatabaseFiles(from: sourceURL, to: backupURL) else {
+    guard (try? copyDatabaseFiles(from: sourceURL, to: backupURL)) != nil else {
       Self.logger.error("Failed to copy database files")
+      // Whatever was copied would otherwise be listed as the latest backup
+      deleteDatabaseFiles(at: backupURL)
       return
     }
 
     // Validate backup can be loaded by CoreData
-    guard validateBackup(at: backupURL) else {
+    guard (try? validateBackup(at: backupURL)) != nil else {
       Self.logger.error("Backup validation failed, deleting invalid backup")
       try? fileManager.removeItem(at: backupURL)
       // Also try to remove associated WAL/SHM files if they exist
@@ -90,45 +95,60 @@ public class DatabaseBackupService: BPLogger {
 
   /// Restore database from backup
   /// - Parameter backupURL: The backup file to restore from
-  /// - Returns: true if restoration succeeded, false otherwise
-  public func restoreDatabase(from backupURL: URL) async -> Bool {
+  /// - Throws: The error that stopped the restore, so a full disk can be told apart from a bad backup
+  public func restoreDatabase(from backupURL: URL) async throws {
     Self.logger.info("Starting database restoration from: \(backupURL.lastPathComponent)")
 
     // Verify backup file exists
     guard fileManager.fileExists(atPath: backupURL.path) else {
       Self.logger.error("Backup file does not exist at: \(backupURL.path)")
-      return false
+      throw BookPlayerError.runtimeError("Backup file does not exist")
     }
 
     // Get destination (main database) URL
     guard let destinationURL = getSourceDatabaseURL() else {
       Self.logger.error("Failed to get destination database URL")
-      return false
+      throw BookPlayerError.runtimeError("Failed to get destination database URL")
     }
 
-    try? fileManager.removeItem(at: destinationURL)
-    deleteAssociatedFiles(for: destinationURL)
+    // Prepared beside the database, which isn't touched until there's a valid copy to replace it
+    let stagingURL = destinationURL.deletingLastPathComponent()
+      .appendingPathComponent("BookPlayer-restoring.sqlite")
+    deleteDatabaseFiles(at: stagingURL)
 
-    guard copyDatabaseFiles(from: backupURL, to: destinationURL) else {
-      Self.logger.error("Failed to copy backup files during restoration")
-      return false
+    do {
+      try copyDatabaseFiles(from: backupURL, to: stagingURL)
+      try validateBackup(at: stagingURL)
+      // As a single file it replaces the database in one step, so an interruption can't leave
+      // no database, or the restored one without its WAL
+      try mergeWriteAheadLog(of: stagingURL)
+    } catch {
+      Self.logger.error(
+        "Restoration stopped before replacing the database, cleaning up: \(error.localizedDescription)"
+      )
+      deleteDatabaseFiles(at: stagingURL)
+      throw error
     }
 
-    guard validateBackup(at: destinationURL) else {
-      Self.logger.error("Restored database validation failed, cleaning up")
-      try? fileManager.removeItem(at: destinationURL)
-      deleteAssociatedFiles(for: destinationURL)
-      return false
+    do {
+      // These belong to the database being replaced, and SQLite would apply them to the restored one
+      try removeJournalFiles(of: destinationURL)
+      try replaceDatabaseFile(at: destinationURL, with: stagingURL)
+    } catch {
+      Self.logger.error("Failed to move restored database into place: \(error.localizedDescription)")
+      deleteDatabaseFiles(at: stagingURL)
+      throw error
     }
 
     Self.logger.info("Database restoration completed successfully")
-    return true
   }
 
   // MARK: - Private Methods
 
   /// Returns the URL of the source CoreData database file
   private func getSourceDatabaseURL() -> URL? {
+    if let databaseURL { return databaseURL }
+
     guard
       let containerURL = fileManager.containerURL(
         forSecurityApplicationGroupIdentifier: Constants.ApplicationGroupIdentifier
@@ -153,16 +173,17 @@ public class DatabaseBackupService: BPLogger {
   }
 
   /// Copies the database files (including WAL and SHM) from source to destination
-  private func copyDatabaseFiles(from sourceURL: URL, to destinationURL: URL) -> Bool {
+  private func copyDatabaseFiles(from sourceURL: URL, to destinationURL: URL) throws {
     do {
       // Copy main .sqlite file
       try fileManager.copyItem(at: sourceURL, to: destinationURL)
 
-      // Copy WAL file if it exists
+      // Copy WAL file if it exists. It holds the latest changes until SQLite checkpoints them, so a
+      // copy without it is an older database
       let walSource = sourceURL.deletingPathExtension().appendingPathExtension("sqlite-wal")
       if fileManager.fileExists(atPath: walSource.path) {
         let walDestination = destinationURL.deletingPathExtension().appendingPathExtension("sqlite-wal")
-        try? fileManager.copyItem(at: walSource, to: walDestination)
+        try fileManager.copyItem(at: walSource, to: walDestination)
       }
 
       // Copy SHM file if it exists
@@ -171,27 +192,66 @@ public class DatabaseBackupService: BPLogger {
         let shmDestination = destinationURL.deletingPathExtension().appendingPathExtension("sqlite-shm")
         try? fileManager.copyItem(at: shmSource, to: shmDestination)
       }
-
-      return true
     } catch {
       Self.logger.error("Failed to copy database files: \(error.localizedDescription)")
-      return false
+      throw error
     }
   }
 
-  /// Validates that the backup can be loaded by CoreData without errors
-  /// Uses a read-only check without applying migrations for speed
-  private func validateBackup(at backupURL: URL) -> Bool {
-    // Get the managed object model
+  /// Moves a single-file database over another with one rename, which replaces it atomically
+  private func replaceDatabaseFile(at destinationURL: URL, with sourceURL: URL) throws {
+    guard rename(sourceURL.path, destinationURL.path) == 0 else {
+      let code = errno
+      throw NSError(
+        domain: NSPOSIXErrorDomain,
+        code: Int(code),
+        userInfo: [NSFilePathErrorKey: destinationURL.path]
+      )
+    }
+  }
+
+  /// Returns the app's managed object model
+  private func loadManagedObjectModel() throws -> NSManagedObjectModel {
     guard let modelURL = Bundle.main.url(forResource: "BookPlayer", withExtension: "momd"),
       let managedObjectModel = NSManagedObjectModel(contentsOf: modelURL)
     else {
       Self.logger.error("Failed to load managed object model")
-      return false
+      throw BookPlayerError.runtimeError("Failed to load managed object model")
     }
 
+    return managedObjectModel
+  }
+
+  /// Writes a database's WAL into its main file by switching it to a rollback journal, leaving it as
+  /// a single file. Core Data switches it back to WAL the next time it opens the store
+  private func mergeWriteAheadLog(of databaseURL: URL) throws {
+    let coordinator = NSPersistentStoreCoordinator(managedObjectModel: try loadManagedObjectModel())
+    let store = try coordinator.addPersistentStore(
+      ofType: NSSQLiteStoreType,
+      configurationName: nil,
+      at: databaseURL,
+      options: [
+        NSMigratePersistentStoresAutomaticallyOption: false,
+        NSInferMappingModelAutomaticallyOption: false,
+        NSSQLitePragmasOption: ["journal_mode": "DELETE"],
+      ]
+    )
+    try coordinator.remove(store)
+
+    let walURL = databaseURL.deletingPathExtension().appendingPathExtension("sqlite-wal")
+    let walSize = (try? walURL.resourceValues(forKeys: [.fileSizeKey]))?.fileSize ?? 0
+    guard walSize == 0 else {
+      throw BookPlayerError.runtimeError("The WAL of \(databaseURL.lastPathComponent) wasn't merged")
+    }
+
+    try removeJournalFiles(of: databaseURL)
+  }
+
+  /// Validates that the backup can be loaded by CoreData without errors
+  /// Uses a read-only check without applying migrations for speed
+  private func validateBackup(at backupURL: URL) throws {
     // Create a persistent store coordinator for validation
-    let coordinator = NSPersistentStoreCoordinator(managedObjectModel: managedObjectModel)
+    let coordinator = NSPersistentStoreCoordinator(managedObjectModel: try loadManagedObjectModel())
 
     do {
       // Attempt to add the store with read-only access
@@ -211,12 +271,16 @@ public class DatabaseBackupService: BPLogger {
       try coordinator.remove(store)
 
       Self.logger.info("Backup validation successful")
-      return true
-
     } catch {
       Self.logger.error("Backup validation failed: \(error.localizedDescription)")
-      return false
+      throw error
     }
+  }
+
+  /// Deletes a database and its associated WAL and SHM files
+  private func deleteDatabaseFiles(at databaseURL: URL) {
+    try? fileManager.removeItem(at: databaseURL)
+    deleteAssociatedFiles(for: databaseURL)
   }
 
   /// Deletes associated WAL and SHM files for a given database URL
@@ -226,6 +290,16 @@ public class DatabaseBackupService: BPLogger {
 
     let shmURL = databaseURL.deletingPathExtension().appendingPathExtension("sqlite-shm")
     try? fileManager.removeItem(at: shmURL)
+  }
+
+  /// Deletes a database's WAL and SHM files, failing if one can't be removed
+  private func removeJournalFiles(of databaseURL: URL) throws {
+    for pathExtension in ["sqlite-wal", "sqlite-shm"] {
+      let url = databaseURL.deletingPathExtension().appendingPathExtension(pathExtension)
+      if fileManager.fileExists(atPath: url.path) {
+        try fileManager.removeItem(at: url)
+      }
+    }
   }
 
   /// Removes old backup files, keeping only the most recent ones

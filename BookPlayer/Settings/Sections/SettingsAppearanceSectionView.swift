@@ -41,6 +41,7 @@ struct SettingsAppearanceSectionView: View {
               .foregroundStyle(theme.secondaryColor)
           )
       }
+      .settingsRowBackground(for: .themes)
 
       if ProcessInfo.processInfo.isiOSAppOnMac {
         VStack(alignment: .leading, spacing: Spacing.S1) {
@@ -79,6 +80,7 @@ struct SettingsAppearanceSectionView: View {
                 .foregroundStyle(theme.secondaryColor)
             )
         }
+        .settingsRowBackground(for: .icons)
 
         /// iPad ignores the lock: apps that support multitasking get every orientation
         if UIDevice.current.userInterfaceIdiom == .phone {

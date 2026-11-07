@@ -34,7 +34,7 @@ The on-disk tree is deeply misleading. Before judging *where* code should live, 
 
 ## Targets & dependency rule
 
-Ten native targets in `BookPlayer.xcodeproj` (no `Package.swift`, no app `.xcworkspace`):
+Nine native targets in `BookPlayer.xcodeproj` (no `Package.swift`, no app `.xcworkspace`):
 
 | Target | Product / type | Role | Source |
 |---|---|---|---|
@@ -44,7 +44,6 @@ Ten native targets in `BookPlayer.xcodeproj` (no `Package.swift`, no app `.xcwor
 | `BookPlayerWatch` | app (watchOS) | Watch app | `BookPlayerWatch/` |
 | `BookPlayerWidgetsPhone` | app-extension | iOS widgets | `BookPlayerWidgets/` (`Phone/` + `Shared/`) |
 | `BookPlayerWidgetsWatch` | app-extension | watchOS widgets/complications | `BookPlayerWidgets/Shared/` |
-| `BookPlayerIntents` | app-extension | **legacy SiriKit** `INExtension` | `BookPlayerIntents/` |
 | `BookPlayerShareExtension` | app-extension | Share-sheet import | `BookPlayerShareExtension/` |
 | `BookPlayerTests` | "Audiobook PlayerTests" · unit-test | Unit + perf tests | `BookPlayerTests/` |
 | `BookPlayerUITests` | UI-test bundle | **Release check only** (never CI), see below | `BookPlayerUITests/` |
@@ -65,18 +64,30 @@ import BookPlayerKit
 ```
 
 Do **not** "fix" or collapse these conditional imports — they are the mechanism that lets one shared codebase
-compile for both platforms. `BookPlayerIntents` (SiriKit `Intents`) is **legacy** and distinct from the modern
-App Intents in the top-level `BookPlayer/BookPlayer/AppIntents/` folder — don't conflate them.
+compile for both platforms. There is no SiriKit Intents extension: its custom intents were replaced by App Intents
+(decided). Shortcuts built with the old SiriKit "Sleep Timer" action don't migrate and stop working; the
+`CustomSleepTimerIntent`, `EndChapterSleepTimerIntent` and `CancelSleepTimerIntent` App Intents cover it. Time Listened
+widgets do migrate: `TimeListenedConfigurationIntent` adopts `CustomIntentMigratedAppIntent` (`intentClassName`
+"PlayAndSleepActionIntent"), and the system carries settings over by parameter name and type (`sleepTimer`, `autoplay`)
+and `SleepTimerOption` case name. Renaming any of them silently drops what people chose. Without that conformance, a
+widget set up with SiriKit freezes and can't be edited until it's re-added.
+SiriKit **media** (`INPlayMediaIntent`) is still SiriKit, handled in the app (see "Playback suggestions").
 
 ### Dependencies (SPM, declared inside `project.pbxproj`)
 
 RevenueCat (`purchases-ios`, ~5.78), Sentry (`sentry-cocoa`, **exact 8.36.0**), Kingfisher (~8.10),
 JellyfinAPI (`jellyfin-sdk-swift`, ~1.0), Get (~2.2), MarqueeLabel (~4.0.5), DeviceKit (~5.1),
-IDZSwiftCommonCrypto (~0.13.1), Themeable (~3.0), ZipArchive (~2.3), DirectoryWatcher (~2.8.6).
+IDZSwiftCommonCrypto (~0.13.1), Themeable (~3.0), ZipArchive (~2.3), DirectoryWatcher (~2.8.6),
+BrowserDrop (`TortugaPower/SwiftBrowserDrop`, ~2.0; the Transfer from Computer server).
 `BlurHashDecode.swift` is vendored (SwiftLint-excluded). RevenueCat + Kingfisher link into the **frameworks**;
 most others link into the **app**. JellyfinAPI and Get link into the app, both frameworks and `BookPlayerTests`, so
 Xcode builds each as one dynamic `…_PackageProduct.framework` that the app embeds: one copy of their types (an
-`APIError` thrown inside BookPlayerKit matches the app's `catch`), not a static copy per binary. SwiftLint runs as a build-phase run-script; **Sourcery is run manually** (not
+`APIError` thrown inside BookPlayerKit matches the app's `catch`), not a static copy per binary. The watch app
+(`BookPlayerWatch`) links both too, only so that it embeds them: Xcode copies a `…_PackageProduct.framework` into an
+app only when that app target links the package itself, and a package linked by `BookPlayerWatchKit` alone left the
+watch app without it (6.0.0: every watch died at launch, dyld "Library not loaded: @rpath/Get_…_PackageProduct").
+Runs from Xcode and on the simulator hide this, since Debug builds add an absolute rpath to the build folder's
+`PackageFrameworks`; the release check's bundle check (below) catches it. SwiftLint runs as a build-phase run-script; **Sourcery is run manually** (not
 a build phase) and its output is committed.
 
 ---
@@ -93,7 +104,11 @@ a build phase) and its output is committed.
   (`ci_scripts/`), whose Xcode version is set in App Store Connect and must be 27.1 too.
 - **Release check** (`scripts/release-check/release_check.py`): run locally by the iOS release skill before a
   release is tagged, **never by CI**. It builds the **Release** configuration for the simulator through the shared
-  `ReleaseCheck` scheme (CI's `BookPlayer` scheme and `Unit Tests` plan don't include `BookPlayerUITests`) and runs
+  `ReleaseCheck` scheme (CI's `BookPlayer` scheme and `Unit Tests` plan don't include `BookPlayerUITests`). Before
+  any simulator, `missing_frameworks` reads the built bundle with `otool`: every app and extension in it (the
+  embedded watch app and its widgets included, which no scenario launches) must find each library it loads, resolved
+  through its rpaths as dyld does, inside its own app (the watch app is installed alone, so the iPhone app's
+  `Frameworks/` doesn't count) and ignoring rpaths outside the bundle. A miss fails the check at once. It then runs
   four scenarios per supported iOS major (deployment target → SDK, minus the script's `SKIPPED_MAJORS`): fresh
   launch, import, playback, and upgrade from the previous release (cached in `~/Library/Caches/BookPlayerReleaseCheck/`).
   A failure with a crash report fails at once; one without gets a single retry on a reset simulator and is
@@ -104,7 +119,21 @@ a build phase) and its output is committed.
   `accessibilityIdentifier`s (`library.row.<relativePath>`, `miniPlayer.info`, `player.playPause`,
   `player.currentTime`) and by the English labels "Done" (Import sheet) and "Library" (placement prompt); keep
   `BookPlayerUITests/ReleaseCheckUITests.swift` in step when changing those.
-  The upgrade scenario drives the *previous* release with labels only, since older builds lack the identifiers.
+  The upgrade scenario drives the *previous* release with labels only, since older builds lack the identifiers,
+  and runs it on the frameworks it embeds: its copy of the `.xctestrun` drops the candidate's `DYLD_*` paths, or a
+  symbol the candidate removed from `BookPlayerKit` would stop the old app at launch.
+- **Sentry releases** (`ci_scripts/ci_post_xcodebuild.sh`): Xcode Cloud uploads every archive's dSYMs. For an
+  archive of a `release-*` branch, `ci_scripts/sentry_release_commits.py` also creates the Sentry release
+  (`<bundle id>@<version>+<build>`, read from the archived app, as the SDK names it) and sends it every commit
+  after the previous version tag as one list. Xcode Cloud's clone has no tags or history, so the tag comes from
+  `git ls-remote` and the script first fetches the history it reads, from the same public URL (no build
+  credentials): commits and trees, no file contents (about 2 s and 14 MB on the build machine). Not GitHub's API: without a token it allows 60 requests an
+  hour per IP, which Xcode Cloud's machines share. Don't hand Sentry a ref range
+  instead (`sentry-cli releases set-commits --auto`, `--commit A..B`): it keeps only the newest 100 commits (6.0.0
+  had 103). With the commits attached, a `Fixes BOOKPLAYER-<id>` line (see Conventions) resolves the issue in that
+  release. A failure here only prints a warning: this metadata never blocks a release. The script is the same file
+  as the Android repo's `scripts/sentry-commits/` (change both); `--dry-run` reads everything and sends nothing, and
+  CI runs its tests (`python3 -I -B -m unittest discover -s ci_scripts`).
 - **Lint/format is enforced by tools — do NOT flag style they own.** `.swiftlint.yml` **disables**: `line_length`,
   `identifier_name`, `type_name`, `type_body_length`, `file_length`, `nesting`, `force_try`, `trailing_comma`,
   `trailing_newline`, `trailing_whitespace`, `switch_case_alignment`, `private_over_fileprivate`, `opening_brace`,
@@ -366,6 +395,12 @@ lines). It is the highest-risk file in the app.
   timer and the Now Playing chapter title (the `.chapterChange` notification is posted from that sink).
 - **KVO on `AVPlayerItem.status`** is balanced via `observeStatus` didSet + a `hasObserverRegistered` guard;
   nulling the player item resets the guard. An imbalance crashes on `removeObserver`.
+- **Invariant — every `PlayerManager` seek goes through `seekPlayer(to:recoveries:)`**, never `audioPlayer.seek`
+  directly. Until the latest seek completes, `clockState` is `.seeking` and `updateTime()` drops readings, which
+  are still the position being left. Recording one makes a landing near the file start look like the iOS 27
+  snap-back (`PlayerTimeSample`), and the clock recovery seeks back over it (GH #1641). The completion then runs
+  `updateTime()` once: a paused player sends its only tick for the seek before it lands, so without that call the
+  player screen and Now Playing keep the old position.
 - **AVAudioSession:** activated in `play()` (`.playback` / `.spokenAudio`); deactivated ~0.1s after `.paused`
   (delay avoids clipping). Interruption observer is **kept** on `.began` (so `.ended`+`.shouldResume` can resume)
   and removed on user pause/stop. `mediaServicesWereReset` re-applies the category and recreates the player.
@@ -383,6 +418,30 @@ lines). It is the highest-risk file in the app.
   cancels the subscription and removes observers, and `setTimer` always resets first. It emits three publishers
   consumed by `PlayerManager` (threshold volume-fade, end→pause, turned-on→`.sleep` bookmark; shake-to-resume via
   `ShakeMotionService`).
+- **Playback suggestions** (what the Lock Screen, Control Center and Home app offer while nothing plays) come only
+  from SiriKit media; App Intents, iOS 27's `.audio` schemas included, has no equivalent. `MediaSuggestionsController`
+  (app target, owned by `AppServices`) donates an `INPlayMediaIntent` when a book starts (`.bookPlayed`, once per
+  book until another plays or it's finished), sets the 5 most recent unfinished books as
+  `INUpcomingMediaManager` suggestions, and makes an `INMediaUserContext` current once per launch: book count, and
+  `.subscribed` for PRO/LITE only, anyone else left `.unknown`, never `.notSubscribed` (decided: free users play
+  their whole library). Every intent names the book as `mediaContainer` alone, and `Intents.intentdefinition`'s
+  PlayMedia must keep its `mediaContainer`-only supported combination: that combination is the opt-in. PlayMedia is the
+  definition's only entry, compiled into the app target alone (no generated classes). The definition lives in
+  `Base.lproj`, with its titles translated in every language's `Intents.strings` (keyed by the definition's IDs): a
+  new app language needs one too, or App Store Connect flags the upload with ITMS-90626. A book is
+  named by its uuid, or its path without a real one (`PlayableItem.id`, `SimpleLibraryItem.stableIdentifier`).
+  Its donations are deleted when it's finished (`metadataUpdatePublisher`) or deleted (`LibraryService.delete`),
+  and when an id played from one is gone, no longer a book (a bound book made a plain folder), or now plays as another
+  item (a part donated before its folder was bound plays the bound book; a path id, the book's uuid). The upcoming
+  list is rebuilt only at launch, when a different book starts and when one is finished or marked unfinished, so a
+  deleted book (or one finished through sync) stays in it until then (decided: no deletion signal).
+  `PlayMediaIntentHandler` plays them: the app declares the intent (`INIntentsSupported`, Audiobooks media category)
+  and returns the handler from `application(_:handlerFor:)`, so a suggestion, Siri or a Shortcut starts playback
+  through `awaitCoreServices` + `loadAndKeepAlive`, cold launch included. A media intent the system opens the app
+  with instead (a user activity, at launch or later) goes through the same handler (`ActionParserService`), never
+  `CommandParser`'s play-the-last-book. A spoken title or author plays the most
+  recently played of up to 50 matches, a part of a bound book counting as the bound book (as in the Search tab), even
+  over an exact title match (decided: "Play Dune" while in "Dune Messiah" plays Messiah).
 - Related services (protocols marked `/// sourcery: AutoMockable`): `SpeedService` (per-book vs global speed),
   `ShakeMotionService`, `PlayerLoaderService`, `WidgetReloadService`. `PlayerManagerProtocol` is AutoMockable but
   its mock does **not** reproduce `ObservableObject`/`@Published` — Combine-dependent tests need the concrete class.
@@ -522,7 +581,8 @@ lines). It is the highest-risk file in the app.
 
 - `BuildConfiguration/*.xcconfig` define `BP_*` keys; `Info.plist` substitutes them (`$(BP_…)`);
   `Shared/Configuration.swift` (`ConfigurationKeys`) reads them. **`Bundle.configurationValue(for:)` uses `try!`
-  — a missing key crashes at launch.** Keys: API scheme/domain/port, bundle id, RevenueCat key, Sentry DSN.
+  — a missing key crashes at launch.** Keys: API scheme/domain/port, bundle id, RevenueCat key, Sentry DSN, Hardcover client id
+  (`BP_HARDCOVER_CLIENT_ID`, the one key read without `try!`: always set, as signing in is the only way to connect Hardcover; a local xcconfig without it still launches, but signing in fails).
 - **`Debug.xcconfig` and `Release.xcconfig` are gitignored and hold the working-tree real values —
   never commit or overwrite them.** Nuance a reviewer should know: `Debug.xcconfig` is untracked and holds real
   prod secrets; `Release.xcconfig` is *also* gitignored **but is already tracked** with placeholder values
@@ -535,7 +595,7 @@ lines). It is the highest-risk file in the app.
 
 - `kSecClassGenericPassword`, service = the bundle identifier, accessibility
   **`kSecAttrAccessibleAfterFirstUnlock`** (so background sync/downloads work while locked). Stores JWT `.token`,
-  `.jellyfinConnection`, `.audiobookshelfConnection`, `.hardcoverToken`.
+  `.jellyfinConnection`, `.audiobookshelfConnection`, `.hardcoverToken`, `.hardcoverSession`.
 - **Correction to older docs: the Keychain is NOT scoped via an App Group / `kSecAttrAccessGroup`** — there is no
   access group set; sharing relies on the default app access group. (The App Group
   `group.$(BP_BUNDLE_IDENTIFIER).files` is used for `UserDefaults.sharedDefaults` and file storage, **not** the
@@ -621,8 +681,23 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
 - **Hardcover** (`Hardcover/`, `@Observable HardcoverService`, GraphQL): two-way **reading-progress** sync, not a
   media server. Status `HardcoverBook.Status { local=0, library=1, reading=2, read=3 }`; **only 1/2/3 are ever
   POSTed** (`.local` is a local-only marker). Monotonic guards prevent backwards writes; auto-match on import has
-  explicit duplicate detection; API failures are log-and-swallowed so a Hardcover outage never blocks local
-  playback. Token is Keychain `.hardcoverToken`; no token → subscriptions torn down.
+  explicit duplicate detection. Progress goes on the book's read in progress (`update_user_book_read`), only while it's Currently Reading there, since that status starts the read: the percentage carried onto the read's own edition, seconds or pages by its `reading_format_id`, only forward, and kept short of the end, which would finish the read (finishing stays the Read status). A read whose edition has no length gets no progress (logged): no other edition is picked for it, since the edition on a user's read is theirs (decided). BookPlayer only chooses an edition when it adds the book to the user's library: its audiobook edition — `insert_user_book` with `edition_id`, found first by `libraryEntryQuery`: the default audiobook edition with a duration, else the most read one — since the read Hardcover starts takes the entry's edition; a book the user already has keeps theirs, and without an audiobook edition Hardcover gives the entry its default print edition. Sent whenever the book's whole-number percentage changes (`HardcoverProgressChanges`), off the 10 s progress feed: about 20 requests an hour on a 10-hour book, against Hardcover's per-user 5,000 a day / 60 a minute, shared with the user's other apps and keys (decided over a fixed cadence: a 10 s one would be ~720 an hour). API failures are log-and-swallowed so a Hardcover outage never blocks local
+  playback. **One account at a time** (decided), connected one of two ways; neither connected → subscriptions torn
+  down. Settings shows only Sign In until the user signs in (OAuth), then its toggles, which apply as they change
+  (`@AppStorage`, no Save). An API key in Keychain `.hardcoverToken`, the bare key (`hc_pat_…`), can no longer be
+  entered: one saved by an earlier version keeps syncing, but Settings shows Sign In for it, and signing in
+  replaces it. `HardcoverService.apiKey(from:)`
+  drops a pasted `Bearer ` (older tokens were copied with it, and ones saved that way read without it), and
+  requests send `Authorization: Bearer <key>`, which the API requires. Or an OAuth sign-in (`HardcoverOAuth`):
+  authorization code + PKCE through `ASWebAuthenticationSession` in a private (`.ephemeral`) browser session, so Hardcover's login form always shows and a logged-out user can switch accounts (Hardcover advertises no `prompt` values), redirect `bookplayer://hardcover/callback`,
+  scopes `read:catalog read:library write:library read:me`, public client id `HardcoverOAuth.clientId` from `BP_HARDCOVER_CLIENT_ID` (no secret). Its tokens are one `HardcoverTokenSet` in `.hardcoverSession`, owned by the
+  `HardcoverOAuthSession` actor: access tokens last a week, refresh tokens rotate on every use and a spent one sent
+  again revokes the whole sign-in, so refreshes run one at a time and are never retried; only `invalid_grant` ends
+  the sign-in. A refresh keeps the scopes first granted, so adding one to `HardcoverOAuth.scopes` leaves existing sign-ins without it
+  (`HardcoverTokenSet.missingScopes`): calls that need it are skipped, not sent to a 403. Settings has no Sign In Again prompt yet (logging out and signing in again grants the scope): add one along with the first new scope. A sign-in replaces the key; OAuth wins if both exist. A link records the account's Hardcover user id
+  (`me`, cached in `hardcoverUserId`) as its `hostId`; links made before that, or offline, have none. The
+  server identifies a link by (item, provider, providerId) without the host, so letting several accounts link one
+  item would need a server change first.
 
 ---
 
@@ -636,6 +711,13 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
   `SentrySDK.capture`s then `fatalError`s** — an intentional but real crash surface for bad imports. Book/folder
   records are created via `LibraryService.createBook/createFolder`; artwork is extracted lazily by
   `ArtworkService`, not inline. App-managed source files are removed after copy.
+  **The artwork cache** (`ArtworkService.cache`) is Kingfisher's disk cache in the App Group, keyed by the item's
+  `relativePath`, with no expiry; a cover set by hand lives only there. Kingfisher names each file by a hash of
+  the key (MD5 in 7.x, SHA-256 since 8.x), so a Kingfisher update that changes it hides every cached cover: 6.0.0
+  did, and covers set by hand fell back to the embedded ones. `AppServices` restores 7.x files once at launch,
+  off the main thread but before any screen shows artwork (`ArtworkService.restoreLegacyCacheFiles`, flag `legacyArtworkRestored`;
+  decided: the old cover wins). Write to the cache through Kingfisher, never by moving files into its folder:
+  the disk storage lists the folder once at launch and treats a name it hasn't seen as not cached.
   **The import's "where should these go?" prompt is `ImportPlacementPrompt`, owned by `LibraryRootView`, not
   one of the list's alerts.** SwiftUI drops a presentation started while something covers the library or is
   still leaving it, and a dropped value in the list's single `activeAlert` slot used to block every later list
@@ -650,6 +732,23 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
   prompts. Its actions and the list's multi-select share
   `LibraryOrganizer`. An alert that leads to another (Move → the folder name) uses a separate alert, set from
   the first one's button: switching one alert's contents (nil, then the next) can be dropped mid-animation.
+  **Transfer from Computer** (library add menu → `Import/TransferView`, `MainView`'s library sheet): a
+  BrowserDrop session (an upload-only HTTP server on the local network, port 80, then 8080, then any
+  free port, no password by design) lives exactly as long as the sheet, which owns `TransferViewModel`. The sheet is the
+  `ImportConfirmationView` shell: its `emptyState` shows the address until the first file arrives, then the
+  files are listed like an import, removable (`BrowserDropServer.removeReceivedItem(at:)`). Uploads wait in
+  BrowserDrop's `tmp` staging and only complete files count; progress shows on the web page only. An upload
+  that would take a name the session already uses in another form (a file where a folder is, the reverse, or
+  another case on a Mac) is refused by BrowserDrop with 409, and the page says so. Done never goes through
+  Documents or the import screen: `BrowserDropServer.finish()` hands over the session folder (the uploaded
+  tree; BrowserDrop never touches it again) and an `ImportOperation(files:libraryService:ownedSourceRoot:)`
+  with that folder as its owned root goes on `ImportManager.operationPublisher`, as the import screen's own
+  Done does, so the library runs it and shows the placement prompt once the sheet's cover is gone. The
+  operation removes that folder when it finishes and suggests no folder named after it. Cancel, closing the
+  sheet any other way, or the app being killed, wipes staging (`TransferViewModel.removeLeftovers()` at
+  launch clears BrowserDrop's staging root, an unfinished handed-over folder included); going to
+  the background suspends the server and coming back resumes it on the same port, keeping what arrived. The
+  sheet keeps the screen awake, restoring the previous `isIdleTimerDisabled` (the player sets it too).
 - **Library** (`Library/ItemList/…`, backed by `Shared/Services/LibraryService.swift`): the main list, folders,
   and drag-drop reordering. **Ordering model (query-time sort):** `orderRank` means ONLY the user's custom
   arrangement (written by drag/reverse/Custom-freeze/one-shot sorts and by sync; never by an automatic sort).
@@ -682,6 +781,28 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
   asked). Callers sync only what moved and report the clash with `LibraryService.nameTakenError`, the error
   `FileManager` itself throws, worded and localized by iOS. "Delete folder only" is refused when a child's name
   is taken in the folder's parent: nothing moves and the folder stays.
+  **Layouts:** List, Grid (cards) or Covers (`LibraryLayout`, synced as `library_layout:style`); the grid is
+  `ItemListView+Grid.swift` + `LibraryTileView`. A tile dragged on from a long press (its menu open, or while
+  selecting) reorders, through iOS 27's `reorderable()`/`reorderContainer`; on iOS 26 only the List reorders. A
+  `dropConfiguration` makes other apps' files a copy (the "+" badge) and tile drags a move. Two iOS 27.0 SwiftUI bugs shape it: a reorderable item whose view comes down to an
+  `if`/`switch` with only modifiers above it crashes on lift (the tile wrapper is a `ZStack`), and a drop
+  destination on any ancestor of the reorder container (the old tab-wide `onDrop`, or even the grid's scroll view)
+  misplaces where a tile lands. So files dropped from other apps are accepted per screen
+  (`acceptsDroppedFiles()` on the grid itself, right after `reorderContainer`; on the List; on the empty state),
+  never on an ancestor of the grid.
+  `LazyVGrid` sizes each row to its tallest tile, and a card fills its row (`frame(maxHeight: .infinity)`), so
+  a row lines up while each card fits its own text (title up to two lines, three at the accessibility sizes;
+  author up to two). A folder is a stack inside a book's square: two dimmed leaves of the default artwork
+  above a shorter front cover, its artwork fitted on a blurred copy of itself (`ItemArtworkView`'s `aspectRatio`
+  and `contentMode`). The tile's content shapes go around the stack, so a folder lifts into its menu or a drag
+  with its leaves. The progress mark is the list's own (`CircularProgressView` / `PercentageProgressView`): a
+  card scales the wheel (15% of its width), never the percentage label, which grows with Dynamic Type only.
+  Covers use 100 pt tiles, 140 pt in a regular-width window (iPad, iPhone Duo open). On a Mac ("Designed for
+  iPad", drawn at 77%) every tile minimum is 1.3× and follows the Text Size setting, the Mac's stand-in for
+  Dynamic Type (`BPFontModifier.macOSScaleFactor`). Across a fold running top
+  to bottom (iPhone Duo half open in landscape, read from `reservedRegions(kind: .division)`, iOS 27.1) the
+  grid switches to fixed columns that leave the fold in a gap (`FoldedTileColumns`): one tile width on both
+  sides, so rows still line up, with the leftover space at the outer edges.
 - **Search** (`Search/`): **local-only** CoreData search (`LibraryService.searchAllBooks`), 0.3s debounce,
   results grouped by parent folder. Remote search lives in the integration view models, **not** here — don't
   expect network calls in `Search/`. The Search tab finds books only, across the library; selecting it focuses
@@ -719,6 +840,15 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
   is the norm — match it. A sink that touches UI needs `.receive(on: DispatchQueue.main)`.
 - **`@MainActor` is the UI/service isolation convention.** Off-main → main hops are explicit
   (`Task { @MainActor in … }` / `.receive(on:)`).
+- **Crash fixes carry a Sentry trailer.** When a commit fixes a crash tracked in Sentry, put
+  `Fixes BOOKPLAYER-<id>` on its own line in the **commit message** (the short id is in the Sentry issue URL; one
+  per line). Sentry's GitHub integration then resolves the issue in the release that ships the commit, so a crash
+  from that release or later reopens it and one from an older build doesn't. PRs land as merge commits or
+  squashes: keep the line in the fix commit, or in the squash commit's message. A PR description alone never
+  reaches git history. Don't plain-"Resolve" an issue in the Sentry UI, since any older build's crash reopens it.
+  A fix that shipped without the line is backfilled with
+  `PUT /api/0/organizations/tortuga-power/issues/<id>/` and
+  `{"status":"resolved","statusDetails":{"inRelease":"com.tortugapower.audiobookplayer@X.Y.Z+build"}}`.
 
 ---
 

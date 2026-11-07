@@ -12,6 +12,7 @@ import BookPlayerKit
 import Combine
 import CoreData
 import Foundation
+import Intents
 import UIKit
 
 @MainActor
@@ -37,6 +38,8 @@ final class AppServices: BPLogger {
   private var syncPauseReporter: SyncPauseReporter?
   /// Keeps book uploads going in the background (a continued processing task)
   let uploadContinuation = UploadContinuationController()
+  /// Feeds the playback suggestions the system shows while nothing plays
+  let mediaSuggestions = MediaSuggestionsController()
   /// The Wi-Fi-only transfer setting needs to know the current network
   private let networkMonitor = NetworkMonitor()
 
@@ -53,12 +56,31 @@ final class AppServices: BPLogger {
       do {
         let stack = try await databaseInitializer.loadCoreDataStack()
         let coreServices = createCoreServicesIfNeeded(from: stack)
+        await restoreLegacyArtworkIfNeeded(libraryService: coreServices.libraryService)
 
         AppDependencyManager.shared.add(dependency: coreServices.playerLoaderService)
         AppDependencyManager.shared.add(dependency: coreServices.libraryService)
       } catch {
         errorCoreServicesSetup = error
       }
+    }
+  }
+
+  /// Once, before anything shows artwork (the loading screen waits on this task): the covers cached
+  /// before 6.0.0, under Kingfisher 7's file names. See `ArtworkService.restoreLegacyCacheFiles`
+  private func restoreLegacyArtworkIfNeeded(libraryService: LibraryService) async {
+    let defaults = UserDefaults.standard
+    guard !defaults.bool(forKey: Constants.UserDefaults.legacyArtworkRestored) else { return }
+
+    // The paths from the view context, here on main; the files off it: 5.x cached every cover it
+    // showed at full size, so a large library is a lot of reading and writing
+    let keys = libraryService.fetchIdentifiers()
+    let complete = await Task.detached(priority: .userInitiated) {
+      ArtworkService.restoreLegacyCacheFiles(for: keys).complete
+    }.value
+
+    if complete {
+      defaults.set(true, forKey: Constants.UserDefaults.legacyArtworkRestored)
     }
   }
 
@@ -164,12 +186,32 @@ final class AppServices: BPLogger {
 
       self.coreServices = coreServices
       setupUploadContinuation(syncQueueService: syncQueueService)
+      setupMediaSuggestions(libraryService: libraryService, accountService: accountService)
 
       // Wire up accountService for Watch auth transfer
       watchService.setAccountService(accountService)
 
       return coreServices
     }
+  }
+
+  private func setupMediaSuggestions(libraryService: LibraryService, accountService: AccountService) {
+    mediaSuggestions.setup(dependencies: .init(
+      recentItems: { libraryService.getLastPlayedItems(limit: $0) ?? [] },
+      bookCount: { libraryService.getBookCount() },
+      boundBookAuthor: { libraryService.fetchContents(at: $0, limit: 1, offset: nil)?.first?.details },
+      hasSyncEnabled: { accountService.hasSyncEnabled() },
+      artworkData: { await MediaSuggestionsController.cachedArtworkData(for: $0) },
+      donate: { $0.donate(completion: nil) },
+      deleteDonations: { INInteraction.delete(with: $0, completion: nil) },
+      setSuggestedIntents: { INUpcomingMediaManager.shared.setSuggestedMediaIntents(NSOrderedSet(array: $0)) },
+      setUserContext: { $0.becomeCurrent() },
+      bookPlayed: NotificationCenter.default.publisher(for: .bookPlayed)
+        .compactMap { $0.userInfo?["book"] as? PlayableItem }
+        .eraseToAnyPublisher(),
+      metadataUpdates: libraryService.metadataUpdatePublisher,
+      artworkUpdates: ArtworkService.artworkUpdatePublisher.eraseToAnyPublisher()
+    ))
   }
 
   private func setupUploadContinuation(syncQueueService: SyncQueueService) {

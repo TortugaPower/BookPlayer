@@ -1,12 +1,12 @@
 //
-//  DeleteUserBookData.swift
+//  HardcoverDeleteUserBookData.swift
 //  BookPlayer
 //
 //  Created by Jeremy Grenier on 7/3/25.
 //  Copyright © 2025 BookPlayer LLC. All rights reserved.
 //
 
-struct DeleteUserBookData: Codable {
+struct HardcoverDeleteUserBookData: Codable {
   let deleteUserBook: DeleteUserBookResult
 
   enum CodingKeys: String, CodingKey {

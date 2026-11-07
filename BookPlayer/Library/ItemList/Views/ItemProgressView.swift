@@ -13,11 +13,6 @@ struct ItemProgressView: View {
   let item: SimpleLibraryItem
   let isHighlighted: Bool
 
-  @State private var progress: Double
-  @State private var isFinished: Bool
-  @EnvironmentObject private var playerManager: PlayerManager
-  @Environment(\.libraryService) private var libraryService
-
   /// Set from `LibraryOptionsView`. When true the row shows a numeric
   /// percentage instead of the circular wheel.
   @AppStorage(
@@ -27,15 +22,8 @@ struct ItemProgressView: View {
   )
   private var progressAsPercentage: Bool
 
-  init(item: SimpleLibraryItem, isHighlighted: Bool) {
-    self.item = item
-    self.isHighlighted = isHighlighted
-    self._progress = .init(initialValue: item.percentCompleted / 100)
-    self._isFinished = .init(initialValue: item.isFinished)
-  }
-
   var body: some View {
-    Group {
+    ItemProgressReader(item: item) { progress, isFinished in
       if progressAsPercentage {
         PercentageProgressView(
           progress: isFinished ? 1.0 : progress,
@@ -48,40 +36,66 @@ struct ItemProgressView: View {
         )
       }
     }
-    .onReceive(
-      playerManager.currentProgressPublisher()
-        .filter { $0.0 == item.relativePath }
-    ) { (_, progress) in
-      self.progress = progress
-    }
-    .onReceive(
-      libraryService.immediateProgressUpdatePublisher
-        .filter { item.relativePath == $0["relativePath"] as? String }
-    ) { params in
-      if let percentCompleted = params["percentCompleted"] as? Double {
-        self.progress = percentCompleted / 100
-      }
-      if let isFinished = params["isFinished"] as? Bool {
-        self.isFinished = isFinished
-      }
-    }
-    .onReceive(
-      NotificationCenter.default.publisher(for: .folderProgressUpdated)
-        .throttle(for: .seconds(1), scheduler: DispatchQueue.main, latest: true)
-        .filter { notification in
-          guard
-            item.type != .book,
-            let relativePath = notification.userInfo?["relativePath"] as? String,
-            item.relativePath == relativePath
-          else {
-            return false
-          }
+  }
+}
 
-          return true
+/// An item's progress (0 to 1) and finished state, kept live as the player moves, a book's
+/// progress is saved, and a folder's is recalculated
+struct ItemProgressReader<Content: View>: View {
+  let item: SimpleLibraryItem
+  let content: (_ progress: Double, _ isFinished: Bool) -> Content
+
+  @State private var progress: Double
+  @State private var isFinished: Bool
+  @EnvironmentObject private var playerManager: PlayerManager
+  @Environment(\.libraryService) private var libraryService
+
+  init(
+    item: SimpleLibraryItem,
+    @ViewBuilder content: @escaping (_ progress: Double, _ isFinished: Bool) -> Content
+  ) {
+    self.item = item
+    self.content = content
+    self._progress = .init(initialValue: item.percentCompleted / 100)
+    self._isFinished = .init(initialValue: item.isFinished)
+  }
+
+  var body: some View {
+    content(progress, isFinished)
+      .onReceive(
+        playerManager.currentProgressPublisher()
+          .filter { $0.0 == item.relativePath }
+      ) { (_, progress) in
+        self.progress = progress
+      }
+      .onReceive(
+        libraryService.immediateProgressUpdatePublisher
+          .filter { item.relativePath == $0["relativePath"] as? String }
+      ) { params in
+        if let percentCompleted = params["percentCompleted"] as? Double {
+          self.progress = percentCompleted / 100
         }
-    ) { notification in
-      guard let progress = notification.userInfo?["progress"] as? Double else { return }
-      self.progress = progress / 100
-    }
+        if let isFinished = params["isFinished"] as? Bool {
+          self.isFinished = isFinished
+        }
+      }
+      .onReceive(
+        NotificationCenter.default.publisher(for: .folderProgressUpdated)
+          .throttle(for: .seconds(1), scheduler: DispatchQueue.main, latest: true)
+          .filter { notification in
+            guard
+              item.type != .book,
+              let relativePath = notification.userInfo?["relativePath"] as? String,
+              item.relativePath == relativePath
+            else {
+              return false
+            }
+
+            return true
+          }
+      ) { notification in
+        guard let progress = notification.userInfo?["progress"] as? Double else { return }
+        self.progress = progress / 100
+      }
   }
 }

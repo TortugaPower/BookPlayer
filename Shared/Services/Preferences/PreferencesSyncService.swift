@@ -98,6 +98,20 @@ public final class PreferencesSyncService: NSObject, PreferencesSyncServiceProto
         ["value": defaults.bool(forKey: key)]
       }
     ),
+    PreferenceSchema(
+      prefix: Constants.UserDefaults.libraryLayoutPrefix,
+      staticKeys: [Constants.UserDefaults.libraryLayout],
+      decode: { value in
+        guard
+          let stringValue = value["layout"]?.value as? String,
+          LibraryLayout(rawValue: stringValue) != nil
+        else { return nil }
+        return stringValue
+      },
+      encode: { key, defaults in
+        ["layout": defaults.string(forKey: key) ?? ""]
+      }
+    ),
   ]
 
   /// Prefixes the service tracks, derived from `schemas`. Used by the
@@ -513,6 +527,7 @@ public final class PreferencesSyncService: NSObject, PreferencesSyncServiceProto
   /// Each tracked prefix has its own value-shape contract:
   /// - `library_sort:` → `{"sort": "<EffectiveSort.rawValue>"}` (String)
   /// - `library_display:` → `{"value": <Bool>}` (Bool)
+  /// - `library_layout:` → `{"layout": "<LibraryLayout.rawValue>"}` (String)
   ///
   /// Entries with unknown prefixes or malformed payloads are skipped — a bad
   /// server response must not silently overwrite a good local pref.

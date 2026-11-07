@@ -38,6 +38,8 @@
 	<string>$(BP_API_SCHEME)</string>
 	<key>BP_BUNDLE_IDENTIFIER</key>
 	<string>$(BP_BUNDLE_IDENTIFIER)</string>
+	<key>BP_HARDCOVER_CLIENT_ID</key>
+	<string>$(BP_HARDCOVER_CLIENT_ID)</string>
 	<key>BP_REVENUECAT_KEY</key>
 	<string>$(BP_REVENUECAT_KEY)</string>
 	<key>BP_SENTRY_DSN</key>
@@ -387,6 +389,14 @@
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(CURRENT_PROJECT_VERSION)</string>
+	<key>INIntentsSupported</key>
+	<array>
+		<string>INPlayMediaIntent</string>
+	</array>
+	<key>INSupportedMediaCategories</key>
+	<array>
+		<string>INMediaCategoryAudiobooks</string>
+	</array>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
 	<key>LSRequiresIPhoneOS</key>
@@ -406,8 +416,6 @@
 	<array>
 		<string>$(PRODUCT_BUNDLE_IDENTIFIER).activity.playback</string>
 		<string>INPlayMediaIntent</string>
-		<string>PlayAndSleepActionIntent</string>
-		<string>SleepTimerIntent</string>
 	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>

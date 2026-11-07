@@ -10,6 +10,7 @@ import AVFoundation
 import Combine
 import CoreData
 import Foundation
+import Intents
 
 public enum ImportSource {
   case local(files: [URL])
@@ -60,6 +61,8 @@ public protocol LibraryServiceProtocol: AnyObject {
   func fetchIdentifiers() -> [String]
   /// Get max items count inside the specified path
   func getMaxItemsCount(at relativePath: String?) -> Int
+  /// Count the books in the whole library, a bound book counting once
+  func getBookCount() -> Int
   /// Fetch the most recent played items
   func getLastPlayedItems(limit: Int?) -> [SimpleLibraryItem]?
   /// Fetch the books that contain the file URL
@@ -179,9 +182,9 @@ public protocol LibraryServiceProtocol: AnyObject {
   func setHardcoverBook(_ hardcoverBook: SimpleHardcoverBook?, for relativePath: String) async
   /// Get hardcover book for an item
   func getHardcoverBook(for relativePath: String) async -> SimpleHardcoverBook?
-  /// Create an external resource linking the item (by uuid) to a provider's resource.
+  /// Create an external resource linking the item (by uuid) to a provider's resource, on the given host.
   /// Returns the syncable representation to upload, or nil if it already exists or the item is missing.
-  func setExternalResource(providerName: String, providerId: String, for uuid: String) async -> SyncableExternalResource?
+  func setExternalResource(providerName: String, providerId: String, hostId: String?, for uuid: String) async -> SyncableExternalResource?
   /// Remove the external resource of the given provider from the item (by uuid).
   /// Returns the deleted resource's providerId, or nil if there was nothing to delete.
   func removeExternalResource(providerName: String, for uuid: String) async -> String?
@@ -1402,6 +1405,11 @@ extension LibraryService {
     /// funnel through here. Deep folder deletes recurse into this method, so this runs
     /// once per level, but the debounced reload coalesces them into a single refresh.
     SharedWidgetStore.removeItems(matching: items.map(\.relativePath))
+
+    /// And from the system's playback suggestions: the app donates each book under this id
+    for item in items {
+      INInteraction.delete(with: item.stableIdentifier, completion: nil)
+    }
   }
 
   func deleteItem(_ item: SimpleLibraryItem) throws {
@@ -1626,6 +1634,19 @@ extension LibraryService {
     }
 
     return (try? context.count(for: fetchRequest)) ?? 0
+  }
+
+  public func getBookCount() -> Int {
+    let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
+    /// Folders aren't books, and a bound book's files are one book: its own row
+    fetchRequest.predicate = NSPredicate(
+      format: "%K != \(SimpleItemType.folder.rawValue) AND (%K == nil OR %K != \(SimpleItemType.bound.rawValue))",
+      #keyPath(LibraryItem.type),
+      #keyPath(LibraryItem.folder),
+      #keyPath(LibraryItem.folder.type)
+    )
+
+    return (try? dataManager.getContext().count(for: fetchRequest)) ?? 0
   }
 
   public func getLastPlayedItems(limit: Int?) -> [SimpleLibraryItem]? {
@@ -3369,6 +3390,7 @@ extension LibraryService {
   public func setExternalResource(
     providerName: String,
     providerId: String,
+    hostId: String?,
     for uuid: String
   ) async -> SyncableExternalResource? {
     return await withCheckedContinuation { continuation in
@@ -3398,7 +3420,7 @@ extension LibraryService {
           syncStatus: ExternalResource.SyncStatus.notSynced.rawValue,
           lastSyncedAt: nil,
           processedFile: true,
-          hostId: nil
+          hostId: hostId
         )
 
         _ = ExternalResource.create(syncable, libraryItem: item, in: context)

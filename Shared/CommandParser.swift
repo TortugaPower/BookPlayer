@@ -7,37 +7,14 @@
 //
 
 import Foundation
-import Intents
 
 public class CommandParser {
+  /// The playback activity plays the last book: no longer donated, but Siri shortcuts saved from it still
+  /// open the app with it. A media intent's activity never gets here (`ActionParserService` plays it)
   public class func parse(_ activity: NSUserActivity) -> Action? {
-    if let intent = activity.interaction?.intent {
-      return self.parse(intent)
-    } else if activity.activityType == "\(Bundle.main.bundleIdentifier!).activity.playback" {
-      return Action(command: .play)
-    }
+    guard activity.activityType == Constants.UserActivityPlayback else { return nil }
 
-    return nil
-  }
-
-  public class func parse(_ intent: INIntent) -> Action? {
-    switch intent {
-    case let sleepIntent as SleepTimerIntent:
-      var queryItem: URLQueryItem
-
-      if let seconds = sleepIntent.seconds {
-        queryItem = URLQueryItem(name: "seconds", value: seconds.stringValue)
-      } else {
-        let seconds = TimeParser.getSeconds(from: sleepIntent.option)
-        queryItem = URLQueryItem(name: "seconds", value: String(seconds))
-      }
-
-      return Action(command: .sleep, parameters: [queryItem])
-    case is INPlayMediaIntent:
-      return Action(command: .play)
-    default:
-      return nil
-    }
+    return Action(command: .play)
   }
 
   public class func parse(_ url: URL) -> Action? {
@@ -194,56 +171,6 @@ public struct Action: Equatable {
 }
 
 public class TimeParser {
-  public class func getSeconds(from option: TimerOption) -> TimeInterval {
-    switch option {
-    case .cancel:
-      return -1
-    case .fiveMinutes:
-      return 300
-    case .tenMinutes:
-      return 600
-    case .fifteenMinutes:
-      return 900
-    case .thirtyMinutes:
-      return 1800
-    case .fortyFiveMinutes:
-      return 2700
-    case .oneHour:
-      return 3600
-    case .endChapter:
-      return -2
-    default:
-      return 0
-    }
-  }
-
-  public class func getTimerOption(from seconds: TimeInterval) -> TimerOption? {
-    var option: TimerOption?
-
-    switch seconds {
-    case -1:
-      option = .cancel
-    case -2:
-      option = .endChapter
-    case 300:
-      option = .fiveMinutes
-    case 600:
-      option = .tenMinutes
-    case 900:
-      option = .fifteenMinutes
-    case 1800:
-      option = .thirtyMinutes
-    case 2700:
-      option = .fortyFiveMinutes
-    case 3600:
-      option = .oneHour
-    default:
-      option = nil
-    }
-
-    return option
-  }
-
   // utility function to transform seconds to format MM:SS or HH:MM:SS
   public class func formatTime(_ time: TimeInterval) -> String {
     return Self.formatTime(

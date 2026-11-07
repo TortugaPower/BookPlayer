@@ -14,6 +14,7 @@ struct SettingsCreditsSectionView: View {
   var body: some View {
     ThemedSection {
       NavigationLink("settings_credits_title", value: SettingsScreen.credits)
+        .settingsRowBackground(for: .credits)
     }
   }
 }

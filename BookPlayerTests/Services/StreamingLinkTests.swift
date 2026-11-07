@@ -55,7 +55,7 @@ final class StreamingLinkTests: XCTestCase {
     libraryService.getLibraryReference().addToItems(book)
     libraryService.dataManager.saveContext()
     try FileManager.default.removeItem(at: DataManager.getProcessedFolderURL().appendingPathComponent(book.relativePath))
-    _ = await libraryService.setExternalResource(providerName: "hardcover", providerId: "hc-1", for: book.uuid)
+    _ = await libraryService.setExternalResource(providerName: "hardcover", providerId: "hc-1", hostId: nil, for: book.uuid)
     // The link was written on the background context; read it on the view context
     libraryService.dataManager.getContext().refreshAllObjects()
 

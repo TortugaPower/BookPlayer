@@ -34,6 +34,7 @@ struct SettingsSupportSectionView: View {
         Text("settings_tip_jar_title")
           .bpFont(.body)
       }
+      .settingsRowBackground(for: .tipjar)
       Button(action: sendEmail) {
         VStack(alignment: .leading) {
           Text("settings_support_email_title")

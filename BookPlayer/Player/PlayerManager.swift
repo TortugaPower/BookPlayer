@@ -31,7 +31,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   private let shakeMotionService: ShakeMotionServiceProtocol
   private let widgetReloadService: WidgetReloadServiceProtocol
 
-  private var audioPlayer = AVPlayer()
+  /// Internal for tests, which install a player whose seeks land on demand
+  var audioPlayer = AVPlayer()
 
   private var fadeTimer: Timer?
 
@@ -70,6 +71,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   private var hasObserverRegistered = false
   /// How far we trust the player's clock: the baseline for spotting moves the player makes on its own
   private var clockState: ClockState = .unknown
+  /// The last seek started, as only its completion ends `ClockState.seeking`
+  private var latestSeek = 0
   private var observeStatus: Bool = false {
     didSet {
       guard oldValue != self.observeStatus else { return }
@@ -87,7 +90,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   weak var syncProgressDelegate: PlaybackSyncProgressDelegate?
   /// Reference to the ongoing play task
   private var playTask: Task<(), Error>?
-  private var playerItem: AVPlayerItem?
+  /// Internal for tests, which install an item that is ready to play
+  var playerItem: AVPlayerItem?
   /// The chapter file `playerItem` plays. A chapter change moves `currentItem.currentChapter`
   /// before its file loads, so a load cancelled midway (a pause) leaves the previous file's item
   /// behind; `prepareForPlayback` reloads instead of playing it.
@@ -793,8 +797,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     /// Readings are judged against `expected`, which comes from our own seeks and from every
     /// accepted reading. `recoveries` counts the seeks back since the last accepted reading
     case tracking(expected: TimeInterval, recoveries: Int)
-    /// A seek back to `target` is in flight
-    case recovering(target: TimeInterval, attempt: Int)
+    /// A seek of ours to `target` is in flight, and the player still reports the position it left
+    case seeking(target: TimeInterval, recoveries: Int)
 
     /// Trust a position we just put the player at, or that it just reported
     static func trusting(_ time: TimeInterval) -> ClockState {
@@ -807,7 +811,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
         return nil
       case .tracking(let expected, _):
         return expected
-      case .recovering(let target, _):
+      case .seeking(let target, _):
         return target
       }
     }
@@ -823,14 +827,32 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
       recoveries < Self.maxClockRecoveries
     else { return }
 
-    clockState = .recovering(target: expected, attempt: recoveries + 1)
+    seekPlayer(to: expected, recoveries: recoveries + 1)
+  }
+
+  /// Every seek of ours goes through here. Readings before it lands are the position it's leaving:
+  /// accepting one would make the landing look like the player moved on its own, and the clock
+  /// recovery would undo the seek (GH #1641)
+  private func seekPlayer(to time: TimeInterval, recoveries: Int = 0) {
+    clockState = .seeking(target: time, recoveries: recoveries)
+    latestSeek += 1
+    let seek = latestSeek
+
     audioPlayer.seek(
-      to: CMTime(seconds: expected, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
+      to: CMTime(seconds: time, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
     ) { [weak self] _ in
       DispatchQueue.main.async {
-        /// Unless a seek of ours has set a newer baseline since
-        guard let self, case .recovering(let target, let attempt) = self.clockState else { return }
-        self.clockState = .tracking(expected: target, recoveries: attempt)
+        /// Unless a newer seek took over, or the item it was for is gone
+        guard
+          let self,
+          seek == self.latestSeek,
+          case .seeking(let target, let recoveries) = self.clockState
+        else { return }
+
+        self.clockState = .tracking(expected: target, recoveries: recoveries)
+        /// While paused, the tick for this seek arrived before it landed and was dropped, and no
+        /// other tick follows: publish the landed position now, or the UI keeps the old one
+        self.updateTime()
       }
     }
   }
@@ -845,7 +867,9 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
       PlayerTimeSample(playerTime: CMTimeGetSeconds(audioPlayer.currentTime()), expected: expected) == .recover
     else { return }
 
-    await seekPlayer(to: expected, precise: false)
+    if await seekPlayerAndWait(to: expected, precise: false) {
+      clockState = .trusting(expected)
+    }
   }
 
   // Called every second by the timer
@@ -858,9 +882,9 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
       return
     }
 
-    /// A seek we started is in flight (clock recovery, or Smart Rewind). Samples until it
-    /// lands still belong to the pre-seek chapter and must not be published.
-    if case .recovering = clockState { return }
+    /// A seek is in flight (ours, clock recovery, or Smart Rewind), and its target is the position
+    /// we already hold. Samples until it lands still belong to the position it's leaving
+    if case .seeking = clockState { return }
 
     let fileTime: TimeInterval
 
@@ -1135,8 +1159,7 @@ extension PlayerManager {
       currentItem.isBoundBook
       ? currentItem.getChapterTime(in: currentItem.currentChapter, for: boundedTime)
       : boundedTime
-    clockState = .trusting(newTime)
-    self.audioPlayer.seek(to: CMTime(seconds: newTime, preferredTimescale: CMTimeScale(NSEC_PER_SEC)))
+    seekPlayer(to: newTime)
   }
 
   func jumpTo(_ time: Double, recordBookmark: Bool = true) {
@@ -1173,8 +1196,7 @@ extension PlayerManager {
       currentItem.isBoundBook
       ? currentItem.getChapterTime(in: currentItem.currentChapter, for: boundedTime)
       : boundedTime
-    clockState = .trusting(newTime)
-    self.audioPlayer.seek(to: CMTime(seconds: newTime, preferredTimescale: CMTimeScale(NSEC_PER_SEC)))
+    seekPlayer(to: newTime)
   }
 
   func forward() {
@@ -1607,8 +1629,7 @@ extension PlayerManager {
 
     /// Drop time jumps while the seek is in flight. A sample from the previous chapter would
     /// post `.chapterChange` and the just-armed end-of-chapter timer would pause immediately.
-    clockState = .recovering(target: target.time, attempt: 0)
-    await seekPlayer(to: target.time, precise: target.pinsChapterStart)
+    guard await seekPlayerAndWait(to: target.time, precise: target.pinsChapterStart) else { return }
 
     var trustedTime = target.time
     if target.pinsChapterStart {
@@ -1618,17 +1639,23 @@ extension PlayerManager {
       /// A frame early is still the previous chapter. Step just inside this one.
       if reported.isFinite, undershoot > 0, undershoot < Self.chapterStartSampleTolerance {
         trustedTime = fileStart + undershoot
-        await seekPlayer(to: trustedTime, precise: true)
+        guard await seekPlayerAndWait(to: trustedTime, precise: true) else { return }
       }
     }
 
-    if case .recovering(let pending, _) = clockState, pending == target.time {
-      clockState = .trusting(trustedTime)
-    }
+    clockState = .trusting(trustedTime)
   }
 
+  /// `seekPlayer(to:recoveries:)` for callers that must not go on until the seek lands. The clock
+  /// stays `.seeking` until the caller trusts a position, so no tick between two seeks of one
+  /// caller is read. Returns false when a newer seek took over, and the caller must leave the clock
+  /// to it.
   @MainActor
-  private func seekPlayer(to seconds: TimeInterval, precise: Bool) async {
+  private func seekPlayerAndWait(to seconds: TimeInterval, precise: Bool) async -> Bool {
+    clockState = .seeking(target: seconds, recoveries: 0)
+    latestSeek += 1
+    let seek = latestSeek
+
     let time = CMTime(seconds: seconds, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
     await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
       let finish: (Bool) -> Void = { _ in
@@ -1646,6 +1673,9 @@ extension PlayerManager {
         audioPlayer.seek(to: time, completionHandler: finish)
       }
     }
+
+    guard seek == latestSeek, case .seeking = clockState else { return false }
+    return true
   }
 
   func handleAutoTimer() {
