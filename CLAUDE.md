@@ -395,6 +395,12 @@ lines). It is the highest-risk file in the app.
   timer and the Now Playing chapter title (the `.chapterChange` notification is posted from that sink).
 - **KVO on `AVPlayerItem.status`** is balanced via `observeStatus` didSet + a `hasObserverRegistered` guard;
   nulling the player item resets the guard. An imbalance crashes on `removeObserver`.
+- **Invariant — every `PlayerManager` seek goes through `seekPlayer(to:recoveries:)`**, never `audioPlayer.seek`
+  directly. Until the latest seek completes, `clockState` is `.seeking` and `updateTime()` drops readings, which
+  are still the position being left. Recording one makes a landing near the file start look like the iOS 27
+  snap-back (`PlayerTimeSample`), and the clock recovery seeks back over it (GH #1641). The completion then runs
+  `updateTime()` once: a paused player sends its only tick for the seek before it lands, so without that call the
+  player screen and Now Playing keep the old position.
 - **AVAudioSession:** activated in `play()` (`.playback` / `.spokenAudio`); deactivated ~0.1s after `.paused`
   (delay avoids clipping). Interruption observer is **kept** on `.began` (so `.ended`+`.shouldResume` can resume)
   and removed on user pause/stop. `mediaServicesWereReset` re-applies the category and recreates the player.
