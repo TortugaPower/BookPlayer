@@ -560,7 +560,7 @@ struct ItemListView: View {
         Text("playlist_add_title")
       }
     } label: {
-      Label("more_title".localized, systemImage: "ellipsis.circle")
+      Label("more_title".localized, systemImage: "ellipsis")
     }
   }
 
