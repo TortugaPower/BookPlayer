@@ -41,6 +41,8 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
     Constants.UserDefaults.autoTimerEnabled,
     Constants.UserDefaults.lastEnabledTimer,
     Constants.UserDefaults.autoplayEnabled,
+    /// Armed when a book finishes
+    Constants.UserDefaults.pendingReviewPrompt,
   ]
 
   override func setUpWithError() throws {
