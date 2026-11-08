@@ -102,7 +102,11 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
 
   var nowPlayingInfo = [String: Any]()
 
-  private let queue = OperationQueue()
+  private let queue: OperationQueue
+  /// Makes the player on every (re)creation. Injected so tests drive a player that never loads media
+  private let makePlayer: () -> AVPlayer
+  /// Wraps a chapter's asset in the item handed to the player. Injected so tests control its status
+  private let makePlayerItem: (AVURLAsset) -> AVPlayerItem
 
   init(
     libraryService: LibraryServiceProtocol,
@@ -113,7 +117,10 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     widgetReloadService: WidgetReloadServiceProtocol,
     hasStreamingEnabled: @escaping () -> Bool,
     presentFailure: @escaping (PlaybackFailure) -> Void,
-    streamLookup: ExternalStreamLooking = AudiobookShelfStreamLookup()
+    streamLookup: ExternalStreamLooking = AudiobookShelfStreamLookup(),
+    makePlayer: @escaping () -> AVPlayer = { AVPlayer() },
+    makePlayerItem: @escaping (AVURLAsset) -> AVPlayerItem = { AVPlayerItem(asset: $0) },
+    loadQueue: OperationQueue = OperationQueue()
   ) {
     self.libraryService = libraryService
     self.playbackService = playbackService
@@ -125,6 +132,9 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     self.hasStreamingEnabled = hasStreamingEnabled
     self.presentFailure = presentFailure
     self.streamLookup = streamLookup
+    self.makePlayer = makePlayer
+    self.makePlayerItem = makePlayerItem
+    self.queue = loadQueue
     super.init()
 
     setupPlayerInstance()
@@ -192,7 +202,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
       audioPlayer.removeTimeObserver(observer)
     }
 
-    audioPlayer = AVPlayer()
+    audioPlayer = makePlayer()
 
     let interval = CMTime(seconds: 1.0, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
     periodicTimeObserver = audioPlayer.addPeriodicTimeObserver(
@@ -347,7 +357,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
       self.hasObserverRegistered = false
     }
 
-    self.playerItem = AVPlayerItem(asset: asset)
+    self.playerItem = makePlayerItem(asset)
     self.playerItemRelativePath = chapter.relativePath
     self.playerItem?.audioTimePitchAlgorithm = .timeDomain
 

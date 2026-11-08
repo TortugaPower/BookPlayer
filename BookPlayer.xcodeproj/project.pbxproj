@@ -912,6 +912,8 @@
 		9FB20EB729A423410021663B /* InterfaceUpdater.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB20EB629A423410021663B /* InterfaceUpdater.swift */; };
 		9FB20EB929A479FB0021663B /* BPAlertContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB20EB829A479FB0021663B /* BPAlertContent.swift */; };
 		9FB7C48D2835A2C1003B917E /* PlayerManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB7C48C2835A2C1003B917E /* PlayerManagerTests.swift */; };
+		C971525AD46B48B55482FEA4 /* PlayerManagerCharacterizationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B48EF6558F5E64938DC104E6 /* PlayerManagerCharacterizationTests.swift */; };
+		5534F8AC73AF3CD2B266F496 /* PlayerTestDoubles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 13C0CBF5AF94002DAE352E49 /* PlayerTestDoubles.swift */; };
 		9FBDBC792879409600D315A2 /* SyncableItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBDBC782879409600D315A2 /* SyncableItem.swift */; };
 		9FBDBC7D287940D900D315A2 /* ContentsResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBDBC7C287940D900D315A2 /* ContentsResponse.swift */; };
 		9FBDBC7E287940D900D315A2 /* ContentsResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FBDBC7C287940D900D315A2 /* ContentsResponse.swift */; };
@@ -1997,6 +1999,8 @@
 		9FB20EB629A423410021663B /* InterfaceUpdater.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterfaceUpdater.swift; sourceTree = "<group>"; };
 		9FB20EB829A479FB0021663B /* BPAlertContent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BPAlertContent.swift; sourceTree = "<group>"; };
 		9FB7C48C2835A2C1003B917E /* PlayerManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerManagerTests.swift; sourceTree = "<group>"; };
+		B48EF6558F5E64938DC104E6 /* PlayerManagerCharacterizationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerManagerCharacterizationTests.swift; sourceTree = "<group>"; };
+		13C0CBF5AF94002DAE352E49 /* PlayerTestDoubles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerTestDoubles.swift; sourceTree = "<group>"; };
 		9FBDBC782879409600D315A2 /* SyncableItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncableItem.swift; sourceTree = "<group>"; };
 		9FBDBC7C287940D900D315A2 /* ContentsResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentsResponse.swift; sourceTree = "<group>"; };
 		9FBDBC7F2879C6C900D315A2 /* UploadItemResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadItemResponse.swift; sourceTree = "<group>"; };
@@ -2592,6 +2596,7 @@
 				288AB833FD0408AF95443752 /* SleepTimerOptionTests.swift */,
 				689E2BCD29DC1D9253949A53 /* PlayableChapterTests.swift */,
 				9FB7C48C2835A2C1003B917E /* PlayerManagerTests.swift */,
+				B48EF6558F5E64938DC104E6 /* PlayerManagerCharacterizationTests.swift */,
 				B0B0F11E5EA1CA27D0000005 /* PlayerTimeSampleTests.swift */,
 				FEEDBABE0000000000000004 /* SharedWidgetStoreTests.swift */,
 				6279361D272D0CF50097837D /* Coordinators */,
@@ -3456,6 +3461,7 @@
 				6906A552217211C600A9E0B2 /* StubFactory.swift */,
 				1C6581B92E4D292C2AFC361A /* SyncResponseFixtures.swift */,
 				2AF448F75392B02FC5451289 /* SortIntegrationHarness.swift */,
+				13C0CBF5AF94002DAE352E49 /* PlayerTestDoubles.swift */,
 			);
 			path = Support;
 			sourceTree = "<group>";
@@ -5421,6 +5427,8 @@
 				8AAA4F4C2CF1FF8C009D0777 /* MockCoordinatorPresentationFlow.swift in Sources */,
 				41A1B13F226FEF9300EA0400 /* DataManagerTests.swift in Sources */,
 				9FB7C48D2835A2C1003B917E /* PlayerManagerTests.swift in Sources */,
+				C971525AD46B48B55482FEA4 /* PlayerManagerCharacterizationTests.swift in Sources */,
+				5534F8AC73AF3CD2B266F496 /* PlayerTestDoubles.swift in Sources */,
 				B0B0F11E5EA1CA27D0000006 /* PlayerTimeSampleTests.swift in Sources */,
 				FEEDBABE0000000000000005 /* SharedWidgetStoreTests.swift in Sources */,
 				8AF18A3B2CF0E92F00238F8D /* KeychainServiceMock.swift in Sources */,
