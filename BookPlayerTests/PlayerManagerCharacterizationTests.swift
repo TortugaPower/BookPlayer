@@ -374,9 +374,9 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
 
   // MARK: - Known bugs
 
-  /// A volume's next file chosen while the current one is still loading: `loadPlayerItem` removes the
-  /// old observer by hand (PlayerManager.swift:345) but leaves `observeStatus` true, so
-  /// `observeStatus = true` for the new item is a no-op.
+  /// A volume's next file chosen while the current one is still loading: the "Clean just in case" block
+  /// in `loadPlayerItem(for:forceRefreshURL:)` removes the old observer by hand but leaves
+  /// `observeStatus` true, so `observeStatus = true` for the new item is a no-op.
   @MainActor
   func testAChapterChangeDuringALoadObservesTheNewItem() async throws {
     let first = try await loadUntilInPlayer(boundBook(), autoplay: true)
