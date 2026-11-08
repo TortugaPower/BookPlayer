@@ -91,6 +91,9 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
         self.items.append(item)
         return item
       },
+      /// The suite pins ordering, not threading. In the app `loadChapterOperation` runs on a
+      /// background queue and registers the `status` observer there; how that races with `pause()`
+      /// and `play()` on main is out of reach here. Rework PR 5 moves the work onto the main actor.
       loadQueue: .main
     )
   }
