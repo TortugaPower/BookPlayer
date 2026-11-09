@@ -401,6 +401,11 @@ lines). It is the highest-risk file in the app.
   snap-back (`PlayerTimeSample`), and the clock recovery seeks back over it (GH #1641). The completion then runs
   `updateTime()` once: a paused player sends its only tick for the seek before it lands, so without that call the
   player screen and Now Playing keep the old position.
+- **Characterization tests pin load and playback** (`PlayerManagerCharacterizationTests`). They inject
+  `ControlledPlayer` / `ControlledPlayerItem` (`BookPlayerTests/Support/PlayerTestDoubles.swift`) through the
+  `makePlayer`, `makePlayerItem` and `loadQueue` init parameters, and every test ends checking each item's `status`
+  observer was added and removed in pairs. Known bugs are asserted correct inside `XCTExpectFailure`; a fix makes
+  that expectation fail, so remove it in the same change.
 - **AVAudioSession:** activated in `play()` (`.playback` / `.spokenAudio`); deactivated ~0.1s after `.paused`
   (delay avoids clipping). Interruption observer is **kept** on `.began` (so `.ended`+`.shouldResume` can resume)
   and removed on user pause/stop. `mediaServicesWereReset` re-applies the category and recreates the player.
