@@ -140,7 +140,7 @@ struct IntegrationLibraryView<
 
         layoutPreferences
       } label: {
-        Label("more_title".localized, systemImage: "ellipsis.circle")
+        Label("more_title".localized, systemImage: "ellipsis")
       }
     } else if viewModel.allowsEditing {
       Button(action: viewModel.onEditToggleSelectTapped) {
