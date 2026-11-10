@@ -34,7 +34,11 @@ class PlayerManagerTests: XCTestCase {
       item.currentTime = time
     }
     self.syncServiceMock = SyncServiceProtocolMock()
-    self.sut = PlayerManager(
+    self.sut = makeManager()
+  }
+
+  private func makeManager(engine: PlaybackEngine = AVPlayerEngine()) -> PlayerManager {
+    PlayerManager(
       libraryService: LibraryServiceProtocolMock(),
       playbackService: playbackServiceMock,
       syncService: syncServiceMock,
@@ -44,7 +48,8 @@ class PlayerManagerTests: XCTestCase {
       // Entitled by default, so nothing here is suppressed by tier; the item half of the rule
       // is covered by MediaServersShortcutTests against PlayableChapter.
       hasStreamingEnabled: { [weak self] in self?.streamingEnabled ?? true },
-      presentFailure: { _ in }
+      presentFailure: { _ in },
+      engine: engine
     )
   }
 
@@ -724,6 +729,10 @@ class PlayerManagerTests: XCTestCase {
 
   /// A chapter long enough to sit past `PlayerTimeSample`'s file-start threshold
   private func installLongChapterItem(currentTime: TimeInterval) -> SeekControlledPlayer {
+    let player = SeekControlledPlayer()
+    player.reportedTime = currentTime
+    sut = makeManager(engine: AVPlayerEngine(makePlayer: { player }))
+
     let chapter = PlayableChapter(
       title: "chapter 1",
       author: "author",
@@ -749,9 +758,6 @@ class PlayerManagerTests: XCTestCase {
       isBoundBook: false
     )
 
-    let player = SeekControlledPlayer()
-    player.reportedTime = currentTime
-    sut.audioPlayer = player
     sut.playerItem = ReadyPlayerItem(url: URL(fileURLWithPath: "/dev/null"))
     return player
   }

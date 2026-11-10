@@ -31,22 +31,19 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   private let shakeMotionService: ShakeMotionServiceProtocol
   private let widgetReloadService: WidgetReloadServiceProtocol
 
-  /// Internal for tests, which install a player whose seeks land on demand
-  var audioPlayer = AVPlayer()
+  /// Drives the player. Only the engine and the video surfaces touch `AVPlayer`
+  private let engine: PlaybackEngine
 
   private var fadeTimer: Timer?
 
-  private var timeControlPassthroughPublisher = CurrentValueSubject<AVPlayer.TimeControlStatus, Never>(.paused)
-  /// Named + cancelled-before-rebind: bound on every player recreation (init, .failed,
-  /// mediaServicesWereReset) — a disposeBag entry would accumulate one sink per recreation.
-  private var timeControlSubscription: AnyCancellable?
   /// Named + cancelled-before-rebind: bound on EVERY chapter/item load — a disposeBag entry
   /// leaks one KVO publisher (which retains its AVPlayerItem) per loaded chapter.
   private var playableChapterSubscription: AnyCancellable?
   private var isPlayingSubscription: AnyCancellable?
   /// Tracks the brief muted play used to claim Now Playing on CarPlay connect, so we can pause once it starts
   private var nowPlayingClaimSubscription: AnyCancellable?
-  private var periodicTimeObserver: Any?
+  /// The 1 s tick, which the engine keeps across rebuilds
+  private var tickObservation: EngineObservation?
   private var disposeBag = Set<AnyCancellable>()
   /// Whether playback should start once the item can play, and who asked for it
   @Published private var playIntent: PlayIntent = .idle
@@ -103,8 +100,6 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   var nowPlayingInfo = [String: Any]()
 
   private let queue: OperationQueue
-  /// Makes the player on every (re)creation. Injected so tests drive a player that never loads media
-  private let makePlayer: () -> AVPlayer
   /// Wraps a chapter's asset in the item handed to the player. Injected so tests control its status
   private let makePlayerItem: (AVURLAsset) -> AVPlayerItem
 
@@ -118,7 +113,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     hasStreamingEnabled: @escaping () -> Bool,
     presentFailure: @escaping (PlaybackFailure) -> Void,
     streamLookup: ExternalStreamLooking = AudiobookShelfStreamLookup(),
-    makePlayer: @escaping () -> AVPlayer = { AVPlayer() },
+    engine: PlaybackEngine = AVPlayerEngine(),
     makePlayerItem: @escaping (AVURLAsset) -> AVPlayerItem = { AVPlayerItem(asset: $0) },
     loadQueue: OperationQueue = OperationQueue()
   ) {
@@ -132,12 +127,14 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     self.hasStreamingEnabled = hasStreamingEnabled
     self.presentFailure = presentFailure
     self.streamLookup = streamLookup
-    self.makePlayer = makePlayer
+    self.engine = engine
     self.makePlayerItem = makePlayerItem
     self.queue = loadQueue
     super.init()
 
-    setupPlayerInstance()
+    tickObservation = engine.addPeriodicObserver(every: 1) { [weak self] in
+      self?.updateTime()
+    }
     bindObservers()
   }
 
@@ -195,29 +192,6 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
       name: AVAudioSession.interruptionNotification,
       object: nil
     )
-  }
-
-  func setupPlayerInstance() {
-    if let observer = periodicTimeObserver {
-      audioPlayer.removeTimeObserver(observer)
-    }
-
-    audioPlayer = makePlayer()
-
-    let interval = CMTime(seconds: 1.0, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
-    periodicTimeObserver = audioPlayer.addPeriodicTimeObserver(
-      forInterval: interval,
-      queue: DispatchQueue.main
-    ) { [weak self] _ in
-      guard let self = self else { return }
-
-      self.updateTime()
-    }
-
-    // Only route audio for AirPlay
-    audioPlayer.allowsExternalPlayback = false
-
-    bindTimeControlPassthroughPublisher()
   }
 
   func currentItemPublisher() -> AnyPublisher<PlayableItem?, Never> {
@@ -496,8 +470,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     clockState = .unknown
 
     // Recover in case of failure
-    if audioPlayer.status == .failed {
-      setupPlayerInstance()
+    if engine.hasFailed {
+      engine.rebuild()
     }
 
     // Preload item
@@ -667,7 +641,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
         /// playing): a silent load (the last book, at launch) stays quiet, and the next tap
         /// loads it again (`reloadable`)
         let wasQueued = self.playIntent != .idle
-        let playWanted = wasQueued || self.audioPlayer.rate != 0
+        let playWanted = wasQueued || self.engine.rate != 0
         self.playIntent = .idle
         self.isFetchingRemoteURL = nil
         self.observeStatus = false
@@ -700,10 +674,10 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   /// volume, after the last one ended): the player keeps its rate with no item, and the session,
   /// Now Playing and the interruption observer would go on as if it played.
   private func unloadPlayerItem(wasQueued: Bool) {
-    if audioPlayer.rate != 0 || wasQueued {
+    if engine.rate != 0 || wasQueued {
       pause()
     }
-    audioPlayer.replaceCurrentItem(with: nil)
+    engine.replaceItem(nil)
     playerItem = nil
     playerItemRelativePath = nil
   }
@@ -728,14 +702,14 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
         return
       }
 
-      self.audioPlayer.replaceCurrentItem(with: nil)
+      self.engine.replaceItem(nil)
       self.observeStatus = true
 
       // Update UI on main thread
       DispatchQueue.main.async {
         self.isFetchingRemoteURL = nil
 
-        self.audioPlayer.replaceCurrentItem(with: playerItem)
+        self.engine.replaceItem(playerItem)
         self.clockState = .trusting(0)
 
         self.currentSpeed = self.speedService.getSpeed(relativePath: chapter.relativePath)
@@ -848,9 +822,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     latestSeek += 1
     let seek = latestSeek
 
-    audioPlayer.seek(
-      to: CMTime(seconds: time, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
-    ) { [weak self] _ in
+    engine.seek(to: time) { [weak self] _ in
       DispatchQueue.main.async {
         /// Unless a newer seek took over, or the item it was for is gone
         guard
@@ -872,7 +844,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   private func restorePlayerTimeIfNeeded() {
     guard
       case .tracking(let expected, _) = clockState,
-      PlayerTimeSample(playerTime: CMTimeGetSeconds(audioPlayer.currentTime()), expected: expected) == .recover
+      PlayerTimeSample(playerTime: engine.currentTime, expected: expected) == .recover
     else { return }
 
     seekPlayer(to: expected)
@@ -894,7 +866,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     var currentTime: TimeInterval
 
     switch PlayerTimeSample(
-      playerTime: CMTimeGetSeconds(self.audioPlayer.currentTime()),
+      playerTime: self.engine.currentTime,
       expected: clockState.expectedTime
     ) {
     case .valid(let playerTime):
@@ -934,26 +906,16 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   // MARK: - Player states
 
   var isPlaying: Bool {
-    audioPlayer.timeControlStatus != .paused || playIntent != .idle
-  }
-
-  /// We need an intermediate publisher for the `timeControlStatus`, as the `AVPlayer` instance can be recreated,
-  /// thus invalidating the registered observers for `isPlaying`
-  func bindTimeControlPassthroughPublisher() {
-    timeControlSubscription?.cancel()
-    timeControlSubscription = audioPlayer.publisher(for: \.timeControlStatus)
-      .sink { [weak self] timeControlStatus in
-        self?.timeControlPassthroughPublisher.send(timeControlStatus)
-      }
+    engine.status != .paused || playIntent != .idle
   }
 
   func bindPauseObserver() {
     self.isPlayingSubscription?.cancel()
     self.isPlayingSubscription =
-      timeControlPassthroughPublisher
+      engine.statusPublisher
       .delay(for: .seconds(0.1), scheduler: RunLoop.main, options: .none)
-      .sink { timeControlStatus in
-        if timeControlStatus == .paused {
+      .sink { status in
+        if status == .paused {
           try? AVAudioSession.sharedInstance().setActive(false)
           self.isPlayingSubscription?.cancel()
         }
@@ -961,9 +923,9 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   }
 
   func isPlayingPublisher() -> AnyPublisher<Bool, Never> {
-    return Publishers.CombineLatest(timeControlPassthroughPublisher, $playIntent)
-      .map { timeControlStatus, playIntent in
-        timeControlStatus != .paused || playIntent != .idle
+    return Publishers.CombineLatest(engine.statusPublisher, $playIntent)
+      .map { status, playIntent in
+        status != .paused || playIntent != .idle
       }
       .eraseToAnyPublisher()
   }
@@ -993,7 +955,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
 
   var boostVolume: Bool = false {
     didSet {
-      self.audioPlayer.volume =
+      self.engine.volume =
         self.boostVolume
         ? Constants.Volume.boosted
         : Constants.Volume.normal
@@ -1337,8 +1299,8 @@ extension PlayerManager {
     /// by this one's timer.
     guard currentItem != nil, !isPlaying, nowPlayingClaimSubscription == nil else { return false }
 
-    audioPlayer.isMuted = true
-    nowPlayingClaimSubscription = timeControlPassthroughPublisher
+    engine.isMuted = true
+    nowPlayingClaimSubscription = engine.statusPublisher
       .filter { $0 == .playing }
       .first()
       // DispatchQueue (not RunLoop) so the timeout still fires while the run loop is in tracking mode
@@ -1357,7 +1319,7 @@ extension PlayerManager {
           /// a new claim until we're fully done and this timer can't unmute someone else's blip.
           DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { [weak self] in
             guard let self else { return }
-            self.audioPlayer.isMuted = false
+            self.engine.isMuted = false
             self.nowPlayingClaimSubscription = nil
           }
         },
@@ -1472,7 +1434,7 @@ extension PlayerManager {
       )
 
       // If book is completed, stop
-      let playerTime = CMTimeGetSeconds(audioPlayer.currentTime())
+      let playerTime = engine.currentTime
       if playerTime.isFinite && Int(currentItem.duration) == Int(playerTime) { return }
 
       restorePlayerTimeIfNeeded()
@@ -1489,7 +1451,7 @@ extension PlayerManager {
       boostVolume = UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled)
       bindInterruptObserver()
       // Set play state on player and control center
-      audioPlayer.playImmediately(atRate: currentSpeed)
+      engine.play(atRate: currentSpeed)
       /// Clean up flag after player starts playing
       playIntent = .idle
 
@@ -1519,7 +1481,7 @@ extension PlayerManager {
       let rewindTimeLimited = min(rewindTimeMin, timeInChapter, timePassed)
 
       /// Rewind from where we know playback is, not the raw player clock (see `PlayerTimeSample`)
-      let playerTime = clockState.expectedTime ?? CMTimeGetSeconds(self.audioPlayer.currentTime())
+      let playerTime = clockState.expectedTime ?? self.engine.currentTime
       let newPlayerTime = max(playerTime - rewindTimeLimited, 0)
 
       seekPlayer(to: newPlayerTime)
@@ -1552,7 +1514,7 @@ extension PlayerManager {
     self.speedService.setSpeed(newValue, relativePath: self.currentItem?.relativePath)
     self.currentSpeed = newValue
     if self.isPlaying {
-      self.audioPlayer.rate = newValue
+      self.engine.rate = newValue
     }
   }
 
@@ -1660,7 +1622,7 @@ extension PlayerManager {
 
     bindPauseObserver()
     // Set pause state on player and control center
-    audioPlayer.pause()
+    engine.pause()
     playIntent = .idle
     playTask?.cancel()
     loadChapterTask?.cancel()
@@ -1683,18 +1645,18 @@ extension PlayerManager {
   // Toggle play/pause of book
   func playPause() {
     // Pause player if it's playing
-    if self.audioPlayer.timeControlStatus == .playing || playIntent != .idle {
+    if self.engine.status == .playing || playIntent != .idle {
       self.pause()
     } else {
       self.play()
     }
   }
 
-  /// Access to the underlying player for rendering video tracks.
+  /// Access to the underlying player for rendering video tracks; nil for an engine without one.
   /// Note: the instance can be recreated after a media-services reset, so
   /// consumers should re-attach on view updates rather than caching it.
-  func getAVPlayer() -> AVPlayer {
-    return audioPlayer
+  func getAVPlayer() -> AVPlayer? {
+    return engine.videoPlayer
   }
 
   func stop() {
@@ -1712,7 +1674,7 @@ extension PlayerManager {
     observeStatus = false
     playIntent = .idle
 
-    audioPlayer.pause()
+    engine.pause()
     playTask?.cancel()
     loadChapterTask?.cancel()
     isFetchingRemoteURL = nil
@@ -1928,7 +1890,14 @@ extension PlayerManager {
       options: []
     )
 
-    setupPlayerInstance()
+    engine.rebuild()
+    /// The new player has no item: drop the old one, which would still read as ready, so the next
+    /// play loads it again where it was instead of starting an empty player. `observeStatus` goes
+    /// first, as it removes the observer from that item
+    observeStatus = false
+    playerItem = nil
+    playerItemRelativePath = nil
+    clockState = .unknown
   }
 
   /// Playback may be interrupted by calls. Handle resuming the audio if needed
@@ -1978,7 +1947,7 @@ extension PlayerManager {
 // MARK: - Sleep timer
 extension PlayerManager {
   private func handleSleepTimerThresholdEvent() {
-    fadeTimer = audioPlayer.fadeVolume(from: 1, to: 0, duration: 5, completion: {})
+    fadeTimer = engine.fadeVolume(from: 1, to: 0, duration: 5)
     bindShakeObserver()
   }
 
