@@ -1121,10 +1121,10 @@ extension PlayerManager {
     guard let currentItem else { return }
 
     let chaptersInFile = currentItem.chapters.filter { $0.relativePath == chapter.relativePath }
-    var endingAt = [TimeInterval: PlayableChapter]()
-    for ending in chaptersInFile.dropLast() {
-      endingAt[fileTime(ending.end, in: ending, of: currentItem)] = ending
-    }
+    let endingAt = Dictionary(
+      chaptersInFile.dropLast().map { (fileTime($0.end, in: $0, of: currentItem), $0) },
+      uniquingKeysWith: { _, last in last }
+    )
 
     guard !endingAt.isEmpty else { return }
 
