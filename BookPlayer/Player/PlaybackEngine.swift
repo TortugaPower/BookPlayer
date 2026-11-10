@@ -54,9 +54,16 @@ protocol PlaybackEngine: AnyObject {
 
   func play(atRate rate: Float)
   func pause()
-  func seek(to time: TimeInterval, completion: @escaping @Sendable (Bool) -> Void)
+  /// `precisely` lands on `time` itself instead of wherever is quickest nearby
+  func seek(to time: TimeInterval, precisely: Bool, completion: @escaping @Sendable (Bool) -> Void)
   /// Calls `block` on the main queue every `interval` of playback. Kept across rebuilds
   func addPeriodicObserver(every interval: TimeInterval, _ block: @escaping @Sendable () -> Void) -> EngineObservation
+  /// Calls `block` on the main queue with the time playback crosses, for each of `times` in the current
+  /// item. Seeks don't cross. Kept across rebuilds
+  func addBoundaryObserver(
+    at times: [TimeInterval],
+    _ block: @escaping @Sendable (TimeInterval) -> Void
+  ) -> EngineObservation
   func fadeVolume(from: Float, to: Float, duration: Float) -> Timer?
   /// Until `ItemLoad` (rework PR 5) moves item creation behind the engine as `load(_ source:)`
   func replaceItem(_ item: AVPlayerItem?)

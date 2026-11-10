@@ -409,6 +409,17 @@ lines). It is the highest-risk file in the app.
   `engine` (an `AVPlayerEngine(makePlayer:)`), `makePlayerItem` and `loadQueue` init parameters, and every test ends checking each item's `status`
   observer was added and removed in pairs. Known bugs are asserted correct inside `XCTExpectFailure`; a fix makes
   that expectation fail, so remove it in the same change.
+- **Chapter ends are observed, not polled.** When a file reaches the player, `observeChapterEnds(inFileOf:)`
+  registers engine boundary observers at the ends of the chapters in that file, all but its last, which
+  `playerDidFinishPlaying` takes. With the end-of-chapter timer on, a crossing (`handleChapterEnd`) saves the next
+  chapter's start plus 10 ms (`chapterParkLead`), moves `currentChapter` (which ends the timer and pauses) and parks
+  there with a **precise** seek. Exactly on the start is a tie: `start + duration` can round past the next start, so
+  a book rebuilt from the saved time reopens in the ended chapter, and a precise seek reads back up to 1 ns early; a
+  default seek can land milliseconds early. Any of those makes the resume cross the end again (GH #1486). AVPlayer
+  also reports a crossing when playback starts exactly on a boundary (after Smart Rewind back to a chapter's start),
+  so `handleChapterEnd` acts only while `currentChapter` is still the chapter that ended; re-setting `currentChapter`
+  publishes again and would end the re-armed timer at once. Smart Rewind skips rewinds under 0.1 s, and
+  `reloadCurrentItem` re-registers the ends. Chapter titles still follow the 1 s tick.
 - **Every play says who asked for it.** `load(_:intent:)` and `loadPlayer(_:intent:)` take a `PlayIntent`
   (`.idle` or `.wantsToPlay(.user / .system)`), and the origin is kept through the load. Only a user play arms the
   remembered sleep timer (`handleAutoTimer`), which restarts a running countdown; a start the system makes (the next
