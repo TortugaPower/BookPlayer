@@ -120,10 +120,10 @@ final class AudioMetadataServiceTests: XCTestCase {
 
   // MARK: - Download verification against estimated or precise synced durations
   //
-  // The synced duration is precise for books imported with this change and AVFoundation's
-  // estimate for older ones; both must verify, and a truncated file must not, whichever was
-  // stored. The full Opus fixture reads 60s precise and ~88.8s estimated; its first 75%
-  // reads ~52s precise and ~66.6s estimated.
+  // The synced duration may be precise (books imported with this change), AVFoundation's
+  // estimate (older versions) or another client's measurement, so a file is rejected only
+  // when both readings are short. The full Opus fixture reads 60s precise and ~88.8s
+  // estimated; its first half reads ~43s precise and ~48s estimated.
 
   private func truncatedCopy(of url: URL, keeping fraction: Double) throws -> URL {
     let data = try Data(contentsOf: url)
@@ -153,17 +153,22 @@ final class AudioMetadataServiceTests: XCTestCase {
   }
 
   func testTruncatedDuration_truncatedFile_preciseSyncedDuration_rejects() async throws {
-    // The truncated file's estimate (~66.6s) is longer than the synced 60s, so accepting
-    // any reading that isn't short would let this file through
-    let url = try truncatedCopy(of: fixtureURL("opus_VBR", "opus"), keeping: 0.75)
+    let url = try truncatedCopy(of: fixtureURL("opus_VBR", "opus"), keeping: 0.5)
     let truncated = try await SyncService.truncatedDuration(of: url, expectedDuration: 60)
-    XCTAssertEqual(try XCTUnwrap(truncated), 52, accuracy: 3)
+    XCTAssertEqual(try XCTUnwrap(truncated), 43, accuracy: 3)
+  }
+
+  func testTruncatedDuration_syncedDurationBetweenPreciseAndEstimate_accepts() async throws {
+    // e.g. a media server's own measurement of the same complete file
+    let url = try fixtureURL("opus_VBR", "opus")
+    let truncated = try await SyncService.truncatedDuration(of: url, expectedDuration: 75)
+    XCTAssertNil(truncated)
   }
 
   func testTruncatedDuration_truncatedFile_estimatedSyncedDuration_rejects() async throws {
     let fullURL = try fixtureURL("opus_VBR", "opus")
     let estimate = try await estimatedDuration(of: fullURL)
-    let url = try truncatedCopy(of: fullURL, keeping: 0.75)
+    let url = try truncatedCopy(of: fullURL, keeping: 0.5)
     let truncated = try await SyncService.truncatedDuration(of: url, expectedDuration: estimate)
     XCTAssertNotNil(truncated)
   }

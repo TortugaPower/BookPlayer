@@ -1213,12 +1213,14 @@ extension SyncService {
   /// The downloaded file's precise duration when it's meaningfully shorter than
   /// `expectedDuration`, or nil when the file is acceptable.
   ///
-  /// The synced duration is precise for books imported since imports started requesting
-  /// precise timing, but older versions stored AVFoundation's quick estimate, which for VBR
-  /// files can be off by far more than the tolerance (88.8s for a 60s Opus file). So a file
-  /// whose precise duration is short is still accepted when its estimate matches the synced
-  /// duration. The estimate must match, not merely be long enough: it overshoots for some
-  /// VBR files, and would otherwise hide a truncated one.
+  /// The synced duration may be a precise read (books imported since imports started
+  /// requesting precise timing), AVFoundation's quick estimate (older versions), or another
+  /// client's or media server's own measurement, and for VBR files these can differ by far
+  /// more than the tolerance (88.8s estimated for a 60s Opus file). So the file is rejected
+  /// only when both the precise and the estimated reading are short. This can let a slightly
+  /// truncated VBR file through when its estimate overshoots, but rejecting deletes the file,
+  /// and a complete download deleted on every retry is worse; the `Content-Length` check in
+  /// `BPTaskDownloadDelegate` remains the primary guard against truncation.
   static func truncatedDuration(of fileURL: URL, expectedDuration: Double) async throws -> Double? {
     let tolerance = durationTolerance(for: expectedDuration)
 
@@ -1228,7 +1230,7 @@ extension SyncService {
     guard precise.isFinite, expectedDuration - precise > tolerance else { return nil }
 
     let estimated = CMTimeGetSeconds(try await AVURLAsset(url: fileURL).load(.duration))
-    guard !estimated.isFinite || abs(estimated - expectedDuration) > tolerance else { return nil }
+    guard !estimated.isFinite || expectedDuration - estimated > tolerance else { return nil }
 
     return precise
   }
