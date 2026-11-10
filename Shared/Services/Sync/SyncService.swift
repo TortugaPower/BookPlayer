@@ -1205,6 +1205,36 @@ extension SyncService {
       .first { $0.syncStatus == ExternalResource.SyncStatus.stream.rawValue }
   }
 
+  /// Allow a small tolerance for container/encoder rounding differences.
+  static func durationTolerance(for expected: Double) -> Double {
+    max(2, expected * 0.02)
+  }
+
+  /// The downloaded file's precise duration when it's meaningfully shorter than
+  /// `expectedDuration`, or nil when the file is acceptable.
+  ///
+  /// The synced duration may be a precise read (books imported since imports started
+  /// requesting precise timing), AVFoundation's quick estimate (older versions), or another
+  /// client's or media server's own measurement, and for VBR files these can differ by far
+  /// more than the tolerance (88.8s estimated for a 60s Opus file). So the file is rejected
+  /// only when both the precise and the estimated reading are short. That accepts truncation
+  /// up to roughly how far the estimate overshoots (about a third of that Opus file), but
+  /// rejecting deletes the file, and a complete download deleted on every retry is worse.
+  /// The `Content-Length` check in `BPTaskDownloadDelegate` is the guard for anything finer.
+  static func truncatedDuration(of fileURL: URL, expectedDuration: Double) async throws -> Double? {
+    let tolerance = durationTolerance(for: expectedDuration)
+
+    let precise = CMTimeGetSeconds(
+      try await AudioMetadataService.durationAccurateAsset(for: fileURL).load(.duration)
+    )
+    guard precise.isFinite, expectedDuration - precise > tolerance else { return nil }
+
+    let estimated = CMTimeGetSeconds(try await AVURLAsset(url: fileURL).load(.duration))
+    guard !estimated.isFinite || expectedDuration - estimated > tolerance else { return nil }
+
+    return precise
+  }
+
   /// Backstop against truncated/botched downloads that finish without surfacing a
   /// network error (e.g. the connection closed early, or watchOS suspended the
   /// background transfer). `URLSession` won't flag these, so a short file would be
@@ -1220,10 +1250,9 @@ extension SyncService {
     /// means we can't validate — leave the download in place.
     guard let expectedDuration, expectedDuration > 0 else { return nil }
 
-    let actualDuration: Double
+    let truncatedDuration: Double?
     do {
-      let asset = AVURLAsset(url: fileURL)
-      actualDuration = CMTimeGetSeconds(try await asset.load(.duration))
+      truncatedDuration = try await Self.truncatedDuration(of: fileURL, expectedDuration: expectedDuration)
     } catch {
       /// We have a trustworthy synced duration, so this is a format we can play —
       /// a complete file would be readable. A load failure on a fresh download is
@@ -1237,11 +1266,7 @@ extension SyncService {
       return DownloadError.durationUnreadable
     }
 
-    guard actualDuration.isFinite else { return nil }
-
-    /// Allow a small tolerance for container/encoder rounding differences.
-    let tolerance = max(2, expectedDuration * 0.02)
-    guard expectedDuration - actualDuration > tolerance else { return nil }
+    guard let actualDuration = truncatedDuration else { return nil }
 
     try? FileManager.default.removeItem(at: fileURL)
     Self.logger.warning(
