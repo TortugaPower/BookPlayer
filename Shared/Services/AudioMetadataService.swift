@@ -92,18 +92,13 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
 
   public init() {}
   
-  /// Extensions whose container has no reliable global duration header. AVFoundation
-  /// estimates their duration from the first frames' bitrate, which can be far off for
-  /// VBR audio (e.g. 88.8s reported for a 60s VBR Opus file).
-  static let preciseDurationExtensions: Set<String> = ["opus", "ogg", "mp3"]
-
   /// An asset whose `duration` matches what `PlayerManager` (which always requests precise
-  /// timing) will play. Formats with a reliable header skip the precise scan, as it's slower.
+  /// timing) will play. Without it, AVFoundation estimates the duration of files with no
+  /// reliable duration header (VBR Opus/Ogg, VBR MP3 without a Xing header, raw AAC) from
+  /// the first frames' bitrate: 88.8s for a 60s VBR Opus file. Files that do have one read
+  /// it either way, so the precise scan only costs time where the estimate would be wrong.
   public static func durationAccurateAsset(for fileURL: URL) -> AVURLAsset {
-    guard preciseDurationExtensions.contains(fileURL.pathExtension.lowercased()) else {
-      return AVURLAsset(url: fileURL)
-    }
-    return AVURLAsset(url: fileURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
+    AVURLAsset(url: fileURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
   }
 
   public func extractMetadata(from fileURL: URL) async -> AudioMetadata? {

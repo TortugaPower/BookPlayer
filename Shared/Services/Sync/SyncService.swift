@@ -1206,26 +1206,31 @@ extension SyncService {
   }
 
   /// Allow a small tolerance for container/encoder rounding differences.
-  static func isDurationShort(_ actual: Double, expected: Double) -> Bool {
-    expected - actual > max(2, expected * 0.02)
+  static func durationTolerance(for expected: Double) -> Double {
+    max(2, expected * 0.02)
   }
 
-  /// The downloaded file's duration to check against `expectedDuration`. The synced duration
-  /// may be AVFoundation's quick estimate (stored by an older version) or a precise read
-  /// (stored since imports of VBR-prone formats started requesting precise timing), and for
-  /// VBR files the two can differ by far more than the tolerance. So read the estimate first,
-  /// and if it looks short, fall back to the precise read: a file is only rejected when
-  /// neither reading matches.
-  static func verifiedDuration(of fileURL: URL, expectedDuration: Double) async throws -> Double {
+  /// The downloaded file's precise duration when it's meaningfully shorter than
+  /// `expectedDuration`, or nil when the file is acceptable.
+  ///
+  /// The synced duration is precise for books imported since imports started requesting
+  /// precise timing, but older versions stored AVFoundation's quick estimate, which for VBR
+  /// files can be off by far more than the tolerance (88.8s for a 60s Opus file). So a file
+  /// whose precise duration is short is still accepted when its estimate matches the synced
+  /// duration. The estimate must match, not merely be long enough: it overshoots for some
+  /// VBR files, and would otherwise hide a truncated one.
+  static func truncatedDuration(of fileURL: URL, expectedDuration: Double) async throws -> Double? {
+    let tolerance = durationTolerance(for: expectedDuration)
+
+    let precise = CMTimeGetSeconds(
+      try await AudioMetadataService.durationAccurateAsset(for: fileURL).load(.duration)
+    )
+    guard precise.isFinite, expectedDuration - precise > tolerance else { return nil }
+
     let estimated = CMTimeGetSeconds(try await AVURLAsset(url: fileURL).load(.duration))
+    guard !estimated.isFinite || abs(estimated - expectedDuration) > tolerance else { return nil }
 
-    guard
-      isDurationShort(estimated, expected: expectedDuration),
-      AudioMetadataService.preciseDurationExtensions.contains(fileURL.pathExtension.lowercased())
-    else { return estimated }
-
-    let precise = AudioMetadataService.durationAccurateAsset(for: fileURL)
-    return CMTimeGetSeconds(try await precise.load(.duration))
+    return precise
   }
 
   /// Backstop against truncated/botched downloads that finish without surfacing a
@@ -1243,9 +1248,9 @@ extension SyncService {
     /// means we can't validate — leave the download in place.
     guard let expectedDuration, expectedDuration > 0 else { return nil }
 
-    let actualDuration: Double
+    let truncatedDuration: Double?
     do {
-      actualDuration = try await Self.verifiedDuration(of: fileURL, expectedDuration: expectedDuration)
+      truncatedDuration = try await Self.truncatedDuration(of: fileURL, expectedDuration: expectedDuration)
     } catch {
       /// We have a trustworthy synced duration, so this is a format we can play —
       /// a complete file would be readable. A load failure on a fresh download is
@@ -1259,9 +1264,7 @@ extension SyncService {
       return DownloadError.durationUnreadable
     }
 
-    guard actualDuration.isFinite else { return nil }
-
-    guard Self.isDurationShort(actualDuration, expected: expectedDuration) else { return nil }
+    guard let actualDuration = truncatedDuration else { return nil }
 
     try? FileManager.default.removeItem(at: fileURL)
     Self.logger.warning(

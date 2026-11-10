@@ -119,24 +119,52 @@ final class AudioMetadataServiceTests: XCTestCase {
   }
 
   // MARK: - Download verification against estimated or precise synced durations
+  //
+  // The synced duration is precise for books imported with this change and AVFoundation's
+  // estimate for older ones; both must verify, and a truncated file must not, whichever was
+  // stored. The full Opus fixture reads 60s precise and ~88.8s estimated; its first 75%
+  // reads ~52s precise and ~66.6s estimated.
 
-  func testVerifiedDuration_acceptsPreciseSyncedDuration() async throws {
-    let url = try fixtureURL("opus_VBR", "opus")
-    let duration = try await SyncService.verifiedDuration(of: url, expectedDuration: 60)
-    XCTAssertFalse(SyncService.isDurationShort(duration, expected: 60))
+  private func truncatedCopy(of url: URL, keeping fraction: Double) throws -> URL {
+    let data = try Data(contentsOf: url)
+    let copyURL = FileManager.default.temporaryDirectory
+      .appendingPathComponent(UUID().uuidString)
+      .appendingPathExtension(url.pathExtension)
+    try data.prefix(Int(Double(data.count) * fraction)).write(to: copyURL)
+    addTeardownBlock { try? FileManager.default.removeItem(at: copyURL) }
+    return copyURL
   }
 
-  func testVerifiedDuration_acceptsEstimatedSyncedDuration() async throws {
-    // A book imported before precise timing stored AVFoundation's estimate
-    let url = try fixtureURL("opus_VBR", "opus")
-    let estimate = CMTimeGetSeconds(try await AVURLAsset(url: url).load(.duration))
-    let duration = try await SyncService.verifiedDuration(of: url, expectedDuration: estimate)
-    XCTAssertFalse(SyncService.isDurationShort(duration, expected: estimate))
+  private func estimatedDuration(of url: URL) async throws -> Double {
+    CMTimeGetSeconds(try await AVURLAsset(url: url).load(.duration))
   }
 
-  func testVerifiedDuration_rejectsTruncatedFile() async throws {
+  func testTruncatedDuration_completeFile_preciseSyncedDuration_accepts() async throws {
     let url = try fixtureURL("opus_VBR", "opus")
-    let duration = try await SyncService.verifiedDuration(of: url, expectedDuration: 200)
-    XCTAssertTrue(SyncService.isDurationShort(duration, expected: 200))
+    let truncated = try await SyncService.truncatedDuration(of: url, expectedDuration: 60)
+    XCTAssertNil(truncated)
+  }
+
+  func testTruncatedDuration_completeFile_estimatedSyncedDuration_accepts() async throws {
+    let url = try fixtureURL("opus_VBR", "opus")
+    let estimate = try await estimatedDuration(of: url)
+    let truncated = try await SyncService.truncatedDuration(of: url, expectedDuration: estimate)
+    XCTAssertNil(truncated)
+  }
+
+  func testTruncatedDuration_truncatedFile_preciseSyncedDuration_rejects() async throws {
+    // The truncated file's estimate (~66.6s) is longer than the synced 60s, so accepting
+    // any reading that isn't short would let this file through
+    let url = try truncatedCopy(of: fixtureURL("opus_VBR", "opus"), keeping: 0.75)
+    let truncated = try await SyncService.truncatedDuration(of: url, expectedDuration: 60)
+    XCTAssertEqual(try XCTUnwrap(truncated), 52, accuracy: 3)
+  }
+
+  func testTruncatedDuration_truncatedFile_estimatedSyncedDuration_rejects() async throws {
+    let fullURL = try fixtureURL("opus_VBR", "opus")
+    let estimate = try await estimatedDuration(of: fullURL)
+    let url = try truncatedCopy(of: fullURL, keeping: 0.75)
+    let truncated = try await SyncService.truncatedDuration(of: url, expectedDuration: estimate)
+    XCTAssertNotNil(truncated)
   }
 }
