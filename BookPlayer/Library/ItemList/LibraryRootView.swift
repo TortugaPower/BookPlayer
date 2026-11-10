@@ -186,7 +186,7 @@ struct LibraryRootView: View {
     do {
       try await AppServices.shared.coreServices?.playerLoaderService.loadPlayer(
         libraryItem.relativePath,
-        autoplay: false,
+        intent: .idle,
         recordAsLastBook: false
       )
       if UserDefaults.standard.bool(forKey: Constants.UserActivityPlayback) {

@@ -49,7 +49,7 @@ struct BookPlaybackToggleIntent: AudioPlaybackIntent {
         playerLoaderService: playerLoaderService
       )
       #else
-      try await playerLoaderService.loadPlayer(relativePath, autoplay: true)
+      try await playerLoaderService.loadPlayer(relativePath, intent: .wantsToPlay(.user))
       #endif
     }
 

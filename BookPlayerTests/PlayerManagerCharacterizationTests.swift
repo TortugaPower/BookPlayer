@@ -139,7 +139,7 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
   /// Scenario 1
   @MainActor
   func testALoadWithAutoplayPlaysOnceTheItemIsReady() async throws {
-    let item = try await loadUntilInPlayer(singleFileBook(), autoplay: true)
+    let item = try await loadUntilInPlayer(singleFileBook(), intent: .wantsToPlay(.user))
 
     XCTAssertTrue(item.isStatusObserved)
     XCTAssertTrue(player.playCalls.isEmpty, "nothing plays before the item is ready")
@@ -155,7 +155,7 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
   /// Scenario 2: the last book, loaded silently at launch
   @MainActor
   func testALaunchPreloadRestoresThePositionWithoutPlaying() async throws {
-    let item = try await loadUntilInPlayer(singleFileBook(currentTime: 30), autoplay: false)
+    let item = try await loadUntilInPlayer(singleFileBook(currentTime: 30), intent: .idle)
 
     XCTAssertEqual(player.seekTargets, [30])
 
@@ -168,7 +168,7 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
   /// Scenario 3: play pressed while the item is still loading
   @MainActor
   func testPlayPressedDuringALoadStartsOnceTheItemIsReady() async throws {
-    let item = try await loadUntilInPlayer(singleFileBook(), autoplay: false)
+    let item = try await loadUntilInPlayer(singleFileBook(), intent: .idle)
 
     sut.play()
     await settle()
@@ -184,7 +184,7 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
   /// Scenario 4
   @MainActor
   func testPausingDuringALoadKeepsItSilentOnceReady() async throws {
-    let item = try await loadUntilInPlayer(singleFileBook(), autoplay: true)
+    let item = try await loadUntilInPlayer(singleFileBook(), intent: .wantsToPlay(.user))
 
     sut.pause()
     item.become(.readyToPlay)
@@ -197,8 +197,8 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
   /// Scenario 5
   @MainActor
   func testASecondLoadSupersedesTheFirst() async throws {
-    let first = try await loadUntilInPlayer(singleFileBook("first.m4b"), autoplay: true)
-    let second = try await loadUntilInPlayer(singleFileBook("second.m4b"), autoplay: true)
+    let first = try await loadUntilInPlayer(singleFileBook("first.m4b"), intent: .wantsToPlay(.user))
+    let second = try await loadUntilInPlayer(singleFileBook("second.m4b"), intent: .wantsToPlay(.user))
 
     XCTAssertFalse(first.isStatusObserved)
     first.become(.readyToPlay)
@@ -219,7 +219,7 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
   @MainActor
   func testAnUnavailableFileIsReloadedOnceThenReported() async throws {
     let unavailable = NSError(domain: NSURLErrorDomain, code: NSURLErrorResourceUnavailable)
-    let first = try await loadUntilInPlayer(singleFileBook(), autoplay: true)
+    let first = try await loadUntilInPlayer(singleFileBook(), intent: .wantsToPlay(.user))
 
     first.become(.failed, error: unavailable)
     let second = try await nextItemInPlayer(after: 1)
@@ -239,7 +239,7 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
   @MainActor
   func testAFailedStreamIsRetriedOnceThenReported() async throws {
     let timedOut = NSError(domain: NSURLErrorDomain, code: NSURLErrorTimedOut)
-    let first = try await loadUntilInPlayer(streamedBook(), autoplay: true)
+    let first = try await loadUntilInPlayer(streamedBook(), intent: .wantsToPlay(.user))
 
     first.become(.failed, error: timedOut)
     let second = try await nextItemInPlayer(after: 1)
@@ -354,7 +354,7 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
   @MainActor
   func testAManualPlayArmsTheRememberedTimer() async throws {
     rememberEndOfChapterTimer()
-    let item = try await loadUntilInPlayer(singleFileBook(), autoplay: false)
+    let item = try await loadUntilInPlayer(singleFileBook(), intent: .idle)
     item.become(.readyToPlay)
 
     sut.play()
@@ -363,14 +363,86 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
     XCTAssertEqual(SleepTimer.shared.state, .endOfChapter)
   }
 
-  /// Scenario 12, a play that starts once the item loads: a tap on a book in the library today.
-  /// Decided 2026-11-08 that a new-book tap should arm the timer (rework PR 2).
+  /// Scenario 12, a tap on a new book in the library: the play starts once its item loads
   @MainActor
-  func testAPlayStartedByALoadDoesNotArmTheRememberedTimer() async throws {
+  func testANewBookTapArmsTheRememberedTimer() async throws {
     rememberEndOfChapterTimer()
 
     try await loadAndPlay(singleFileBook())
 
+    XCTAssertEqual(SleepTimer.shared.state, .endOfChapter)
+  }
+
+  /// Scenario 12, play pressed while the item is still loading: still the user's play once it starts
+  @MainActor
+  func testPlayPressedDuringALoadArmsTheRememberedTimer() async throws {
+    rememberEndOfChapterTimer()
+    let item = try await loadUntilInPlayer(singleFileBook(), intent: .idle)
+
+    sut.play()
+    await settle()
+    item.become(.readyToPlay)
+    await waitUntil("playback starts") { !self.player.playCalls.isEmpty }
+
+    XCTAssertEqual(SleepTimer.shared.state, .endOfChapter)
+  }
+
+  /// Scenario 12, a tap whose file had to be reloaded: the retry keeps the user's play
+  @MainActor
+  func testAReloadedTapStillArmsTheRememberedTimer() async throws {
+    rememberEndOfChapterTimer()
+    let first = try await loadUntilInPlayer(singleFileBook(), intent: .wantsToPlay(.user))
+
+    first.become(.failed, error: NSError(domain: NSURLErrorDomain, code: NSURLErrorResourceUnavailable))
+    let second = try await nextItemInPlayer(after: 1)
+    second.become(.readyToPlay)
+    await waitUntil("playback starts") { !self.player.playCalls.isEmpty }
+
+    XCTAssertEqual(SleepTimer.shared.state, .endOfChapter)
+  }
+
+  /// Scenario 12, the next book starting after one finishes
+  @MainActor
+  func testTheNextBookAfterAFinishedOneDoesNotArmTheRememberedTimer() async throws {
+    UserDefaults.standard.set(true, forKey: Constants.UserDefaults.autoplayEnabled)
+    playbackService.getPlayableItemAfterParentFolderAutoplayedRestartFinishedReturnValue = singleFileBook("next.m4b")
+    rememberEndOfChapterTimer()
+    let first = try await loadAndPlay(boundBook(currentTime: 60), origin: .system)
+
+    NotificationCenter.default.post(name: .AVPlayerItemDidPlayToEndTime, object: first)
+    let next = try await nextItemInPlayer(after: 1)
+    next.become(.readyToPlay)
+    await waitUntil("the next book plays") { self.player.playCalls.count == 2 }
+
+    XCTAssertEqual(sut.currentItem?.relativePath, "next.m4b")
+    XCTAssertEqual(SleepTimer.shared.state, .off)
+  }
+
+  /// Scenario 12, playback resuming after a call
+  @MainActor
+  func testAnInterruptionsResumeDoesNotArmTheRememberedTimer() async throws {
+    rememberEndOfChapterTimer()
+    try await loadAndPlay(singleFileBook(), origin: .system)
+
+    postInterruption(.began)
+    postInterruption(.ended, options: .shouldResume)
+    await waitUntil("playback resumes") { self.player.playCalls.count == 2 }
+
+    XCTAssertEqual(SleepTimer.shared.state, .off)
+  }
+
+  /// Scenario 12, CarPlay connecting: the muted play that claims Now Playing, then pauses
+  @MainActor
+  func testClaimingNowPlayingDoesNotArmTheRememberedTimer() async throws {
+    rememberEndOfChapterTimer()
+    let item = try await loadUntilInPlayer(singleFileBook(), intent: .idle)
+    item.become(.readyToPlay)
+    await settle()
+
+    XCTAssertTrue(sut.claimNowPlayingThenPause())
+    await waitUntil("the claim pauses") { self.player.pauseCalls == 1 }
+
+    XCTAssertEqual(player.playCalls.count, 1)
     XCTAssertEqual(SleepTimer.shared.state, .off)
   }
 
@@ -381,7 +453,7 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
   /// `observeStatus` true, so `observeStatus = true` for the new item is a no-op.
   @MainActor
   func testAChapterChangeDuringALoadObservesTheNewItem() async throws {
-    let first = try await loadUntilInPlayer(boundBook(), autoplay: true)
+    let first = try await loadUntilInPlayer(boundBook(), intent: .wantsToPlay(.user))
     let nextChapter = try XCTUnwrap(sut.currentItem?.chapters.last)
 
     sut.jumpToChapter(nextChapter)
@@ -490,24 +562,26 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
   @MainActor
   private func loadUntilInPlayer(
     _ book: PlayableItem,
-    autoplay: Bool,
+    intent: PlayIntent,
     file: StaticString = #filePath,
     line: UInt = #line
   ) async throws -> ControlledPlayerItem {
     let count = items.count
-    sut.load(book, autoplay: autoplay)
+    sut.load(book, intent: intent)
     return try await nextItemInPlayer(after: count, file: file, line: line)
   }
 
-  /// Loads `book` with autoplay, makes its item ready and waits for playback to start
+  /// Loads `book` to play, by default as a tap in the library does, makes its item ready and waits
+  /// for playback to start
   @discardableResult
   @MainActor
   private func loadAndPlay(
     _ book: PlayableItem,
+    origin: PlayOrigin = .user,
     file: StaticString = #filePath,
     line: UInt = #line
   ) async throws -> ControlledPlayerItem {
-    let item = try await loadUntilInPlayer(book, autoplay: true, file: file, line: line)
+    let item = try await loadUntilInPlayer(book, intent: .wantsToPlay(origin), file: file, line: line)
     item.become(.readyToPlay)
     await waitUntil("playback starts", file: file, line: line) { !self.player.playCalls.isEmpty }
     return item

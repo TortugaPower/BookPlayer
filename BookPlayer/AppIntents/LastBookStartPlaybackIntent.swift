@@ -39,7 +39,7 @@ struct LastBookStartPlaybackIntent: AudioPlaybackIntent {
       playerLoaderService: playerLoaderService
     )
     #else
-    try await playerLoaderService.loadPlayer(book.relativePath, autoplay: true)
+    try await playerLoaderService.loadPlayer(book.relativePath, intent: .wantsToPlay(.user))
     #endif
 
     return .result()

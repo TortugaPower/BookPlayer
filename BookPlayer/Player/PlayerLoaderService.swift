@@ -37,7 +37,7 @@ final class PlayerLoaderService: @unchecked Sendable {
   @MainActor
   func loadPlayer(
     _ relativePath: String,
-    autoplay: Bool,
+    intent: PlayIntent,
     recordAsLastBook: Bool = true
   ) async throws {
     // The loader's contract is a RELATIVE PATH — every launch surface speaks paths (App
@@ -68,8 +68,8 @@ final class PlayerLoaderService: @unchecked Sendable {
        Constants.isRealUuid(libraryItem.uuid),
        libraryItem.uuid == playerManager.currentItem?.uuid
     {
-      if autoplay {
-        playerManager.play()
+      if case .wantsToPlay(let origin) = intent {
+        playerManager.play(origin: origin)
       }
       return
     }
@@ -84,7 +84,7 @@ final class PlayerLoaderService: @unchecked Sendable {
     
     let item = try self.playbackService.getPlayableItem(from: libraryItem)
     
-    playerManager.load(item, autoplay: autoplay)
+    playerManager.load(item, intent: intent)
     
     if recordAsLastBook {
       libraryService.setLibraryLastBook(with: item.relativePath)

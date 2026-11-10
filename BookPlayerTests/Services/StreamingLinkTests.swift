@@ -60,7 +60,7 @@ final class StreamingLinkTests: XCTestCase {
     libraryService.dataManager.getContext().refreshAllObjects()
 
     do {
-      try await makeLoader().loadPlayer(book.relativePath, autoplay: false)
+      try await makeLoader().loadPlayer(book.relativePath, intent: .idle)
       XCTFail("expected fileMissing")
     } catch BPPlayerError.fileMissing(let relativePath) {
       XCTAssertEqual(relativePath, book.relativePath)
@@ -78,7 +78,7 @@ final class StreamingLinkTests: XCTestCase {
     libraryService.dataManager.getContext().refreshAllObjects()
 
     do {
-      try await makeLoader().loadPlayer(book.relativePath, autoplay: false)
+      try await makeLoader().loadPlayer(book.relativePath, intent: .idle)
       XCTFail("expected the stubbed playback service to stop the load")
     } catch is LoadStopped {
       // Past the missing-file check

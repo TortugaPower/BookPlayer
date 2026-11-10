@@ -319,7 +319,7 @@ class PlayerManagerTests: XCTestCase {
       presented.fulfill()
     }
 
-    manager.loadChapterMetadata(streamedChapter(.item), autoplay: true)
+    manager.loadChapterMetadata(streamedChapter(.item), intent: .wantsToPlay(.user))
     await fulfillment(of: [presented], timeout: 5)
 
     XCTAssertEqual(failure?.reason, .streamUnavailable)
@@ -334,7 +334,7 @@ class PlayerManagerTests: XCTestCase {
     let lookup = LookupStub(answer: .sessionExpired)
     let manager = makeStreamingManager(lookup: lookup) { _ in presented.fulfill() }
 
-    manager.loadChapterMetadata(streamedChapter(.item), autoplay: false)
+    manager.loadChapterMetadata(streamedChapter(.item), intent: .idle)
     await fulfillment(of: [presented], timeout: 0.5)
 
     XCTAssertEqual(lookup.calls, 1, "the load ran")

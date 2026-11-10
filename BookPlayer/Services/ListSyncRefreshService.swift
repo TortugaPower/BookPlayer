@@ -91,7 +91,8 @@ final class ListSyncRefreshService: BPLogger, ObservableObject {
 
     try await playerLoaderService.loadPlayer(
       relativePath,
-      autoplay: wasPlaying
+      /// Keeps playing as it was: a system start, so a running sleep timer isn't restarted
+      intent: wasPlaying ? .wantsToPlay(.system) : .idle
     )
   }
 
@@ -104,7 +105,7 @@ final class ListSyncRefreshService: BPLogger, ObservableObject {
 
     try await playerLoaderService.loadPlayer(
       relativePath,
-      autoplay: false
+      intent: .idle
     )
   }
 }

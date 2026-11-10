@@ -197,7 +197,7 @@ class ActionParserService {
         self.removeAction(action)
         mainCoordinator.loadPlayer(
           bookIdentifier,
-          autoplay: true,
+          intent: .wantsToPlay(.user),
           showPlayer: true
         )
       }
@@ -260,7 +260,7 @@ class ActionParserService {
     self.removeAction(action)
     mainCoordinator.loadPlayer(
       bookIdentifier,
-      autoplay: true,
+      intent: .wantsToPlay(.user),
       showPlayer: true
     )
   }

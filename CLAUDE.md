@@ -406,6 +406,10 @@ lines). It is the highest-risk file in the app.
   `makePlayer`, `makePlayerItem` and `loadQueue` init parameters, and every test ends checking each item's `status`
   observer was added and removed in pairs. Known bugs are asserted correct inside `XCTExpectFailure`; a fix makes
   that expectation fail, so remove it in the same change.
+- **Every play says who asked for it.** `load(_:intent:)` and `loadPlayer(_:intent:)` take a `PlayIntent`
+  (`.idle` or `.wantsToPlay(.user / .system)`), and the origin is kept through the load. Only a user play arms the
+  remembered sleep timer (`handleAutoTimer`), which restarts a running countdown; a start the system makes (the next
+  book, an interruption ending, a sync reload, the CarPlay Now Playing claim) passes `.system`.
 - **AVAudioSession:** activated in `play()` (`.playback` / `.spokenAudio`); deactivated ~0.1s after `.paused`
   (delay avoids clipping). Interruption observer is **kept** on `.began` (so `.ended`+`.shouldResume` can resume)
   and removed on user pause/stop. `mediaServicesWereReset` re-applies the category and recreates the player.
@@ -664,7 +668,7 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
     volume's books share it), never ahead of time. It plays `api/items/{id}/file/{ino}` relative to the saved
     URL, token in the header. Time limits: 5 s on playback (an unreachable server falls through to the cloud
     copy), 30 s for downloads. Only a 401 is an expired session (its own `PlaybackFailure.Reason`, said only for
-    a play the user started and when no cloud copy plays the book); a 403 means this user can't open that item.
+    a play that was asked for or one under way, and when no cloud copy plays the book); a 403 means this user can't open that item.
   - **Multi-file items import as volumes** (`LibraryService.createExternalVolume`): a bound folder named after
     the title holding the link, one book per file named by its flattened path
     (`MediaServerFileNames.volumeChildFileNames`). The books have no link of their own: playback
