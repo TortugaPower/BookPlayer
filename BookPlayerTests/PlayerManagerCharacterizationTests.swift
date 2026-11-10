@@ -116,6 +116,13 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
         "item \(index) had an observer removed that was never added, which crashes in production"
       )
     }
+    for (index, player) in players.enumerated() {
+      XCTAssertEqual(
+        player.unknownTimeObserverRemovals,
+        0,
+        "player \(index) was asked to remove a time observer it never added, which raises in production"
+      )
+    }
 
     SleepTimer.shared.setTimer(.off)
     for key in touchedDefaults {
@@ -280,8 +287,10 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
     NotificationCenter.default.post(name: AVAudioSession.mediaServicesWereResetNotification, object: nil)
 
     XCTAssertEqual(players.count, 2, "the reset makes a new player")
-    XCTAssertEqual(original.removedTimeObservers, 1, "the tick leaves the old player")
+    XCTAssertFalse(original.hasTickObserver, "the tick leaves the old player")
     XCTAssertTrue(player.hasTickObserver, "and reaches the new one")
+    XCTAssertEqual(original.boundaryTimes, [], "so does the chapter end")
+    XCTAssertEqual(player.boundaryTimes, [50])
 
     sut.play()
     let reloaded = try await nextItemInPlayer(after: 1)
@@ -348,32 +357,182 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
 
   // MARK: - 11–12: the sleep timer
 
-  /// Scenario 11, in a single-file book where only the 1 s tick notices the chapter end
+  /// Scenario 11: the end-of-chapter timer pauses as playback crosses the chapter's end, parked at the
+  /// next chapter's start, so the resume begins at its first word and can't cross back (GH #1486)
   @MainActor
-  func testTheEndOfChapterTimerPausesAfterTheBoundaryAndResumeContinues() async throws {
+  func testTheEndOfChapterTimerPausesOnTheBoundaryAndResumeStartsTheNextChapter() async throws {
     UserDefaults.standard.set(true, forKey: Constants.UserDefaults.smartRewindEnabled)
     UserDefaults.standard.set(true, forKey: Constants.UserDefaults.autoTimerEnabled)
     try await loadAndPlay(singleFileBook())
     SleepTimer.shared.setTimer(.endOfChapter)
 
-    /// The first tick past the boundary, 0.3 s into chapter 2
-    player.reportedTime = 50.3
-    player.fireTick()
+    player.crossBoundary(at: 50)
 
-    XCTAssertEqual(player.pauseCalls, 1, "the timer pauses on the tick that crosses the boundary")
+    XCTAssertEqual(player.pauseCalls, 1, "the timer pauses as playback crosses the chapter's end")
     XCTAssertEqual(sut.currentItem?.currentChapter.index, 2)
     XCTAssertEqual(SleepTimer.shared.state, .off)
+    XCTAssertEqual(player.preciseSeekTargets.count, 1, "parked with a precise seek")
+    XCTAssertEqual(player.preciseSeekTargets.first ?? -1, 50.01, accuracy: 0.0001, "10 ms into the next chapter")
+    XCTAssertEqual(sut.currentItem?.currentTime ?? -1, 50.01, accuracy: 0.0001)
 
-    /// Resumed a minute later, so Smart Rewind's cap is the time spent in the chapter
+    /// Resumed a minute later: Smart Rewind has next to nothing to rewind at the chapter's start
     sut.currentItem?.lastPlayDate = Date().addingTimeInterval(-60)
+    let seeksBeforeResume = player.seekTargets.count
     sut.play()
     await waitUntil("playback resumes") { self.player.playCalls.count == 2 }
     await settle()
 
-    XCTAssertEqual(player.seekTargets.last ?? -1, 50, accuracy: 0.0001, "Smart Rewind goes back to the chapter start")
+    XCTAssertEqual(player.seekTargets.count, seeksBeforeResume, "the resume doesn't seek")
+    XCTAssertEqual(SleepTimer.shared.state, .endOfChapter, "the remembered timer is armed again")
+
+    /// Half a second into chapter 2, the tick finds it still there: no second pause
+    player.reportedTime = 50.5
+    player.fireTick()
+
     XCTAssertEqual(player.pauseCalls, 1, "resuming doesn't pause again")
     XCTAssertEqual(sut.currentItem?.currentChapter.index, 2)
-    XCTAssertEqual(SleepTimer.shared.state, .endOfChapter, "the remembered timer is armed again")
+  }
+
+  /// Scenario 11, the tick noticing a chapter's end before the crossing: it still ends the timer, a
+  /// moment late, and the crossing then leaves it alone
+  @MainActor
+  func testATickPastTheChapterEndStillEndsTheTimer() async throws {
+    try await loadAndPlay(singleFileBook())
+    SleepTimer.shared.setTimer(.endOfChapter)
+
+    player.reportedTime = 50.3
+    player.fireTick()
+
+    XCTAssertEqual(player.pauseCalls, 1, "the timer pauses on the tick")
+    XCTAssertEqual(sut.currentItem?.currentChapter.index, 2)
+    XCTAssertEqual(SleepTimer.shared.state, .off)
+
+    player.crossBoundary(at: 50)
+
+    XCTAssertEqual(player.pauseCalls, 1)
+    XCTAssertTrue(player.preciseSeekTargets.isEmpty)
+  }
+
+  /// Scenario 11 without the timer: a crossing changes nothing, and the tick moves the chapter as before
+  @MainActor
+  func testWithoutTheEndOfChapterTimerACrossingChangesNothing() async throws {
+    try await loadAndPlay(singleFileBook())
+
+    player.crossBoundary(at: 50)
+
+    XCTAssertEqual(player.pauseCalls, 0)
+    XCTAssertTrue(player.preciseSeekTargets.isEmpty)
+    XCTAssertEqual(sut.currentItem?.currentChapter.index, 1)
+
+    player.fireTick()
+
+    XCTAssertEqual(sut.currentItem?.currentChapter.index, 2)
+  }
+
+  /// The chapter ends observed are those inside the file in the player, but its last
+  @MainActor
+  func testTheChapterEndsOfTheFileInThePlayerAreObserved() async throws {
+    _ = try await loadUntilInPlayer(singleFileBook(), intent: .idle)
+    XCTAssertEqual(player.boundaryTimes, [50])
+
+    /// A volume of one-chapter files: each ends with its file
+    _ = try await loadUntilInPlayer(boundBook(), intent: .idle)
+    XCTAssertEqual(player.boundaryTimes, [])
+  }
+
+  /// Scenario 11 inside a volume's file that holds two chapters: its times count from the file's start
+  @MainActor
+  func testTheEndOfChapterTimerParksInsideAVolumesFile() async throws {
+    try await loadAndPlay(nestedVolume(currentTime: 60))
+    XCTAssertEqual(player.boundaryTimes, [30], "chapter 2 ends 30 s into the second file, at 80 s in the book")
+    SleepTimer.shared.setTimer(.endOfChapter)
+
+    player.crossBoundary(at: 30)
+
+    XCTAssertEqual(player.pauseCalls, 1)
+    XCTAssertEqual(sut.currentItem?.currentChapter.index, 3)
+    XCTAssertEqual(player.preciseSeekTargets.first ?? -1, 30.01, accuracy: 0.0001, "chapter 3 starts 30 s into that file")
+    XCTAssertEqual(sut.currentItem?.currentTime ?? -1, 80.01, accuracy: 0.0001)
+  }
+
+  /// Scenario 11 on chapter times that don't add up exactly: the ended chapter's `start + duration` rounds
+  /// past the next one's start, and a book reopened from the saved time must still be in the next chapter
+  @MainActor
+  func testAParkedPositionReopensInTheNextChapter() async throws {
+    XCTAssertGreaterThan(600.003 + 1234.567, 1834.57, "the rounding this guards against")
+    let tied = book(
+      "tied.m4b",
+      chapters: [
+        chapter(1, start: 0, duration: 600.003, relativePath: "tied.m4b"),
+        chapter(2, start: 600.003, duration: 1234.567, relativePath: "tied.m4b"),
+        chapter(3, start: 1834.57, duration: 100, relativePath: "tied.m4b"),
+      ],
+      currentTime: 700
+    )
+    try await loadAndPlay(tied)
+    SleepTimer.shared.setTimer(.endOfChapter)
+
+    player.crossBoundary(at: 600.003 + 1234.567)
+
+    let saved = try XCTUnwrap(sut.currentItem?.currentTime)
+    XCTAssertEqual(book("tied.m4b", chapters: tied.chapters, currentTime: saved).currentChapter.index, 3)
+  }
+
+  /// Scenario 11, Smart Rewind back to a chapter's start: AVPlayer reports the chapter before it ending as
+  /// playback starts there, which mustn't end the re-armed timer
+  @MainActor
+  func testResumingFromAChaptersStartDoesNotEndTheTimer() async throws {
+    UserDefaults.standard.set(true, forKey: Constants.UserDefaults.smartRewindEnabled)
+    rememberEndOfChapterTimer()
+    let item = try await loadUntilInPlayer(singleFileBook(currentTime: 55), intent: .idle)
+    item.become(.readyToPlay)
+    await settle()
+    /// Paused 5 s into chapter 2 a day ago: Smart Rewind goes back to its start
+    sut.currentItem?.lastPlayDate = Date().addingTimeInterval(-86_400)
+
+    sut.play()
+    await waitUntil("playback resumes") { !self.player.playCalls.isEmpty }
+    await settle()
+
+    XCTAssertEqual(player.seekTargets.last ?? -1, 50, accuracy: 0.0001, "rewound to chapter 2's start")
+    XCTAssertEqual(player.pauseCalls, 0, "starting on chapter 1's end doesn't pause")
+    XCTAssertEqual(SleepTimer.shared.state, .endOfChapter)
+  }
+
+  /// Chapters re-parsed while the book is loaded: their ends replace the old ones
+  @MainActor
+  func testReloadedChaptersAreObservedAtTheirEnds() async throws {
+    _ = try await loadUntilInPlayer(singleFileBook(), intent: .idle)
+    XCTAssertEqual(player.boundaryTimes, [50])
+    libraryService.getSimpleItemWithReturnValue = SimpleLibraryItem(
+      title: "book.m4b",
+      details: "author",
+      speed: 1,
+      currentTime: 0,
+      duration: 100,
+      percentCompleted: 0,
+      isFinished: false,
+      relativePath: "book.m4b",
+      remoteURL: nil,
+      artworkURL: nil,
+      orderRank: 0,
+      parentFolder: nil,
+      originalFileName: "book.m4b",
+      lastPlayDate: nil,
+      type: .book,
+      uuid: "LEGACY_UUID"
+    )
+    playbackService.getPlayableItemFromReturnValue = book(
+      "book.m4b",
+      chapters: [
+        chapter(1, start: 0, duration: 40, relativePath: "book.m4b"),
+        chapter(2, start: 40, duration: 60, relativePath: "book.m4b"),
+      ]
+    )
+
+    sut.reloadCurrentItem()
+
+    XCTAssertEqual(player.boundaryTimes, [40])
   }
 
   /// Scenario 12, a play the user starts
@@ -505,7 +664,8 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
     start: TimeInterval,
     duration: TimeInterval,
     relativePath: String,
-    externalURL: URL? = nil
+    externalURL: URL? = nil,
+    chapterOffset: TimeInterval = 0
   ) -> PlayableChapter {
     PlayableChapter(
       title: "chapter \(index)",
@@ -515,7 +675,8 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
       relativePath: relativePath,
       remoteURL: nil,
       externalURL: externalURL,
-      index: index
+      index: index,
+      chapterOffset: chapterOffset
     )
   }
 
@@ -560,6 +721,20 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
       chapters: [
         chapter(1, start: 0, duration: 50, relativePath: "volume/1.mp3"),
         chapter(2, start: 50, duration: 50, relativePath: "volume/2.mp3"),
+      ],
+      currentTime: currentTime,
+      isBoundBook: true
+    )
+  }
+
+  /// A volume: a one-chapter file, 0–50 s, then a file holding two chapters, 50–80 s and 80–100 s
+  private func nestedVolume(currentTime: TimeInterval = 0) -> PlayableItem {
+    book(
+      "nested",
+      chapters: [
+        chapter(1, start: 0, duration: 50, relativePath: "nested/1.mp3"),
+        chapter(2, start: 50, duration: 30, relativePath: "nested/2.m4b"),
+        chapter(3, start: 80, duration: 20, relativePath: "nested/2.m4b", chapterOffset: 30),
       ],
       currentTime: currentTime,
       isBoundBook: true

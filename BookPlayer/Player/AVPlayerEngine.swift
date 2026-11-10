@@ -18,12 +18,17 @@ final class AVPlayerEngine: PlaybackEngine {
   private var statusSubscription: AnyCancellable?
 
   /// What callers registered, so a rebuild can add it to the new player
-  private struct PeriodicObserver {
-    let interval: TimeInterval
-    let block: @Sendable () -> Void
+  private struct TimeObserver {
+    enum Kind {
+      case periodic(TimeInterval, @Sendable () -> Void)
+      /// One per time, so the block knows which one was crossed
+      case boundary(TimeInterval, @Sendable (TimeInterval) -> Void)
+    }
+
+    let kind: Kind
     var token: Any
   }
-  private var periodicObservers: [UUID: PeriodicObserver] = [:]
+  private var timeObservers: [UUID: TimeObserver] = [:]
 
   init(makePlayer: @escaping () -> AVPlayer = { AVPlayer() }) {
     self.makePlayer = makePlayer
@@ -74,22 +79,25 @@ final class AVPlayerEngine: PlaybackEngine {
     player.pause()
   }
 
-  func seek(to time: TimeInterval, completion: @escaping @Sendable (Bool) -> Void) {
-    player.seek(to: CMTime(seconds: time, preferredTimescale: CMTimeScale(NSEC_PER_SEC)), completionHandler: completion)
+  func seek(to time: TimeInterval, precisely: Bool, completion: @escaping @Sendable (Bool) -> Void) {
+    let target = CMTime(seconds: time, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
+
+    if precisely {
+      player.seek(to: target, toleranceBefore: .zero, toleranceAfter: .zero, completionHandler: completion)
+    } else {
+      player.seek(to: target, completionHandler: completion)
+    }
   }
 
   func addPeriodicObserver(every interval: TimeInterval, _ block: @escaping @Sendable () -> Void) -> EngineObservation {
-    let id = UUID()
-    periodicObservers[id] = PeriodicObserver(
-      interval: interval,
-      block: block,
-      token: addPeriodicTimeObserver(to: player, every: interval, block)
-    )
+    observe([.periodic(interval, block)])
+  }
 
-    return EngineObservation { [weak self] in
-      guard let self, let observer = self.periodicObservers.removeValue(forKey: id) else { return }
-      self.player.removeTimeObserver(observer.token)
-    }
+  func addBoundaryObserver(
+    at times: [TimeInterval],
+    _ block: @escaping @Sendable (TimeInterval) -> Void
+  ) -> EngineObservation {
+    observe(times.map { .boundary($0, block) })
   }
 
   func fadeVolume(from: Float, to: Float, duration: Float) -> Timer? {
@@ -101,15 +109,15 @@ final class AVPlayerEngine: PlaybackEngine {
   }
 
   func rebuild() {
-    for observer in periodicObservers.values {
+    for observer in timeObservers.values {
       player.removeTimeObserver(observer.token)
     }
 
     player = makePlayer()
     configure(player)
 
-    for (id, observer) in periodicObservers {
-      periodicObservers[id]?.token = addPeriodicTimeObserver(to: player, every: observer.interval, observer.block)
+    for (id, observer) in timeObservers {
+      timeObservers[id]?.token = add(observer.kind, to: player)
     }
   }
 
@@ -123,17 +131,39 @@ final class AVPlayerEngine: PlaybackEngine {
       }
   }
 
-  private func addPeriodicTimeObserver(
-    to player: AVPlayer,
-    every interval: TimeInterval,
-    _ block: @escaping @Sendable () -> Void
-  ) -> Any {
-    player.addPeriodicTimeObserver(
-      forInterval: CMTime(seconds: interval, preferredTimescale: CMTimeScale(NSEC_PER_SEC)),
-      queue: DispatchQueue.main
-    ) { _ in
-      block()
+  /// Registers `kinds` on the current player, behind one token that removes them all
+  private func observe(_ kinds: [TimeObserver.Kind]) -> EngineObservation {
+    let ids = kinds.map { kind in
+      let id = UUID()
+      timeObservers[id] = TimeObserver(kind: kind, token: add(kind, to: player))
+      return id
     }
+
+    return EngineObservation { [weak self] in
+      guard let self else { return }
+
+      for id in ids {
+        guard let observer = self.timeObservers.removeValue(forKey: id) else { continue }
+        self.player.removeTimeObserver(observer.token)
+      }
+    }
+  }
+
+  private func add(_ kind: TimeObserver.Kind, to player: AVPlayer) -> Any {
+    switch kind {
+    case .periodic(let interval, let block):
+      return player.addPeriodicTimeObserver(forInterval: Self.cmTime(interval), queue: DispatchQueue.main) { _ in
+        block()
+      }
+    case .boundary(let time, let block):
+      return player.addBoundaryTimeObserver(forTimes: [NSValue(time: Self.cmTime(time))], queue: DispatchQueue.main) {
+        block(time)
+      }
+    }
+  }
+
+  private static func cmTime(_ seconds: TimeInterval) -> CMTime {
+    CMTime(seconds: seconds, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
   }
 
   private static func status(of timeControlStatus: AVPlayer.TimeControlStatus) -> EngineStatus {

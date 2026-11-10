@@ -44,6 +44,8 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   private var nowPlayingClaimSubscription: AnyCancellable?
   /// The 1 s tick, which the engine keeps across rebuilds
   private var tickObservation: EngineObservation?
+  /// The chapter ends inside the file in the player, which the engine reports as playback crosses them
+  private var chapterBoundaryObservation: EngineObservation?
   private var disposeBag = Set<AnyCancellable>()
   /// Whether playback should start once the item can play, and who asked for it
   @Published private var playIntent: PlayIntent = .idle
@@ -710,6 +712,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
         self.isFetchingRemoteURL = nil
 
         self.engine.replaceItem(playerItem)
+        self.observeChapterEnds(inFileOf: chapter)
         self.clockState = .trusting(0)
 
         self.currentSpeed = self.speedService.getSpeed(relativePath: chapter.relativePath)
@@ -817,12 +820,12 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   /// Every seek of ours goes through here. Readings before it lands are the position it's leaving:
   /// accepting one would make the landing look like the player moved on its own, and the clock
   /// recovery would undo the seek (GH #1641)
-  private func seekPlayer(to time: TimeInterval, recoveries: Int = 0) {
+  private func seekPlayer(to time: TimeInterval, recoveries: Int = 0, precisely: Bool = false) {
     clockState = .seeking(target: time, recoveries: recoveries)
     latestSeek += 1
     let seek = latestSeek
 
-    engine.seek(to: time) { [weak self] _ in
+    engine.seek(to: time, precisely: precisely) { [weak self] _ in
       DispatchQueue.main.async {
         /// Unless a newer seek took over, or the item it was for is gone
         guard
@@ -1091,6 +1094,10 @@ extension PlayerManager {
     }
     currentItem = updatedItem
     bindPlayableChapterSubscription(to: updatedItem, dropInitialReplay: true)
+    /// The re-parsed chapters end elsewhere in the file playing
+    if playerItemRelativePath == updatedItem.currentChapter.relativePath {
+      observeChapterEnds(inFileOf: updatedItem.currentChapter)
+    }
   }
 
   func initializeChapterTime(_ time: Double) {
@@ -1098,11 +1105,62 @@ extension PlayerManager {
 
     let boundedTime = min(max(time, 0), currentItem.duration)
 
-    let newTime =
-      currentItem.isBoundBook
-      ? currentItem.getChapterTime(in: currentItem.currentChapter, for: boundedTime)
-      : boundedTime
-    seekPlayer(to: newTime)
+    seekPlayer(to: fileTime(boundedTime, in: currentItem.currentChapter, of: currentItem))
+  }
+
+  /// Where `time` in the book falls in `chapter`'s file: a volume's files each start at 0
+  private func fileTime(_ time: TimeInterval, in chapter: PlayableChapter, of item: PlayableItem) -> TimeInterval {
+    item.isBoundBook ? item.getChapterTime(in: chapter, for: time) : time
+  }
+
+  /// Watches the ends of the chapters in `chapter`'s file, which just reached the player. Its last one
+  /// is left out: the file ends there, and `playerDidFinishPlaying` takes it
+  private func observeChapterEnds(inFileOf chapter: PlayableChapter) {
+    chapterBoundaryObservation = nil
+
+    guard let currentItem else { return }
+
+    let chaptersInFile = currentItem.chapters.filter { $0.relativePath == chapter.relativePath }
+    var endingAt = [TimeInterval: PlayableChapter]()
+    for ending in chaptersInFile.dropLast() {
+      endingAt[fileTime(ending.end, in: ending, of: currentItem)] = ending
+    }
+
+    guard !endingAt.isEmpty else { return }
+
+    chapterBoundaryObservation = engine.addBoundaryObserver(at: Array(endingAt.keys)) { [weak self] time in
+      guard let ended = endingAt[time] else { return }
+      self?.handleChapterEnd(ended)
+    }
+  }
+
+  /// How far into the next chapter an end-of-chapter pause parks. Exactly on its start is a tie: the
+  /// ended chapter's `start + duration` can round past it, so a book rebuilt from the saved time reopens
+  /// in the chapter that ended, and a precise seek reads back up to 1 ns early (measured on AAC, MP3,
+  /// FLAC, WAV and Opus files). 10 ms clears both and is shorter than any speech sound
+  private static let chapterParkLead: TimeInterval = 0.01
+
+  /// With the end-of-chapter timer on, park playback at the next chapter's start as the timer pauses: the
+  /// resume then begins at its first word, and Smart Rewind has nothing to rewind into the chapter that
+  /// ended (GH #1486)
+  private func handleChapterEnd(_ ended: PlayableChapter) {
+    guard
+      SleepTimer.shared.state == .endOfChapter,
+      let currentItem,
+      /// AVPlayer reports a crossing when playback starts exactly on a boundary, as after Smart Rewind
+      /// back to a chapter's start: only the chapter still playing can end, and re-setting
+      /// `currentChapter` would end the re-armed timer at once (the GH #1486 loop)
+      currentItem.currentChapter == ended,
+      let next = currentItem.nextChapter(after: ended)
+    else { return }
+
+    let parked = next.start + Self.chapterParkLead
+    updatePlaybackTime(item: currentItem, time: parked)
+    /// Its sink posts `.chapterChange`: the timer ends and pauses, in this same turn
+    currentItem.currentChapter = next
+    /// A default seek can land a few milliseconds early, back inside the chapter that ended, and the
+    /// resume would cross its end again
+    seekPlayer(to: fileTime(parked, in: next, of: currentItem), precisely: true)
   }
 
   func jumpTo(_ time: Double, recordBookmark: Bool = true) {
@@ -1479,6 +1537,9 @@ extension PlayerManager {
       // ...but don't rewind past the beginning of the chapter, or more than the amount of time passed
       let timeInChapter = item.currentTime - item.currentChapter.start
       let rewindTimeLimited = min(rewindTimeMin, timeInChapter, timePassed)
+
+      /// Too little to be worth a seek, as where an end-of-chapter pause parks, 10 ms into the chapter
+      guard rewindTimeLimited >= 0.1 else { return }
 
       /// Rewind from where we know playback is, not the raw player clock (see `PlayerTimeSample`)
       let playerTime = clockState.expectedTime ?? self.engine.currentTime
