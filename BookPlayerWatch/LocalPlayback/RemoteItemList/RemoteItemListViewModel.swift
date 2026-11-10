@@ -143,7 +143,8 @@ final class RemoteItemListViewModel: ObservableObject {
 
     try await coreServices.playerLoaderService.loadPlayer(
       relativePath,
-      autoplay: wasPlaying
+      /// Keeps playing as it was: a system start, so a running sleep timer isn't restarted
+      intent: wasPlaying ? .wantsToPlay(.system) : .idle
     )
   }
 
@@ -156,7 +157,7 @@ final class RemoteItemListViewModel: ObservableObject {
 
     try await coreServices.playerLoaderService.loadPlayer(
       relativePath,
-      autoplay: false
+      intent: .idle
     )
   }
 }

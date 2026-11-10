@@ -261,6 +261,11 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     self.playerItem?.audioTimePitchAlgorithm = .timeDomain
   }
 
+  /// The watch doesn't tell who asked for a play yet; the shared player core will
+  func load(_ item: PlayableItem, intent: PlayIntent) {
+    load(item, autoplay: intent != .idle)
+  }
+
   func load(_ item: PlayableItem, autoplay: Bool) {
     Task { @MainActor in
       load(item, autoplay: autoplay, forceRefreshURL: false)
@@ -846,6 +851,10 @@ extension PlayerManager {
 
   func play() {
     play(autoPlayed: false)
+  }
+
+  func play(origin: PlayOrigin) {
+    play(autoPlayed: origin == .system)
   }
 
   func play(autoPlayed: Bool) {

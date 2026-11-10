@@ -291,7 +291,7 @@ final class AppServices: BPLogger {
     )
 
     do {
-      try await playerLoaderService.loadPlayer(relativePath, autoplay: true)
+      try await playerLoaderService.loadPlayer(relativePath, intent: .wantsToPlay(.user))
     } catch {
       UserDefaults.sharedDefaults.removeObject(
         forKey: Constants.UserDefaults.sharedWidgetNowPlayingPath

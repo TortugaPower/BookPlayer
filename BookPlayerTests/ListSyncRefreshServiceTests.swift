@@ -63,7 +63,7 @@ final class ListSyncRefreshServiceTests: XCTestCase {
     sut = ListSyncRefreshService(
       playerManager: PlayerManagerProtocolMock(),
       syncService: syncService,
-      // Never reached: the loader only runs on the two last-book errors, which no test throws.
+      // Never reached: the loader only runs on the two last-book errors; the test that throws one makes its own.
       playerLoaderService: PlayerLoaderService(),
       preferencesService: preferencesService,
       chapterRefreshService: ChapterRefreshStub(recorder: recorder)
@@ -107,6 +107,49 @@ final class ListSyncRefreshServiceTests: XCTestCase {
 
     await fulfillment(of: [asked], timeout: 1)
     XCTAssertEqual(recorder.events.first, "cloud:root")
+  }
+
+  /// The book that's playing changed on another device: it reloads and keeps playing as a system
+  /// start, since a user one would restart a running sleep timer at every such sync
+  @MainActor
+  func testReloadingThePlayingBookKeepsItPlayingAsASystemStart() async throws {
+    DataTestUtils.clearFolderContents(url: DataManager.getProcessedFolderURL())
+    let libraryService = LibraryService()
+    libraryService.setup(
+      dataManager: DataManager(coreDataStack: CoreDataStack(testPath: "/dev/null")),
+      audioMetadataService: AudioMetadataService()
+    )
+    _ = libraryService.getLibrary()
+    let book = StubFactory.book(dataManager: libraryService.dataManager, title: "playing", duration: 100)
+    libraryService.getLibraryReference().addToItems(book)
+    libraryService.dataManager.saveContext()
+
+    let playerManager = PlayerManagerProtocolMock()
+    playerManager.isPlaying = true
+    playerManager.hasLoadedBookReturnValue = false
+    let playbackService = PlaybackServiceProtocolMock()
+    playbackService.getPlayableItemFromReturnValue = .mock
+    let loader = PlayerLoaderService()
+    // Never set up: sync is off, and the book's file is on disk
+    loader.setup(
+      syncService: SyncService(),
+      libraryService: libraryService,
+      playbackService: playbackService,
+      playerManager: playerManager
+    )
+    syncService.syncListContentsAtThrowableError = BPSyncError.reloadLastBook(book.relativePath)
+    sut = ListSyncRefreshService(
+      playerManager: playerManager,
+      syncService: syncService,
+      playerLoaderService: loader,
+      preferencesService: preferencesService,
+      chapterRefreshService: ChapterRefreshStub(recorder: recorder)
+    )
+
+    try await sut.syncList(at: "Author/Series")
+
+    XCTAssertEqual(playerManager.stopCallsCount, 1)
+    XCTAssertEqual(playerManager.loadIntentReceivedArguments?.intent, .wantsToPlay(.system))
   }
 
   func testFolderRefresh_neverAsksForThePass() async throws {

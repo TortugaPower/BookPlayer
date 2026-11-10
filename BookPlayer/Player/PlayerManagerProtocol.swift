@@ -13,6 +13,19 @@
 #endif
 import Combine
 import Foundation
+
+/// Who asked for playback. Only a play the user asked for arms the remembered sleep timer
+public enum PlayOrigin: Equatable {
+  case user
+  case system
+}
+
+/// Whether the player should be playing once its item can, and who asked for it
+public enum PlayIntent: Equatable {
+  case idle
+  case wantsToPlay(PlayOrigin)
+}
+
 /// sourcery: AutoMockable
 public protocol PlayerManagerProtocol: AnyObject {
   var currentItem: PlayableItem? { get set }
@@ -20,13 +33,16 @@ public protocol PlayerManagerProtocol: AnyObject {
   var isPlaying: Bool { get }
   var syncProgressDelegate: PlaybackSyncProgressDelegate? { get set }
 
-  func load(_ item: PlayableItem, autoplay: Bool)
+  /// Loads `item`, and plays it once it's ready when `intent` wants to
+  func load(_ item: PlayableItem, intent: PlayIntent)
   func awaitCurrentLoad() async
   func hasLoadedBook() -> Bool
 
   func playPreviousItem()
   func playNextItem(autoPlayed: Bool, shouldAutoplay: Bool)
+  /// A play the user asked for
   func play()
+  func play(origin: PlayOrigin)
   func playPause()
   func pause()
   func stop()

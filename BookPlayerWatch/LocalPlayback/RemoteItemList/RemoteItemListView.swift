@@ -38,7 +38,7 @@ struct RemoteItemListView: View {
               Task {
                 do {
                   isLoading = true
-                  try await model.coreServices.playerLoaderService.loadPlayer(lastPlayedItem.relativePath, autoplay: true)
+                  try await model.coreServices.playerLoaderService.loadPlayer(lastPlayedItem.relativePath, intent: .wantsToPlay(.user))
                   showPlayer = true
                   isLoading = false
                 } catch {
@@ -81,7 +81,7 @@ struct RemoteItemListView: View {
               Task {
                 do {
                   isLoading = true
-                  try await model.coreServices.playerLoaderService.loadPlayer(item.relativePath, autoplay: true)
+                  try await model.coreServices.playerLoaderService.loadPlayer(item.relativePath, intent: .wantsToPlay(.user))
                   showPlayer = true
                   isLoading = false
                 } catch {
