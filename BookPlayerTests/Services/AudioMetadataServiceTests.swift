@@ -145,6 +145,16 @@ final class AudioMetadataServiceTests: XCTestCase {
     XCTAssertNil(truncated)
   }
 
+  /// The estimate comes from AVFoundation's heuristic, not our code; skip rather than fail
+  /// if a runtime starts estimating this fixture correctly
+  private func skipUnlessEstimateOvershoots(_ url: URL, past duration: Double) async throws {
+    let estimate = try await estimatedDuration(of: url)
+    try XCTSkipIf(
+      estimate < duration + SyncService.durationTolerance(for: duration),
+      "This runtime estimates the fixture at \(estimate)s, no longer overshooting \(duration)s"
+    )
+  }
+
   func testTruncatedDuration_completeFile_estimatedSyncedDuration_accepts() async throws {
     let url = try fixtureURL("opus_VBR", "opus")
     let estimate = try await estimatedDuration(of: url)
@@ -161,6 +171,7 @@ final class AudioMetadataServiceTests: XCTestCase {
   func testTruncatedDuration_syncedDurationBetweenPreciseAndEstimate_accepts() async throws {
     // e.g. a media server's own measurement of the same complete file
     let url = try fixtureURL("opus_VBR", "opus")
+    try await skipUnlessEstimateOvershoots(url, past: 75)
     let truncated = try await SyncService.truncatedDuration(of: url, expectedDuration: 75)
     XCTAssertNil(truncated)
   }

@@ -1217,10 +1217,10 @@ extension SyncService {
   /// requesting precise timing), AVFoundation's quick estimate (older versions), or another
   /// client's or media server's own measurement, and for VBR files these can differ by far
   /// more than the tolerance (88.8s estimated for a 60s Opus file). So the file is rejected
-  /// only when both the precise and the estimated reading are short. This can let a slightly
-  /// truncated VBR file through when its estimate overshoots, but rejecting deletes the file,
-  /// and a complete download deleted on every retry is worse; the `Content-Length` check in
-  /// `BPTaskDownloadDelegate` remains the primary guard against truncation.
+  /// only when both the precise and the estimated reading are short. That accepts truncation
+  /// up to roughly how far the estimate overshoots (about a third of that Opus file), but
+  /// rejecting deletes the file, and a complete download deleted on every retry is worse.
+  /// The `Content-Length` check in `BPTaskDownloadDelegate` is the guard for anything finer.
   static func truncatedDuration(of fileURL: URL, expectedDuration: Double) async throws -> Double? {
     let tolerance = durationTolerance(for: expectedDuration)
 
