@@ -159,7 +159,8 @@ final class VideoSurfaceUIView: UIView {
 }
 
 struct VideoPlayerSurface: UIViewRepresentable {
-  let player: AVPlayer
+  /// Nil for a playback engine without an `AVPlayer`
+  let player: AVPlayer?
   var showsBlurredBackground = true
   var hostsPictureInPicture = false
 

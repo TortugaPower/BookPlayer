@@ -83,11 +83,11 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
       widgetReloadService: WidgetReloadService(),
       hasStreamingEnabled: { true },
       presentFailure: { [unowned self] in self.failures.append($0) },
-      makePlayer: { [unowned self] in
+      engine: AVPlayerEngine(makePlayer: { [unowned self] in
         let player = ControlledPlayer()
         self.players.append(player)
         return player
-      },
+      }),
       makePlayerItem: { [unowned self] asset in
         let item = ControlledPlayerItem(asset: asset)
         self.items.append(item)
@@ -268,25 +268,51 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
     await waitUntil("playback resumes") { self.player.playCalls.count == 2 }
   }
 
-  /// Scenario 9
+  /// Scenario 9: the reset makes a new player, and the next play loads the book into it where it was
   @MainActor
   func testPlayAfterAMediaServicesResetReachesAPlayerWithTheItem() async throws {
-    try await loadAndPlay(singleFileBook())
+    try await loadAndPlay(singleFileBook(currentTime: 30))
     let original = player
+    var playing: [Bool] = []
+    let subscription = sut.isPlayingPublisher().sink { playing.append($0) }
+    defer { subscription.cancel() }
 
     NotificationCenter.default.post(name: AVAudioSession.mediaServicesWereResetNotification, object: nil)
 
     XCTAssertEqual(players.count, 2, "the reset makes a new player")
     XCTAssertEqual(original.removedTimeObservers, 1, "the tick leaves the old player")
+    XCTAssertTrue(player.hasTickObserver, "and reaches the new one")
 
     sut.play()
-    await waitUntil("play reaches the new player") { !self.player.playCalls.isEmpty }
+    let reloaded = try await nextItemInPlayer(after: 1)
+    XCTAssertTrue(player.playCalls.isEmpty, "nothing plays before the reloaded item is ready")
 
-    XCTExpectFailure(
-      "Bug: the new player never gets the item, which PlayerManager still holds as ready, so play() starts an empty player. Fixed by PR 3 (PlayerHandle)."
-    ) {
-      XCTAssertNotNil(player.currentItem, "the new player has the item when playback starts")
-    }
+    reloaded.become(.readyToPlay)
+    await waitUntil("playback starts on the new player") { !self.player.playCalls.isEmpty }
+
+    XCTAssertTrue(player.currentItem === reloaded, "the new player has the item when playback starts")
+    XCTAssertEqual(player.seekTargets, [30], "at the position it was at")
+    await settle()
+    XCTAssertEqual(playing.last, true, "a subscriber made before the reset follows the new player")
+  }
+
+  /// Scenario 9, a reset while the last book still loads silently: its observer goes with the old item
+  @MainActor
+  func testAResetDuringASilentLoadReloadsTheBookOnPlay() async throws {
+    let first = try await loadUntilInPlayer(singleFileBook(currentTime: 30), intent: .idle)
+    XCTAssertTrue(first.isStatusObserved)
+
+    NotificationCenter.default.post(name: AVAudioSession.mediaServicesWereResetNotification, object: nil)
+
+    XCTAssertFalse(first.isStatusObserved, "the reset removes the observer from the old item")
+
+    sut.play()
+    let reloaded = try await nextItemInPlayer(after: 1)
+    reloaded.become(.readyToPlay)
+    await waitUntil("playback starts on the new player") { !self.player.playCalls.isEmpty }
+
+    XCTAssertTrue(player.currentItem === reloaded)
+    XCTAssertEqual(player.seekTargets, [30])
   }
 
   // MARK: - 10: the end of a file

@@ -125,6 +125,8 @@ final class ControlledPlayer: AVPlayer {
     tick = nil
   }
 
+  var hasTickObserver: Bool { tick != nil }
+
   /// Runs the periodic observer once, as the 1 s tick would, at `reportedTime`
   func fireTick() {
     tick?(currentTime())

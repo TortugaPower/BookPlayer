@@ -382,20 +382,23 @@ CarPlay event bus. Declared in `Shared/Extensions/Notification+BookPlayerKit.swi
 `PlayerManager.swift` is `final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject` (~1500
 lines). It is the highest-risk file in the app.
 
-- **Exactly one `AVPlayer` at a time** (`var audioPlayer`). It is **recreated** via `setupPlayerInstance()` on
-  `mediaServicesWereReset` and on `.failed` status. Recreation must re-add the 1-second periodic time observer
-  (removed first, or it leaks onto an orphaned player) and re-bind the time-control passthrough.
+- **Only the engine and the video surfaces touch `AVPlayer`.** `PlayerManager` drives playback through
+  `PlaybackEngine` (`AVPlayerEngine`): play, pause, rate, seeks, the clock, volume, the periodic time observer and
+  the status publisher. The engine makes **exactly one `AVPlayer` at a time** and replaces it with `rebuild()` on
+  `mediaServicesWereReset` and on `.failed`; it moves its time observers to the new player and keeps
+  `statusPublisher` the same, so subscribers survive. After a reset `PlayerManager` also drops the loaded item, which
+  the new player doesn't have, so the next play loads it again. Video gets the player from `getAVPlayer()`
+  (`engine.videoPlayer`) and re-attaches on view updates. Items stay in `PlayerManager` until rework PR 5 moves them
+  behind the engine (`engine.load(_ source:)`).
 - **Named single-purpose cancellables**, each `.cancel()`'d before rebind (distinct from the multi-sink
-  `disposeBag`): `timeControlSubscription` (bridges the recreatable player's `timeControlStatus` into a stable
-  `CurrentValueSubject` so `isPlaying` observers survive recreation), `playableChapterSubscription`,
-  `isPlayingSubscription`, `nowPlayingClaimSubscription`. Match this pattern; don't convert a named rebind-able
-  subscription into a `disposeBag` entry.
+  `disposeBag`): `playableChapterSubscription`, `isPlayingSubscription`, `nowPlayingClaimSubscription`. Match this
+  pattern; don't convert a named rebind-able subscription into a `disposeBag` entry.
 - **Invariant — every `currentItem` reassignment must be followed by `bindPlayableChapterSubscription`** (3 call
   sites: `load`, `loadRemoteURLAsset`, `reloadCurrentItem`). Missing it silently breaks the end-of-chapter sleep
   timer and the Now Playing chapter title (the `.chapterChange` notification is posted from that sink).
 - **KVO on `AVPlayerItem.status`** is balanced via `observeStatus` didSet + a `hasObserverRegistered` guard;
   nulling the player item resets the guard. An imbalance crashes on `removeObserver`.
-- **Invariant — every `PlayerManager` seek goes through `seekPlayer(to:recoveries:)`**, never `audioPlayer.seek`
+- **Invariant — every `PlayerManager` seek goes through `seekPlayer(to:recoveries:)`**, never `engine.seek`
   directly. Until the latest seek completes, `clockState` is `.seeking` and `updateTime()` drops readings, which
   are still the position being left. Recording one makes a landing near the file start look like the iOS 27
   snap-back (`PlayerTimeSample`), and the clock recovery seeks back over it (GH #1641). The completion then runs
@@ -403,7 +406,7 @@ lines). It is the highest-risk file in the app.
   player screen and Now Playing keep the old position.
 - **Characterization tests pin load and playback** (`PlayerManagerCharacterizationTests`). They inject
   `ControlledPlayer` / `ControlledPlayerItem` (`BookPlayerTests/Support/PlayerTestDoubles.swift`) through the
-  `makePlayer`, `makePlayerItem` and `loadQueue` init parameters, and every test ends checking each item's `status`
+  `engine` (an `AVPlayerEngine(makePlayer:)`), `makePlayerItem` and `loadQueue` init parameters, and every test ends checking each item's `status`
   observer was added and removed in pairs. Known bugs are asserted correct inside `XCTExpectFailure`; a fix makes
   that expectation fail, so remove it in the same change.
 - **Every play says who asked for it.** `load(_:intent:)` and `loadPlayer(_:intent:)` take a `PlayIntent`
