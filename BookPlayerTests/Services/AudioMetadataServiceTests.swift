@@ -93,4 +93,50 @@ final class AudioMetadataServiceTests: XCTestCase {
     let chapters = await sut.extractManualChapters(from: url)
     XCTAssertNil(chapters)
   }
+
+  // MARK: - Duration of VBR files
+  //
+  // Both fixtures are 30s of silence then 30s of noise, so the bitrate of the first frames
+  // says little about the rest. Without precise timing AVFoundation estimates 67.6s for
+  // the MP3 and 88.8s for the Opus file. Generated with:
+  //   ffmpeg -f lavfi -i "anullsrc=r=44100:cl=mono:d=30" -f lavfi -i "anoisesrc=r=44100:d=30:a=0.5:seed=1" \
+  //     -filter_complex "[0][1]concat=n=2:v=0:a=1" -map_metadata -1 -fflags +bitexact \
+  //     -c:a libmp3lame -q:a 9 -write_xing 0 mp3_VBR_NO_xing.mp3
+  //   (same with r=48000 and -c:a libopus -b:a 32k -vbr on opus_VBR.opus)
+
+  func testExtractMetadata_vbrMP3WithoutXingHeader_returnsPreciseDuration() async throws {
+    let url = try fixtureURL("mp3_VBR_NO_xing", "mp3")
+    let extracted = await sut.extractMetadata(from: url)
+    let metadata = try XCTUnwrap(extracted)
+    XCTAssertEqual(metadata.duration, 60, accuracy: 0.5)
+  }
+
+  func testExtractMetadata_vbrOpus_returnsPreciseDuration() async throws {
+    let url = try fixtureURL("opus_VBR", "opus")
+    let extracted = await sut.extractMetadata(from: url)
+    let metadata = try XCTUnwrap(extracted)
+    XCTAssertEqual(metadata.duration, 60, accuracy: 0.5)
+  }
+
+  // MARK: - Download verification against estimated or precise synced durations
+
+  func testVerifiedDuration_acceptsPreciseSyncedDuration() async throws {
+    let url = try fixtureURL("opus_VBR", "opus")
+    let duration = try await SyncService.verifiedDuration(of: url, expectedDuration: 60)
+    XCTAssertFalse(SyncService.isDurationShort(duration, expected: 60))
+  }
+
+  func testVerifiedDuration_acceptsEstimatedSyncedDuration() async throws {
+    // A book imported before precise timing stored AVFoundation's estimate
+    let url = try fixtureURL("opus_VBR", "opus")
+    let estimate = CMTimeGetSeconds(try await AVURLAsset(url: url).load(.duration))
+    let duration = try await SyncService.verifiedDuration(of: url, expectedDuration: estimate)
+    XCTAssertFalse(SyncService.isDurationShort(duration, expected: estimate))
+  }
+
+  func testVerifiedDuration_rejectsTruncatedFile() async throws {
+    let url = try fixtureURL("opus_VBR", "opus")
+    let duration = try await SyncService.verifiedDuration(of: url, expectedDuration: 200)
+    XCTAssertTrue(SyncService.isDurationShort(duration, expected: 200))
+  }
 }

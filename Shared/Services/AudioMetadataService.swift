@@ -92,13 +92,22 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
 
   public init() {}
   
+  /// Extensions whose container has no reliable global duration header. AVFoundation
+  /// estimates their duration from the first frames' bitrate, which can be far off for
+  /// VBR audio (e.g. 88.8s reported for a 60s VBR Opus file).
+  static let preciseDurationExtensions: Set<String> = ["opus", "ogg", "mp3"]
+
+  /// An asset whose `duration` matches what `PlayerManager` (which always requests precise
+  /// timing) will play. Formats with a reliable header skip the precise scan, as it's slower.
+  public static func durationAccurateAsset(for fileURL: URL) -> AVURLAsset {
+    guard preciseDurationExtensions.contains(fileURL.pathExtension.lowercased()) else {
+      return AVURLAsset(url: fileURL)
+    }
+    return AVURLAsset(url: fileURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
+  }
+
   public func extractMetadata(from fileURL: URL) async -> AudioMetadata? {
-    // MP3 and Ogg lack global duration headers. We request precise timing to prevent
-    // inaccurate duration estimates for VBR files by forcing a full stream scan.
-    let requiresPreciseDuration = ["opus", "ogg", "mp3"].contains(fileURL.pathExtension.lowercased())
-    let options: [String: Any]? = requiresPreciseDuration ? [AVURLAssetPreferPreciseDurationAndTimingKey: true] : nil
-    let asset = AVURLAsset(url: fileURL, options: options)
-    return await extractMetadata(from: asset)
+    return await extractMetadata(from: Self.durationAccurateAsset(for: fileURL))
   }
   
   public func extractMetadata(from asset: AVAsset) async -> AudioMetadata? {
@@ -236,11 +245,7 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
   }
 
   public func extractManualChapters(from fileURL: URL) async -> [ChapterMetadata]? {
-    // MP3 and Ogg lack global duration headers. We request precise timing to prevent
-    // inaccurate duration estimates for VBR files by forcing a full stream scan.
-    let requiresPreciseDuration = ["opus", "ogg", "mp3"].contains(fileURL.pathExtension.lowercased())
-    let options: [String: Any]? = requiresPreciseDuration ? [AVURLAssetPreferPreciseDurationAndTimingKey: true] : nil
-    let asset = AVURLAsset(url: fileURL, options: options)
+    let asset = Self.durationAccurateAsset(for: fileURL)
     do {
       let metadata = try await asset.load(.metadata)
       let duration = CMTimeGetSeconds(try await asset.load(.duration))

@@ -1205,6 +1205,29 @@ extension SyncService {
       .first { $0.syncStatus == ExternalResource.SyncStatus.stream.rawValue }
   }
 
+  /// Allow a small tolerance for container/encoder rounding differences.
+  static func isDurationShort(_ actual: Double, expected: Double) -> Bool {
+    expected - actual > max(2, expected * 0.02)
+  }
+
+  /// The downloaded file's duration to check against `expectedDuration`. The synced duration
+  /// may be AVFoundation's quick estimate (stored by an older version) or a precise read
+  /// (stored since imports of VBR-prone formats started requesting precise timing), and for
+  /// VBR files the two can differ by far more than the tolerance. So read the estimate first,
+  /// and if it looks short, fall back to the precise read: a file is only rejected when
+  /// neither reading matches.
+  static func verifiedDuration(of fileURL: URL, expectedDuration: Double) async throws -> Double {
+    let estimated = CMTimeGetSeconds(try await AVURLAsset(url: fileURL).load(.duration))
+
+    guard
+      isDurationShort(estimated, expected: expectedDuration),
+      AudioMetadataService.preciseDurationExtensions.contains(fileURL.pathExtension.lowercased())
+    else { return estimated }
+
+    let precise = AudioMetadataService.durationAccurateAsset(for: fileURL)
+    return CMTimeGetSeconds(try await precise.load(.duration))
+  }
+
   /// Backstop against truncated/botched downloads that finish without surfacing a
   /// network error (e.g. the connection closed early, or watchOS suspended the
   /// background transfer). `URLSession` won't flag these, so a short file would be
@@ -1222,12 +1245,7 @@ extension SyncService {
 
     let actualDuration: Double
     do {
-      // MP3 and Ogg lack global duration headers. We request precise timing to prevent
-      // inaccurate duration estimates for VBR files by forcing a full stream scan.
-      let requiresPreciseDuration = ["opus", "ogg", "mp3"].contains(fileURL.pathExtension.lowercased())
-      let options: [String: Any]? = requiresPreciseDuration ? [AVURLAssetPreferPreciseDurationAndTimingKey: true] : nil
-      let asset = AVURLAsset(url: fileURL, options: options)
-      actualDuration = CMTimeGetSeconds(try await asset.load(.duration))
+      actualDuration = try await Self.verifiedDuration(of: fileURL, expectedDuration: expectedDuration)
     } catch {
       /// We have a trustworthy synced duration, so this is a format we can play —
       /// a complete file would be readable. A load failure on a fresh download is
@@ -1243,9 +1261,7 @@ extension SyncService {
 
     guard actualDuration.isFinite else { return nil }
 
-    /// Allow a small tolerance for container/encoder rounding differences.
-    let tolerance = max(2, expectedDuration * 0.02)
-    guard expectedDuration - actualDuration > tolerance else { return nil }
+    guard Self.isDurationShort(actualDuration, expected: expectedDuration) else { return nil }
 
     try? FileManager.default.removeItem(at: fileURL)
     Self.logger.warning(

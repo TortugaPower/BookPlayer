@@ -664,6 +664,8 @@
 		6C25A0E1ADBF2325CA78E8A4 /* mp3_NO_toc_v23.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 1BA32C89144C68DD64FD0B62 /* mp3_NO_toc_v23.mp3 */; };
 		6DF751D96098B1A3224FDF43 /* IntegrationServerAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FFF7B7B6E62B274D230C207 /* IntegrationServerAddress.swift */; };
 		6EC082E4BEF0CC2FAA42C0A7 /* mp3_WITH_toc.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 8D3EFD93E6D1E0366A3FD1E9 /* mp3_WITH_toc.mp3 */; };
+		A1B2C3D4E5F60718293A4B01 /* mp3_VBR_NO_xing.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B02 /* mp3_VBR_NO_xing.mp3 */; };
+		A1B2C3D4E5F60718293A4B03 /* opus_VBR.opus in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B04 /* opus_VBR.opus */; };
 		759B9B1691932EB7A815CFFF /* SortCharacterizationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F448E8BBF01860FC65EB697A /* SortCharacterizationTests.swift */; };
 		77980C5A9B7CF1A948FE7CF1 /* PKCE.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22E85F55E03D1981F097661C /* PKCE.swift */; };
 		78D8C50324731BBDF9E9281E /* LibraryOptionsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8FBF775DDE66D0AA08818D45 /* LibraryOptionsView.swift */; };
@@ -1853,6 +1855,8 @@
 		8AF18A3A2CF0E92800238F8D /* KeychainServiceMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainServiceMock.swift; sourceTree = "<group>"; };
 		8B8DAE18EF12485AD3509B2D /* JellyfinQuickConnectTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = JellyfinQuickConnectTests.swift; sourceTree = "<group>"; };
 		8D3EFD93E6D1E0366A3FD1E9 /* mp3_WITH_toc.mp3 */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = audio.mp3; path = mp3_WITH_toc.mp3; sourceTree = "<group>"; };
+		A1B2C3D4E5F60718293A4B02 /* mp3_VBR_NO_xing.mp3 */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = audio.mp3; path = mp3_VBR_NO_xing.mp3; sourceTree = "<group>"; };
+		A1B2C3D4E5F60718293A4B04 /* opus_VBR.opus */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file; path = opus_VBR.opus; sourceTree = "<group>"; };
 		8D5C2F005506140825B22FE2 /* ReleaseCheckUITests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ReleaseCheckUITests.swift; sourceTree = "<group>"; };
 		8DA0C0229963991F8CE1E941 /* IntegrationConnectionFlowView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = IntegrationConnectionFlowView.swift; sourceTree = "<group>"; };
 		8FBF775DDE66D0AA08818D45 /* LibraryOptionsView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = LibraryOptionsView.swift; sourceTree = "<group>"; };
@@ -2235,6 +2239,8 @@
 				1BA32C89144C68DD64FD0B62 /* mp3_NO_toc_v23.mp3 */,
 				4BFC5736E667F4BF8CBB9096 /* mp3_NO_toc_v24.mp3 */,
 				8D3EFD93E6D1E0366A3FD1E9 /* mp3_WITH_toc.mp3 */,
+				A1B2C3D4E5F60718293A4B02 /* mp3_VBR_NO_xing.mp3 */,
+				A1B2C3D4E5F60718293A4B04 /* opus_VBR.opus */,
 			);
 			path = ChapterFixtures;
 			sourceTree = "<group>";
@@ -4700,6 +4706,8 @@
 				6C25A0E1ADBF2325CA78E8A4 /* mp3_NO_toc_v23.mp3 in Resources */,
 				4147E8513D57E852C965FC0B /* mp3_NO_toc_v24.mp3 in Resources */,
 				6EC082E4BEF0CC2FAA42C0A7 /* mp3_WITH_toc.mp3 in Resources */,
+				A1B2C3D4E5F60718293A4B01 /* mp3_VBR_NO_xing.mp3 in Resources */,
+				A1B2C3D4E5F60718293A4B03 /* opus_VBR.opus in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
