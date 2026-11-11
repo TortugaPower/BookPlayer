@@ -487,12 +487,19 @@ extension SyncQueueTests {
   /// after the first backoff step (5 s)
   func testHardcoverLane_retriesAFailureAfterBackingOff() async throws {
     let service = makeGatedEngine()
+    var waits = [Int]()
+    service.hardcoverBackoff = { attempt in
+      waits.append(attempt)
+      return 0.05
+    }
     service.scheduleHardcoverProgress(uuid: "uuid-1", relativePath: "book.m4b", hardcoverBookId: 7, percentCompleted: 42)
     try await waitForTaskCount(exactly: 1)
 
     let syncer = HardcoverSyncerStub(failures: 1)
     service.setHardcoverSyncer(syncer)
-    try await waitForEmptyQueue(timeout: 10)
+    try await waitForEmptyQueue()
+
+    XCTAssertEqual(waits, [1])
 
     XCTAssertEqual(syncer.calls.count, 2)
   }

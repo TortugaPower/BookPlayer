@@ -185,6 +185,9 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
   /// The app's Hardcover service, which runs the Hardcover lane's tasks. Weak: the app owns it.
   /// Guarded by `stateLock`.
   private weak var _hardcoverSyncer: HardcoverProgressSyncing?
+  /// The wait before a failed Hardcover task runs again, by failed runs in a row. Tests
+  /// shorten it; set it before the queue runs
+  var hardcoverBackoff: (Int) -> Double = SyncQueueService.hardcoverRetryDelay(afterAttempt:)
   private let stateLock = NSLock()
   private let policyLock = NSLock()
   private var disposeBag = Set<AnyCancellable>()
@@ -452,7 +455,7 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
         hardcoverAttempts[task.id, default: 0] += 1
         return hardcoverAttempts[task.id, default: 1]
       }
-      try? await Task.sleep(for: .seconds(Self.hardcoverRetryDelay(afterAttempt: attempt)))
+      try? await Task.sleep(for: .seconds(self.hardcoverBackoff(attempt)))
       return
     }
 

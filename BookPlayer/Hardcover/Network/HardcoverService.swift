@@ -548,18 +548,25 @@ extension HardcoverService {
 
   /// Queues a linked book's new percentage in the sync queue's Hardcover lane, where it waits
   /// out no connection or a busy server, and a newer one replaces it while it waits. The start
-  /// and the end aren't sent: the end would finish the read, which the Read status does
+  /// and the end aren't sent: the end would finish the read, which the Read status does.
+  /// The link is the item's Hardcover external resource, not the local `HardcoverBook` row:
+  /// only the resource syncs, so a link made on another device has no row here until the
+  /// run's Currently Reading creates one
   private func queueProgress(_ percent: Double, uuid: String, relativePath: String) async {
+    guard percent > 0, percent < 100 else { return }
+
+    let resources = await libraryService.getExternalResources(for: relativePath)
     guard
-      percent > 0,
-      percent < 100,
-      let book = await libraryService.getHardcoverBook(for: relativePath)
+      let link = resources.first(where: {
+        ExternalResource.ProviderName(rawValue: $0.providerName) == .hardcover
+      }),
+      let hardcoverBookId = Int(link.providerId)
     else { return }
 
     progressQueue?.scheduleHardcoverProgress(
       uuid: uuid,
       relativePath: relativePath,
-      hardcoverBookId: book.id,
+      hardcoverBookId: hardcoverBookId,
       percentCompleted: percent
     )
   }

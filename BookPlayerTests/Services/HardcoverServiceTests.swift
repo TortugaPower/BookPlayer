@@ -879,13 +879,14 @@ class HardcoverProgressQueueingTests: XCTestCase {
     libraryService = LibraryServiceProtocolMock()
     libraryService.metadataUpdatePublisher = Empty().eraseToAnyPublisher()
     libraryService.progressUpdatePublisher = progress.eraseToAnyPublisher()
-    libraryService.getHardcoverBookForReturnValue = SimpleHardcoverBook(
-      id: 12345,
-      artworkURL: nil,
-      title: "Book",
-      author: "Author",
-      status: .reading
-    )
+    libraryService.getExternalResourcesForReturnValue = [
+      SimpleExternalResource(
+        providerName: ExternalResource.ProviderName.hardcover.rawValue,
+        providerId: "12345",
+        syncStatus: "synced",
+        lastSyncedAt: nil
+      )
+    ]
     queue = HardcoverQueueSpy()
 
     /// Connected from the start, so `setup` starts tracking the library
@@ -944,8 +945,28 @@ class HardcoverProgressQueueingTests: XCTestCase {
     XCTAssertEqual(queue.scheduled.map(\.percent), [5])
   }
 
-  func testABookWithoutAHardcoverLinkIsNotQueued() async {
+  /// Only the external resource syncs: a link made on another device has no local
+  /// `HardcoverBook` row, and its progress is still queued
+  func testALinkSyncedFromAnotherDeviceIsQueuedWithoutALocalRow() async {
     libraryService.getHardcoverBookForReturnValue = nil
+    let queued = expectation(description: "queued")
+    queue.onSchedule = { queued.fulfill() }
+
+    progress.send(event(42))
+    await fulfillment(of: [queued], timeout: 2)
+
+    XCTAssertEqual(queue.scheduled.first?.hardcoverBookId, 12345)
+  }
+
+  func testABookWithoutAHardcoverLinkIsNotQueued() async {
+    libraryService.getExternalResourcesForReturnValue = [
+      SimpleExternalResource(
+        providerName: ExternalResource.ProviderName.jellyfin.rawValue,
+        providerId: "abc",
+        syncStatus: "synced",
+        lastSyncedAt: nil
+      )
+    ]
     let queued = expectation(description: "queued")
     queued.isInverted = true
     queue.onSchedule = { queued.fulfill() }
