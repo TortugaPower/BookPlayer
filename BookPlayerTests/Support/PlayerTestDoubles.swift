@@ -269,9 +269,23 @@ final class TestPlayerPlatform: PlayerPlatform {
   private(set) var shakeHandler: (() -> Void)?
   private(set) var shakeStops = 0
 
+  /// On: activation waits for `finishActivation()`, as a platform that suspends there does
+  var holdsActivation = false
+  private var heldActivation: CheckedContinuation<Void, Never>?
+
   func activateAudioSession(for item: PlayableItem, origin: PlayOrigin) async -> Bool {
     activations += 1
+    if holdsActivation {
+      await withCheckedContinuation { heldActivation = $0 }
+    }
     return activates
+  }
+
+  /// Lets a held activation finish
+  func finishActivation() {
+    let held = heldActivation
+    heldActivation = nil
+    held?.resume()
   }
 
   func stopShakeDetection() {

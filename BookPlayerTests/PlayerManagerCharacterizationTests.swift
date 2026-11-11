@@ -789,6 +789,22 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
     XCTAssertFalse(sut.isPlaying)
   }
 
+  /// A pause while the platform is still activating the audio session (the watch's route picker) wins: the
+  /// play doesn't start once the activation finishes
+  func testAPauseDuringActivationStopsThePlay() async throws {
+    platform.holdsActivation = true
+    let item = try await loadUntilInPlayer(singleFileBook(), intent: .wantsToPlay(.user))
+    item.become(.readyToPlay)
+    await waitUntil("the session is asked for") { self.platform.activations == 1 }
+
+    sut.pause()
+    platform.finishActivation()
+    await settle()
+
+    XCTAssertTrue(player.playCalls.isEmpty)
+    XCTAssertFalse(sut.isPlaying)
+  }
+
   /// After the end-of-chapter timer pauses, a shake resumes playback and re-arms the timer: the platform
   /// listens for it, and a play stops listening
   func testAShakeAfterTheTimerResumesPlayback() async throws {

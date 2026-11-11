@@ -1495,6 +1495,8 @@ extension PlayerManager {
         playIntent = .idle
         return
       }
+      /// A platform can suspend while it activates (the watch's route picker): a pause in the meantime wins
+      guard !Task.isCancelled else { return }
 
       createOrUpdateAutomaticBookmark(
         at: currentItem.currentTime,
