@@ -43,7 +43,6 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
     Constants.UserDefaults.smartRewindEnabled,
     Constants.UserDefaults.autoTimerEnabled,
     Constants.UserDefaults.lastEnabledTimer,
-    Constants.UserDefaults.autoplayEnabled,
     /// Armed when a book finishes
     Constants.UserDefaults.pendingReviewPrompt,
   ]
@@ -577,7 +576,7 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
 
   /// Scenario 12, the next book starting after one finishes
   func testTheNextBookAfterAFinishedOneDoesNotArmTheRememberedTimer() async throws {
-    UserDefaults.standard.set(true, forKey: Constants.UserDefaults.autoplayEnabled)
+    platform.autoplaysNextBook = true
     playbackService.getPlayableItemAfterParentFolderAutoplayedRestartFinishedReturnValue = singleFileBook("next.m4b")
     rememberEndOfChapterTimer()
     let first = try await loadAndPlay(boundBook(currentTime: 60), origin: .system)
@@ -805,6 +804,82 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
     XCTAssertFalse(sut.isPlaying)
   }
 
+  /// The pause ends the session 0.1 s later, before a route picker is done: an activation that finishes
+  /// after it ends the session again, rather than leave it on with nothing playing
+  func testAnActivationFinishingAfterAPauseEndsTheSession() async throws {
+    platform.holdsActivation = true
+    let item = try await loadUntilInPlayer(singleFileBook(), intent: .wantsToPlay(.user))
+    item.become(.readyToPlay)
+    await waitUntil("the session is asked for") { self.platform.activations == 1 }
+
+    sut.pause()
+    await waitUntil("the pause ends the session") { self.platform.deactivations == 1 }
+    platform.finishActivation()
+
+    await waitUntil("the finished activation ends it") { self.platform.deactivations == 2 }
+    XCTAssertTrue(player.playCalls.isEmpty)
+  }
+
+  // MARK: - A finished book
+
+  /// The user's play on a book that played to its end, still loaded, starts it over from the first chapter
+  func testPlayingAFinishedBookStartsItOver() async throws {
+    let first = try await loadAndPlay(singleFileBook(currentTime: 60))
+    try await playToTheEnd(first)
+
+    sut.play()
+    let restarted = try await nextItemInPlayer(after: 1)
+    /// A new item starts at its beginning
+    player.reportedTime = 0
+    restarted.become(.readyToPlay)
+    await waitUntil("the book plays again") { self.player.playCalls.count == 2 }
+
+    XCTAssertEqual(sut.currentItem?.currentTime, 0)
+    XCTAssertEqual(sut.currentItem?.currentChapter.index, 1)
+  }
+
+  /// A play the system makes on a finished book (an interruption ending) leaves it at its end
+  func testASystemPlayOnAFinishedBookStaysAtTheEnd() async throws {
+    let first = try await loadAndPlay(singleFileBook(currentTime: 60))
+    try await playToTheEnd(first)
+
+    sut.play(origin: .system)
+    await settle()
+
+    XCTAssertEqual(items.count, 1)
+    XCTAssertEqual(player.playCalls.count, 1)
+    XCTAssertFalse(sut.isPlaying)
+  }
+
+  /// The platform says whether the next book plays when one ends, and whether a finished one starts over
+  func testTheNextBookFollowsThePlatformsAutoplaySettings() async throws {
+    platform.autoplaysNextBook = true
+    platform.restartsFinishedBooks = true
+    playbackService.getPlayableItemAfterParentFolderAutoplayedRestartFinishedReturnValue = singleFileBook("next.m4b")
+    let first = try await loadAndPlay(singleFileBook(currentTime: 60))
+
+    try await playToTheEnd(first)
+    _ = try await nextItemInPlayer(after: 1)
+
+    let lookup = try XCTUnwrap(playbackService.getPlayableItemAfterParentFolderAutoplayedRestartFinishedReceivedArguments)
+    XCTAssertTrue(lookup.autoplayed)
+    XCTAssertTrue(lookup.restartFinished)
+    XCTAssertEqual(sut.currentItem?.relativePath, "next.m4b")
+  }
+
+  /// With autoplay off, a book ending doesn't look for the next one
+  func testTheNextBookWaitsWhenThePlatformDoesNotAutoplay() async throws {
+    playbackService.getPlayableItemAfterParentFolderAutoplayedRestartFinishedReturnValue = singleFileBook("next.m4b")
+    let first = try await loadAndPlay(singleFileBook(currentTime: 60))
+
+    try await playToTheEnd(first)
+    await settle()
+
+    XCTAssertFalse(playbackService.getPlayableItemAfterParentFolderAutoplayedRestartFinishedCalled)
+    XCTAssertEqual(sut.currentItem?.relativePath, "book.m4b")
+    XCTAssertEqual(items.count, 1)
+  }
+
   /// After the end-of-chapter timer pauses, a shake resumes playback and re-arms the timer: the platform
   /// listens for it, and a play stops listening
   func testAShakeAfterTheTimerResumesPlayback() async throws {
@@ -997,6 +1072,15 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
     item.become(.readyToPlay)
     await waitUntil("playback starts", file: file, line: line) { !self.player.playCalls.isEmpty }
     return item
+  }
+
+  /// Plays `item`, a single-file book's, to its end: the clock at the book's length, then the item's end
+  private func playToTheEnd(_ item: ControlledPlayerItem) async throws {
+    let duration = try XCTUnwrap(sut.currentItem?.duration)
+    player.reportedTime = duration
+    player.stopAtItemEnd()
+    NotificationCenter.default.post(name: .AVPlayerItemDidPlayToEndTime, object: item)
+    await waitUntil("the book is finished") { self.libraryService.markAsFinishedFlagRelativePathCalled }
   }
 
   /// Waits for an item beyond the first `count` to reach the player

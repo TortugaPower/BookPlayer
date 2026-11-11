@@ -786,7 +786,6 @@ public final class PlayerManager: NSObject, @preconcurrency PlayerManagerProtoco
       pathForArtwork = currentItem.relativePath
     }
 
-    let fallbackColor = platform.fallbackArtworkColor
     ArtworkService.retrieveImageFromCache(for: pathForArtwork) { [weak self] result in
       guard let self else { return }
 
@@ -797,8 +796,8 @@ public final class PlayerManager: NSObject, @preconcurrency PlayerManagerProtoco
         image = value.image
       case .failure:
         /// A platform without a fallback shows no artwork
-        guard let fallbackColor else { return }
-        image = ArtworkService.generateDefaultArtwork(from: fallbackColor)!
+        guard let fallback = self.platform.fallbackArtwork() else { return }
+        image = fallback
       }
 
       self.nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(
@@ -1015,7 +1014,7 @@ public final class PlayerManager: NSObject, @preconcurrency PlayerManagerProtoco
       .delay(for: .seconds(0.1), scheduler: RunLoop.main, options: .none)
       .sink { status in
         if status == .paused {
-          try? AVAudioSession.sharedInstance().setActive(false)
+          self.platform.deactivateAudioSession()
           self.isPlayingSubscription?.cancel()
         }
       }
@@ -1495,8 +1494,12 @@ extension PlayerManager {
         playIntent = .idle
         return
       }
-      /// A platform can suspend while it activates (the watch's route picker): a pause in the meantime wins
-      guard !Task.isCancelled else { return }
+      /// A platform can suspend while it activates (the watch's route picker): a pause in the meantime wins,
+      /// and ends the session the activation turned on after the pause's own deactivation ran
+      guard !Task.isCancelled else {
+        platform.deactivateAudioSession()
+        return
+      }
 
       createOrUpdateAutomaticBookmark(
         at: currentItem.currentTime,
@@ -1505,9 +1508,19 @@ extension PlayerManager {
         type: .play
       )
 
-      // If book is completed, stop
+      /// A finished book still loaded: the user's play starts it over from the first chapter, while one
+      /// the system makes stops at the end
       let playerTime = engine.currentTime
-      if playerTime.isFinite && Int(currentItem.duration) == Int(playerTime) { return }
+      if playerTime.isFinite && Int(currentItem.duration) == Int(playerTime) {
+        guard origin == .user, let firstChapter = currentItem.chapters.first else {
+          playIntent = .idle
+          return
+        }
+        updatePlaybackTime(item: currentItem, time: 0)
+        currentItem.currentChapter = firstChapter
+        loadChapterMetadata(firstChapter, intent: .wantsToPlay(.user))
+        return
+      }
 
       restorePlayerTimeIfNeeded()
       handleSmartRewind(currentItem)
@@ -1700,13 +1713,11 @@ extension PlayerManager {
 
   public func playNextItem(autoPlayed: Bool = false, shouldAutoplay: Bool = true) {
     /// If it's autoplayed, check if setting is enabled
-    if autoPlayed,
-      !UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayEnabled)
-    {
+    if autoPlayed, !platform.autoplaysNextBook {
       return
     }
 
-    let restartFinished = UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayRestartEnabled)
+    let restartFinished = platform.restartsFinishedBooks
 
     guard
       let currentItem = self.currentItem,

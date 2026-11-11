@@ -62,6 +62,12 @@ final class ControlledPlayer: AVPlayer {
     setTimeControlStatus(.paused)
   }
 
+  /// As AVPlayer does when its item plays to the end: it stops, without a `pause()` call
+  func stopAtItemEnd() {
+    heldRate = 0
+    setTimeControlStatus(.paused)
+  }
+
   /// `PlayerManager` follows the status through a KVO publisher
   private func setTimeControlStatus(_ status: AVPlayer.TimeControlStatus) {
     guard status != heldTimeControlStatus else { return }
@@ -264,10 +270,12 @@ final class TestPlayerPlatform: PlayerPlatform {
   /// What `activateAudioSession` answers
   var activates = true
   private(set) var activations = 0
+  private(set) var deactivations = 0
   var defersFolderProgress = false
-  var fallbackArtworkColor: UIColor? = .gray
   private(set) var shakeHandler: (() -> Void)?
   private(set) var shakeStops = 0
+  var autoplaysNextBook = false
+  var restartsFinishedBooks = false
 
   /// On: activation waits for `finishActivation()`, as a platform that suspends there does
   var holdsActivation = false
@@ -286,6 +294,14 @@ final class TestPlayerPlatform: PlayerPlatform {
     let held = heldActivation
     heldActivation = nil
     held?.resume()
+  }
+
+  func deactivateAudioSession() {
+    deactivations += 1
+  }
+
+  func fallbackArtwork() -> UIImage? {
+    nil
   }
 
   func stopShakeDetection() {
