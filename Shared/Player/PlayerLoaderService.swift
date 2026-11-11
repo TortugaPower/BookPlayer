@@ -6,23 +6,18 @@
 //  Copyright © 2024 BookPlayer LLC. All rights reserved.
 //
 
-#if os(watchOS)
-  import BookPlayerWatchKit
-#else
-  import BookPlayerKit
-#endif
 import Foundation
 
 @Observable
-final class PlayerLoaderService: @unchecked Sendable {
-  var syncService: SyncService!
-  var libraryService: LibraryService!
-  var playbackService: PlaybackServiceProtocol!
-  var playerManager: PlayerManagerProtocol!
+public final class PlayerLoaderService: @unchecked Sendable {
+  public var syncService: SyncService!
+  public var libraryService: LibraryService!
+  public var playbackService: PlaybackServiceProtocol!
+  public var playerManager: PlayerManagerProtocol!
 
-  init() {}
+  public init() {}
 
-  func setup(
+  public func setup(
     syncService: SyncService,
     libraryService: LibraryService,
     playbackService: PlaybackServiceProtocol,
@@ -35,7 +30,7 @@ final class PlayerLoaderService: @unchecked Sendable {
   }
 
   @MainActor
-  func loadPlayer(
+  public func loadPlayer(
     _ relativePath: String,
     intent: PlayIntent,
     recordAsLastBook: Bool = true

@@ -6,6 +6,7 @@
 //  Copyright © 2025 BookPlayer LLC. All rights reserved.
 //
 
+import BookPlayerKit
 import SwiftUI
 
 @Observable

@@ -24,7 +24,11 @@ The on-disk tree is deeply misleading. Before judging *where* code should live, 
   itself only holds `BookPlayerKit.h` + `Info.plist`. Everything cross-target lives in `Shared/` and is `public`.
 - **`Shared/` is compiled into BOTH `BookPlayerKit` (iOS) and `BookPlayerWatchKit` (watchOS).** Every file in
   `Shared/` therefore has **two** `PBXBuildFile` entries — one per framework. Adding a `Shared/` file to only
-  one target breaks the watch build.
+  one target breaks the watch build. **One exception until rework PR 6b:** the player core in `Shared/Player/`
+  (`PlayerManager`, `PlaybackEngine`, `AVPlayerEngine`, `PlayerTimeSample`, `PlaybackFailure`, `PlayerPlatform`) is
+  in `BookPlayerKit` only, because the watch still has its own `PlayerManager`. Its services (`SleepTimer`,
+  `SpeedService`, `WidgetReloadService`, `UserActivityManager`, `PlayerLoaderService`, `PlayerManagerProtocol`,
+  `BPPlayerError`, the `AVPlayer` fade) are in both.
 - **The top-level `Player/`, `Services/`, `Coordinators/`, `Library/` folders are EMPTY STUBS — ignore them.
   Never add files there.** Real code is under `BookPlayer/BookPlayer/…` or `Shared/`.
 - **Dead code to ignore:** `BookPlayer/RootViewController.swift` references `BaseViewController`/`BaseViewModel`,
@@ -377,12 +381,19 @@ CarPlay event bus. Declared in `Shared/Extensions/Notification+BookPlayerKit.swi
 
 ---
 
-## Player · audio · sleep timer — `BookPlayer/Player/`
+## Player · audio · sleep timer — `Shared/Player/`
 
-`PlayerManager.swift` is `@MainActor final class PlayerManager: NSObject, @preconcurrency PlayerManagerProtocol,
-ObservableObject` (~2000 lines). It is the highest-risk file in the app. The load, the engine and every callback into
-them run on the main actor; the protocol, shared with the watch and the widget, stays nonisolated until the player
-core is shared with the watch, and the four skip-interval statics are `nonisolated`.
+`PlayerManager.swift` is `@MainActor public final class PlayerManager: NSObject, @preconcurrency
+PlayerManagerProtocol, ObservableObject` (~2000 lines), in `BookPlayerKit`. It is the highest-risk file in the app.
+The load, the engine and every callback into them run on the main actor. The protocol, shared with the watch and the
+widget, stays nonisolated until rework PR 6c, and the four skip-interval statics are `nonisolated`.
+
+- **What the app supplies, behind `PlayerPlatform`** (`PhonePlayerPlatform` in the app target): audio-session
+  activation, with its `fatalError` in production and its Sentry reporting on TestFlight; whether folder progress
+  waits for the foreground; the fallback artwork's colour; and shake to resume. The Kit is extension-safe only, so
+  `UIApplication`, `ThemeManager`, Sentry and `ShakeMotionService` stay out of it.
+- **Only the public API leaves the Kit.** The engine-taking initializer and `PlaybackEngine` are internal; tests
+  reach them through `@testable import BookPlayerKit`.
 
 - **Only the engine and the video surfaces touch `AVPlayer`.** `PlayerManager` drives playback through
   `PlaybackEngine` (`AVPlayerEngine`): items (`load(_ asset:events:)`, `unload()`), play, pause, rate, seeks, the
@@ -450,7 +461,7 @@ core is shared with the watch, and the four skip-interval statics are `nonisolat
   Countdown uses a `Timer.publish` subscription; `.endOfChapter` observes `.chapterChange`/`.bookEnd`. `reset()`
   cancels the subscription and removes observers, and `setTimer` always resets first. It emits three publishers
   consumed by `PlayerManager` (threshold volume-fade, end→pause, turned-on→`.sleep` bookmark; shake-to-resume via
-  `ShakeMotionService`).
+  `PlayerPlatform`, `ShakeMotionService` on iOS).
 - **Playback suggestions** (what the Lock Screen, Control Center and Home app offer while nothing plays) come only
   from SiriKit media; App Intents, iOS 27's `.audio` schemas included, has no equivalent. `MediaSuggestionsController`
   (app target, owned by `AppServices`) donates an `INPlayMediaIntent` when a book starts (`.bookPlayed`, once per

@@ -137,7 +137,7 @@ final class AppServices: BPLogger {
         playbackService: playbackService,
         syncService: syncService,
         speedService: SpeedService(libraryService: libraryService),
-        shakeMotionService: ShakeMotionService(),
+        platform: PhonePlayerPlatform(shakeMotionService: ShakeMotionService()),
         widgetReloadService: WidgetReloadService(),
         hasStreamingEnabled: { accountService.hasStreamingEnabled() },
         /// Already on main: `PlayerManager` routes every failure through `presentOnMain`.

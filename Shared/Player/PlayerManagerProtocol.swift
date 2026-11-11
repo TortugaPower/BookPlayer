@@ -6,11 +6,6 @@
 //  Copyright © 2024 BookPlayer LLC. All rights reserved.
 //
 
-#if os(watchOS)
-  import BookPlayerWatchKit
-#else
-  import BookPlayerKit
-#endif
 import Combine
 import Foundation
 

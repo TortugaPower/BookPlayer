@@ -6,16 +6,11 @@
 //  Copyright © 2018 BookPlayer LLC. All rights reserved.
 //
 
-#if os(watchOS)
-  import BookPlayerWatchKit
-#else
-  import BookPlayerKit
-#endif
 import Combine
 import Foundation
 
 /// Records the time listened per day (`PlaybackRecord`) and hands the last week to the Time Listened widget
-class UserActivityManager {
+public class UserActivityManager {
   let libraryService: LibraryServiceProtocol
   var playbackRecord: PlaybackRecord?
   private var referenceWorkItem: DispatchWorkItem?
@@ -23,11 +18,11 @@ class UserActivityManager {
   let decoder = JSONDecoder()
   let widgetReloadService = WidgetReloadService()
 
-  init(libraryService: LibraryServiceProtocol) {
+  public init(libraryService: LibraryServiceProtocol) {
     self.libraryService = libraryService
   }
 
-  func resumePlaybackActivity() {
+  public func resumePlaybackActivity() {
     self.playbackRecord = self.libraryService.getCurrentPlaybackRecord()
 
     guard let record = self.playbackRecord else { return }
@@ -37,11 +32,11 @@ class UserActivityManager {
     self.playbackRecord = self.libraryService.getCurrentPlaybackRecord()
   }
 
-  func stopPlaybackActivity() {
+  public func stopPlaybackActivity() {
     self.playbackRecord = nil
   }
 
-  func recordTime() {
+  public func recordTime() {
     guard let record = self.playbackRecord else { return }
 
     self.libraryService.recordTime(record)

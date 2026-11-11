@@ -7,18 +7,16 @@
 //
 
 import AVFoundation
-@preconcurrency import BookPlayerKit
 import Combine
 import Foundation
 import MediaPlayer
-import Sentry
 
 // swiftlint:disable:next file_length
 
 /// Main-actor isolated: the load, the engine and every callback into them run on main. The protocol stays
-/// nonisolated until the player core is shared with the watch
+/// nonisolated until rework PR 6c. What the app supplies comes through `PlayerPlatform`
 @MainActor
-final class PlayerManager: NSObject, @preconcurrency PlayerManagerProtocol, ObservableObject {
+public final class PlayerManager: NSObject, @preconcurrency PlayerManagerProtocol, ObservableObject {
   private let libraryService: LibraryServiceProtocol
   private let playbackService: PlaybackServiceProtocol
   /// Narrow read of the streaming entitlement (pro or lite), not the whole account
@@ -31,7 +29,8 @@ final class PlayerManager: NSObject, @preconcurrency PlayerManagerProtocol, Obse
   private let syncService: SyncServiceProtocol
   private let speedService: SpeedServiceProtocol
   private let userActivityManager: UserActivityManager
-  private let shakeMotionService: ShakeMotionServiceProtocol
+  /// What differs by platform, or what a Kit may not touch
+  private let platform: PlayerPlatform
   private let widgetReloadService: WidgetReloadServiceProtocol
 
   /// Drives the player. Only the engine and the video surfaces touch `AVPlayer`
@@ -73,9 +72,6 @@ final class PlayerManager: NSObject, @preconcurrency PlayerManagerProtocol, Obse
   }
   /// The reloads a failed file gets before its failure is reported
   private var retryBudget = RetryBudget()
-  /// Set when audio-session activation fails in the current process, so a later
-  /// successful activation can tell whether recovery required an app relaunch.
-  private var audioSessionFailedThisSession = false
   /// Asks an AudiobookShelf server for an item's files when one of its chapters loads.
   private let streamLookup: ExternalStreamLooking
   /// How the server item the current item streams from answered, asked once per item: a
@@ -91,33 +87,59 @@ final class PlayerManager: NSObject, @preconcurrency PlayerManagerProtocol, Obse
   /// The last seek started, as only its completion ends `ClockState.seeking`
   private var latestSeek = 0
 
-  weak var syncProgressDelegate: PlaybackSyncProgressDelegate?
+  public weak var syncProgressDelegate: PlaybackSyncProgressDelegate?
   /// Reference to the ongoing play task
   private var playTask: Task<(), Error>?
-  @Published var currentItem: PlayableItem?
-  @Published var currentSpeed: Float = 1.0
+  @Published public var currentItem: PlayableItem?
+  @Published public var currentSpeed: Float = 1.0
 
   var nowPlayingInfo = [String: Any]()
 
+  /// The app's player, on an `AVPlayerEngine`
+  public convenience init(
+    libraryService: LibraryServiceProtocol,
+    playbackService: PlaybackServiceProtocol,
+    syncService: SyncServiceProtocol,
+    speedService: SpeedServiceProtocol,
+    platform: PlayerPlatform,
+    widgetReloadService: WidgetReloadServiceProtocol,
+    hasStreamingEnabled: @escaping () -> Bool,
+    presentFailure: @escaping (PlaybackFailure) -> Void,
+    streamLookup: ExternalStreamLooking = AudiobookShelfStreamLookup()
+  ) {
+    self.init(
+      libraryService: libraryService,
+      playbackService: playbackService,
+      syncService: syncService,
+      speedService: speedService,
+      platform: platform,
+      widgetReloadService: widgetReloadService,
+      hasStreamingEnabled: hasStreamingEnabled,
+      presentFailure: presentFailure,
+      streamLookup: streamLookup,
+      engine: nil
+    )
+  }
+
+  /// `engine` is the Kit's own seam, which tests drive; `nil` for an `AVPlayerEngine`
   init(
     libraryService: LibraryServiceProtocol,
     playbackService: PlaybackServiceProtocol,
     syncService: SyncServiceProtocol,
     speedService: SpeedServiceProtocol,
-    shakeMotionService: ShakeMotionServiceProtocol,
+    platform: PlayerPlatform,
     widgetReloadService: WidgetReloadServiceProtocol,
     hasStreamingEnabled: @escaping () -> Bool,
     presentFailure: @escaping (PlaybackFailure) -> Void,
     streamLookup: ExternalStreamLooking = AudiobookShelfStreamLookup(),
-    /// `nil` for an `AVPlayerEngine`
-    engine: PlaybackEngine? = nil
+    engine: PlaybackEngine?
   ) {
     self.libraryService = libraryService
     self.playbackService = playbackService
     self.syncService = syncService
     self.speedService = speedService
     self.userActivityManager = UserActivityManager(libraryService: libraryService)
-    self.shakeMotionService = shakeMotionService
+    self.platform = platform
     self.widgetReloadService = widgetReloadService
     self.hasStreamingEnabled = hasStreamingEnabled
     self.presentFailure = presentFailure
@@ -186,12 +208,12 @@ final class PlayerManager: NSObject, @preconcurrency PlayerManagerProtocol, Obse
       }
   }
 
-  func currentItemPublisher() -> AnyPublisher<PlayableItem?, Never> {
+  public func currentItemPublisher() -> AnyPublisher<PlayableItem?, Never> {
     return self.$currentItem.eraseToAnyPublisher()
   }
 
   /// An item never outlives its book: `stop()` drops both
-  func hasLoadedBook() -> Bool {
+  public func hasLoadedBook() -> Bool {
     currentItem != nil
   }
 
@@ -393,11 +415,11 @@ final class PlayerManager: NSObject, @preconcurrency PlayerManagerProtocol, Obse
     }
   }
 
-  func load(_ item: PlayableItem, intent: PlayIntent) {
+  public func load(_ item: PlayableItem, intent: PlayIntent) {
     load(item, intent: intent, forceRefreshURL: false)
   }
 
-  func awaitCurrentLoad() async {
+  public func awaitCurrentLoad() async {
     await withCheckedContinuation { continuation in
       var playedObserver: NSObjectProtocol?
       var readyObserver: NSObjectProtocol?
@@ -764,7 +786,7 @@ final class PlayerManager: NSObject, @preconcurrency PlayerManagerProtocol, Obse
       pathForArtwork = currentItem.relativePath
     }
 
-    let fallbackColor = MainActor.assumeIsolated { ThemeManager.shared.currentTheme.linkColor }
+    let fallbackColor = platform.fallbackArtworkColor
     ArtworkService.retrieveImageFromCache(for: pathForArtwork) { [weak self] result in
       guard let self else { return }
 
@@ -774,6 +796,8 @@ final class PlayerManager: NSObject, @preconcurrency PlayerManagerProtocol, Obse
       case .success(let value):
         image = value.image
       case .failure:
+        /// A platform without a fallback shows no artwork
+        guard let fallbackColor else { return }
         image = ArtworkService.generateDefaultArtwork(from: fallbackColor)!
       }
 
@@ -980,7 +1004,7 @@ final class PlayerManager: NSObject, @preconcurrency PlayerManagerProtocol, Obse
 
   // MARK: - Player states
 
-  var isPlaying: Bool {
+  public var isPlaying: Bool {
     engine.status != .paused || playIntent != .idle
   }
 
@@ -997,7 +1021,7 @@ final class PlayerManager: NSObject, @preconcurrency PlayerManagerProtocol, Obse
       }
   }
 
-  func isPlayingPublisher() -> AnyPublisher<Bool, Never> {
+  public func isPlayingPublisher() -> AnyPublisher<Bool, Never> {
     return Publishers.CombineLatest(engine.statusPublisher, $playIntent)
       .map { status, playIntent in
         status != .paused || playIntent != .idle
@@ -1005,14 +1029,14 @@ final class PlayerManager: NSObject, @preconcurrency PlayerManagerProtocol, Obse
       .eraseToAnyPublisher()
   }
 
-  func currentProgressPublisher() -> AnyPublisher<(String, Double), Never> {
+  public func currentProgressPublisher() -> AnyPublisher<(String, Double), Never> {
     $currentItem
       .removeDuplicates(by: { lhs, rhs in
         lhs?.relativePath == rhs?.relativePath
       })
       .map { item -> AnyPublisher<(String, Double), Never> in
         guard let item = item else {
-          return Empty<(String, Double), Never>(completeImmediately: false)
+          return Combine.Empty<(String, Double), Never>(completeImmediately: false)
             .eraseToAnyPublisher()
         }
 
@@ -1037,7 +1061,7 @@ final class PlayerManager: NSObject, @preconcurrency PlayerManagerProtocol, Obse
     }
   }
 
-  nonisolated static var rewindInterval: TimeInterval {
+  nonisolated public static var rewindInterval: TimeInterval {
     get {
       if UserDefaults.standard.object(forKey: Constants.UserDefaults.rewindInterval) == nil {
         return 30.0
@@ -1059,7 +1083,7 @@ final class PlayerManager: NSObject, @preconcurrency PlayerManagerProtocol, Obse
     }
   }
 
-  nonisolated static var forwardInterval: TimeInterval {
+  nonisolated public static var forwardInterval: TimeInterval {
     get {
       if UserDefaults.standard.object(forKey: Constants.UserDefaults.forwardInterval) == nil {
         return 30.0
@@ -1081,11 +1105,11 @@ final class PlayerManager: NSObject, @preconcurrency PlayerManagerProtocol, Obse
     }
   }
 
-  nonisolated static var isRewindChapterSkip: Bool {
+  nonisolated public static var isRewindChapterSkip: Bool {
     rewindInterval == Constants.SkipInterval.chapterSkipValue
   }
 
-  nonisolated static var isForwardChapterSkip: Bool {
+  nonisolated public static var isForwardChapterSkip: Bool {
     forwardInterval == Constants.SkipInterval.chapterSkipValue
   }
 
@@ -1149,11 +1173,11 @@ final class PlayerManager: NSObject, @preconcurrency PlayerManagerProtocol, Obse
 // MARK: - Seek Controls
 
 extension PlayerManager {
-  func jumpToChapter(_ chapter: PlayableChapter) {
+  public func jumpToChapter(_ chapter: PlayableChapter) {
     jumpTo(chapter.start + 0.1, recordBookmark: false)
   }
 
-  func reloadCurrentItem() {
+  public func reloadCurrentItem() {
     // Rebuild the in-memory item from storage so externally-changed data (e.g. re-parsed
     // chapters) takes effect. Playback position is preserved — it's persisted in Core Data and
     // re-seeded by time in `PlayableItem.init` — and the chapter-change subscription must be
@@ -1237,7 +1261,7 @@ extension PlayerManager {
     seekPlayer(to: fileTime(parked, in: next, of: currentItem), precisely: true)
   }
 
-  func jumpTo(_ time: Double, recordBookmark: Bool = true) {
+  public func jumpTo(_ time: Double, recordBookmark: Bool = true) {
     guard let currentItem = self.currentItem else { return }
 
     if recordBookmark {
@@ -1274,7 +1298,7 @@ extension PlayerManager {
     seekPlayer(to: newTime)
   }
 
-  func forward() {
+  public func forward() {
     if PlayerManager.isForwardChapterSkip {
       skipToNextChapter()
     } else {
@@ -1282,7 +1306,7 @@ extension PlayerManager {
     }
   }
 
-  func rewind() {
+  public func rewind() {
     if PlayerManager.isRewindChapterSkip {
       skipToPreviousChapter()
     } else {
@@ -1290,7 +1314,7 @@ extension PlayerManager {
     }
   }
 
-  func skipToNextChapter() {
+  public func skipToNextChapter() {
     if let currentChapter = currentItem?.currentChapter,
       let nextChapter = currentItem?.nextChapter(after: currentChapter)
     {
@@ -1301,7 +1325,7 @@ extension PlayerManager {
     NotificationCenter.default.post(name: .listeningProgressChanged, object: nil)
   }
 
-  func skipToPreviousChapter() {
+  public func skipToPreviousChapter() {
     defer { NotificationCenter.default.post(name: .listeningProgressChanged, object: nil) }
 
     guard let currentItem,
@@ -1322,7 +1346,7 @@ extension PlayerManager {
     }
   }
 
-  func skip(_ interval: TimeInterval) {
+  public func skip(_ interval: TimeInterval) {
     guard let currentItem = self.currentItem else { return }
 
     let newTime = currentItem.getInterval(from: interval) + currentItem.currentTime
@@ -1330,7 +1354,7 @@ extension PlayerManager {
   }
 
   /// Bypass checks on chapter limits
-  func directSkip(_ interval: TimeInterval) {
+  public func directSkip(_ interval: TimeInterval) {
     guard let currentItem = self.currentItem else { return }
 
     self.jumpTo(interval + currentItem.currentTime)
@@ -1393,7 +1417,7 @@ extension PlayerManager {
     return rebuilt
   }
 
-  func play() {
+  public func play() {
     play(origin: .user)
   }
 
@@ -1412,7 +1436,7 @@ extension PlayerManager {
   /// `.playing` and pauses it — they'd tap again. Distinguishing their play from ours on the shared
   /// player isn't reliable, and the window is short, so we accept it. Returns whether attempted.
   @discardableResult
-  func claimNowPlayingThenPause() -> Bool {
+  public func claimNowPlayingThenPause() -> Bool {
     /// `nowPlayingClaimSubscription == nil` gates re-entrancy: a claim stays "in flight" (subscription
     /// non-nil) until its unmute completes below, so a second blip can't start mid-claim and get unmuted
     /// by this one's timer.
@@ -1454,46 +1478,7 @@ extension PlayerManager {
     return true
   }
 
-  /// Persist a marker so the next successful activation can report whether — and how —
-  /// the audio session recovered. Beta builds only.
-  private func markAudioSessionFailure(_ error: NSError) {
-    let defaults = UserDefaults.standard
-    defaults.set(Date().timeIntervalSince1970, forKey: Constants.UserDefaults.audioSessionFailureTimestamp)
-    defaults.set(error.code, forKey: Constants.UserDefaults.audioSessionFailureCode)
-    audioSessionFailedThisSession = true
-  }
-
-  /// If a prior activation failure was recorded, report to Sentry that the session
-  /// recovered — including whether it took an app relaunch (force-quit / OS kill) to
-  /// get audio back. Beta builds only.
-  private func reportAudioSessionRecoveryIfNeeded() {
-    guard AppEnvironment.isTestFlight else { return }
-    let defaults = UserDefaults.standard
-    guard
-      let failedAt = defaults.object(forKey: Constants.UserDefaults.audioSessionFailureTimestamp) as? Double
-    else { return }
-
-    // A marker written in this same process means the session self-healed; a marker
-    // from a previous launch means audio only returned after the process restarted.
-    let requiredRelaunch = !audioSessionFailedThisSession
-
-    SentrySDK.capture(message: "Audio session recovered after activation failure") { scope in
-      scope.setLevel(.info)
-      scope.setFingerprint(["audio-session-recovery"])
-      scope.setTag(value: "audio_session_recovery", key: "playback_failure")
-      scope.setContext(value: [
-        "secondsSinceFailure": Int(Date().timeIntervalSince1970 - failedAt),
-        "requiredAppRelaunch": requiredRelaunch,
-        "previousErrorCode": defaults.integer(forKey: Constants.UserDefaults.audioSessionFailureCode),
-      ], key: "audio_session")
-    }
-
-    defaults.removeObject(forKey: Constants.UserDefaults.audioSessionFailureTimestamp)
-    defaults.removeObject(forKey: Constants.UserDefaults.audioSessionFailureCode)
-    audioSessionFailedThisSession = false
-  }
-
-  func play(origin: PlayOrigin) {
+  public func play(origin: PlayOrigin) {
     playTask?.cancel()
     playTask = Task {
       /// Ignore play commands if there's no item loaded,
@@ -1506,41 +1491,7 @@ extension PlayerManager {
 
       userActivityManager.resumePlaybackActivity()
 
-      do {
-        let audioSession = AVAudioSession.sharedInstance()
-        try audioSession.setCategory(
-          AVAudioSession.Category.playback,
-          mode: .spokenAudio,
-          options: []
-        )
-        try audioSession.setActive(true)
-        reportAudioSessionRecoveryIfNeeded()
-      } catch {
-        guard AppEnvironment.isTestFlight else {
-          fatalError("Failed to activate the audio session, \(error), description: \(error.localizedDescription)")
-        }
-        /// Beta-only: don't hard-crash when the audio session can't be activated.
-        /// This happens when another process holds the session in a stuck state
-        /// that (so far) only a force-quit clears. Report it to Sentry so we can
-        /// confirm whether the stuck state still occurs, and leave the play button
-        /// inert — a missed auto-play is strictly better than the app dying in the
-        /// background.
-        let nsError = error as NSError
-        SentrySDK.capture(error: error) { scope in
-          scope.setLevel(.error)
-          scope.setFingerprint(["audio-session-activation-failure"])
-          scope.setTag(value: "audio_session_activation", key: "playback_failure")
-          scope.setContext(value: [
-            "errorCode": nsError.code,
-            "errorDomain": nsError.domain,
-            "isOtherAudioPlaying": AVAudioSession.sharedInstance().isOtherAudioPlaying,
-            "applicationState": UIApplication.shared.applicationState == .active ? "active" : "background",
-            "autoPlayed": origin == .system,
-            "relativePath": currentItem.relativePath,
-          ], key: "audio_session")
-        }
-        markAudioSessionFailure(nsError)
-        NSLog("[PlayerManager] Audio session activation failed: %@", error.localizedDescription)
+      guard await platform.activateAudioSession(for: currentItem, origin: origin) else {
         playIntent = .idle
         return
       }
@@ -1566,7 +1517,7 @@ extension PlayerManager {
       }
 
       fadeTimer?.invalidate()
-      shakeMotionService.stopMotionUpdates()
+      platform.stopShakeDetection()
       boostVolume = UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled)
       bindInterruptObserver()
       // Set play state on player and control center
@@ -1632,7 +1583,7 @@ extension PlayerManager {
     SleepTimer.shared.restartTimer()
   }
 
-  func setSpeed(_ newValue: Float) {
+  public func setSpeed(_ newValue: Float) {
     self.speedService.setSpeed(newValue, relativePath: self.currentItem?.relativePath)
     self.currentSpeed = newValue
     if self.isPlaying {
@@ -1640,11 +1591,11 @@ extension PlayerManager {
     }
   }
 
-  func setBoostVolume(_ newValue: Bool) {
+  public func setBoostVolume(_ newValue: Bool) {
     self.boostVolume = newValue
   }
 
-  func pause() {
+  public func pause() {
     pause(removeInterruptObserver: true)
   }
 
@@ -1675,7 +1626,7 @@ extension PlayerManager {
   }
 
   // Toggle play/pause of book
-  func playPause() {
+  public func playPause() {
     // Pause player if it's playing
     if self.engine.status == .playing || playIntent != .idle {
       self.pause()
@@ -1687,11 +1638,11 @@ extension PlayerManager {
   /// Access to the underlying player for rendering video tracks; nil for an engine without one.
   /// Note: the instance can be recreated after a media-services reset, so
   /// consumers should re-attach on view updates rather than caching it.
-  func getAVPlayer() -> AVPlayer? {
+  public func getAVPlayer() -> AVPlayer? {
     return engine.videoPlayer
   }
 
-  func stop() {
+  public func stop() {
     stopPlayback()
     clockState = .unknown
 
@@ -1710,17 +1661,17 @@ extension PlayerManager {
     interruptionSubscription = nil
   }
 
-  func markAsCompleted(_ flag: Bool) {
+  public func markAsCompleted(_ flag: Bool) {
     guard let currentItem = self.currentItem else { return }
 
     self.libraryService.markAsFinished(flag: flag, relativePath: currentItem.relativePath)
 
     if let parentFolderPath = currentItem.parentFolder {
-      if UIApplication.shared.applicationState == .active {
-        libraryService.recursiveFolderProgressUpdate(from: parentFolderPath)
-      } else {
+      if platform.defersFolderProgress {
         /// Defer all the folder progress updates until the user opens up the app again
         playbackService.markStaleProgress(folderPath: parentFolderPath)
+      } else {
+        libraryService.recursiveFolderProgressUpdate(from: parentFolderPath)
       }
     }
 
@@ -1729,11 +1680,11 @@ extension PlayerManager {
     NotificationCenter.default.post(name: .bookEnd, object: nil, userInfo: nil)
   }
 
-  func currentSpeedPublisher() -> AnyPublisher<Float, Never> {
+  public func currentSpeedPublisher() -> AnyPublisher<Float, Never> {
     return $currentSpeed.eraseToAnyPublisher()
   }
 
-  func playPreviousItem() {
+  public func playPreviousItem() {
     guard
       let currentItem = self.currentItem,
       let previousBook = self.playbackService.getPlayableItem(
@@ -1745,7 +1696,7 @@ extension PlayerManager {
     load(previousBook, intent: .wantsToPlay(.user))
   }
 
-  func playNextItem(autoPlayed: Bool = false, shouldAutoplay: Bool = true) {
+  public func playNextItem(autoPlayed: Bool = false, shouldAutoplay: Bool = true) {
     /// If it's autoplayed, check if setting is enabled
     if autoPlayed,
       !UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayEnabled)
@@ -1883,11 +1834,11 @@ extension PlayerManager {
 
     if previousPercentage != newPercentage {
       if let parentFolder = item.parentFolder {
-        if UIApplication.shared.applicationState == .active {
-          libraryService.recursiveFolderProgressUpdate(from: parentFolder)
-        } else {
+        if platform.defersFolderProgress {
           /// Defer all the folder progress updates until the user opens up the app again
           playbackService.markStaleProgress(folderPath: parentFolder)
+        } else {
+          libraryService.recursiveFolderProgressUpdate(from: parentFolder)
         }
       }
 
@@ -1948,7 +1899,7 @@ extension PlayerManager {
 
 // MARK: - BookMarks
 extension PlayerManager {
-  public func createOrUpdateAutomaticBookmark(at time: Double, relativePath: String, uuid: String, type: BookmarkType) {
+  func createOrUpdateAutomaticBookmark(at time: Double, relativePath: String, uuid: String, type: BookmarkType) {
     /// Clean up old bookmark
     if let bookmark = libraryService.getBookmarks(of: type, relativePath: relativePath)?.first {
       libraryService.deleteBookmark(bookmark)
@@ -1989,7 +1940,7 @@ extension PlayerManager {
   }
 
   private func bindShakeObserver() {
-    shakeMotionService.observeFirstShake { [weak self] in
+    platform.observeFirstShake { [weak self] in
       SleepTimer.shared.restartTimer()
       self?.play()
     }

@@ -9,13 +9,8 @@
 import Foundation
 import WidgetKit
 
-#if os(watchOS)
-  import BookPlayerWatchKit
-#else
-  import BookPlayerKit
-#endif
 
-protocol WidgetReloadServiceProtocol {
+public protocol WidgetReloadServiceProtocol {
   /// Reload all the registered widgets
   func reloadAllWidgets()
   /// Reload specific widget
@@ -25,13 +20,15 @@ protocol WidgetReloadServiceProtocol {
   func scheduleWidgetReload(of type: Constants.Widgets)
 }
 
-class WidgetReloadService: WidgetReloadServiceProtocol {
+public class WidgetReloadService: WidgetReloadServiceProtocol {
   /// Reference to ongoing tasks
   private var referenceWorkItems = [
     Constants.Widgets: DispatchWorkItem
   ]()
 
-  func reloadAllWidgets() {
+  public init() {}
+
+  public func reloadAllWidgets() {
     referenceWorkItems.values.forEach({
       $0.cancel()
     })
@@ -39,7 +36,7 @@ class WidgetReloadService: WidgetReloadServiceProtocol {
     WidgetCenter.shared.reloadAllTimelines()
   }
 
-  func reloadWidget(_ type: Constants.Widgets) {
+  public func reloadWidget(_ type: Constants.Widgets) {
     let referenceWorkItem = referenceWorkItems[type]
 
     referenceWorkItem?.cancel()
@@ -47,7 +44,7 @@ class WidgetReloadService: WidgetReloadServiceProtocol {
     WidgetCenter.shared.reloadTimelines(ofKind: type.rawValue)
   }
 
-  func scheduleWidgetReload(of type: Constants.Widgets) {
+  public func scheduleWidgetReload(of type: Constants.Widgets) {
     let referenceWorkItem = referenceWorkItems[type]
 
     referenceWorkItem?.cancel()
