@@ -180,6 +180,11 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
   /// means re-registering doesn't help (e.g. another uuid holds its key on the server):
   /// it parks instead of cycling. Guarded by `stateLock`.
   private var handedBackUuids = Set<String>()
+  /// Failed runs in a row per Hardcover task, for its backoff. Guarded by `stateLock`.
+  private var hardcoverAttempts = [String: Int]()
+  /// The app's Hardcover service, which runs the Hardcover lane's tasks. Weak: the app owns it.
+  /// Guarded by `stateLock`.
+  private weak var _hardcoverSyncer: HardcoverProgressSyncing?
   private let stateLock = NSLock()
   private let policyLock = NSLock()
   private var disposeBag = Set<AnyCancellable>()
@@ -402,6 +407,7 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
       Task {
 
         if operation.didSucceed {
+          self.stateLock.withLock { _ = self.hardcoverAttempts.removeValue(forKey: nextTask.id) }
           await self.handleFinishedOperation(operation, task: nextTask)
           await self.taskContainer.pop(nextTask)
         } else {
@@ -439,6 +445,17 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
   /// Retry (the usual 5 s), park, drop, or confirm the account, per `SyncFailurePolicy`.
   /// Returns once the next pop may happen.
   private func handleFailedOperation(error: Error?, task: QueuedSyncTask) async {
+    /// Hardcover's lane only fails on the network or a busy server (the app drops anything
+    /// else), so it backs off instead of asking every 5 s: a rate limit would keep answering 429
+    if task.queueKey == TaskQueueKey.hardcover {
+      let attempt = stateLock.withLock {
+        hardcoverAttempts[task.id, default: 0] += 1
+        return hardcoverAttempts[task.id, default: 1]
+      }
+      try? await Task.sleep(for: .seconds(Self.hardcoverRetryDelay(afterAttempt: attempt)))
+      return
+    }
+
     // The server has no such book for this upload: register it again (bookplayer-api
     // docs/multipart-uploads.md) rather than park a task the user can't fix
     if task.jobType == .uploadFile,
@@ -679,6 +696,13 @@ public class SyncQueueService: SyncQueueServiceProtocol, BPLogger {
 
   private func createOperation(for task: QueuedSyncTask) -> AsyncOperation? {
     switch task.jobType {
+    case .externalUpdate where task.queueKey == TaskQueueKey.hardcover:
+      return HardcoverProgressOperation(
+        uuid: task.uuid,
+        relativePath: task.relativePath,
+        percentCompleted: task.parameters["percentCompleted"] as? Double ?? 0,
+        syncer: stateLock.withLock { _hardcoverSyncer }
+      )
     case .externalUpdate:
       guard let providerName = task.parameters["providerName"] as? String,
             let providerId = task.parameters["providerId"] as? String,
@@ -970,6 +994,43 @@ extension SyncQueueService {
       try await taskContainer.storeTask(parameters: params)
     } catch {
       Self.logger.error("Failed to schedule upload file task: \(error)")
+    }
+  }
+}
+
+extension SyncQueueService: HardcoverProgressQueueing {
+  /// Wires in the app's Hardcover service, which runs the Hardcover lane's tasks
+  public func setHardcoverSyncer(_ syncer: HardcoverProgressSyncing) {
+    stateLock.withLock { _hardcoverSyncer = syncer }
+    wakeUpWorkers()
+  }
+
+  /// 5 s, doubling with every failure in a row, up to 5 minutes
+  static func hardcoverRetryDelay(afterAttempt attempt: Int) -> Double {
+    min(5 * pow(2, Double(max(attempt, 1) - 1)), 300)
+  }
+
+  public func scheduleHardcoverProgress(
+    uuid: String,
+    relativePath: String,
+    hardcoverBookId: Int,
+    percentCompleted: Double
+  ) {
+    scheduleMetadataUpdate(params: [
+      "providerName": TaskQueueKey.hardcover,
+      "providerId": String(hardcoverBookId),
+      "uuid": uuid,
+      "relativePath": relativePath,
+      "percentCompleted": percentCompleted,
+    ])
+  }
+
+  public func clearHardcoverProgress() async {
+    stateLock.withLock { hardcoverAttempts.removeAll() }
+    do {
+      try await taskContainer.clearAll(in: TaskQueueKey.hardcover)
+    } catch {
+      Self.logger.error("Failed to clear the Hardcover queue: \(error)")
     }
   }
 }

@@ -156,7 +156,11 @@ final class AppServices: BPLogger {
         playbackService: playbackService,
         playerManager: playerManager
       )
-      let hardcoverService = makeHardcoverService(libraryService: libraryService, syncService: syncService)
+      let hardcoverService = makeHardcoverService(
+        libraryService: libraryService,
+        syncService: syncService,
+        syncQueueService: syncQueueService
+      )
 
       let preferencesService = PreferencesSyncService()
       preferencesService.setup(
@@ -389,9 +393,15 @@ final class AppServices: BPLogger {
     return service
   }
 
-  private func makeHardcoverService(libraryService: LibraryService, syncService: SyncService) -> HardcoverService {
+  private func makeHardcoverService(
+    libraryService: LibraryService,
+    syncService: SyncService,
+    syncQueueService: SyncQueueService
+  ) -> HardcoverService {
     let service = HardcoverService()
-    service.setup(libraryService: libraryService, syncService: syncService)
+    service.setup(libraryService: libraryService, syncService: syncService, progressQueue: syncQueueService)
+    /// Its lane runs through the service: tasks queued before a relaunch wait until this
+    syncQueueService.setHardcoverSyncer(service)
     return service
   }
 }

@@ -613,7 +613,7 @@ class HardcoverProgressSyncTests: HardcoverAPITestCase {
   func testProgressGoesOnTheReadInProgressInItsEditionsUnit() async throws {
     answerReadInProgress(statusId: 2, progressSeconds: 100, edition: Self.audiobook)
 
-    await sut.updateReadProgress(50, for: "book.m4b")
+    try await sut.updateReadProgress(50, for: "book.m4b")
 
     let query = try XCTUnwrap(HardcoverAPIStub.variables(of: "ReadInProgress").first)
     XCTAssertEqual(query["user_id"] as? Int, 42)
@@ -629,41 +629,41 @@ class HardcoverProgressSyncTests: HardcoverAPITestCase {
   func testAPrintEditionGetsPages() async throws {
     answerReadInProgress(statusId: 2, progressPages: nil, edition: #"{"id":20,"pages":300,"audio_seconds":null,"reading_format_id":1}"#)
 
-    await sut.updateReadProgress(50, for: "book.m4b")
+    try await sut.updateReadProgress(50, for: "book.m4b")
 
     let mutation = try XCTUnwrap(HardcoverAPIStub.variables(of: "UpdateProgress").first)
     XCTAssertEqual((mutation["object"] as? [String: Any])?["progress_pages"] as? Int, 150)
   }
 
-  func testNothingIsSentUnlessItsCurrentlyReadingOnHardcover() async {
+  func testNothingIsSentUnlessItsCurrentlyReadingOnHardcover() async throws {
     answerReadInProgress(statusId: 1, progressSeconds: nil, edition: Self.audiobook)
 
-    await sut.updateReadProgress(50, for: "book.m4b")
+    try await sut.updateReadProgress(50, for: "book.m4b")
 
     XCTAssertTrue(HardcoverAPIStub.variables(of: "UpdateProgress").isEmpty)
   }
 
-  func testNothingIsAskedBeforeTheBookIsCurrentlyReading() async {
+  func testNothingIsAskedBeforeTheBookIsCurrentlyReading() async throws {
     libraryService.getHardcoverBookForReturnValue = makeBook(status: .library)
 
-    await sut.updateReadProgress(50, for: "book.m4b")
+    try await sut.updateReadProgress(50, for: "book.m4b")
 
     XCTAssertTrue(HardcoverAPIStub.variables(of: "ReadInProgress").isEmpty)
     XCTAssertTrue(HardcoverAPIStub.variables(of: "UpdateProgress").isEmpty)
   }
 
-  func testAReadsEditionWithoutALengthGetsNothing() async {
+  func testAReadsEditionWithoutALengthGetsNothing() async throws {
     answerReadInProgress(statusId: 2, progressPages: nil, edition: #"{"id":40,"pages":null,"audio_seconds":null,"reading_format_id":1}"#)
 
-    await sut.updateReadProgress(50, for: "book.m4b")
+    try await sut.updateReadProgress(50, for: "book.m4b")
 
     XCTAssertTrue(HardcoverAPIStub.variables(of: "UpdateProgress").isEmpty)
   }
 
-  func testProgressBehindHardcoversIsNotSent() async {
+  func testProgressBehindHardcoversIsNotSent() async throws {
     answerReadInProgress(statusId: 2, progressSeconds: 600, edition: Self.audiobook)
 
-    await sut.updateReadProgress(50, for: "book.m4b")
+    try await sut.updateReadProgress(50, for: "book.m4b")
 
     XCTAssertTrue(HardcoverAPIStub.variables(of: "UpdateProgress").isEmpty)
   }
@@ -689,19 +689,331 @@ class HardcoverProgressSyncTests: HardcoverAPITestCase {
   }
 }
 
+/// A queued progress task sends the book's percentage as it is when the task runs, with the
+/// Currently Reading status first; it throws only what's worth retrying
+class HardcoverQueuedProgressTests: HardcoverAPITestCase {
+  override func setUp() {
+    super.setUp()
+    libraryService.getSimpleItemForReturnValue = makeItem(percent: 60)
+    libraryService.getHardcoverBookForReturnValue = makeBook(status: .reading)
+    libraryService.getExternalResourcesForReturnValue = [
+      SimpleExternalResource(
+        providerName: ExternalResource.ProviderName.hardcover.rawValue,
+        providerId: "12345",
+        syncStatus: "synced",
+        lastSyncedAt: nil
+      )
+    ]
+    HardcoverAPIStub.answer(
+      "ReadInProgress",
+      with: #"{"data":{"user_books":[{"id":9,"status_id":2,"user_book_reads":[{"id":77,"progress_seconds":100,"progress_pages":null,"edition":{"id":10,"pages":null,"audio_seconds":1000,"reading_format_id":2}}]}]}}"#
+    )
+    HardcoverAPIStub.answer("UpdateProgress", with: #"{"data":{"update_user_book_read":{"error":null}}}"#)
+    HardcoverAPIStub.answer("InsertUserBook", with: #"{"data":{"insert_user_book":{"id":555}}}"#)
+  }
+
+  func testATaskSendsTheBooksPercentageWhenItRuns() async throws {
+    /// Queued at 50%, played on to 60% while it waited
+    try await sut.syncProgress(uuid: "UUID", relativePath: "book.m4b", percentCompleted: 50)
+
+    XCTAssertEqual(libraryService.getSimpleItemForReceivedUuid, "UUID")
+    let mutation = try XCTUnwrap(HardcoverAPIStub.variables(of: "UpdateProgress").first)
+    XCTAssertEqual((mutation["object"] as? [String: Any])?["progress_seconds"] as? Int, 600)
+  }
+
+  func testABookBackAtTheStartIsDropped() async throws {
+    libraryService.getSimpleItemForReturnValue = makeItem(percent: 0)
+
+    try await sut.syncProgress(uuid: "UUID", relativePath: "book.m4b", percentCompleted: 50)
+
+    XCTAssertTrue(HardcoverAPIStub.variables(of: "ReadInProgress").isEmpty)
+  }
+
+  func testAFinishedBookIsDropped() async throws {
+    libraryService.getSimpleItemForReturnValue = makeItem(percent: 100, isFinished: true)
+
+    try await sut.syncProgress(uuid: "UUID", relativePath: "book.m4b", percentCompleted: 99)
+
+    XCTAssertTrue(HardcoverAPIStub.variables(of: "ReadInProgress").isEmpty)
+  }
+
+  func testAGoneBookIsDropped() async throws {
+    libraryService.getSimpleItemForReturnValue = nil
+
+    try await sut.syncProgress(uuid: "UUID", relativePath: "book.m4b", percentCompleted: 50)
+
+    XCTAssertTrue(HardcoverAPIStub.variables(of: "ReadInProgress").isEmpty)
+  }
+
+  func testATaskLeftFromAnUnlinkedAccountIsDropped() async throws {
+    sut.authorization = nil
+
+    try await sut.syncProgress(uuid: "UUID", relativePath: "book.m4b", percentCompleted: 50)
+
+    XCTAssertTrue(HardcoverAPIStub.variables(of: "ReadInProgress").isEmpty)
+  }
+
+  func testCurrentlyReadingGoesBeforeTheProgress() async throws {
+    libraryService.getHardcoverBookForReturnValue = makeBook(status: .library)
+
+    try await sut.syncProgress(uuid: "UUID", relativePath: "book.m4b", percentCompleted: 60)
+
+    let insert = try XCTUnwrap(HardcoverAPIStub.variables(of: "InsertUserBook").first)
+    XCTAssertEqual((insert["object"] as? [String: Any])?["status_id"] as? Int, 2)
+  }
+
+  func testAStatusChangeThatCantGoThroughHoldsTheProgress() async {
+    libraryService.getHardcoverBookForReturnValue = makeBook(status: .library)
+    HardcoverAPIStub.fail("InsertUserBook", status: 503)
+
+    await assertRetried()
+    XCTAssertTrue(HardcoverAPIStub.variables(of: "ReadInProgress").isEmpty)
+  }
+
+  func testABusyServerIsRetried() async {
+    HardcoverAPIStub.fail("ReadInProgress", status: 503)
+
+    await assertRetried()
+  }
+
+  func testARateLimitIsRetried() async {
+    HardcoverAPIStub.fail("UpdateProgress", status: 429)
+
+    await assertRetried()
+  }
+
+  func testARefusedRequestIsDropped() async throws {
+    HardcoverAPIStub.fail("ReadInProgress", status: 400)
+
+    try await sut.syncProgress(uuid: "UUID", relativePath: "book.m4b", percentCompleted: 60)
+
+    XCTAssertTrue(HardcoverAPIStub.variables(of: "UpdateProgress").isEmpty)
+  }
+
+  private func assertRetried(file: StaticString = #filePath, line: UInt = #line) async {
+    do {
+      try await sut.syncProgress(uuid: "UUID", relativePath: "book.m4b", percentCompleted: 60)
+      XCTFail("Expected the failure to be thrown for a retry", file: file, line: line)
+    } catch {
+      XCTAssertTrue(HardcoverService.isTransient(error), "\(error)", file: file, line: line)
+    }
+  }
+
+  private func makeItem(percent: Double, isFinished: Bool = false) -> SimpleLibraryItem {
+    SimpleLibraryItem(
+      title: "Book",
+      details: "Author",
+      speed: 1,
+      currentTime: percent * 10,
+      duration: 1000,
+      percentCompleted: percent,
+      isFinished: isFinished,
+      relativePath: "book.m4b",
+      remoteURL: nil,
+      artworkURL: nil,
+      orderRank: 0,
+      parentFolder: nil,
+      originalFileName: "book.m4b",
+      lastPlayDate: nil,
+      type: .book,
+      uuid: "UUID"
+    )
+  }
+
+  private func makeBook(status: HardcoverBook.Status) -> SimpleHardcoverBook {
+    SimpleHardcoverBook(id: 12345, artworkURL: nil, title: "Book", author: "Author", status: status)
+  }
+}
+
+/// What the Hardcover lane retries, and how long it waits
+class HardcoverRetryTests: XCTestCase {
+  func testNoConnectionAndTimeoutsAreRetried() {
+    XCTAssertTrue(HardcoverService.isTransient(URLError(.notConnectedToInternet)))
+    XCTAssertTrue(HardcoverService.isTransient(URLError(.timedOut)))
+    XCTAssertTrue(HardcoverService.isTransient(URLError(.networkConnectionLost)))
+    XCTAssertFalse(HardcoverService.isTransient(URLError(.cancelled)))
+    XCTAssertFalse(HardcoverService.isTransient(URLError(.badServerResponse)))
+  }
+
+  func testABusyOrFailingServerIsRetried() {
+    for status in [408, 429, 500, 502, 503, 504] {
+      XCTAssertTrue(HardcoverService.isTransient(GraphQLClient.Error.httpError(status)), "\(status)")
+    }
+    for status in [400, 401, 403, 404, 422] {
+      XCTAssertFalse(HardcoverService.isTransient(GraphQLClient.Error.httpError(status)), "\(status)")
+    }
+  }
+
+  func testATokenRefreshFailingTheSameWayIsRetried() {
+    XCTAssertTrue(HardcoverService.isTransient(HardcoverOAuthError.http(503)))
+    XCTAssertTrue(HardcoverService.isTransient(HardcoverOAuthError.http(429)))
+    XCTAssertFalse(HardcoverService.isTransient(HardcoverOAuthError.http(400)))
+    XCTAssertFalse(HardcoverService.isTransient(HardcoverOAuthError.invalidGrant))
+  }
+
+  func testAnswersThatCantBeReadAreNotRetried() {
+    XCTAssertFalse(HardcoverService.isTransient(GraphQLClient.Error.noData))
+    XCTAssertFalse(HardcoverService.isTransient(CancellationError()))
+  }
+
+  func testTheWaitDoublesUpToFiveMinutes() {
+    XCTAssertEqual(SyncQueueService.hardcoverRetryDelay(afterAttempt: 1), 5)
+    XCTAssertEqual(SyncQueueService.hardcoverRetryDelay(afterAttempt: 2), 10)
+    XCTAssertEqual(SyncQueueService.hardcoverRetryDelay(afterAttempt: 3), 20)
+    XCTAssertEqual(SyncQueueService.hardcoverRetryDelay(afterAttempt: 6), 160)
+    XCTAssertEqual(SyncQueueService.hardcoverRetryDelay(afterAttempt: 7), 300)
+    XCTAssertEqual(SyncQueueService.hardcoverRetryDelay(afterAttempt: 40), 300)
+  }
+}
+
+/// A linked book's new whole percentage goes to the sync queue's Hardcover lane, not straight to
+/// Hardcover, and an unlink empties the lane
+class HardcoverProgressQueueingTests: XCTestCase {
+  var sut: HardcoverService!
+  var libraryService: LibraryServiceProtocolMock!
+  var progress: PassthroughSubject<[String: Any], Never>!
+  var queue: HardcoverQueueSpy!
+
+  override func setUp() {
+    progress = PassthroughSubject()
+    libraryService = LibraryServiceProtocolMock()
+    libraryService.metadataUpdatePublisher = Empty().eraseToAnyPublisher()
+    libraryService.progressUpdatePublisher = progress.eraseToAnyPublisher()
+    libraryService.getHardcoverBookForReturnValue = SimpleHardcoverBook(
+      id: 12345,
+      artworkURL: nil,
+      title: "Book",
+      author: "Author",
+      status: .reading
+    )
+    queue = HardcoverQueueSpy()
+
+    /// Connected from the start, so `setup` starts tracking the library
+    let keychain = KeychainServiceMock()
+    try? keychain.set("hc_pat_abc123", key: .hardcoverToken)
+    UserDefaults.sharedDefaults.set("42", forKey: Constants.UserDefaults.hardcoverUserId)
+    sut = HardcoverService()
+    sut.setup(
+      libraryService: libraryService,
+      syncService: SyncServiceProtocolMock(),
+      keychain: keychain,
+      progressQueue: queue
+    )
+  }
+
+  override func tearDown() {
+    UserDefaults.sharedDefaults.removeObject(forKey: Constants.UserDefaults.hardcoverUserId)
+  }
+
+  func testANewPercentageIsQueuedForTheLinkedBook() async {
+    let queued = expectation(description: "queued")
+    queue.onSchedule = { queued.fulfill() }
+
+    progress.send(event(42))
+    await fulfillment(of: [queued], timeout: 2)
+
+    let task = queue.scheduled.first
+    XCTAssertEqual(task?.uuid, "UUID")
+    XCTAssertEqual(task?.relativePath, "book.m4b")
+    XCTAssertEqual(task?.hardcoverBookId, 12345)
+    XCTAssertEqual(task?.percent, 42)
+  }
+
+  func testTheSamePercentageIsQueuedOnce() async {
+    let queued = expectation(description: "queued")
+    queued.expectedFulfillmentCount = 2
+    queue.onSchedule = { queued.fulfill() }
+
+    progress.send(event(42))
+    progress.send(event(42))
+    progress.send(event(43))
+    await fulfillment(of: [queued], timeout: 2)
+
+    XCTAssertEqual(queue.scheduled.map(\.percent).sorted(), [42, 43])
+  }
+
+  func testTheStartAndTheEndAreNotQueued() async {
+    let queued = expectation(description: "queued")
+    queue.onSchedule = { queued.fulfill() }
+
+    progress.send(event(0))
+    progress.send(event(100))
+    progress.send(event(5))
+    await fulfillment(of: [queued], timeout: 2)
+
+    XCTAssertEqual(queue.scheduled.map(\.percent), [5])
+  }
+
+  func testABookWithoutAHardcoverLinkIsNotQueued() async {
+    libraryService.getHardcoverBookForReturnValue = nil
+    let queued = expectation(description: "queued")
+    queued.isInverted = true
+    queue.onSchedule = { queued.fulfill() }
+
+    progress.send(event(42))
+    await fulfillment(of: [queued], timeout: 0.5)
+  }
+
+  func testUnlinkingEmptiesTheLane() async {
+    let cleared = expectation(description: "cleared")
+    cleared.assertForOverFulfill = false
+    queue.onClear = { cleared.fulfill() }
+
+    await sut.disconnect()
+    await fulfillment(of: [cleared], timeout: 2)
+  }
+
+  private func event(_ percent: Double) -> [String: Any] {
+    ["relativePath": "book.m4b", "uuid": "UUID", "percentCompleted": percent]
+  }
+}
+
+final class HardcoverQueueSpy: HardcoverProgressQueueing {
+  struct Scheduled {
+    let uuid: String
+    let relativePath: String
+    let hardcoverBookId: Int
+    let percent: Double
+  }
+
+  private let lock = NSLock()
+  private var _scheduled = [Scheduled]()
+  var scheduled: [Scheduled] { lock.withLock { _scheduled } }
+  var onSchedule: (() -> Void)?
+  var onClear: (() -> Void)?
+
+  func scheduleHardcoverProgress(uuid: String, relativePath: String, hardcoverBookId: Int, percentCompleted: Double) {
+    lock.withLock {
+      _scheduled.append(Scheduled(uuid: uuid, relativePath: relativePath, hardcoverBookId: hardcoverBookId, percent: percentCompleted))
+    }
+    onSchedule?()
+  }
+
+  func clearHardcoverProgress() async {
+    onClear?()
+  }
+}
+
 /// Hardcover's GraphQL API, answering each operation (`query ReadInProgress`, `mutation
 /// InsertUserBook`, …) with the body set for it, and recording the variables of every request.
 /// An operation without an answer gets a GraphQL error
 private final class HardcoverAPIStub: URLProtocol {
   private static let lock = NSLock()
   private static var answers = [String: String]()
+  private static var failures = [String: Int]()
   private static var requests = [(operation: String, variables: [String: Any])]()
 
   static func reset() {
     lock.withLock {
       answers = [:]
+      failures = [:]
       requests = []
     }
+  }
+
+  /// Answers the operation with an HTTP error instead
+  static func fail(_ operation: String, status: Int) {
+    lock.withLock { failures[operation] = status }
   }
 
   static func answer(_ operation: String, with body: String) {
@@ -721,12 +1033,13 @@ private final class HardcoverAPIStub: URLProtocol {
     let query = payload?["query"] as? String ?? ""
     let operation = Self.operationName(in: query)
 
-    let body = Self.lock.withLock {
+    let (answer, failure) = Self.lock.withLock {
       Self.requests.append((operation, payload?["variables"] as? [String: Any] ?? [:]))
-      return Self.answers[operation]
-    } ?? #"{"errors":[{"message":"not stubbed"}]}"#
+      return (Self.answers[operation], Self.failures[operation])
+    }
+    let body = failure == nil ? answer ?? #"{"errors":[{"message":"not stubbed"}]}"# : "{}"
 
-    let response = HTTPURLResponse(url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil)!
+    let response = HTTPURLResponse(url: request.url!, statusCode: failure ?? 200, httpVersion: nil, headerFields: nil)!
     client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
     client?.urlProtocol(self, didLoad: Data(body.utf8))
     client?.urlProtocolDidFinishLoading(self)

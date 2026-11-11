@@ -79,6 +79,9 @@ final class HardcoverService: BPLogger, HardcoverServiceProtocol {
   /// are the sync-up for Hardcover-driven changes, and optional chaining would turn a
   /// missed injection into silently un-synced changes instead of a loud failure.
   private var syncService: SyncServiceProtocol!
+  /// The sync queue's Hardcover lane: progress waits there until it's sent, offline or after a
+  /// relaunch. Nil only in tests that don't send progress
+  @ObservationIgnored private weak var progressQueue: HardcoverProgressQueueing?
 
   /// Internal bookkeeping, not state any view reads: kept out of observation, so progress ticks
   /// don't go through the registrar. Changed on the main queue only
@@ -114,11 +117,13 @@ final class HardcoverService: BPLogger, HardcoverServiceProtocol {
     syncService: SyncServiceProtocol,
     keychain: KeychainServiceProtocol = KeychainService(),
     audioMetadataService: AudioMetadataServiceProtocol = AudioMetadataService(),
+    progressQueue: HardcoverProgressQueueing? = nil,
     graphQLSession: URLSession = .shared
   ) {
     self.graphQL = GraphQLClient(baseURL: "https://api.hardcover.app/v1/graphql", session: graphQLSession)
     self.libraryService = libraryService
     self.syncService = syncService
+    self.progressQueue = progressQueue
     self.keychain = keychain
     self.oauthSession = HardcoverOAuthSession(keychain: keychain)
     self.audioMetadataService = audioMetadataService
@@ -399,40 +404,46 @@ extension HardcoverService {
   /// The connected account's user id, read from `me` the first time it's needed: after signing in,
   /// after an API key is saved, or for an API key saved before ids were stored. Nil when offline
   func fetchConnectedUserId() async -> String? {
+    do {
+      return try await loadConnectedUserId()
+    } catch {
+      Self.logger.error("Failed to read the connected Hardcover account: \(error)")
+      return nil
+    }
+  }
+
+  /// `fetchConnectedUserId`, throwing what kept it from reading the account, for a caller that
+  /// retries the network failures
+  private func loadConnectedUserId() async throws -> String? {
     if let connectedUserId { return connectedUserId }
 
     guard isConnected else { return nil }
 
     let generation = connectedUserGeneration.withLock { $0 }
 
-    do {
-      let result = try await execute(
-        query: "query Me { me { id username } }",
-        responseType: HardcoverMeData.self
-      )
+    let result = try await execute(
+      query: "query Me { me { id username } }",
+      responseType: HardcoverMeData.self
+    )
 
-      guard let user = result.me.first else { return nil }
+    guard let user = result.me.first else { return nil }
 
-      let userId = String(user.id)
-      /// Under the lock, so a clear can't land between the check and the write
-      let isCurrent = connectedUserGeneration.withLock { current in
-        guard current == generation else { return false }
+    let userId = String(user.id)
+    /// Under the lock, so a clear can't land between the check and the write
+    let isCurrent = connectedUserGeneration.withLock { current in
+      guard current == generation else { return false }
 
-        UserDefaults.sharedDefaults.set(userId, forKey: Constants.UserDefaults.hardcoverUserId)
-        UserDefaults.sharedDefaults.set(user.username, forKey: Constants.UserDefaults.hardcoverUsername)
-        return true
-      }
+      UserDefaults.sharedDefaults.set(userId, forKey: Constants.UserDefaults.hardcoverUserId)
+      UserDefaults.sharedDefaults.set(user.username, forKey: Constants.UserDefaults.hardcoverUsername)
+      return true
+    }
 
-      guard isCurrent else {
-        Self.logger.info("Dropped a Hardcover account lookup made for credentials since replaced")
-        return nil
-      }
-
-      return userId
-    } catch {
-      Self.logger.error("Failed to read the connected Hardcover account: \(error)")
+    guard isCurrent else {
+      Self.logger.info("Dropped a Hardcover account lookup made for credentials since replaced")
       return nil
     }
+
+    return userId
   }
 
   private func clearConnectedUser() {
@@ -440,6 +451,14 @@ extension HardcoverService {
       generation += 1
       UserDefaults.sharedDefaults.removeObject(forKey: Constants.UserDefaults.hardcoverUserId)
       UserDefaults.sharedDefaults.removeObject(forKey: Constants.UserDefaults.hardcoverUsername)
+    }
+    forgetQueuedProgress()
+  }
+
+  /// Progress still waiting belongs to the account just left: an unlink, a sign-in or another key
+  private func forgetQueuedProgress() {
+    Task { [weak self] in
+      await self?.progressQueue?.clearHardcoverProgress()
     }
   }
 
@@ -483,9 +502,10 @@ extension HardcoverService {
     progressSubscription?.cancel()
     metadataSubscription = nil
     progressSubscription = nil
-    /// What was sent belongs to the account just left: one signed in next gets each book's
-    /// progress again
+    /// What was sent, and what's still waiting, belongs to the account just left: one signed in
+    /// next gets each book's progress again
     progressChanges = HardcoverProgressChanges()
+    forgetQueuedProgress()
   }
 
   /// Once per connection: a token refresh, or saving the same key, posts again while tracking
@@ -518,28 +538,75 @@ extension HardcoverService {
           let percentCompleted = progress["percentCompleted"] as? Double
         else { return }
 
-        let isNewPercent = self.progressChanges.isNew(percentCompleted, forItem: uuid)
+        guard self.progressChanges.isNew(percentCompleted, forItem: uuid) else { return }
 
         Task { [weak self] in
-          guard let self else { return }
-          await self.handleBookStarted(relativePath: relativePath, percentCompleted: percentCompleted)
-          if isNewPercent {
-            await self.updateReadProgress(percentCompleted, for: relativePath)
-          }
+          await self?.queueProgress(percentCompleted, uuid: uuid, relativePath: relativePath)
         }
       }
   }
 
-  private func handleBookStarted(relativePath: String, percentCompleted: Double) async {
-    guard percentCompleted > readingThreshold else { return }
+  /// Queues a linked book's new percentage in the sync queue's Hardcover lane, where it waits
+  /// out no connection or a busy server, and a newer one replaces it while it waits. The start
+  /// and the end aren't sent: the end would finish the read, which the Read status does
+  private func queueProgress(_ percent: Double, uuid: String, relativePath: String) async {
+    guard
+      percent > 0,
+      percent < 100,
+      let book = await libraryService.getHardcoverBook(for: relativePath)
+    else { return }
 
-    await updateExternalResources(for: relativePath, to: .reading)
+    progressQueue?.scheduleHardcoverProgress(
+      uuid: uuid,
+      relativePath: relativePath,
+      hardcoverBookId: book.id,
+      percentCompleted: percent
+    )
+  }
+
+  /// Whether a failed Hardcover request is worth sending again: no connection, a timeout, or a
+  /// busy or failing server (408, 429, 5xx), for the API or for the sign-in's token refresh.
+  /// Anything else (another 4xx, an answer that can't be read, a refused sign-in) would fail the
+  /// same way every time
+  static func isTransient(_ error: Error) -> Bool {
+    let status: Int
+    switch error {
+    case let error as URLError:
+      return Self.transientURLErrors.contains(error.code)
+    case GraphQLClient.Error.httpError(let code):
+      status = code
+    case HardcoverOAuthError.http(let code):
+      status = code
+    default:
+      return false
+    }
+    return status == 408 || status == 429 || (500...599).contains(status)
+  }
+
+  private static let transientURLErrors: Set<URLError.Code> = [
+    .notConnectedToInternet,
+    .networkConnectionLost,
+    .timedOut,
+    .cannotFindHost,
+    .cannotConnectToHost,
+    .dnsLookupFailed,
+    .dataNotAllowed,
+    .internationalRoamingOff,
+    .callIsActive,
+  ]
+
+  /// Logs a failed request, and throws it again when it's worth retrying
+  private static func rethrowIfTransient(_ error: Error, _ message: String) throws {
+    Self.logger.error("\(message): \(error)")
+    if isTransient(error) {
+      throw error
+    }
   }
 
   /// Puts the book's progress on its read in progress on Hardcover. Only for a book Currently
   /// Reading there: the status starts the read, so before it there's nothing to put it on.
-  /// Errors are logged and dropped, like every Hardcover call: the next update sends it again
-  func updateReadProgress(_ percent: Double, for relativePath: String) async {
+  /// Throws the failures worth retrying (`isTransient`); anything else is logged and dropped
+  func updateReadProgress(_ percent: Double, for relativePath: String) async throws {
     /// Finding the read needs `read:library`. A sign-in granted without it would get a 403, so it's
     /// skipped; logging out and signing in again grants it. Settings has no prompt for this yet:
     /// add one along with the first scope added to `HardcoverOAuth.scopes`
@@ -550,11 +617,12 @@ extension HardcoverService {
 
     guard
       let book = await libraryService.getHardcoverBook(for: relativePath),
-      book.status == .reading,
-      let userId = await fetchConnectedUserId().flatMap(Int.init)
+      book.status == .reading
     else { return }
 
     do {
+      guard let userId = try await loadConnectedUserId().flatMap(Int.init) else { return }
+
       let result = try await execute(
         query: Self.readInProgressQuery,
         variables: ["user_id": userId, "book_id": book.id],
@@ -596,7 +664,7 @@ extension HardcoverService {
         Self.logger.error("Hardcover refused the progress of book \(book.id): \(error)")
       }
     } catch {
-      Self.logger.error("Failed to update Hardcover progress for book \(book.id): \(error)")
+      try Self.rethrowIfTransient(error, "Failed to update Hardcover progress for book \(book.id)")
     }
   }
 
@@ -638,7 +706,7 @@ extension HardcoverService {
     """
 
   private func handleBookFinished(relativePath: String) async {
-    await updateExternalResources(for: relativePath, to: .read)
+    try? await updateExternalResources(for: relativePath, to: .read)
   }
 
   /// Push the new status to the item's Hardcover link(s), if any — reading-status
@@ -647,22 +715,23 @@ extension HardcoverService {
   private func updateExternalResources(
     for relativePath: String,
     to status: HardcoverBook.Status
-  ) async {
+  ) async throws {
     let resources = await libraryService.getExternalResources(for: relativePath)
 
     for resource in resources
     where ExternalResource.ProviderName(rawValue: resource.providerName) == .hardcover {
-      await updateHardcoverStatus(status, providerId: resource.providerId, for: relativePath)
+      try await updateHardcoverStatus(status, providerId: resource.providerId, for: relativePath)
     }
   }
 
   /// Push the given status to Hardcover for the book identified by `providerId`,
-  /// keeping the local reference in sync. No-op if it already reached `status`.
+  /// keeping the local reference in sync. No-op if it already reached `status`. Throws the
+  /// failures worth retrying (`isTransient`); anything else is logged and dropped
   private func updateHardcoverStatus(
     _ status: HardcoverBook.Status,
     providerId: String,
     for relativePath: String
-  ) async {
+  ) async throws {
     guard let bookID = Int(providerId) else { return }
 
     let existing = await libraryService.getHardcoverBook(for: relativePath)
@@ -688,7 +757,7 @@ extension HardcoverService {
       await libraryService.setHardcoverBook(updated, for: relativePath)
       Self.logger.info("Updated local Hardcover status to '\(String(describing: status))' for \(relativePath)")
     } catch {
-      Self.logger.error("Failed to update Hardcover status for book \(bookID): \(error)")
+      try Self.rethrowIfTransient(error, "Failed to update Hardcover status for book \(bookID)")
     }
   }
 
@@ -987,3 +1056,31 @@ extension SimpleHardcoverBook {
   }
 }
 
+extension HardcoverService: HardcoverProgressSyncing {
+  /// Runs a queued progress task. The book is read again first: while the task waited it may have
+  /// moved, gone back to the start, been finished, or played further (that percentage is sent)
+  func syncProgress(uuid: String, relativePath: String, percentCompleted: Double) async throws {
+    guard isConnected else {
+      Self.logger.info("Hardcover progress dropped: not connected")
+      return
+    }
+
+    guard let item = libraryService.getSimpleItem(for: uuid) else {
+      Self.logger.info("Hardcover progress dropped: the book is gone")
+      return
+    }
+
+    let percent = item.percentCompleted
+    guard percent > 0, percent < 100, !item.isFinished else {
+      Self.logger.info("Hardcover progress dropped: the book is back at the start or at the end")
+      return
+    }
+
+    /// Currently Reading first: the status starts the read the progress goes on
+    if percent > readingThreshold {
+      try await updateExternalResources(for: item.relativePath, to: .reading)
+    }
+
+    try await updateReadProgress(percent, for: item.relativePath)
+  }
+}
