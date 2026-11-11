@@ -22,6 +22,7 @@ import XCTest
 /// A known bug isn't encoded as expected behaviour: its test asserts the right behaviour inside
 /// `XCTExpectFailure`, so the fix fails that expectation and asks for it to be removed. Every test
 /// also ends with each item's `status` observer added and removed in pairs (see `tearDown`).
+@MainActor
 final class PlayerManagerCharacterizationTests: XCTestCase {
   private var libraryService: LibraryServiceProtocolMock!
   private var playbackService: PlaybackServiceProtocolMock!
@@ -69,12 +70,20 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
     playbackService.getNextChapterFromAfterClosure = { item, chapter in
       item.chapters.first { $0.index == chapter.index + 1 }
     }
+    sut = makeManager()
+  }
+
+  /// A manager on `ControlledPlayer`s, whose items `makeItem` makes
+  private func makeManager(
+    makeItem: @escaping (AVURLAsset) -> ControlledPlayerItem = { ControlledPlayerItem(asset: $0) },
+    streamLookup: ExternalStreamLooking = AudiobookShelfStreamLookup()
+  ) -> PlayerManager {
     let syncService = SyncServiceProtocolMock()
     syncService.isActive = false
     let speedService = SpeedServiceProtocolMock()
     speedService.getSpeedRelativePathReturnValue = 1
 
-    sut = PlayerManager(
+    return PlayerManager(
       libraryService: libraryService,
       playbackService: playbackService,
       syncService: syncService,
@@ -83,20 +92,19 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
       widgetReloadService: WidgetReloadService(),
       hasStreamingEnabled: { true },
       presentFailure: { [unowned self] in self.failures.append($0) },
-      engine: AVPlayerEngine(makePlayer: { [unowned self] in
-        let player = ControlledPlayer()
-        self.players.append(player)
-        return player
-      }),
-      makePlayerItem: { [unowned self] asset in
-        let item = ControlledPlayerItem(asset: asset)
-        self.items.append(item)
-        return item
-      },
-      /// The suite pins ordering, not threading. In the app `loadChapterOperation` runs on a
-      /// background queue and registers the `status` observer there; how that races with `pause()`
-      /// and `play()` on main is out of reach here. Rework PR 5 moves the work onto the main actor.
-      loadQueue: .main
+      streamLookup: streamLookup,
+      engine: AVPlayerEngine(
+        makePlayer: { [unowned self] in
+          let player = ControlledPlayer()
+          self.players.append(player)
+          return player
+        },
+        makePlayerItem: { [unowned self] asset in
+          let item = makeItem(asset)
+          self.items.append(item)
+          return item
+        }
+      )
     )
   }
 
@@ -144,7 +152,6 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
   // MARK: - 1–5: loading and queued playback
 
   /// Scenario 1
-  @MainActor
   func testALoadWithAutoplayPlaysOnceTheItemIsReady() async throws {
     let item = try await loadUntilInPlayer(singleFileBook(), intent: .wantsToPlay(.user))
 
@@ -160,7 +167,6 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
   }
 
   /// Scenario 2: the last book, loaded silently at launch
-  @MainActor
   func testALaunchPreloadRestoresThePositionWithoutPlaying() async throws {
     let item = try await loadUntilInPlayer(singleFileBook(currentTime: 30), intent: .idle)
 
@@ -173,7 +179,6 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
   }
 
   /// Scenario 3: play pressed while the item is still loading
-  @MainActor
   func testPlayPressedDuringALoadStartsOnceTheItemIsReady() async throws {
     let item = try await loadUntilInPlayer(singleFileBook(), intent: .idle)
 
@@ -189,7 +194,6 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
   }
 
   /// Scenario 4
-  @MainActor
   func testPausingDuringALoadKeepsItSilentOnceReady() async throws {
     let item = try await loadUntilInPlayer(singleFileBook(), intent: .wantsToPlay(.user))
 
@@ -202,7 +206,6 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
   }
 
   /// Scenario 5
-  @MainActor
   func testASecondLoadSupersedesTheFirst() async throws {
     let first = try await loadUntilInPlayer(singleFileBook("first.m4b"), intent: .wantsToPlay(.user))
     let second = try await loadUntilInPlayer(singleFileBook("second.m4b"), intent: .wantsToPlay(.user))
@@ -223,7 +226,6 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
   // MARK: - 6–7: failed items
 
   /// Scenario 6
-  @MainActor
   func testAnUnavailableFileIsReloadedOnceThenReported() async throws {
     let unavailable = NSError(domain: NSURLErrorDomain, code: NSURLErrorResourceUnavailable)
     let first = try await loadUntilInPlayer(singleFileBook(), intent: .wantsToPlay(.user))
@@ -243,7 +245,6 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
   }
 
   /// Scenario 7: a media-server stream
-  @MainActor
   func testAFailedStreamIsRetriedOnceThenReported() async throws {
     let timedOut = NSError(domain: NSURLErrorDomain, code: NSURLErrorTimedOut)
     let first = try await loadUntilInPlayer(streamedBook(), intent: .wantsToPlay(.user))
@@ -264,7 +265,6 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
   // MARK: - 8–9: system events
 
   /// Scenario 8
-  @MainActor
   func testAnInterruptionPausesThenResumesAsAnAutomaticPlay() async throws {
     try await loadAndPlay(singleFileBook())
 
@@ -276,7 +276,6 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
   }
 
   /// Scenario 9: the reset makes a new player, and the next play loads the book into it where it was
-  @MainActor
   func testPlayAfterAMediaServicesResetReachesAPlayerWithTheItem() async throws {
     try await loadAndPlay(singleFileBook(currentTime: 30))
     let original = player
@@ -306,7 +305,6 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
   }
 
   /// Scenario 9, a reset while the last book still loads silently: its observer goes with the old item
-  @MainActor
   func testAResetDuringASilentLoadReloadsTheBookOnPlay() async throws {
     let first = try await loadUntilInPlayer(singleFileBook(currentTime: 30), intent: .idle)
     XCTAssertTrue(first.isStatusObserved)
@@ -327,7 +325,6 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
   // MARK: - 10: the end of a file
 
   /// Scenario 10, a volume's middle file
-  @MainActor
   func testAVolumeMovesToTheNextFileWhenOneEnds() async throws {
     let first = try await loadAndPlay(boundBook())
 
@@ -341,7 +338,6 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
   }
 
   /// Scenario 10, the last file
-  @MainActor
   func testTheLastFileEndingFinishesTheBook() async throws {
     let item = try await loadAndPlay(boundBook(currentTime: 60))
     let bookEnd = expectation(forNotification: .bookEnd, object: nil)
@@ -359,7 +355,6 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
 
   /// Scenario 11: the end-of-chapter timer pauses as playback crosses the chapter's end, parked at the
   /// next chapter's start, so the resume begins at its first word and can't cross back (GH #1486)
-  @MainActor
   func testTheEndOfChapterTimerPausesOnTheBoundaryAndResumeStartsTheNextChapter() async throws {
     UserDefaults.standard.set(true, forKey: Constants.UserDefaults.smartRewindEnabled)
     UserDefaults.standard.set(true, forKey: Constants.UserDefaults.autoTimerEnabled)
@@ -395,7 +390,6 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
 
   /// Scenario 11, the tick noticing a chapter's end before the crossing: it still ends the timer, a
   /// moment late, and the crossing then leaves it alone
-  @MainActor
   func testATickPastTheChapterEndStillEndsTheTimer() async throws {
     try await loadAndPlay(singleFileBook())
     SleepTimer.shared.setTimer(.endOfChapter)
@@ -414,7 +408,6 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
   }
 
   /// Scenario 11 without the timer: a crossing changes nothing, and the tick moves the chapter as before
-  @MainActor
   func testWithoutTheEndOfChapterTimerACrossingChangesNothing() async throws {
     try await loadAndPlay(singleFileBook())
 
@@ -430,7 +423,6 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
   }
 
   /// The chapter ends observed are those inside the file in the player, but its last
-  @MainActor
   func testTheChapterEndsOfTheFileInThePlayerAreObserved() async throws {
     _ = try await loadUntilInPlayer(singleFileBook(), intent: .idle)
     XCTAssertEqual(player.boundaryTimes, [50])
@@ -441,7 +433,6 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
   }
 
   /// Scenario 11 inside a volume's file that holds two chapters: its times count from the file's start
-  @MainActor
   func testTheEndOfChapterTimerParksInsideAVolumesFile() async throws {
     try await loadAndPlay(nestedVolume(currentTime: 60))
     XCTAssertEqual(player.boundaryTimes, [30], "chapter 2 ends 30 s into the second file, at 80 s in the book")
@@ -457,7 +448,6 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
 
   /// Scenario 11 on chapter times that don't add up exactly: the ended chapter's `start + duration` rounds
   /// past the next one's start, and a book reopened from the saved time must still be in the next chapter
-  @MainActor
   func testAParkedPositionReopensInTheNextChapter() async throws {
     XCTAssertGreaterThan(600.003 + 1234.567, 1834.57, "the rounding this guards against")
     let tied = book(
@@ -480,7 +470,6 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
 
   /// Scenario 11, Smart Rewind back to a chapter's start: AVPlayer reports the chapter before it ending as
   /// playback starts there, which mustn't end the re-armed timer
-  @MainActor
   func testResumingFromAChaptersStartDoesNotEndTheTimer() async throws {
     UserDefaults.standard.set(true, forKey: Constants.UserDefaults.smartRewindEnabled)
     rememberEndOfChapterTimer()
@@ -500,7 +489,6 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
   }
 
   /// Chapters re-parsed while the book is loaded: their ends replace the old ones
-  @MainActor
   func testReloadedChaptersAreObservedAtTheirEnds() async throws {
     _ = try await loadUntilInPlayer(singleFileBook(), intent: .idle)
     XCTAssertEqual(player.boundaryTimes, [50])
@@ -536,7 +524,6 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
   }
 
   /// Scenario 12, a play the user starts
-  @MainActor
   func testAManualPlayArmsTheRememberedTimer() async throws {
     rememberEndOfChapterTimer()
     let item = try await loadUntilInPlayer(singleFileBook(), intent: .idle)
@@ -549,7 +536,6 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
   }
 
   /// Scenario 12, a tap on a new book in the library: the play starts once its item loads
-  @MainActor
   func testANewBookTapArmsTheRememberedTimer() async throws {
     rememberEndOfChapterTimer()
 
@@ -559,7 +545,6 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
   }
 
   /// Scenario 12, play pressed while the item is still loading: still the user's play once it starts
-  @MainActor
   func testPlayPressedDuringALoadArmsTheRememberedTimer() async throws {
     rememberEndOfChapterTimer()
     let item = try await loadUntilInPlayer(singleFileBook(), intent: .idle)
@@ -573,7 +558,6 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
   }
 
   /// Scenario 12, a tap whose file had to be reloaded: the retry keeps the user's play
-  @MainActor
   func testAReloadedTapStillArmsTheRememberedTimer() async throws {
     rememberEndOfChapterTimer()
     let first = try await loadUntilInPlayer(singleFileBook(), intent: .wantsToPlay(.user))
@@ -587,7 +571,6 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
   }
 
   /// Scenario 12, the next book starting after one finishes
-  @MainActor
   func testTheNextBookAfterAFinishedOneDoesNotArmTheRememberedTimer() async throws {
     UserDefaults.standard.set(true, forKey: Constants.UserDefaults.autoplayEnabled)
     playbackService.getPlayableItemAfterParentFolderAutoplayedRestartFinishedReturnValue = singleFileBook("next.m4b")
@@ -604,7 +587,6 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
   }
 
   /// Scenario 12, playback resuming after a call
-  @MainActor
   func testAnInterruptionsResumeDoesNotArmTheRememberedTimer() async throws {
     rememberEndOfChapterTimer()
     try await loadAndPlay(singleFileBook(), origin: .system)
@@ -617,7 +599,6 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
   }
 
   /// Scenario 12, CarPlay connecting: the muted play that claims Now Playing, then pauses
-  @MainActor
   func testClaimingNowPlayingDoesNotArmTheRememberedTimer() async throws {
     rememberEndOfChapterTimer()
     let item = try await loadUntilInPlayer(singleFileBook(), intent: .idle)
@@ -631,12 +612,10 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
     XCTAssertEqual(SleepTimer.shared.state, .off)
   }
 
-  // MARK: - Known bugs
+  // MARK: - The load's states
 
-  /// A volume's next file chosen while the current one is still loading: the "Clean just in case" block
-  /// in `loadPlayerItem(for:forceRefreshURL:)` removes the old observer by hand but leaves
-  /// `observeStatus` true, so `observeStatus = true` for the new item is a no-op.
-  @MainActor
+  /// A volume's next file chosen while the current one is still loading: the new item is observed, and
+  /// the queued play starts once it's ready. Before rework PR 5 a leftover `observeStatus` left it unobserved
   func testAChapterChangeDuringALoadObservesTheNewItem() async throws {
     let first = try await loadUntilInPlayer(boundBook(), intent: .wantsToPlay(.user))
     let nextChapter = try XCTUnwrap(sut.currentItem?.chapters.last)
@@ -645,16 +624,149 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
     let second = try await nextItemInPlayer(after: 1)
 
     XCTAssertFalse(first.isStatusObserved)
-    XCTExpectFailure("Bug: the new item is never observed. Fixed by rework PR 5 (ItemLoad).") {
-      XCTAssertTrue(second.isStatusObserved)
-    }
+    XCTAssertTrue(second.isStatusObserved)
 
     second.become(.readyToPlay)
+    await waitUntil("playback starts") { !self.player.playCalls.isEmpty }
     await settle()
 
-    XCTExpectFailure("Bug: so the queued play never starts. Fixed by rework PR 5 (ItemLoad).") {
-      XCTAssertEqual(player.playCalls.count, 1)
-    }
+    XCTAssertEqual(player.playCalls.count, 1)
+  }
+
+  /// Play pressed while the file is still being found (its media server hasn't answered): it waits for
+  /// that load instead of starting another
+  func testPlayPressedWhileResolvingWaitsForThatLoad() async throws {
+    let server = HeldStreamLookup()
+    sut = makeManager(streamLookup: server)
+    sut.load(lookedUpBook(), intent: .idle)
+    await waitUntil("the server is asked") { server.isAsked }
+
+    sut.play()
+    await settle()
+    XCTAssertTrue(items.isEmpty, "nothing reaches the engine before the server answers")
+
+    server.answer(.answered([lookedUpFile]))
+    let item = try await nextItemInPlayer(after: 0)
+    item.become(.readyToPlay)
+    await waitUntil("playback starts") { !self.player.playCalls.isEmpty }
+    await settle()
+
+    XCTAssertEqual(server.calls, 1, "the play doesn't ask again")
+    XCTAssertEqual(items.count, 1, "one load")
+    XCTAssertEqual(player.playCalls.count, 1)
+  }
+
+  /// A pause while the file is still being found cancels that load, and the next play loads the book again
+  func testAPauseWhileResolvingCancelsTheLoad() async throws {
+    let server = HeldStreamLookup()
+    sut = makeManager(streamLookup: server)
+    sut.load(lookedUpBook(), intent: .wantsToPlay(.user))
+    await waitUntil("the server is asked") { server.isAsked }
+
+    sut.pause()
+    server.answer(.answered([lookedUpFile]))
+    await settle()
+    XCTAssertTrue(items.isEmpty, "the cancelled load doesn't reach the engine")
+
+    sut.play()
+    await waitUntil("the server is asked again") { server.isAsked }
+    server.answer(.answered([lookedUpFile]))
+    let item = try await nextItemInPlayer(after: 0)
+    item.become(.readyToPlay)
+    await waitUntil("playback starts") { !self.player.playCalls.isEmpty }
+
+    XCTAssertEqual(server.calls, 2)
+  }
+
+  /// An item that's ready before its status is observed still reports, through the initial value
+  func testAnItemAlreadyReadyStillReports() async throws {
+    sut = makeManager(makeItem: { asset in
+      let item = ControlledPlayerItem(asset: asset)
+      item.become(.readyToPlay)
+      return item
+    })
+
+    sut.load(singleFileBook(), intent: .wantsToPlay(.user))
+    await waitUntil("playback starts") { !self.player.playCalls.isEmpty }
+    await settle()
+
+    XCTAssertEqual(player.playCalls.count, 1)
+    XCTAssertFalse(try XCTUnwrap(items.first).isStatusObserved)
+  }
+
+  /// Only the player's own item ending counts: another item's end, such as the file it held before,
+  /// leaves the book where it is
+  func testAnotherItemsEndIsIgnored() async throws {
+    let first = try await loadAndPlay(boundBook())
+    NotificationCenter.default.post(name: .AVPlayerItemDidPlayToEndTime, object: first)
+    let second = try await nextItemInPlayer(after: 1)
+    XCTAssertEqual(sut.currentItem?.currentChapter.index, 2)
+
+    /// The first file again, and an item no player holds
+    NotificationCenter.default.post(name: .AVPlayerItemDidPlayToEndTime, object: first)
+    NotificationCenter.default.post(
+      name: .AVPlayerItemDidPlayToEndTime,
+      object: AVPlayerItem(url: URL(fileURLWithPath: "/dev/null"))
+    )
+    await settle()
+
+    XCTAssertEqual(sut.currentItem?.currentChapter.index, 2)
+    XCTAssertEqual(libraryService.markAsFinishedFlagRelativePathCallsCount, 0, "the book isn't finished")
+    XCTAssertEqual(items.count, 2, "nothing else loads")
+    XCTAssertTrue(player.currentItem === second)
+  }
+
+  /// A load that failed and was reported: the next play loads the book again, and plays it
+  func testAFailedLoadReloadsOnTheNextPlay() async throws {
+    let first = try await loadUntilInPlayer(singleFileBook(), intent: .wantsToPlay(.user))
+    first.become(.failed, error: NSError(domain: NSURLErrorDomain, code: NSURLErrorCannotDecodeContentData))
+    await waitUntil("the failure is reported") { !self.failures.isEmpty }
+
+    sut.play()
+    let second = try await nextItemInPlayer(after: 1)
+    second.become(.readyToPlay)
+    await waitUntil("playback starts") { !self.player.playCalls.isEmpty }
+
+    XCTAssertEqual(failures.count, 1)
+    XCTAssertTrue(player.currentItem === second)
+  }
+
+  /// A stream can fail after it was ready, mid-playback: nothing reports it then, and the next play loads
+  /// the book again instead of playing the failed item
+  func testAnItemThatFailsAfterItWasReadyReloadsOnTheNextPlay() async throws {
+    let first = try await loadAndPlay(streamedBook())
+    first.become(.failed, error: NSError(domain: NSURLErrorDomain, code: NSURLErrorNetworkConnectionLost))
+    sut.pause()
+    await settle()
+    XCTAssertTrue(failures.isEmpty)
+
+    sut.play()
+    let second = try await nextItemInPlayer(after: 1)
+    second.become(.readyToPlay)
+    await waitUntil("playback starts again") { self.player.playCalls.count == 2 }
+
+    XCTAssertTrue(player.currentItem === second)
+  }
+
+  /// The silent reloads come back with each play asked for, and only then
+  func testThePlayRefillsTheRetryBudget() async throws {
+    let unavailable = NSError(domain: NSURLErrorDomain, code: NSURLErrorResourceUnavailable)
+    let first = try await loadUntilInPlayer(singleFileBook(), intent: .wantsToPlay(.user))
+    first.become(.failed, error: unavailable)
+    let second = try await nextItemInPlayer(after: 1)
+    second.become(.failed, error: unavailable)
+    await waitUntil("the failure is reported") { self.failures.count == 1 }
+
+    /// The tap after the alert: its load gets a silent reload again
+    sut.play()
+    let third = try await nextItemInPlayer(after: 2)
+    third.become(.failed, error: unavailable)
+    let fourth = try await nextItemInPlayer(after: 3)
+    await settle()
+
+    XCTAssertEqual(failures.count, 1, "the reload after the tap is silent")
+    fourth.become(.readyToPlay)
+    await waitUntil("playback starts") { !self.player.playCalls.isEmpty }
   }
 
   // MARK: - Books
@@ -757,10 +869,37 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
     )
   }
 
+  /// An AudiobookShelf book: its server is asked for the file when it loads, and nothing is on disk
+  private func lookedUpBook() -> PlayableItem {
+    book(
+      "looked-up.mp3",
+      chapters: [
+        PlayableChapter(
+          title: "chapter 1",
+          author: "author",
+          start: 0,
+          duration: 100,
+          relativePath: "looked-up.mp3",
+          remoteURL: nil,
+          externalURL: nil,
+          index: 1,
+          externalHeaders: ["Authorization": "Bearer t"],
+          streamLookup: PlayableChapter.StreamLookup(
+            serverURL: URL(string: "https://abs.example.com")!,
+            itemId: "li_1",
+            member: .item
+          )
+        )
+      ]
+    )
+  }
+
+  /// The one file `lookedUpBook`'s server lists
+  private let lookedUpFile = ExternalStreamFile(path: "api/items/li_1/file/1", name: "01.mp3", duration: 100)
+
   // MARK: - Driving the manager
 
   /// Loads `book` and returns its item once `PlayerManager` has handed it to the player
-  @MainActor
   private func loadUntilInPlayer(
     _ book: PlayableItem,
     intent: PlayIntent,
@@ -775,7 +914,6 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
   /// Loads `book` to play, by default as a tap in the library does, makes its item ready and waits
   /// for playback to start
   @discardableResult
-  @MainActor
   private func loadAndPlay(
     _ book: PlayableItem,
     origin: PlayOrigin = .user,
@@ -789,7 +927,6 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
   }
 
   /// Waits for an item beyond the first `count` to reach the player
-  @MainActor
   private func nextItemInPlayer(
     after count: Int,
     file: StaticString = #filePath,
@@ -801,8 +938,7 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
     return try XCTUnwrap(items.count > count ? items.last : nil, file: file, line: line)
   }
 
-  /// Lets the load's hops (a `Task`, `OperationQueue.main`, `DispatchQueue.main`) run until `condition` holds
-  @MainActor
+  /// Lets the load's hops (a `Task`, `DispatchQueue.main`) run until `condition` holds
   private func waitUntil(
     _ what: String,
     timeout: TimeInterval = 2,
@@ -821,7 +957,6 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
   }
 
   /// Gives pending main-queue work time to run, before checking something did NOT happen
-  @MainActor
   private func settle() async {
     try? await Task.sleep(nanoseconds: 200_000_000)
   }
@@ -846,5 +981,31 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
     SleepTimer.shared.setTimer(.endOfChapter)
     /// Ends it the way a chapter change does, which keeps it as the remembered one
     NotificationCenter.default.post(name: .chapterChange, object: nil)
+  }
+}
+
+/// A media server that answers when the test says so, holding a load in `.resolving` until then
+@MainActor
+private final class HeldStreamLookup: ExternalStreamLooking {
+  private var pending: CheckedContinuation<ExternalStreamFiles, Never>?
+  private(set) var calls = 0
+
+  /// A lookup is waiting for its answer
+  var isAsked: Bool { pending != nil }
+
+  func files(
+    ofItem itemId: String,
+    on serverURL: URL,
+    headers: [String: String],
+    timeout: TimeInterval
+  ) async -> ExternalStreamFiles {
+    calls += 1
+    return await withCheckedContinuation { pending = $0 }
+  }
+
+  func answer(_ files: ExternalStreamFiles) {
+    let waiting = pending
+    pending = nil
+    waiting?.resume(returning: files)
   }
 }

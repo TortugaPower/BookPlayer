@@ -105,7 +105,7 @@ extension IntegrationLibraryViewModelProtocol {
 ///
 /// The duration is not cosmetic. It is the only source for an external row's
 /// `book.duration` — nothing opens the file, so nothing can measure it later — and
-/// `loadChapterOperation` refuses to start playback on a chapter whose duration is 0,
+/// `PlayerManager.startLoading` refuses to start playback on a chapter whose duration is 0,
 /// silently. An item imported without one is a row that can never play.
 struct HydratedItem {
   let fileExtension: String

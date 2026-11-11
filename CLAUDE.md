@@ -379,25 +379,35 @@ CarPlay event bus. Declared in `Shared/Extensions/Notification+BookPlayerKit.swi
 
 ## Player · audio · sleep timer — `BookPlayer/Player/`
 
-`PlayerManager.swift` is `final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject` (~1500
-lines). It is the highest-risk file in the app.
+`PlayerManager.swift` is `@MainActor final class PlayerManager: NSObject, @preconcurrency PlayerManagerProtocol,
+ObservableObject` (~2000 lines). It is the highest-risk file in the app. The load, the engine and every callback into
+them run on the main actor; the protocol, shared with the watch and the widget, stays nonisolated until the player
+core is shared with the watch, and the four skip-interval statics are `nonisolated`.
 
 - **Only the engine and the video surfaces touch `AVPlayer`.** `PlayerManager` drives playback through
-  `PlaybackEngine` (`AVPlayerEngine`): play, pause, rate, seeks, the clock, volume, the periodic time observer and
-  the status publisher. The engine makes **exactly one `AVPlayer` at a time** and replaces it with `rebuild()` on
+  `PlaybackEngine` (`AVPlayerEngine`): items (`load(_ asset:events:)`, `unload()`), play, pause, rate, seeks, the
+  clock, volume, the periodic and boundary time observers and the status publisher. A load reports `.ready` or
+  `.failed` once, then `.ended`, on the main queue and never before `load` returns, and only for the engine's own
+  item; cancelling or releasing its `EngineLoad` stops them. The engine makes **exactly one `AVPlayer` at a time** and replaces it with `rebuild()` on
   `mediaServicesWereReset` and on `.failed`; it moves its time observers to the new player and keeps
   `statusPublisher` the same, so subscribers survive. After a reset `PlayerManager` also drops the loaded item, which
   the new player doesn't have, so the next play loads it again. Video gets the player from `getAVPlayer()`
-  (`engine.videoPlayer`) and re-attaches on view updates. Items stay in `PlayerManager` until rework PR 5 moves them
-  behind the engine (`engine.load(_ source:)`).
+  (`engine.videoPlayer`) and re-attaches on view updates.
 - **Named single-purpose cancellables**, each `.cancel()`'d before rebind (distinct from the multi-sink
   `disposeBag`): `playableChapterSubscription`, `isPlayingSubscription`, `nowPlayingClaimSubscription`. Match this
   pattern; don't convert a named rebind-able subscription into a `disposeBag` entry.
 - **Invariant — every `currentItem` reassignment must be followed by `bindPlayableChapterSubscription`** (3 call
   sites: `load`, `loadRemoteURLAsset`, `reloadCurrentItem`). Missing it silently breaks the end-of-chapter sleep
   timer and the Now Playing chapter title (the `.chapterChange` notification is posted from that sink).
-- **KVO on `AVPlayerItem.status`** is balanced via `observeStatus` didSet + a `hasObserverRegistered` guard;
-  nulling the player item resets the guard. An imbalance crashes on `removeObserver`.
+- **One `ItemLoad` state says how far the chapter file got:** `.empty`, `.resolving(chapter, task)` (finding a cloud
+  URL, a media server's stream or a cloud file's metadata, `resolveAsset(for:forceRefresh:)`), `.loading(chapter,
+  EngineLoad)`, `.ready(chapter, EngineLoad)`, `.failed(chapter)`. Leaving a state cancels what it holds (its
+  `didSet`), except a resolve handing its file to the engine and a load becoming ready. A play reloads the book on
+  `.empty`/`.failed` (and on a stream that failed after it was ready), waits on this chapter's file resolving or
+  loading, loads this chapter's file when the state holds another, and plays on `.ready`. A pause cancels a resolve
+  (back to `.empty`) and lets an engine load finish silently; stop, a new book and a media-services reset go to
+  `.empty`. `RetryBudget` (one cloud-URL refresh, one stream retry) is refilled by every play asked for. The 1 s tick
+  only counts in `.ready`.
 - **Invariant — every `PlayerManager` seek goes through `seekPlayer(to:recoveries:)`**, never `engine.seek`
   directly. Until the latest seek completes, `clockState` is `.seeking` and `updateTime()` drops readings, which
   are still the position being left. Recording one makes a landing near the file start look like the iOS 27
@@ -406,8 +416,8 @@ lines). It is the highest-risk file in the app.
   player screen and Now Playing keep the old position.
 - **Characterization tests pin load and playback** (`PlayerManagerCharacterizationTests`). They inject
   `ControlledPlayer` / `ControlledPlayerItem` (`BookPlayerTests/Support/PlayerTestDoubles.swift`) through the
-  `engine` (an `AVPlayerEngine(makePlayer:)`), `makePlayerItem` and `loadQueue` init parameters, and every test ends checking each item's `status`
-  observer was added and removed in pairs. Known bugs are asserted correct inside `XCTExpectFailure`; a fix makes
+  `engine` init parameter (an `AVPlayerEngine(makePlayer:makePlayerItem:)`), and every test ends checking each item's
+  `status` observers were added and removed in pairs. Known bugs are asserted correct inside `XCTExpectFailure`; a fix makes
   that expectation fail, so remove it in the same change.
 - **Chapter ends are observed, not polled.** When a file reaches the player, `observeChapterEnds(inFileOf:)`
   registers engine boundary observers at the ends of the chapters in that file, all but its last, which
