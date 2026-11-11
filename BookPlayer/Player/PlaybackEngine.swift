@@ -35,8 +35,38 @@ final class EngineObservation {
   }
 }
 
+/// What happens to an item the engine loads
+enum LoadEvent {
+  /// It can play
+  case ready
+  /// It can't, with the reason the engine gives
+  case failed(Error?)
+  /// Playback reached its end
+  case ended
+}
+
+/// An item the engine loaded. Its events reach the caller until this is cancelled or let go; the item
+/// stays in the player until the next load or `unload()`
+final class EngineLoad {
+  private var onCancel: (() -> Void)?
+
+  init(onCancel: @escaping () -> Void) {
+    self.onCancel = onCancel
+  }
+
+  func cancel() {
+    onCancel?()
+    onCancel = nil
+  }
+
+  deinit {
+    cancel()
+  }
+}
+
 /// Drives playback of one item at a time. `PlayerManager` talks only to this: only an
 /// implementation and the video surfaces touch `AVPlayer`.
+@MainActor
 protocol PlaybackEngine: AnyObject {
   /// The same publisher for the engine's whole life, across rebuilds
   var statusPublisher: AnyPublisher<EngineStatus, Never> { get }
@@ -49,6 +79,8 @@ protocol PlaybackEngine: AnyObject {
   var isMuted: Bool { get set }
   /// The player itself failed: `rebuild()` replaces it
   var hasFailed: Bool { get }
+  /// The item in the player failed after it was ready, as a stream can mid-playback: the next play loads it again
+  var itemHasFailed: Bool { get }
   /// For video artwork and Picture in Picture only; nil for an engine without one
   var videoPlayer: AVPlayer? { get }
 
@@ -65,8 +97,12 @@ protocol PlaybackEngine: AnyObject {
     _ block: @escaping @Sendable (TimeInterval) -> Void
   ) -> EngineObservation
   func fadeVolume(from: Float, to: Float, duration: Float) -> Timer?
-  /// Until `ItemLoad` (rework PR 5) moves item creation behind the engine as `load(_ source:)`
-  func replaceItem(_ item: AVPlayerItem?)
+  /// Puts `asset` in the player, replacing its item. `events` runs on the main queue, never before this
+  /// returns: `.ready` or `.failed` once (an item already ready still reports), then `.ended` when playback
+  /// reaches its end
+  func load(_ asset: AVURLAsset, events: @escaping (LoadEvent) -> Void) -> EngineLoad
+  /// Empties the player
+  func unload()
   /// A new player after a media-services reset or a failed one. Observers move over and the
   /// status publisher stays; the item doesn't
   func rebuild()

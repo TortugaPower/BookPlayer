@@ -15,6 +15,7 @@ import MediaPlayer
 import Combine
 import XCTest
 
+@MainActor
 class PlayerManagerTests: XCTestCase {
   var playbackServiceMock: PlaybackServiceProtocolMock!
   var syncServiceMock: SyncServiceProtocolMock!
@@ -37,12 +38,15 @@ class PlayerManagerTests: XCTestCase {
     self.sut = makeManager()
   }
 
-  private func makeManager(engine: PlaybackEngine = AVPlayerEngine()) -> PlayerManager {
-    PlayerManager(
+  private func makeManager(engine: PlaybackEngine? = nil) -> PlayerManager {
+    let speedService = SpeedServiceProtocolMock()
+    speedService.getSpeedRelativePathReturnValue = 1
+
+    return PlayerManager(
       libraryService: LibraryServiceProtocolMock(),
       playbackService: playbackServiceMock,
       syncService: syncServiceMock,
-      speedService: SpeedServiceProtocolMock(),
+      speedService: speedService,
       shakeMotionService: ShakeMotionServiceProtocolMock(),
       widgetReloadService: WidgetReloadService(),
       // Entitled by default, so nothing here is suppressed by tier; the item half of the rule
@@ -503,7 +507,7 @@ class PlayerManagerTests: XCTestCase {
       index: 1
     )
 
-    _ = try? await sut.loadPlayerItem(for: chapter, forceRefreshURL: false)
+    _ = try? await sut.resolveAsset(for: chapter, forceRefresh: false)
 
     XCTAssertEqual(
       syncServiceMock.getRemoteFileURLsOfForTypeCallsCount,
@@ -512,7 +516,7 @@ class PlayerManagerTests: XCTestCase {
     )
   }
 
-  /// Branch order in `loadPlayerItem`: a media-server chapter streams from its own URL even
+  /// Branch order in `resolveAsset`: a media-server chapter streams from its own URL even
   /// when the caller forces a refresh. Inverting the external and cloud branches would send
   /// a Jellyfin/ABS book to the S3 presign endpoint, which has nothing to hand back for it.
   @MainActor
@@ -529,7 +533,7 @@ class PlayerManagerTests: XCTestCase {
       index: 1
     )
 
-    _ = try await sut.loadPlayerItem(for: chapter, forceRefreshURL: true)
+    _ = try await sut.resolveAsset(for: chapter, forceRefresh: true)
 
     XCTAssertEqual(
       syncServiceMock.getRemoteFileURLsOfForTypeCallsCount,
@@ -727,11 +731,20 @@ class PlayerManagerTests: XCTestCase {
 
   // MARK: - Seeks in flight
 
-  /// A chapter long enough to sit past `PlayerTimeSample`'s file-start threshold
-  private func installLongChapterItem(currentTime: TimeInterval) -> SeekControlledPlayer {
-    let player = SeekControlledPlayer()
-    player.reportedTime = currentTime
-    sut = makeManager(engine: AVPlayerEngine(makePlayer: { player }))
+  /// A chapter long enough to sit past `PlayerTimeSample`'s file-start threshold, loaded and ready, with
+  /// playback `currentTime` into it. Its seeks land when the test says so
+  private func installLongChapterItem(currentTime: TimeInterval) -> ControlledPlayer {
+    let player = ControlledPlayer()
+    player.landsSeeksImmediately = false
+    syncServiceMock.isActive = false
+    sut = makeManager(engine: AVPlayerEngine(
+      makePlayer: { player },
+      makePlayerItem: { asset in
+        let item = ControlledPlayerItem(asset: asset)
+        item.become(.readyToPlay)
+        return item
+      }
+    ))
 
     let chapter = PlayableChapter(
       title: "chapter 1",
@@ -743,11 +756,11 @@ class PlayerManagerTests: XCTestCase {
       externalURL: nil,
       index: 1
     )
-    sut.currentItem = PlayableItem(
+    let book = PlayableItem(
       title: "test book",
       author: "test author",
       chapters: [chapter],
-      currentTime: currentTime,
+      currentTime: 0,
       duration: 600,
       relativePath: "",
       uuid: "LEGACY_UUID",
@@ -758,7 +771,15 @@ class PlayerManagerTests: XCTestCase {
       isBoundBook: false
     )
 
-    sut.playerItem = ReadyPlayerItem(url: URL(fileURLWithPath: "/dev/null"))
+    /// Loaded at the start, so the load itself doesn't seek
+    let loaded = expectation(forNotification: .bookReady, object: nil)
+    sut.load(book, intent: .idle)
+    wait(for: [loaded], timeout: 1)
+    /// The item's ready status reaches the manager on main
+    drainMainQueue()
+
+    book.currentTime = currentTime
+    player.reportedTime = currentTime
     return player
   }
 
@@ -841,39 +862,4 @@ class PlayerManagerTests: XCTestCase {
 
     XCTAssertEqual(sut.currentItem?.currentTime ?? -1, 280, accuracy: 0.0001)
   }
-}
-
-/// `AVPlayer` whose seeks land when a test says so, reporting the old position until then
-private final class SeekControlledPlayer: AVPlayer {
-  var reportedTime: TimeInterval = 0
-  private(set) var seekTargets: [TimeInterval] = []
-  private var pendingSeeks: [(target: TimeInterval, completion: (Bool) -> Void)] = []
-
-  override func currentTime() -> CMTime {
-    CMTime(seconds: reportedTime, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
-  }
-
-  override func seek(to time: CMTime) {
-    seek(to: time) { _ in }
-  }
-
-  override func seek(to time: CMTime, completionHandler: @escaping (Bool) -> Void) {
-    seekTargets.append(time.seconds)
-    pendingSeeks.append((time.seconds, completionHandler))
-  }
-
-  /// Completes the oldest seek, moving the reported position if it wasn't interrupted
-  func finishSeek(finished: Bool = true) {
-    guard !pendingSeeks.isEmpty else { return }
-
-    let seek = pendingSeeks.removeFirst()
-    if finished {
-      reportedTime = seek.target
-    }
-    seek.completion(finished)
-  }
-}
-
-private final class ReadyPlayerItem: AVPlayerItem {
-  override var status: AVPlayerItem.Status { .readyToPlay }
 }

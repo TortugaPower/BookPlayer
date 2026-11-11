@@ -10,9 +10,12 @@ import Combine
 import Foundation
 
 /// The `PlaybackEngine` on `AVPlayer`
+@MainActor
 final class AVPlayerEngine: PlaybackEngine {
   /// Makes the player on every (re)build. Injected so tests drive a player that never loads media
   private let makePlayer: () -> AVPlayer
+  /// Wraps an asset in the item put in the player. Injected so tests control its status
+  private let makePlayerItem: (AVURLAsset) -> AVPlayerItem
   private var player: AVPlayer
   private let statusSubject = CurrentValueSubject<EngineStatus, Never>(.paused)
   private var statusSubscription: AnyCancellable?
@@ -30,8 +33,12 @@ final class AVPlayerEngine: PlaybackEngine {
   }
   private var timeObservers: [UUID: TimeObserver] = [:]
 
-  init(makePlayer: @escaping () -> AVPlayer = { AVPlayer() }) {
+  init(
+    makePlayer: @escaping () -> AVPlayer = { AVPlayer() },
+    makePlayerItem: @escaping (AVURLAsset) -> AVPlayerItem = { AVPlayerItem(asset: $0) }
+  ) {
     self.makePlayer = makePlayer
+    self.makePlayerItem = makePlayerItem
     self.player = makePlayer()
     configure(player)
   }
@@ -65,6 +72,12 @@ final class AVPlayerEngine: PlaybackEngine {
 
   var hasFailed: Bool {
     player.status == .failed
+  }
+
+  var itemHasFailed: Bool {
+    guard let item = player.currentItem else { return false }
+
+    return item.status == .failed || item.error != nil
   }
 
   var videoPlayer: AVPlayer? {
@@ -104,8 +117,18 @@ final class AVPlayerEngine: PlaybackEngine {
     player.fadeVolume(from: from, to: to, duration: duration)
   }
 
-  func replaceItem(_ item: AVPlayerItem?) {
+  func load(_ asset: AVURLAsset, events: @escaping (LoadEvent) -> Void) -> EngineLoad {
+    let item = makePlayerItem(asset)
+    item.audioTimePitchAlgorithm = .timeDomain
+
+    let observers = ItemObservers(observing: item, events: events)
     player.replaceCurrentItem(with: item)
+
+    return EngineLoad { observers.stop() }
+  }
+
+  func unload() {
+    player.replaceCurrentItem(with: nil)
   }
 
   func rebuild() {
@@ -176,6 +199,64 @@ final class AVPlayerEngine: PlaybackEngine {
       return .paused
     @unknown default:
       return .paused
+    }
+  }
+}
+
+/// The observers of one loaded item: its status until it's ready or failed, and its end. Its
+/// `EngineLoad` stops them
+@MainActor
+private final class ItemObservers {
+  private let events: (LoadEvent) -> Void
+  private var status: AnyCancellable?
+  private var end: AnyCancellable?
+  /// Set when its load is cancelled: an event already on its way to main is dropped
+  private var isStopped = false
+
+  init(observing item: AVPlayerItem, events: @escaping (LoadEvent) -> Void) {
+    self.events = events
+
+    /// `.initial`, so an item that's ready before it's observed still reports. Each value hops to main,
+    /// even from main: AVFoundation doesn't promise main, and no event may reach the caller before
+    /// `load` returns
+    status = item.publisher(for: \.status, options: [.initial, .new])
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self, weak item] status in
+        self?.statusChanged(to: status, error: item?.error)
+      }
+
+    /// For this item only: another player's item ending, or this player's previous one, isn't ours
+    end = NotificationCenter.default.publisher(for: .AVPlayerItemDidPlayToEndTime, object: item)
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] _ in
+        guard let self, !self.isStopped else { return }
+
+        self.events(.ended)
+      }
+  }
+
+  func stop() {
+    isStopped = true
+    status = nil
+    end = nil
+  }
+
+  /// Reports once, when the item is ready or failed: a value queued behind that one finds the status no
+  /// longer observed
+  private func statusChanged(to newStatus: AVPlayerItem.Status, error: Error?) {
+    guard !isStopped, status != nil else { return }
+
+    switch newStatus {
+    case .readyToPlay:
+      status = nil
+      events(.ready)
+    case .failed:
+      status = nil
+      events(.failed(error))
+    case .unknown:
+      break
+    @unknown default:
+      break
     }
   }
 }

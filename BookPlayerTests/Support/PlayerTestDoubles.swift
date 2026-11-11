@@ -186,11 +186,12 @@ final class ControlledPlayer: AVPlayer {
   }
 }
 
-/// `AVPlayerItem` whose status the test sets, and which counts `PlayerManager`'s `status` observers.
+/// `AVPlayerItem` whose status the test sets, and which counts its `status` observers.
 ///
-/// A remove without a matching add is what raises "Cannot remove an observer … for the key path
+/// A remove without a matching add is what raised "Cannot remove an observer … for the key path
 /// "status"" in production. Here it is counted in `unbalancedRemoves` instead, so the crash family
-/// fails an assertion rather than crashing the test run.
+/// fails an assertion rather than crashing the test run. Every observer counts: the engine's block-based
+/// KVO registers a helper object, not the engine itself.
 final class ControlledPlayerItem: AVPlayerItem {
   private var heldStatus: AVPlayerItem.Status = .unknown
   private var heldError: Error?
@@ -218,20 +219,39 @@ final class ControlledPlayerItem: AVPlayerItem {
     options: NSKeyValueObservingOptions = [],
     context: UnsafeMutableRawPointer?
   ) {
-    if keyPath == "status", observer is PlayerManager {
+    if keyPath == "status" {
       statusObserverAdds += 1
     }
     super.addObserver(observer, forKeyPath: keyPath, options: options, context: context)
   }
 
   override func removeObserver(_ observer: NSObject, forKeyPath keyPath: String) {
-    if keyPath == "status", observer is PlayerManager {
-      guard isStatusObserved else {
-        unbalancedRemoves += 1
-        return
-      }
-      statusObserverRemoves += 1
+    countingRemove(forKeyPath: keyPath) {
+      super.removeObserver(observer, forKeyPath: keyPath)
     }
-    super.removeObserver(observer, forKeyPath: keyPath)
+  }
+
+  override func removeObserver(_ observer: NSObject, forKeyPath keyPath: String, context: UnsafeMutableRawPointer?) {
+    countingRemove(forKeyPath: keyPath) {
+      super.removeObserver(observer, forKeyPath: keyPath, context: context)
+    }
+  }
+
+  /// Set during a remove: one variant of `removeObserver` calls the other, which mustn't count it again
+  private var isRemoving = false
+
+  /// Counts the remove and lets it go ahead, unless it's nested in one already counted. One without a
+  /// matching add is counted as unbalanced instead, and doesn't go ahead
+  private func countingRemove(forKeyPath keyPath: String, _ remove: () -> Void) {
+    guard keyPath == "status", !isRemoving else { return remove() }
+    guard isStatusObserved else {
+      unbalancedRemoves += 1
+      return
+    }
+
+    statusObserverRemoves += 1
+    isRemoving = true
+    defer { isRemoving = false }
+    remove()
   }
 }
