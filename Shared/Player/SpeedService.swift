@@ -6,11 +6,6 @@
 //  Copyright © 2021 BookPlayer LLC. All rights reserved.
 //
 
-#if os(watchOS)
-  import BookPlayerWatchKit
-#else
-  import BookPlayerKit
-#endif
 import Combine
 import Foundation
 
@@ -20,7 +15,7 @@ public protocol SpeedServiceProtocol {
   func getSpeed(relativePath: String?) -> Float
 }
 
-class SpeedService: SpeedServiceProtocol {
+public class SpeedService: SpeedServiceProtocol {
   private let libraryService: LibraryServiceProtocol
 
   public private(set) var currentSpeed = CurrentValueSubject<Float, Never>(1.0)

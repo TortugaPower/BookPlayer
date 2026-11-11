@@ -8,6 +8,7 @@
 
 import Foundation
 import AppIntents
+import BookPlayerKit
 
 @available(macOS 14.0, watchOS 10.0, tvOS 16.0, *)
 struct CustomSleepTimerIntent: AppIntent {

@@ -30,6 +30,8 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
   private var players: [ControlledPlayer] = []
   private var items: [ControlledPlayerItem] = []
   private var failures: [PlaybackFailure] = []
+  /// The platform of the manager made last
+  private var platform: TestPlayerPlatform!
   private var savedDefaults: [String: Any] = [:]
   private var sut: PlayerManager!
 
@@ -82,13 +84,15 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
     syncService.isActive = false
     let speedService = SpeedServiceProtocolMock()
     speedService.getSpeedRelativePathReturnValue = 1
+    let platform = TestPlayerPlatform()
+    self.platform = platform
 
     return PlayerManager(
       libraryService: libraryService,
       playbackService: playbackService,
       syncService: syncService,
       speedService: speedService,
-      shakeMotionService: ShakeMotionServiceProtocolMock(),
+      platform: platform,
       widgetReloadService: WidgetReloadService(),
       hasStreamingEnabled: { true },
       presentFailure: { [unowned self] in self.failures.append($0) },
@@ -142,6 +146,7 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
     }
 
     sut = nil
+    platform = nil
     players = []
     items = []
     failures = []
@@ -769,6 +774,73 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
     await waitUntil("playback starts") { !self.player.playCalls.isEmpty }
   }
 
+  // MARK: - The platform
+
+  /// The platform couldn't activate the audio session: the play stops there, and isn't left pending
+  func testAFailedActivationStopsThePlay() async throws {
+    platform.activates = false
+    let item = try await loadUntilInPlayer(singleFileBook(), intent: .wantsToPlay(.user))
+
+    item.become(.readyToPlay)
+    await waitUntil("the session is asked for") { self.platform.activations == 1 }
+    await settle()
+
+    XCTAssertTrue(player.playCalls.isEmpty)
+    XCTAssertFalse(sut.isPlaying)
+  }
+
+  /// A pause while the platform is still activating the audio session (the watch's route picker) wins: the
+  /// play doesn't start once the activation finishes
+  func testAPauseDuringActivationStopsThePlay() async throws {
+    platform.holdsActivation = true
+    let item = try await loadUntilInPlayer(singleFileBook(), intent: .wantsToPlay(.user))
+    item.become(.readyToPlay)
+    await waitUntil("the session is asked for") { self.platform.activations == 1 }
+
+    sut.pause()
+    platform.finishActivation()
+    await settle()
+
+    XCTAssertTrue(player.playCalls.isEmpty)
+    XCTAssertFalse(sut.isPlaying)
+  }
+
+  /// After the end-of-chapter timer pauses, a shake resumes playback and re-arms the timer: the platform
+  /// listens for it, and a play stops listening
+  func testAShakeAfterTheTimerResumesPlayback() async throws {
+    try await loadAndPlay(singleFileBook())
+    XCTAssertEqual(platform.shakeStops, 1, "a play stops listening for the shake")
+    SleepTimer.shared.setTimer(.endOfChapter)
+
+    player.crossBoundary(at: 50)
+    XCTAssertEqual(player.pauseCalls, 1)
+    let shake = try XCTUnwrap(platform.shakeHandler, "the timer's pause listens for a shake")
+
+    shake()
+    await waitUntil("playback resumes") { self.player.playCalls.count == 2 }
+
+    XCTAssertEqual(SleepTimer.shared.state, .endOfChapter)
+    XCTAssertEqual(platform.shakeStops, 2)
+  }
+
+  /// A finished book's folder progress waits for the app's foreground when the platform says so, and is
+  /// updated right away otherwise
+  func testFolderProgressWaitsWhenThePlatformDefersIt() {
+    sut.currentItem = book("folder/book.m4b", chapters: [chapter(1, start: 0, duration: 50, relativePath: "folder/book.m4b")], parentFolder: "folder")
+
+    platform.defersFolderProgress = true
+    sut.markAsCompleted(true)
+
+    XCTAssertEqual(playbackService.markStaleProgressFolderPathReceivedInvocations, ["folder"])
+    XCTAssertEqual(libraryService.recursiveFolderProgressUpdateFromCallsCount, 0)
+
+    platform.defersFolderProgress = false
+    sut.markAsCompleted(true)
+
+    XCTAssertEqual(libraryService.recursiveFolderProgressUpdateFromReceivedInvocations, ["folder"])
+    XCTAssertEqual(playbackService.markStaleProgressFolderPathCallsCount, 1)
+  }
+
   // MARK: - Books
 
   private func chapter(
@@ -796,7 +868,8 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
     _ relativePath: String,
     chapters: [PlayableChapter],
     currentTime: TimeInterval = 0,
-    isBoundBook: Bool = false
+    isBoundBook: Bool = false,
+    parentFolder: String? = nil
   ) -> PlayableItem {
     PlayableItem(
       title: relativePath,
@@ -806,7 +879,7 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
       duration: chapters.map(\.end).max() ?? 0,
       relativePath: relativePath,
       uuid: "LEGACY_UUID",
-      parentFolder: nil,
+      parentFolder: parentFolder,
       percentCompleted: 0,
       lastPlayDate: nil,
       isFinished: false,

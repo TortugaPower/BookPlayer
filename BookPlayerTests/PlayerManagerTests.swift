@@ -47,7 +47,7 @@ class PlayerManagerTests: XCTestCase {
       playbackService: playbackServiceMock,
       syncService: syncServiceMock,
       speedService: speedService,
-      shakeMotionService: ShakeMotionServiceProtocolMock(),
+      platform: TestPlayerPlatform(),
       widgetReloadService: WidgetReloadService(),
       // Entitled by default, so nothing here is suppressed by tier; the item half of the rule
       // is covered by MediaServersShortcutTests against PlayableChapter.
@@ -280,7 +280,7 @@ class PlayerManagerTests: XCTestCase {
       playbackService: playbackServiceMock,
       syncService: SyncServiceProtocolMock(),
       speedService: SpeedServiceProtocolMock(),
-      shakeMotionService: ShakeMotionServiceProtocolMock(),
+      platform: TestPlayerPlatform(),
       widgetReloadService: WidgetReloadService(),
       hasStreamingEnabled: { false },
       presentFailure: { _ in }
@@ -309,7 +309,7 @@ class PlayerManagerTests: XCTestCase {
       playbackService: playbackServiceMock,
       syncService: syncService,
       speedService: SpeedServiceProtocolMock(),
-      shakeMotionService: ShakeMotionServiceProtocolMock(),
+      platform: TestPlayerPlatform(),
       widgetReloadService: WidgetReloadService(),
       hasStreamingEnabled: { true },
       presentFailure: presentFailure,
@@ -462,7 +462,7 @@ class PlayerManagerTests: XCTestCase {
       playbackService: playbackServiceMock,
       syncService: SyncServiceProtocolMock(),
       speedService: SpeedServiceProtocolMock(),
-      shakeMotionService: ShakeMotionServiceProtocolMock(),
+      platform: TestPlayerPlatform(),
       widgetReloadService: WidgetReloadService(),
       hasStreamingEnabled: { false },
       presentFailure: { _ in }

@@ -10,21 +10,16 @@ import Combine
 import Foundation
 import UIKit
 
-#if os(watchOS)
-  import BookPlayerWatchKit
-#else
-  import BookPlayerKit
-#endif
 
 /// Available sleep timer states
-enum SleepTimerState: Equatable {
+public enum SleepTimerState: Equatable {
   case off
   case countdown(TimeInterval)
   case endOfChapter
 }
 
-final class SleepTimer {
-  static let shared = SleepTimer()
+public final class SleepTimer {
+  public static let shared = SleepTimer()
 
   /// Cancellable subscription of the active timer
   private var subscription: AnyCancellable?

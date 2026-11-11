@@ -7,6 +7,29 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		CA535FC77B8C94C1DD84A663 /* PhonePlayerPlatform.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BD87531B9ABC0C9D654C2BF /* PhonePlayerPlatform.swift */; };
+		1EE2FC9D7C64C534C09AB373 /* PlayerPlatform.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52E3D2B7BA665833A9CE2FD3 /* PlayerPlatform.swift */; };
+		779561EBF387E58B54ED5FA6 /* AVPlayer+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 416A297C2568671F00605395 /* AVPlayer+BookPlayer.swift */; };
+		FA39535E14579E9086C71C41 /* AVPlayer+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 416A297C2568671F00605395 /* AVPlayer+BookPlayer.swift */; };
+		EDEE0E33CB8D96C65BD8B506 /* BPPlayerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E893912CAFA89000946CD4 /* BPPlayerError.swift */; };
+		EB1E79F6C9EECE4C3FB5A769 /* BPPlayerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E893912CAFA89000946CD4 /* BPPlayerError.swift */; };
+		265C0BC994F8D22EFA9D1A46 /* UserActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 419723FF21874D5F00AB1190 /* UserActivityManager.swift */; };
+		032D5A477836D7A6DD7B0599 /* UserActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 419723FF21874D5F00AB1190 /* UserActivityManager.swift */; };
+		999EA689BE2F89C2379CA67D /* WidgetReloadService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6308260C2AF6C312002ACE0D /* WidgetReloadService.swift */; };
+		0681A60B8E01F27F17C359F7 /* WidgetReloadService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6308260C2AF6C312002ACE0D /* WidgetReloadService.swift */; };
+		72162CEDA86F63E9C6E55A98 /* SpeedService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4151A6A526E3A40600E49DBE /* SpeedService.swift */; };
+		BD60B91CA689B4FEC6C681F1 /* SpeedService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4151A6A526E3A40600E49DBE /* SpeedService.swift */; };
+		57BB13900A9E9ADC83DA78A8 /* SleepTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3EC372D206EE0650094B4E8 /* SleepTimer.swift */; };
+		2DE46D38477E2A526E2DE31C /* SleepTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3EC372D206EE0650094B4E8 /* SleepTimer.swift */; };
+		8EC0AC3E2BDFF596F66F384E /* PlayerLoaderService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E893942CAFAB8F00946CD4 /* PlayerLoaderService.swift */; };
+		534C6DB68A7ADFF003FA9467 /* PlayerLoaderService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E893942CAFAB8F00946CD4 /* PlayerLoaderService.swift */; };
+		1601736B939675799A6E10C8 /* PlayerManagerProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E893972CAFAC7500946CD4 /* PlayerManagerProtocol.swift */; };
+		290437E2F3481C1E50C4D1A1 /* PlayerManagerProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E893972CAFAC7500946CD4 /* PlayerManagerProtocol.swift */; };
+		F2C68444DA413396328DFCF8 /* PlaybackFailure.swift in Sources */ = {isa = PBXBuildFile; fileRef = F05D3B1199FC741AB2FDED67 /* PlaybackFailure.swift */; };
+		1A5187E85570923697B02852 /* PlayerTimeSample.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0B0F11E5EA1CA27D0000003 /* PlayerTimeSample.swift */; };
+		3B43BAA6D788F99A4764CC37 /* AVPlayerEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BD4C10A2DEDFA9069AE5012 /* AVPlayerEngine.swift */; };
+		191D0B68818371578AFFED4F /* PlaybackEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0FD95E5480B7354679F7B2C /* PlaybackEngine.swift */; };
+		D251B2B2A43E3F66CB807CE7 /* PlayerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410D0FF01EDF659900A52EB9 /* PlayerManager.swift */; };
 		02C668174D24A70B4CD6FCB1 /* IntegrationConnectionStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 269BB56618B150DCAA2CA5FB /* IntegrationConnectionStoreTests.swift */; };
 		048E8DAA13C4530F4419A030 /* MediaServerProvider+Icon.swift in Sources */ = {isa = PBXBuildFile; fileRef = 56AC45C580EED027394A645B /* MediaServerProvider+Icon.swift */; };
 		058C840BB5E944B2899BC769 /* ReviewPromptServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6F83542FF9A240EC87E55AC8 /* ReviewPromptServiceTests.swift */; };
@@ -62,7 +85,6 @@
 		41064152258726D2008EB8D0 /* TimeListenedMediumView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41064151258726D2008EB8D0 /* TimeListenedMediumView.swift */; };
 		410D00E426DAB97700D11A45 /* Combine+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410D00E326DAB97700D11A45 /* Combine+BookPlayer.swift */; };
 		410D00FA26DDCE6C00D11A45 /* ChaptersViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410D00F926DDCE6C00D11A45 /* ChaptersViewModel.swift */; };
-		410D0FF11EDF659900A52EB9 /* PlayerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 410D0FF01EDF659900A52EB9 /* PlayerManager.swift */; };
 		4111FBDF25EDEFBE0096954F /* forest-green-ipad@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4111FBDD25EDEFBD0096954F /* forest-green-ipad@2x.png */; };
 		4111FBE025EDEFBE0096954F /* forest-green-ipad@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4111FBDE25EDEFBD0096954F /* forest-green-ipad@3x.png */; };
 		4111FBEA25EDEFDD0096954F /* forest-green@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4111FBE825EDEFDD0096954F /* forest-green@3x.png */; };
@@ -120,7 +142,6 @@
 		4140EA8522728A160009F794 /* BookPlayer.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 4165EDF920A743D500616EDF /* BookPlayer.xcdatamodeld */; };
 		4147E8513D57E852C965FC0B /* mp3_NO_toc_v24.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 4BFC5736E667F4BF8CBB9096 /* mp3_NO_toc_v24.mp3 */; };
 		4149539A21F0D456003C5D27 /* Themes.json in Resources */ = {isa = PBXBuildFile; fileRef = 4149539921F0D456003C5D27 /* Themes.json */; };
-		4151A6A626E3A40600E49DBE /* SpeedService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4151A6A526E3A40600E49DBE /* SpeedService.swift */; };
 		4151A6A826E48C3400E49DBE /* Storyboarded.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4151A6A726E48C3400E49DBE /* Storyboarded.swift */; };
 		4151A6B326E491A800E49DBE /* NibLoadableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4151A6B226E491A800E49DBE /* NibLoadableView.swift */; };
 		4151A6DD26E4A13A00E49DBE /* MainCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4151A6DC26E4A13900E49DBE /* MainCoordinator.swift */; };
@@ -143,7 +164,6 @@
 		41640A3724416EE8004FB97B /* Intents.intentdefinition in Sources */ = {isa = PBXBuildFile; fileRef = 41640A3624416EE8004FB97B /* Intents.intentdefinition */; settings = {ATTRIBUTES = (no_codegen, ); }; };
 		4165EE0520A743D500616EDF /* BookPlayer.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 4165EDF920A743D500616EDF /* BookPlayer.xcdatamodeld */; };
 		41670131255B4A2C0054164F /* Sequence+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 41670130255B4A2C0054164F /* Sequence+BookPlayer.swift */; };
-		416A297D2568671F00605395 /* AVPlayer+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 416A297C2568671F00605395 /* AVPlayer+BookPlayer.swift */; };
 		416A29A52569658100605395 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 416A29A42569658100605395 /* WidgetKit.framework */; };
 		416A29A72569658100605395 /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 416A29A62569658100605395 /* SwiftUI.framework */; };
 		416A29AA2569658100605395 /* BookPlayerWidgets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 416A29A92569658100605395 /* BookPlayerWidgets.swift */; };
@@ -167,7 +187,6 @@
 		418CABB625EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 418CABB025EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel */; };
 		418EA78B268D6EF100F6BAEB /* ImportTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 418EA78A268D6EF100F6BAEB /* ImportTableViewCell.swift */; };
 		4193E202243A91AE004D6A82 /* ActionParserService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4193E201243A91AE004D6A82 /* ActionParserService.swift */; };
-		4197240021874D5F00AB1190 /* UserActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 419723FF21874D5F00AB1190 /* UserActivityManager.swift */; };
 		4197FAFC267E480100811CC8 /* ImportViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4197FAFB267E480100811CC8 /* ImportViewController.swift */; };
 		419B375623B8D5A500128A8F /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 419B375423B8D5A500128A8F /* Localizable.strings */; };
 		41A1B0E4226E9BC500EA0400 /* BookPlayerKit.h in Headers */ = {isa = PBXBuildFile; fileRef = 41A1B0D4226E9BC400EA0400 /* BookPlayerKit.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -350,7 +369,6 @@
 		630826082AF54BB1002ACE0D /* Spacing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9F22DE36288CBCA400056FCD /* Spacing.swift */; };
 		6308260A2AF5B66D002ACE0D /* UserDefaults+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 630826092AF5B66D002ACE0D /* UserDefaults+BookPlayer.swift */; };
 		6308260B2AF5B66D002ACE0D /* UserDefaults+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 630826092AF5B66D002ACE0D /* UserDefaults+BookPlayer.swift */; };
-		6308260D2AF6C312002ACE0D /* WidgetReloadService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6308260C2AF6C312002ACE0D /* WidgetReloadService.swift */; };
 		630826112AF6CA44002ACE0D /* SharedIconWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6308260F2AF6C9B0002ACE0D /* SharedIconWidget.swift */; };
 		630826122AF6CA45002ACE0D /* SharedIconWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6308260F2AF6C9B0002ACE0D /* SharedIconWidget.swift */; };
 		630826152AF6CABC002ACE0D /* SharedIconWidgetEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 630826132AF6CA81002ACE0D /* SharedIconWidgetEntry.swift */; };
@@ -444,14 +462,6 @@
 		634E16312E6EA73E00ED9589 /* Platinum@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 634E162F2E6EA73E00ED9589 /* Platinum@3x.png */; };
 		6350E4642CF004160077CDC1 /* LoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6350E4632CF004160077CDC1 /* LoadingView.swift */; };
 		6350E4662CF423030077CDC1 /* PlayerManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6350E4652CF423030077CDC1 /* PlayerManager.swift */; };
-		6350E4672CF423E80077CDC1 /* PlayerManagerProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E893972CAFAC7500946CD4 /* PlayerManagerProtocol.swift */; };
-		6350E4682CF4248A0077CDC1 /* SpeedService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4151A6A526E3A40600E49DBE /* SpeedService.swift */; };
-		6350E4692CF425500077CDC1 /* WidgetReloadService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6308260C2AF6C312002ACE0D /* WidgetReloadService.swift */; };
-		6350E46A2CF429760077CDC1 /* SleepTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3EC372D206EE0650094B4E8 /* SleepTimer.swift */; };
-		6350E46B2CF42B500077CDC1 /* UserActivityManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 419723FF21874D5F00AB1190 /* UserActivityManager.swift */; };
-		6350E46C2CF42FE10077CDC1 /* AVPlayer+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 416A297C2568671F00605395 /* AVPlayer+BookPlayer.swift */; };
-		6350E46D2CF4315B0077CDC1 /* PlayerLoaderService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E893942CAFAB8F00946CD4 /* PlayerLoaderService.swift */; };
-		6350E46E2CF4316E0077CDC1 /* BPPlayerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E893912CAFA89000946CD4 /* BPPlayerError.swift */; };
 		6350E4702CF498160077CDC1 /* RemotePlayerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6350E46F2CF498160077CDC1 /* RemotePlayerView.swift */; };
 		6350E4722CF4D0220077CDC1 /* PlayerControlsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6350E4712CF4D0220077CDC1 /* PlayerControlsView.swift */; };
 		6350E4742CF4D2660077CDC1 /* PlayerToolbarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6350E4732CF4D2660077CDC1 /* PlayerToolbarView.swift */; };
@@ -576,7 +586,6 @@
 		D071ABD44684949C58C7D8D0 /* PromptSurfaceArbiter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42B6A047D0689D9E2E2D9749 /* PromptSurfaceArbiter.swift */; };
 		9AB6B44F84D195FCCF7A4F9F /* PromptSurfaceArbiterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D4833D717C7B97F7B5DFDC5 /* PromptSurfaceArbiterTests.swift */; };
 		C0C40794A90EEED394B4C957 /* PlaybackAlerts.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3B31C1E62A380C33C60FF9B /* PlaybackAlerts.swift */; };
-		5823F9DE917AE83D3C4DC04E /* PlaybackFailure.swift in Sources */ = {isa = PBXBuildFile; fileRef = F05D3B1199FC741AB2FDED67 /* PlaybackFailure.swift */; };
 		63B760E82C31FFC600AA98C7 /* SupportFlowCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B760E72C31FFC600AA98C7 /* SupportFlowCoordinator.swift */; };
 		63B760F72C32734000AA98C7 /* SecondOnboardingResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B760F62C32734000AA98C7 /* SecondOnboardingResponse.swift */; };
 		63B760F92C32738E00AA98C7 /* StoryAccountSubscriptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63B760F82C32738E00AA98C7 /* StoryAccountSubscriptionService.swift */; };
@@ -638,12 +647,6 @@
 		63E54C362D50626A0040355D /* TipOptionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E54C352D50626A0040355D /* TipOptionView.swift */; };
 		63E784392E2EAF79001B2E94 /* Environment+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E784382E2EAF79001B2E94 /* Environment+BookPlayer.swift */; };
 		63E7DCC02D076185005B5E1F /* View+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E7DCBF2D076185005B5E1F /* View+BookPlayer.swift */; };
-		63E893922CAFA89000946CD4 /* BPPlayerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E893912CAFA89000946CD4 /* BPPlayerError.swift */; };
-		63E893932CAFA89000946CD4 /* BPPlayerError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E893912CAFA89000946CD4 /* BPPlayerError.swift */; };
-		63E893952CAFAB8F00946CD4 /* PlayerLoaderService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E893942CAFAB8F00946CD4 /* PlayerLoaderService.swift */; };
-		63E893962CAFAB8F00946CD4 /* PlayerLoaderService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E893942CAFAB8F00946CD4 /* PlayerLoaderService.swift */; };
-		63E893982CAFAC7500946CD4 /* PlayerManagerProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E893972CAFAC7500946CD4 /* PlayerManagerProtocol.swift */; };
-		63E893992CAFAC7500946CD4 /* PlayerManagerProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E893972CAFAC7500946CD4 /* PlayerManagerProtocol.swift */; };
 		63E893B02CB0AA7100946CD4 /* LastBookStartPlaybackIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6356F9C02AC823EE00B7A027 /* LastBookStartPlaybackIntent.swift */; };
 		63E893B22CB0AACE00946CD4 /* PlayLastControlWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E893B12CB0AACE00946CD4 /* PlayLastControlWidgetView.swift */; };
 		63E893B32CB0AACE00946CD4 /* PlayLastControlWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63E893B12CB0AACE00946CD4 /* PlayLastControlWidgetView.swift */; };
@@ -965,9 +968,6 @@
 		A7FA45CB2BD6567C9B5EA372 /* IntegrationTagsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 643E169A5F153B754F726AE1 /* IntegrationTagsView.swift */; };
 		ADBA6DD206F76CF92C0765A3 /* WebAuthenticatingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4388D9707FA7C85F9D07E75 /* WebAuthenticatingTests.swift */; };
 		AE284AB4D4139ED869288F99 /* IntegrationConnectionPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A8030B619D18CA088DAA40A /* IntegrationConnectionPayload.swift */; };
-		B0B0F11E5EA1CA27D0000004 /* PlayerTimeSample.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0B0F11E5EA1CA27D0000003 /* PlayerTimeSample.swift */; };
-		CC9F5567EF21E7410E0ECD5A /* PlaybackEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0FD95E5480B7354679F7B2C /* PlaybackEngine.swift */; };
-		6A09C6E0A9EE7E38929096C1 /* AVPlayerEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5BD4C10A2DEDFA9069AE5012 /* AVPlayerEngine.swift */; };
 		B0B0F11E5EA1CA27D0000006 /* PlayerTimeSampleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0B0F11E5EA1CA27D0000005 /* PlayerTimeSampleTests.swift */; };
 		B14881000000000000000001 /* IntegrationCustomHeadersSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B14881000000000000000002 /* IntegrationCustomHeadersSectionView.swift */; };
 		B16A2A4FFFE86D46E799A773 /* IntegrationHostResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3451CA062919E03CEB975E92 /* IntegrationHostResolver.swift */; };
@@ -987,7 +987,6 @@
 		C3A479152094CA3800D92122 /* UIImage+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3A479142094CA3800D92122 /* UIImage+BookPlayer.swift */; };
 		C3A479192094CAF300D92122 /* UIViewController+BookPlayer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3A479182094CAF300D92122 /* UIViewController+BookPlayer.swift */; };
 		C3EA7176218DEC870005D488 /* .swiftformat in Resources */ = {isa = PBXBuildFile; fileRef = C3EA7175218DEC870005D488 /* .swiftformat */; };
-		C3EC372E206EE0650094B4E8 /* SleepTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3EC372D206EE0650094B4E8 /* SleepTimer.swift */; };
 		C3FA301E20E0024900393DDA /* BPArtworkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FA301D20E0024900393DDA /* BPArtworkView.swift */; };
 		C3FE3F8220A090880055B9C6 /* limitPanAngle.swift in Sources */ = {isa = PBXBuildFile; fileRef = C3FE3F8120A090880055B9C6 /* limitPanAngle.swift */; };
 		C451596D6866C856F3E5F7D1 /* IntegrationConnectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43D61F68F0A174C7CA44FE8A /* IntegrationConnectionView.swift */; };
@@ -1185,6 +1184,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		9BD87531B9ABC0C9D654C2BF /* PhonePlayerPlatform.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhonePlayerPlatform.swift; sourceTree = "<group>"; };
+		52E3D2B7BA665833A9CE2FD3 /* PlayerPlatform.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerPlatform.swift; sourceTree = "<group>"; };
 		03ABF38C1641BC9BCAD3213B /* el */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = el; path = el.lproj/Intents.strings; sourceTree = "<group>"; };
 		056B7A76F1A44CEC30562382 /* IntegrationQuickConnectViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntegrationQuickConnectViews.swift; sourceTree = "<group>"; };
 		0AE6A3EFE68BD9DC2E5ACF90 /* de */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = de; path = de.lproj/Intents.strings; sourceTree = "<group>"; };
@@ -2205,6 +2206,27 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		4141BD5E10ED84BF2867DD17 /* Player */ = {
+			isa = PBXGroup;
+			children = (
+				52E3D2B7BA665833A9CE2FD3 /* PlayerPlatform.swift */,
+				416A297C2568671F00605395 /* AVPlayer+BookPlayer.swift */,
+				5BD4C10A2DEDFA9069AE5012 /* AVPlayerEngine.swift */,
+				63E893912CAFA89000946CD4 /* BPPlayerError.swift */,
+				E0FD95E5480B7354679F7B2C /* PlaybackEngine.swift */,
+				F05D3B1199FC741AB2FDED67 /* PlaybackFailure.swift */,
+				63E893942CAFAB8F00946CD4 /* PlayerLoaderService.swift */,
+				410D0FF01EDF659900A52EB9 /* PlayerManager.swift */,
+				63E893972CAFAC7500946CD4 /* PlayerManagerProtocol.swift */,
+				B0B0F11E5EA1CA27D0000003 /* PlayerTimeSample.swift */,
+				C3EC372D206EE0650094B4E8 /* SleepTimer.swift */,
+				4151A6A526E3A40600E49DBE /* SpeedService.swift */,
+				419723FF21874D5F00AB1190 /* UserActivityManager.swift */,
+				6308260C2AF6C312002ACE0D /* WidgetReloadService.swift */,
+			);
+			path = Player;
+			sourceTree = "<group>";
+		};
 		1A3B1ADBE4710D12AF4A65BD /* GridLayout */ = {
 			isa = PBXGroup;
 			children = (
@@ -2624,6 +2646,7 @@
 		41A1B0F1226E9C5100EA0400 /* Shared */ = {
 			isa = PBXGroup;
 			children = (
+				4141BD5E10ED84BF2867DD17 /* Player */,
 				996D4CD02F98A41E00FC3B57 /* Integrations */,
 				99D9958B2F719ECF00BAF216 /* Jellyfin */,
 				992D6E112FA98AEF0091849F /* AudiobookShelf */,
@@ -3475,7 +3498,6 @@
 			children = (
 				69343D322133844D000C425E /* VoiceOverService.swift */,
 				3C80A51B636D4C7381529505 /* ReviewPromptService.swift */,
-				419723FF21874D5F00AB1190 /* UserActivityManager.swift */,
 				41D39D40215F177D00B65290 /* BookActivityItemProvider.swift */,
 				41B30A32230232D200025D69 /* CarPlayManager.swift */,
 				4193E201243A91AE004D6A82 /* ActionParserService.swift */,
@@ -3487,7 +3509,6 @@
 				BB523142CB957F688D6423B2 /* MediaSuggestionsController.swift */,
 				5EEA5B438944574494C5385F /* BackgroundSessionWakeCoordinator.swift */,
 				42B6A047D0689D9E2E2D9749 /* PromptSurfaceArbiter.swift */,
-				F05D3B1199FC741AB2FDED67 /* PlaybackFailure.swift */,
 				8A9D0D2F2CD0E06F007A924D /* SingleFileDownloadService.swift */,
 			);
 			path = Services;
@@ -4129,20 +4150,11 @@
 		C3EC372A206EDB9A0094B4E8 /* Player */ = {
 			isa = PBXGroup;
 			children = (
+				9BD87531B9ABC0C9D654C2BF /* PhonePlayerPlatform.swift */,
 				99329DCE2F3BFD5F003F8E73 /* Models */,
 				99329DC82F3BF464003F8E73 /* ViewModels */,
 				99329DB22F3A9B9C003F8E73 /* Views */,
-				410D0FF01EDF659900A52EB9 /* PlayerManager.swift */,
-				B0B0F11E5EA1CA27D0000003 /* PlayerTimeSample.swift */,
-				E0FD95E5480B7354679F7B2C /* PlaybackEngine.swift */,
-				5BD4C10A2DEDFA9069AE5012 /* AVPlayerEngine.swift */,
-				63E893972CAFAC7500946CD4 /* PlayerManagerProtocol.swift */,
-				63E893912CAFA89000946CD4 /* BPPlayerError.swift */,
-				63E893942CAFAB8F00946CD4 /* PlayerLoaderService.swift */,
-				6308260C2AF6C312002ACE0D /* WidgetReloadService.swift */,
 				9F5011F82A6580800075FEBA /* ShakeMotionService.swift */,
-				C3EC372D206EE0650094B4E8 /* SleepTimer.swift */,
-				4151A6A526E3A40600E49DBE /* SpeedService.swift */,
 			);
 			path = Player;
 			sourceTree = "<group>";
@@ -4155,7 +4167,6 @@
 				C39401E820DEE83100F3DC71 /* UIView+BookPlayer.swift */,
 				C3A479182094CAF300D92122 /* UIViewController+BookPlayer.swift */,
 				41670130255B4A2C0054164F /* Sequence+BookPlayer.swift */,
-				416A297C2568671F00605395 /* AVPlayer+BookPlayer.swift */,
 				410D00E326DAB97700D11A45 /* Combine+BookPlayer.swift */,
 				9F22DE3D288D812900056FCD /* UIFont+BookPlayer.swift */,
 				9F1345FE293CF00A0089B1DE /* UIEdgeInsets+BookPlayer.swift */,
@@ -4768,18 +4779,14 @@
 				63E15D9A2D8F1461005B42E5 /* SleepTimerView.swift in Sources */,
 				9FA334B627C15DE30064E8EA /* VolumeView.swift in Sources */,
 				46EEDDC92D23154C0063811F /* VoiceOverService.swift in Sources */,
-				6350E46D2CF4315B0077CDC1 /* PlayerLoaderService.swift in Sources */,
-				6350E46B2CF42B500077CDC1 /* UserActivityManager.swift in Sources */,
 				63E7DCC02D076185005B5E1F /* View+BookPlayer.swift in Sources */,
 				6334CF1F2CFAD1B700F1FA17 /* RemoteItemCellViewModel.swift in Sources */,
 				9FA334B927C1B8450064E8EA /* NowPlayingTitleView.swift in Sources */,
 				4645F9FD2D1E46AC00A04257 /* SwipeInlineTip.swift in Sources */,
-				6350E4692CF425500077CDC1 /* WidgetReloadService.swift in Sources */,
 				9FA334B327C156CB0064E8EA /* NowPlayingView.swift in Sources */,
 				9FA334C527C285650064E8EA /* ChapterListView.swift in Sources */,
 				6399D0762CECFFA900A2E278 /* CoreServices.swift in Sources */,
 				4140EA47227288EF0009F794 /* ComplicationController.swift in Sources */,
-				6350E4672CF423E80077CDC1 /* PlayerManagerProtocol.swift in Sources */,
 				9FA334B127C1499A0064E8EA /* ItemCellView.swift in Sources */,
 				4140EA43227288EF0009F794 /* ExtensionDelegate.swift in Sources */,
 				41A359C4276232E00020D5F5 /* MappingModel_v7_to_v8.xcmappingmodel in Sources */,
@@ -4790,7 +4797,6 @@
 				41A8BAFE227E6C88003C9895 /* Notification+BookPlayerWatchApp.swift in Sources */,
 				6350E4762CF4F6E90077CDC1 /* PlaybackFullControlsView.swift in Sources */,
 				63E15D972D8F10D7005B42E5 /* PlaybackFullControlsViewModel.swift in Sources */,
-				6350E46A2CF429760077CDC1 /* SleepTimer.swift in Sources */,
 				630EC82F2CEF9F0700C19411 /* ForcedEnvironment.swift in Sources */,
 				6350E4642CF004160077CDC1 /* LoadingView.swift in Sources */,
 				996D4CCA2F98A25100FC3B57 /* MappingModel_v10_to_v11.xcmappingmodel in Sources */,
@@ -4801,7 +4807,6 @@
 				6334CF1D2CF90AF900F1FA17 /* PlayerMoreListView.swift in Sources */,
 				3F6640922E172DF500356522 /* MappingModel_v9_to_v10.xcmappingmodel in Sources */,
 				63E15DA22D91C934005B42E5 /* CountDownPickerView.swift in Sources */,
-				6350E46E2CF4316E0077CDC1 /* BPPlayerError.swift in Sources */,
 				9FA334C327C2833B0064E8EA /* ResizeableImageView.swift in Sources */,
 				9F82DF6F27DEE83E001B0EA8 /* SkipDirection.swift in Sources */,
 				9FA334AB27C058210064E8EA /* ItemListView.swift in Sources */,
@@ -4813,9 +4818,7 @@
 				9FA334A927C0577E0064E8EA /* BookPlayerApp.swift in Sources */,
 				6350E4662CF423030077CDC1 /* PlayerManager.swift in Sources */,
 				63CD85272CE3064600EDBEA8 /* BP+ErrorAlerts.swift in Sources */,
-				6350E46C2CF42FE10077CDC1 /* AVPlayer+BookPlayer.swift in Sources */,
 				63E15DA42D932695005B42E5 /* SleepTimerCommandsView.swift in Sources */,
-				6350E4682CF4248A0077CDC1 /* SpeedService.swift in Sources */,
 				63CD85232CE302D200EDBEA8 /* LoginView.swift in Sources */,
 				6399D0702CEBA35D00A2E278 /* RemoteItemListView.swift in Sources */,
 				41C3396225E04103003ED2B0 /* MappingModel_v2_to_v3.xcmappingmodel in Sources */,
@@ -4831,6 +4834,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				779561EBF387E58B54ED5FA6 /* AVPlayer+BookPlayer.swift in Sources */,
+				EDEE0E33CB8D96C65BD8B506 /* BPPlayerError.swift in Sources */,
+				265C0BC994F8D22EFA9D1A46 /* UserActivityManager.swift in Sources */,
+				999EA689BE2F89C2379CA67D /* WidgetReloadService.swift in Sources */,
+				72162CEDA86F63E9C6E55A98 /* SpeedService.swift in Sources */,
+				57BB13900A9E9ADC83DA78A8 /* SleepTimer.swift in Sources */,
+				8EC0AC3E2BDFF596F66F384E /* PlayerLoaderService.swift in Sources */,
+				1601736B939675799A6E10C8 /* PlayerManagerProtocol.swift in Sources */,
 				9FC1E46D2815A8CA00522FA8 /* LibraryAPI.swift in Sources */,
 				99F3C20B2F62285800AC91A2 /* ApiResponse.swift in Sources */,
 				4140EA6C2272898F0009F794 /* DataManager.swift in Sources */,
@@ -5010,7 +5021,6 @@
 				6397208A2CAC5C870045A4DB /* LastPlayedModel.swift in Sources */,
 				417D9994256DE3FB00C3B753 /* LastPlayedWidgetView.swift in Sources */,
 				41A359C7276232E00020D5F5 /* MappingModel_v7_to_v8.xcmappingmodel in Sources */,
-				63E893992CAFAC7500946CD4 /* PlayerManagerProtocol.swift in Sources */,
 				416A29AA2569658100605395 /* BookPlayerWidgets.swift in Sources */,
 				630826052AF522FF002ACE0D /* RectangularView.swift in Sources */,
 				41D20DB425D5F5A100AAEE30 /* MappingModel_v1_to_v2.xcmappingmodel in Sources */,
@@ -5018,7 +5028,6 @@
 				6309F1272B0CF658002B86A4 /* BookPlaybackToggleIntent.swift in Sources */,
 				630826032AF5225F002ACE0D /* CircularView.swift in Sources */,
 				630826042AF522EA002ACE0D /* SharedWidgetEntry.swift in Sources */,
-				63E893962CAFAB8F00946CD4 /* PlayerLoaderService.swift in Sources */,
 				41064152258726D2008EB8D0 /* TimeListenedMediumView.swift in Sources */,
 				41C3396A25E04112003ED2B0 /* MappingModel_v2_to_v3.xcmappingmodel in Sources */,
 				63C48D4E2E3F1A9C005FBB96 /* WidgetRenderModeModifier.swift in Sources */,
@@ -5027,7 +5036,6 @@
 				637DAB0B2AEB3F6D006DC2D1 /* WidgetEntries.swift in Sources */,
 				63673F9A304332050077F1D8 /* MappingModel_v11_to_v12.xcmappingmodel in Sources */,
 				418CABB625EF28FC00D8C878 /* MappingModel_v3_to_v4.xcmappingmodel in Sources */,
-				63E893932CAFA89000946CD4 /* BPPlayerError.swift in Sources */,
 				41ADD6DA2570AC6300660C64 /* RecentBooksWidgetView.swift in Sources */,
 				630826162AF6CABD002ACE0D /* SharedIconWidgetEntry.swift in Sources */,
 				9FF383D52A40F97000BBAC11 /* MappingModel_v8_to_v9.xcmappingmodel in Sources */,
@@ -5044,6 +5052,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				CA535FC77B8C94C1DD84A663 /* PhonePlayerPlatform.swift in Sources */,
 				C451596D6866C856F3E5F7D1 /* IntegrationConnectionView.swift in Sources */,
 				C86098383F7FC099EED24AF7 /* IntegrationQuickConnectViews.swift in Sources */,
 				B14881000000000000000001 /* IntegrationCustomHeadersSectionView.swift in Sources */,
@@ -5060,14 +5069,9 @@
 				8A9D0D2E2CCFD968007A924D /* BlurHashDecode.swift in Sources */,
 				631908A32E3693BC009249C1 /* SettingsPlayerControlsView.swift in Sources */,
 				63C48D482E3EFD59005FBB96 /* AccountManageProSectionView.swift in Sources */,
-				410D0FF11EDF659900A52EB9 /* PlayerManager.swift in Sources */,
-				B0B0F11E5EA1CA27D0000004 /* PlayerTimeSample.swift in Sources */,
-				CC9F5567EF21E7410E0ECD5A /* PlaybackEngine.swift in Sources */,
-				6A09C6E0A9EE7E38929096C1 /* AVPlayerEngine.swift in Sources */,
 				637043392E2BF63C005353D1 /* SettingsAppearanceSectionView.swift in Sources */,
 				63C48D462E3EA035005FBB96 /* AccountTermsConditionsSectionView.swift in Sources */,
 				634BA5A72C1777BB0015314D /* PricingBoxView.swift in Sources */,
-				63E893982CAFAC7500946CD4 /* PlayerManagerProtocol.swift in Sources */,
 				631908B82E3718F8009249C1 /* AppIconView.swift in Sources */,
 				63E1FF8F2E6C848200F2E003 /* ItemDetailsTitleSectionView.swift in Sources */,
 				234660AA5CF5435784D5AB09 /* ItemDetailsIntegrationsSectionView.swift in Sources */,
@@ -5128,7 +5132,6 @@
 				638487BF2EC7765000DF442B /* AudiobookShelfLibraryGridItemView.swift in Sources */,
 				9F1345FF293CF00A0089B1DE /* UIEdgeInsets+BookPlayer.swift in Sources */,
 				631908992E334894009249C1 /* ContributorView.swift in Sources */,
-				6308260D2AF6C312002ACE0D /* WidgetReloadService.swift in Sources */,
 				9FA7C61D280B0E1200A0C136 /* LoadingUtils.swift in Sources */,
 				C318DDBC20A48D4700C3A17B /* BPMarqueeLabel.swift in Sources */,
 				6370433D2E2BFB2F005353D1 /* SettingsPlaybackSectionView.swift in Sources */,
@@ -5182,7 +5185,6 @@
 				9F2DC9D92A008B19006CDF1F /* PricingOptionsView.swift in Sources */,
 				634BA5902C14FB730015314D /* StoryViewer.swift in Sources */,
 				634BA5A12C174F9D0015314D /* StoryViewerViewModel.swift in Sources */,
-				63E893922CAFA89000946CD4 /* BPPlayerError.swift in Sources */,
 				63682CBE2E2F422900C15FC1 /* DebugFileTransferable.swift in Sources */,
 				4160A0A123F304530039166B /* LocalizableLabel.swift in Sources */,
 				9911FBD72F7CACEC00DC9A2B /* QueuedTasksView.swift in Sources */,
@@ -5221,8 +5223,6 @@
 				638487C52EC7767000DF442B /* AudiobookShelfLibraryView.swift in Sources */,
 				63AD93D52E3C72830077E73A /* ProfileScreen.swift in Sources */,
 				8A9D0D282CCEEE30007A924D /* NavigationLazyView.swift in Sources */,
-				4197240021874D5F00AB1190 /* UserActivityManager.swift in Sources */,
-				63E893952CAFAB8F00946CD4 /* PlayerLoaderService.swift in Sources */,
 				634BA5972C161FBE0015314D /* StoryView.swift in Sources */,
 				6356F9C52AC86D9200B7A027 /* BPAppShortcuts.swift in Sources */,
 				69343D332133844D000C425E /* VoiceOverService.swift in Sources */,
@@ -5303,7 +5303,6 @@
 				636ED1E82D51331E00BFF3FD /* TipJarViewModel.swift in Sources */,
 				9F2E00DE2A5C2B810001FE20 /* StorageCloudDeletedViewModel.swift in Sources */,
 				3F7B64422E0FB27000299D97 /* AnyCodable.swift in Sources */,
-				4151A6A626E3A40600E49DBE /* SpeedService.swift in Sources */,
 				6399EA252F12B1870077BB13 /* PasskeyRegistrationView.swift in Sources */,
 				6399EA9B2F12B1870077BB13 /* EmailVerificationView.swift in Sources */,
 				6399EA272F12B1870077BB13 /* PasskeySignInButton.swift in Sources */,
@@ -5369,8 +5368,6 @@
 				F19A7E432C07A9154CA8293F /* MediaSuggestionsController.swift in Sources */,
 				AD7114A34343C516BD1890E2 /* BackgroundSessionWakeCoordinator.swift in Sources */,
 				D071ABD44684949C58C7D8D0 /* PromptSurfaceArbiter.swift in Sources */,
-				5823F9DE917AE83D3C4DC04E /* PlaybackFailure.swift in Sources */,
-				416A297D2568671F00605395 /* AVPlayer+BookPlayer.swift in Sources */,
 				634BA5A52C176B5A0015314D /* StoryActionView.swift in Sources */,
 				8A9D0D302CD0E074007A924D /* SingleFileDownloadService.swift in Sources */,
 				6309F1262B0CF1C1002B86A4 /* BookPlaybackToggleIntent.swift in Sources */,
@@ -5386,7 +5383,6 @@
 				41C3395225E040FB003ED2B0 /* MappingModel_v2_to_v3.xcmappingmodel in Sources */,
 				63AE5A8D2E4C59FE002531B8 /* AppHostingViewController.swift in Sources */,
 				63B4A3BC2E9186CD00784A22 /* ConfirmationDialogType.swift in Sources */,
-				C3EC372E206EE0650094B4E8 /* SleepTimer.swift in Sources */,
 				638487C92EC77AF200DF442B /* AudiobookShelfRootView.swift in Sources */,
 				6338C7852E486232008016E5 /* ItemListSearchScope.swift in Sources */,
 				63C48C7A2E3DAC9D005FBB96 /* LoginView.swift in Sources */,
@@ -5510,6 +5506,20 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1EE2FC9D7C64C534C09AB373 /* PlayerPlatform.swift in Sources */,
+				FA39535E14579E9086C71C41 /* AVPlayer+BookPlayer.swift in Sources */,
+				EB1E79F6C9EECE4C3FB5A769 /* BPPlayerError.swift in Sources */,
+				032D5A477836D7A6DD7B0599 /* UserActivityManager.swift in Sources */,
+				0681A60B8E01F27F17C359F7 /* WidgetReloadService.swift in Sources */,
+				BD60B91CA689B4FEC6C681F1 /* SpeedService.swift in Sources */,
+				2DE46D38477E2A526E2DE31C /* SleepTimer.swift in Sources */,
+				534C6DB68A7ADFF003FA9467 /* PlayerLoaderService.swift in Sources */,
+				290437E2F3481C1E50C4D1A1 /* PlayerManagerProtocol.swift in Sources */,
+				F2C68444DA413396328DFCF8 /* PlaybackFailure.swift in Sources */,
+				1A5187E85570923697B02852 /* PlayerTimeSample.swift in Sources */,
+				3B43BAA6D788F99A4764CC37 /* AVPlayerEngine.swift in Sources */,
+				191D0B68818371578AFFED4F /* PlaybackEngine.swift in Sources */,
+				D251B2B2A43E3F66CB807CE7 /* PlayerManager.swift in Sources */,
 				996D4CC52F98A25100FC3B57 /* MappingModel_v10_to_v11.xcmappingmodel in Sources */,
 				9911FBBE2F74527800DC9A2B /* SyncQueueProgressMonitor.swift in Sources */,
 				F99B9D63217ABDAFED95696A /* QueueCounts.swift in Sources */,

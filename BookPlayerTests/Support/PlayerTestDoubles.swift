@@ -8,8 +8,10 @@
 
 import AVFoundation
 import Foundation
+import UIKit
 
 @testable import BookPlayer
+@testable import BookPlayerKit
 
 /// `AVPlayer` that never touches AVFoundation's playback pipeline: items are held without loading,
 /// and play, pause, the clock, seeks, the periodic tick and boundary crossings are all driven by the test.
@@ -253,5 +255,44 @@ final class ControlledPlayerItem: AVPlayerItem {
     isRemoving = true
     defer { isRemoving = false }
     remove()
+  }
+}
+
+/// `PlayerPlatform` that activates without touching `AVAudioSession`, and records what the core asked of it
+@MainActor
+final class TestPlayerPlatform: PlayerPlatform {
+  /// What `activateAudioSession` answers
+  var activates = true
+  private(set) var activations = 0
+  var defersFolderProgress = false
+  var fallbackArtworkColor: UIColor? = .gray
+  private(set) var shakeHandler: (() -> Void)?
+  private(set) var shakeStops = 0
+
+  /// On: activation waits for `finishActivation()`, as a platform that suspends there does
+  var holdsActivation = false
+  private var heldActivation: CheckedContinuation<Void, Never>?
+
+  func activateAudioSession(for item: PlayableItem, origin: PlayOrigin) async -> Bool {
+    activations += 1
+    if holdsActivation {
+      await withCheckedContinuation { heldActivation = $0 }
+    }
+    return activates
+  }
+
+  /// Lets a held activation finish
+  func finishActivation() {
+    let held = heldActivation
+    heldActivation = nil
+    held?.resume()
+  }
+
+  func stopShakeDetection() {
+    shakeStops += 1
+  }
+
+  func observeFirstShake(_ handler: @escaping () -> Void) {
+    shakeHandler = handler
   }
 }
