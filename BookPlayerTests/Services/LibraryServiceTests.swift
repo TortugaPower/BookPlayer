@@ -120,30 +120,39 @@ class LibraryServiceTests: XCTestCase {
     XCTAssert(testBook.relativePath == book?.relativePath)
   }
 
-  func testFindEmptyBooksWithURL() {
-    let books = self.sut.findBooks(containing: URL(string: "test/url")!)!
-    XCTAssert(books.isEmpty)
+  func testFindBookFileURL_noBookHasTheFileName_isNil() {
+    XCTAssertNil(self.sut.findBookFileURL(matching: URL(string: "test/url")!))
   }
 
-  func testFindBooksWithURL() {
-    _ = StubFactory.book(
-      dataManager: self.sut.dataManager,
-      title: "test1-book",
-      duration: 100
-    )
-
-    _ = StubFactory.book(
-      dataManager: self.sut.dataManager,
-      title: "test2-book",
-      duration: 100
-    )
-
+  /// The import asks with the incoming file's URL: only its file name counts, in any case
+  func testFindBookFileURL_returnsWhereTheMatchingBooksFileGoes() {
+    let book = StubFactory.book(dataManager: self.sut.dataManager, title: "test1-book", duration: 100)
+    _ = StubFactory.book(dataManager: self.sut.dataManager, title: "test2-book", duration: 100)
     self.sut.dataManager.saveContext()
 
-    let testURL = DataManager.getProcessedFolderURL().appendingPathComponent("-book.txt")
+    let incomingURL = DataManager.getInboxFolderURL().appendingPathComponent("TEST1-BOOK.txt")
 
-    let books = self.sut.findBooks(containing: testURL)!
-    XCTAssert(books.count == 2)
+    XCTAssertEqual(self.sut.findBookFileURL(matching: incomingURL), book.fileURL)
+  }
+
+  /// The import asks from its own queue. The answer must not need the main thread, which this test holds
+  func testFindBookFileURL_fromTheImportQueue_answersWithoutTheMainThread() {
+    let book = StubFactory.book(dataManager: self.sut.dataManager, title: "test1-book", duration: 100)
+    self.sut.dataManager.saveContext()
+    let expectedURL = book.fileURL
+    let incomingURL = DataManager.getInboxFolderURL().appendingPathComponent("test1-book.txt")
+    let service = self.sut!
+    let answered = expectation(description: "lookup answered off the main thread")
+    var foundURL: URL?
+
+    OperationQueue().addOperation {
+      XCTAssertFalse(Thread.isMainThread)
+      foundURL = service.findBookFileURL(matching: incomingURL)
+      answered.fulfill()
+    }
+
+    wait(for: [answered], timeout: 5)
+    XCTAssertEqual(foundURL, expectedURL)
   }
 
   func testFindEmptyOrderedBooks() {

@@ -305,24 +305,24 @@ class LibraryServiceProtocolMock: LibraryServiceProtocol {
             return getLastPlayedItemsLimitReturnValue
         }
     }
-    //MARK: - findBooks
+    //MARK: - findBookFileURL
 
-    var findBooksContainingCallsCount = 0
-    var findBooksContainingCalled: Bool {
-        return findBooksContainingCallsCount > 0
+    var findBookFileURLMatchingCallsCount = 0
+    var findBookFileURLMatchingCalled: Bool {
+        return findBookFileURLMatchingCallsCount > 0
     }
-    var findBooksContainingReceivedFileURL: URL?
-    var findBooksContainingReceivedInvocations: [URL] = []
-    var findBooksContainingReturnValue: [Book]?
-    var findBooksContainingClosure: ((URL) -> [Book]?)?
-    func findBooks(containing fileURL: URL) -> [Book]? {
-        findBooksContainingCallsCount += 1
-        findBooksContainingReceivedFileURL = fileURL
-        findBooksContainingReceivedInvocations.append(fileURL)
-        if let findBooksContainingClosure = findBooksContainingClosure {
-            return findBooksContainingClosure(fileURL)
+    var findBookFileURLMatchingReceivedFileURL: URL?
+    var findBookFileURLMatchingReceivedInvocations: [URL] = []
+    var findBookFileURLMatchingReturnValue: URL?
+    var findBookFileURLMatchingClosure: ((URL) -> URL?)?
+    func findBookFileURL(matching fileURL: URL) -> URL? {
+        findBookFileURLMatchingCallsCount += 1
+        findBookFileURLMatchingReceivedFileURL = fileURL
+        findBookFileURLMatchingReceivedInvocations.append(fileURL)
+        if let findBookFileURLMatchingClosure = findBookFileURLMatchingClosure {
+            return findBookFileURLMatchingClosure(fileURL)
         } else {
-            return findBooksContainingReturnValue
+            return findBookFileURLMatchingReturnValue
         }
     }
     //MARK: - getSimpleItem
