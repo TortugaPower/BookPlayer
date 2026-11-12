@@ -17,6 +17,8 @@ class CoreServices: ObservableObject {
   let libraryService: LibraryService
   let playbackService: PlaybackServiceProtocol
   let playerManager: PlayerManager
+  /// The player screen's alert
+  let playbackErrors: PlaybackErrorPresenter
   let playerLoaderService: PlayerLoaderService
   let watchConnectivityService: WatchConnectivityService
   /// Pull-only on watchOS: resolves the sticky library sort so the list and
@@ -34,6 +36,7 @@ class CoreServices: ObservableObject {
     libraryService: LibraryService,
     playbackService: PlaybackServiceProtocol,
     playerManager: PlayerManager,
+    playbackErrors: PlaybackErrorPresenter,
     playerLoaderService: PlayerLoaderService,
     watchConnectivityService: WatchConnectivityService,
     preferencesService: PreferencesSyncServiceProtocol
@@ -46,6 +49,7 @@ class CoreServices: ObservableObject {
     self.playbackService = playbackService
     self.hasSyncEnabled = accountService.hasSyncEnabled()
     self.playerManager = playerManager
+    self.playbackErrors = playbackErrors
     self.playerLoaderService = playerLoaderService
     self.watchConnectivityService = watchConnectivityService
     self.preferencesService = preferencesService

@@ -64,12 +64,16 @@ final class PhonePlayerPlatform: PlayerPlatform {
     }
   }
 
+  func deactivateAudioSession() {
+    try? AVAudioSession.sharedInstance().setActive(false)
+  }
+
   var defersFolderProgress: Bool {
     UIApplication.shared.applicationState != .active
   }
 
-  var fallbackArtworkColor: UIColor? {
-    ThemeManager.shared.currentTheme.linkColor
+  func fallbackArtwork() -> UIImage? {
+    ArtworkService.generateDefaultArtwork(from: ThemeManager.shared.currentTheme.linkColor)
   }
 
   func stopShakeDetection() {
@@ -78,6 +82,15 @@ final class PhonePlayerPlatform: PlayerPlatform {
 
   func observeFirstShake(_ handler: @escaping () -> Void) {
     shakeMotionService.observeFirstShake(completion: handler)
+  }
+
+  /// Settings › Autoplay: off until it's turned on
+  var autoplaysNextBook: Bool {
+    UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayEnabled)
+  }
+
+  var restartsFinishedBooks: Bool {
+    UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayRestartEnabled)
   }
 
   /// Persist a marker so the next successful activation can report whether — and how —

@@ -92,12 +92,17 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate, ObservableObject {
       )
       let playbackService = PlaybackService()
       playbackService.setup(libraryService: libraryService)
+      let playbackErrors = PlaybackErrorPresenter()
       let playerManager = PlayerManager(
         libraryService: libraryService,
         playbackService: playbackService,
         syncService: syncService,
         speedService: SpeedService(libraryService: libraryService),
-        widgetReloadService: WidgetReloadService()
+        platform: WatchPlayerPlatform(playbackErrors: playbackErrors),
+        widgetReloadService: WidgetReloadService(),
+        /// The watch plays a media-server book from its cloud copy
+        hasStreamingEnabled: { false },
+        presentFailure: { playbackErrors.present($0) }
       )
       let playerLoaderService = PlayerLoaderService()
       playerLoaderService.setup(
@@ -126,6 +131,7 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate, ObservableObject {
         libraryService: libraryService,
         playbackService: playbackService,
         playerManager: playerManager,
+        playbackErrors: playbackErrors,
         playerLoaderService: playerLoaderService,
         watchConnectivityService: ExtensionDelegate.contextManager.watchConnectivityService,
         preferencesService: preferencesService

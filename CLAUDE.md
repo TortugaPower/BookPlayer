@@ -24,11 +24,7 @@ The on-disk tree is deeply misleading. Before judging *where* code should live, 
   itself only holds `BookPlayerKit.h` + `Info.plist`. Everything cross-target lives in `Shared/` and is `public`.
 - **`Shared/` is compiled into BOTH `BookPlayerKit` (iOS) and `BookPlayerWatchKit` (watchOS).** Every file in
   `Shared/` therefore has **two** `PBXBuildFile` entries — one per framework. Adding a `Shared/` file to only
-  one target breaks the watch build. **One exception until rework PR 6b:** the player core in `Shared/Player/`
-  (`PlayerManager`, `PlaybackEngine`, `AVPlayerEngine`, `PlayerTimeSample`, `PlaybackFailure`, `PlayerPlatform`) is
-  in `BookPlayerKit` only, because the watch still has its own `PlayerManager`. Its services (`SleepTimer`,
-  `SpeedService`, `WidgetReloadService`, `UserActivityManager`, `PlayerLoaderService`, `PlayerManagerProtocol`,
-  `BPPlayerError`, the `AVPlayer` fade) are in both.
+  one target breaks the watch build.
 - **The top-level `Player/`, `Services/`, `Coordinators/`, `Library/` folders are EMPTY STUBS — ignore them.
   Never add files there.** Real code is under `BookPlayer/BookPlayer/…` or `Shared/`.
 - **Dead code to ignore:** `BookPlayer/RootViewController.swift` references `BaseViewController`/`BaseViewModel`,
@@ -384,14 +380,20 @@ CarPlay event bus. Declared in `Shared/Extensions/Notification+BookPlayerKit.swi
 ## Player · audio · sleep timer — `Shared/Player/`
 
 `PlayerManager.swift` is `@MainActor public final class PlayerManager: NSObject, @preconcurrency
-PlayerManagerProtocol, ObservableObject` (~2000 lines), in `BookPlayerKit`. It is the highest-risk file in the app.
-The load, the engine and every callback into them run on the main actor. The protocol, shared with the watch and the
-widget, stays nonisolated until rework PR 6c, and the four skip-interval statics are `nonisolated`.
+PlayerManagerProtocol, ObservableObject` (~2000 lines), in both Kits: the phone and the watch play through the same
+core. It is the highest-risk file in the app. The load, the engine and every callback into them run on the main
+actor. The protocol, shared with the widget, stays nonisolated until rework PR 6c, and the four skip-interval statics
+are `nonisolated`.
 
-- **What the app supplies, behind `PlayerPlatform`** (`PhonePlayerPlatform` in the app target): audio-session
-  activation, with its `fatalError` in production and its Sentry reporting on TestFlight; whether folder progress
-  waits for the foreground; the fallback artwork's colour; and shake to resume. The Kit is extension-safe only, so
-  `UIApplication`, `ThemeManager`, Sentry and `ShakeMotionService` stay out of it.
+- **What each app supplies, behind `PlayerPlatform`** (`PhonePlayerPlatform` in the app target,
+  `WatchPlayerPlatform` in the watch app): starting and ending the audio session; whether folder progress waits
+  (the phone in the background, the watch always); the artwork for a book without a cover (the theme-coloured
+  default on the phone, none on the watch); shake to resume (the phone only); and the autoplay settings (the phone's
+  Settings › Autoplay, off while unset; the watch autoplays unless its player's toggle is off and always restarts
+  finished books). The Kits are extension-safe only, so `UIApplication`, `ThemeManager`, Sentry and
+  `ShakeMotionService` stay out of them. The watch passes `hasStreamingEnabled: { false }` (a media-server book
+  plays its cloud copy there), and its `presentFailure` fills the player screen's alert (`PlaybackErrorPresenter`,
+  with the phone's wording).
 - **Only the public API leaves the Kit.** The engine-taking initializer and `PlaybackEngine` are internal; tests
   reach them through `@testable import BookPlayerKit`.
 
@@ -444,12 +446,17 @@ widget, stays nonisolated until rework PR 6c, and the four skip-interval statics
 - **Every play says who asked for it.** `load(_:intent:)` and `loadPlayer(_:intent:)` take a `PlayIntent`
   (`.idle` or `.wantsToPlay(.user / .system)`), and the origin is kept through the load. Only a user play arms the
   remembered sleep timer (`handleAutoTimer`), which restarts a running countdown; a start the system makes (the next
-  book, an interruption ending, a sync reload, the CarPlay Now Playing claim) passes `.system`.
-- **AVAudioSession:** activated in `play()` (`.playback` / `.spokenAudio`); deactivated ~0.1s after `.paused`
-  (delay avoids clipping). Interruption observer is **kept** on `.began` (so `.ended`+`.shouldResume` can resume)
-  and removed on user pause/stop. `mediaServicesWereReset` re-applies the category and recreates the player.
-  **Session-activation failure `fatalError`s in production** (only downgraded to a Sentry capture on TestFlight) —
-  a real crash surface.
+  book, an interruption ending, a sync reload, the CarPlay Now Playing claim) passes `.system`. A user play on a
+  finished book that is still loaded (the player at its end) starts it over from the first chapter; a system play
+  leaves it at the end.
+- **AVAudioSession:** activated in `play()` through the platform (`.playback` / `.spokenAudio`; the watch adds
+  `.longFormAudio` and awaits `activate()`, which shows the route picker until Bluetooth headphones are chosen);
+  deactivated through the platform ~0.1s after `.paused` (delay avoids clipping). An activation that finishes after
+  its play was cancelled (a pause during the watch's picker, whose deactivation already ran) deactivates again.
+  Interruption observer is **kept** on `.began` (so `.ended`+`.shouldResume` can resume) and removed on user
+  pause/stop. `mediaServicesWereReset` re-applies the category and recreates the player.
+  **Session-activation failure `fatalError`s in production on the phone** (only downgraded to a Sentry capture on
+  TestFlight) — a real crash surface. On the watch a failure shows the error and the play goes on.
 - **Background task pairing** lives in `AppServices.loadAndKeepAlive(...)`:
   `beginBackgroundTask(withName: "streaming-playback")` must be matched by `endBackgroundTask` on **all three
   paths** — error, success, and the expiration handler — guarded by the `.invalid` sentinel to avoid a
@@ -461,7 +468,7 @@ widget, stays nonisolated until rework PR 6c, and the four skip-interval statics
   Countdown uses a `Timer.publish` subscription; `.endOfChapter` observes `.chapterChange`/`.bookEnd`. `reset()`
   cancels the subscription and removes observers, and `setTimer` always resets first. It emits three publishers
   consumed by `PlayerManager` (threshold volume-fade, end→pause, turned-on→`.sleep` bookmark; shake-to-resume via
-  `PlayerPlatform`, `ShakeMotionService` on iOS).
+  `PlayerPlatform`, `ShakeMotionService` on iOS, none on the watch).
 - **Playback suggestions** (what the Lock Screen, Control Center and Home app offer while nothing plays) come only
   from SiriKit media; App Intents, iOS 27's `.audio` schemas included, has no equivalent. `MediaSuggestionsController`
   (app target, owned by `AppServices`) donates an `INPlayMediaIntent` when a book starts (`.bookPlayed`, once per

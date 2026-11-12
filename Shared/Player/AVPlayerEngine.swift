@@ -145,8 +145,10 @@ final class AVPlayerEngine: PlaybackEngine {
   }
 
   private func configure(_ player: AVPlayer) {
+    #if !os(watchOS)
     // Only route audio for AirPlay
     player.allowsExternalPlayback = false
+    #endif
 
     statusSubscription = player.publisher(for: \.timeControlStatus)
       .sink { [weak self] timeControlStatus in

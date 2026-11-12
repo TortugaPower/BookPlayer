@@ -13,6 +13,13 @@ struct PlayerControlsView: View {
   @ObservedObject var playerManager: PlayerManager
   @AppStorage(Constants.UserDefaults.rewindInterval) var rewindInterval: TimeInterval = 30
   @AppStorage(Constants.UserDefaults.forwardInterval) var forwardInterval: TimeInterval = 30
+  /// Follows the player, which also stops on its own: a book ending, headphones disconnecting
+  @State private var isPlaying: Bool
+
+  init(playerManager: PlayerManager) {
+    self.playerManager = playerManager
+    self._isPlaying = .init(initialValue: playerManager.isPlaying)
+  }
 
   var body: some View {
     GeometryReader { geometry in
@@ -35,7 +42,7 @@ struct PlayerControlsView: View {
           playerManager.playPause()
         } label: {
           ResizeableImageView(
-            name: playerManager.isPlaying
+            name: isPlaying
               ? "pause.fill"
               : "play.fill"
           )
@@ -60,6 +67,13 @@ struct PlayerControlsView: View {
         Spacer()
       }
       .frame(maxHeight: .infinity)
+    }
+    .onReceive(
+      playerManager.isPlayingPublisher()
+        .removeDuplicates()
+        .receive(on: DispatchQueue.main)
+    ) { isPlaying in
+      self.isPlaying = isPlaying
     }
   }
 }
