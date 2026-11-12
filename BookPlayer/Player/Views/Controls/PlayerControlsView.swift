@@ -96,6 +96,7 @@ struct PlayerControlsView: View {
 // MARK: - Model
 
 extension PlayerControlsView {
+  @MainActor
   class Model: ObservableObject {
     @Published var currentSpeed: Double = 1.0
     @Published var isBoostVolumeEnabled: Bool = false

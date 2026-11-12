@@ -10,6 +10,9 @@ import BookPlayerKit
 import Combine
 import WatchConnectivity
 
+/// WatchConnectivity calls the delegate on a queue of its own, so each `WCSessionDelegate` method is `nonisolated`
+/// and moves to the main actor before it reads the library, the account or the player (the view context lives there)
+@MainActor
 public class PhoneWatchConnectivityService: NSObject, WCSessionDelegate {
   let libraryService: LibraryServiceProtocol
   let playbackService: PlaybackServiceProtocol
@@ -109,19 +112,21 @@ public class PhoneWatchConnectivityService: NSObject, WCSessionDelegate {
     self.session?.activate()
   }
 
-  public func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
-    self.sendApplicationContext()
+  nonisolated public func session(_ session: WCSession, activationDidCompleteWith activationState: WCSessionActivationState, error: Error?) {
+    Task { @MainActor in
+      self.sendApplicationContext()
 
-    // Register observers only once
-    if !didRegisterObservers {
-      didRegisterObservers = true
-      bindObservers()
+      // Register observers only once
+      if !didRegisterObservers {
+        didRegisterObservers = true
+        bindObservers()
+      }
     }
   }
 
-  public func sessionDidBecomeInactive(_ session: WCSession) {}
+  nonisolated public func sessionDidBecomeInactive(_ session: WCSession) {}
 
-  public func sessionDidDeactivate(_ session: WCSession) {
+  nonisolated public func sessionDidDeactivate(_ session: WCSession) {
     session.activate()
   }
 
@@ -216,10 +221,12 @@ extension PhoneWatchConnectivityService {
     self.validReachableSession?.sendMessageData(data, replyHandler: replyHandler, errorHandler: errorHandler)
   }
 
-  public func session(_ session: WCSession, didReceiveMessage message: [String: Any], replyHandler: @escaping ([String: Any]) -> Void) {
+  nonisolated public func session(_ session: WCSession, didReceiveMessage message: [String: Any], replyHandler: @escaping ([String: Any]) -> Void) {
     // Handle auth request from Watch
     if let command = message["command"] as? String, command == "requestAuth" {
-      handleAuthRequest(replyHandler: replyHandler)
+      Task { @MainActor in
+        handleAuthRequest(replyHandler: replyHandler)
+      }
       return
     }
 
@@ -254,12 +261,12 @@ extension PhoneWatchConnectivityService {
     ])
   }
 
-  public func session(_ session: WCSession, didReceiveMessage message: [String: Any]) {
+  nonisolated public func session(_ session: WCSession, didReceiveMessage message: [String: Any]) {
     NotificationCenter.default.post(name: .messageReceived, object: nil, userInfo: message)
   }
 
   /// Only used for refresh command on the phone side
-  public func session(_ session: WCSession, didReceiveMessageData messageData: Data, replyHandler: @escaping (Data) -> Void) {
+  nonisolated public func session(_ session: WCSession, didReceiveMessageData messageData: Data, replyHandler: @escaping (Data) -> Void) {
     guard
       let jsonObject = try? JSONSerialization.jsonObject(with: messageData, options: .mutableLeaves) as? [String: Any],
       let action = CommandParser.parse(jsonObject),
@@ -269,10 +276,12 @@ extension PhoneWatchConnectivityService {
       return
     }
 
-    let applicationContext = generateApplicationContext()
+    Task { @MainActor in
+      let applicationContext = generateApplicationContext()
 
-    guard let applicationContextData = try? JSONEncoder().encode(applicationContext) else { return }
+      guard let applicationContextData = try? JSONEncoder().encode(applicationContext) else { return }
 
-    replyHandler(applicationContextData)
+      replyHandler(applicationContextData)
+    }
   }
 }

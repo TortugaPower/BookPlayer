@@ -22,6 +22,7 @@ public enum PlayIntent: Equatable {
 }
 
 /// sourcery: AutoMockable
+@MainActor
 public protocol PlayerManagerProtocol: AnyObject {
   var currentItem: PlayableItem? { get set }
   var currentSpeed: Float { get set }
@@ -52,7 +53,7 @@ public protocol PlayerManagerProtocol: AnyObject {
   func jumpToChapter(_ chapter: PlayableChapter)
   /// Rebuild `currentItem` from storage (and re-bind the chapter subscription) so externally
   /// changed data — e.g. re-parsed chapters — takes effect. Preserves playback position.
-  @MainActor func reloadCurrentItem()
+  func reloadCurrentItem()
   func markAsCompleted(_ flag: Bool)
   func setSpeed(_ newValue: Float)
   func setBoostVolume(_ newValue: Bool)

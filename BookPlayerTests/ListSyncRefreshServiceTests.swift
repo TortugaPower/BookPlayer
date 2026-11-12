@@ -14,6 +14,7 @@ import XCTest
 /// the ORDER: the media-server pull runs after the cloud sync of the same level (they write
 /// on different contexts and must never overlap), for the same path, and regardless of how
 /// the cloud step ended — the servers are independent hosts.
+@MainActor
 final class ListSyncRefreshServiceTests: XCTestCase {
   /// Shared by the cloud mock and the chapters stub so a test can read the sequence back.
   private final class Recorder: @unchecked Sendable {
@@ -111,7 +112,6 @@ final class ListSyncRefreshServiceTests: XCTestCase {
 
   /// The book that's playing changed on another device: it reloads and keeps playing as a system
   /// start, since a user one would restart a running sleep timer at every such sync
-  @MainActor
   func testReloadingThePlayingBookKeepsItPlayingAsASystemStart() async throws {
     DataTestUtils.clearFolderContents(url: DataManager.getProcessedFolderURL())
     let libraryService = LibraryService()
