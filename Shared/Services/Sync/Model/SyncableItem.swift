@@ -74,14 +74,17 @@ extension SyncableItem: Decodable {
     self.relativePath = try container.decode(String.self, forKey: .relativePath)
     self.remoteURL = try? container.decode(URL.self, forKey: .remoteURL)
     self.artworkURL = try? container.decode(URL.self, forKey: .artworkURL)
-    self.originalFileName = try container.decode(String.self, forKey: .originalFileName)
-    self.title = try container.decode(String.self, forKey: .title)
+    // The server allows nulls here. Folders the web app made before October 2026 have no
+    // file name (stored NULL); their name is the path's last part, as the web reads them
+    self.originalFileName = try container.decodeIfPresent(String.self, forKey: .originalFileName)
+      ?? (relativePath as NSString).lastPathComponent
+    self.title = try container.decodeIfPresent(String.self, forKey: .title) ?? originalFileName
     self.details = try container.decodeIfPresent(String.self, forKey: .details) ?? ""
     self.speed = try container.decodeIfPresent(Double.self, forKey: .speed)
     self.currentTime = try container.decodeIfPresent(Double.self, forKey: .currentTime) ?? 0.0
     self.duration = try container.decodeIfPresent(Double.self, forKey: .duration) ?? 0.0
     self.percentCompleted = try container.decodeIfPresent(Double.self, forKey: .percentCompleted) ?? 0.0
-    self.isFinished = try container.decode(Bool.self, forKey: .isFinished)
+    self.isFinished = try container.decodeIfPresent(Bool.self, forKey: .isFinished) ?? false
     self.orderRank = try container.decodeIfPresent(Int.self, forKey: .orderRank) ?? 0
     self.lastPlayDateTimestamp = try container.decodeIfPresent(Double.self, forKey: .lastPlayDateTimestamp)
     self.type = try container.decode(SimpleItemType.self, forKey: .type)
@@ -98,20 +101,25 @@ extension SyncableItem: Decodable {
 /// Decodes each array element independently, skipping the ones that fail.
 struct LossyDecodableArray<Element: Decodable>: Decodable {
   let elements: [Element]
+  /// Why each skipped element failed, in order
+  let failures: [Error]
 
   init(from decoder: Decoder) throws {
     var container = try decoder.unkeyedContainer()
     var elements: [Element] = []
+    var failures: [Error] = []
     while !container.isAtEnd {
-      if let element = try? container.decode(Element.self) {
-        elements.append(element)
-      } else {
+      do {
+        elements.append(try container.decode(Element.self))
+      } catch {
+        failures.append(error)
         // A failed decode does NOT advance the index — consume the malformed
         // element with an always-succeeding decode or this loops forever
         _ = try? container.decode(AnyDecodableValue.self)
       }
     }
     self.elements = elements
+    self.failures = failures
   }
 
   private struct AnyDecodableValue: Decodable {

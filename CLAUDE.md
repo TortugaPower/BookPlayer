@@ -613,6 +613,12 @@ widget, stays nonisolated until rework PR 6c, and the four skip-interval statics
   Job types (`SyncJobType`): `upload, update, move, renameFolder, delete, shallowDelete, setBookmark,
   deleteBookmark, uploadArtwork, matchUuid, externalResource, externalResourceToDownload, deleteExternalResource`
   (sync lane), `uploadFile` (upload lane), `externalUpdate` (provider lanes).
+- **Library listings are read item by item** (`ContentsResponse`, `LossyDecodableArray`): an item the app
+  can't read is logged and skipped, never failing the whole listing (and with it a first sync). A listing that
+  skipped any is incomplete, so `processContentsResponse` deletes nothing against it. The server allows nulls in
+  `SyncableItem`'s metadata: a missing `originalFileName` reads as the path's last part (folders the web made
+  before October 2026 have none), `title` as that name, `isFinished` as false; `relativePath` and `type` stay
+  required.
 - **Download verification:** `verifyDownloadedFile` rejects truncated files by comparing `AVURLAsset` duration to
   the stored duration (tolerance `max(2, expected*0.02)`); completion is broadcast only after verification.
   Don't skip it — it prevents promoting a truncated book.

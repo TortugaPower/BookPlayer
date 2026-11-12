@@ -419,6 +419,8 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
     canDelete: Bool
   ) async throws {
     guard !response.content.isEmpty else { return }
+    /// A listing with skipped items is incomplete: deleting against it would remove them here
+    let canDelete = canDelete && response.skippedCount == 0
 
     var completeItemsDict = Dictionary(response.content.map { ($0.relativePath, $0) }) { first, _ in first }
     var missingUuidsDict: [String: String] = [:]
