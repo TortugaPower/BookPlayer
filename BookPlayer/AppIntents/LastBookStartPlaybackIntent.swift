@@ -22,6 +22,7 @@ struct LastBookStartPlaybackIntent: AudioPlaybackIntent {
   var libraryService: LibraryService
   #endif
 
+  @MainActor
   func perform() async throws -> some IntentResult {
     #if MAIN_APP
     let coreServices = try await AppServices.shared.awaitCoreServices()

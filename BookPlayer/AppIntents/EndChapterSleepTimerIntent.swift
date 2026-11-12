@@ -14,6 +14,7 @@ import BookPlayerKit
 struct EndChapterSleepTimerIntent: AppIntent {
   static var title: LocalizedStringResource = "intent_sleeptimer_eoc_title"
 
+  @MainActor
   func perform() async throws -> some IntentResult {
     SleepTimer.shared.setTimer(.endOfChapter)
     return .result()
