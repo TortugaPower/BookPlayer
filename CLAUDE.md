@@ -763,7 +763,11 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
 
 - **Import** (`Import/`): files enter from the document picker / drag-drop, the **share extension** (writes into
   the App Group folder, picked up by a `DirectoryWatcher`), URL-open/intents, and remote downloads — all
-  converging on `ImportManager` (`ObservableObject`). `ImportOperation` (async `Operation`, thread-safe via a
+  converging on `ImportManager` (`ObservableObject`). Picked, dropped and opened files are first copied into
+  Documents while their URLs still carry access: a file another app opens in place (iCloud Drive, On My iPhone)
+  travels as the URL the system handed over (`Action.fileURL`; one rebuilt from its path can't read it) to the
+  root list, which copies it through the picker's own `ItemListViewModel.handleFilePickerSelection`.
+  `ImportOperation` (async `Operation`, thread-safe via a
   barrier `lockQueue`) detects folder organization, handles zip/lpf (SSZipArchive), collision-safe-copies into the
   Processed folder, and uses balanced `start/stopAccessingSecurityScopedResource`. **A copy failure
   `SentrySDK.capture`s then `fatalError`s** — an intentional but real crash surface for bad imports. Book/folder

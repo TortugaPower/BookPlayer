@@ -23,7 +23,9 @@ public class CommandParser {
         return nil
       }
 
-      return Action(command: .fileImport, parameters: [URLQueryItem(name: "url", value: url.path)])
+      var action = Action(command: .fileImport, parameters: [URLQueryItem(name: "url", value: url.path)])
+      action.fileURL = url
+      return action
     }
 
     guard let host = url.host else {
@@ -145,6 +147,9 @@ public enum Command: String {
 public struct Action: Equatable {
   public var command: Command
   public var parameters: [URLQueryItem]
+  /// The file another app opened in BookPlayer, as the system handed it over. Only this URL carries the
+  /// access to read a file outside the app (iCloud Drive, On My iPhone): one rebuilt from its path doesn't.
+  public var fileURL: URL?
 
   public static func == (lhs: Action, rhs: Action) -> Bool {
     return lhs.command == rhs.command

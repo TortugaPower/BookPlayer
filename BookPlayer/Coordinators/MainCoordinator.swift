@@ -211,6 +211,7 @@ class MainCoordinator: NSObject {
   func processFiles(urls: [URL]) {
     let temporaryDirectoryPath = FileManager.default.temporaryDirectory.absoluteString
     let documentsFolder = DataManager.getDocumentsFolderURL()
+    var openedFiles = [URL]()
 
     for url in urls {
       /// At some point (iOS 17?), the OS stopped sending the picked files to the Documents/Inbox folder, instead
@@ -221,9 +222,17 @@ class MainCoordinator: NSObject {
           try! FileManager.default.copyItem(at: url, to: destinationURL)
           destinationURL.disableFileProtection()
         }
-      } else {
+      } else if DataManager.isAppManagedSource(url) {
         importManager.process(url)
+      } else {
+        // Opened in place from another app (iCloud Drive, On My iPhone): readable only through this
+        // URL's access, so the library copies it into Documents now, as it does with picked files
+        openedFiles.append(url)
       }
+    }
+
+    if !openedFiles.isEmpty {
+      importManager.receiveOpenedFiles(openedFiles)
     }
   }
 }

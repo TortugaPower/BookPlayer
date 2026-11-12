@@ -206,6 +206,12 @@ struct ItemListView: View {
           loadingState.error = error
         }
       }
+      .onReceive(importManager.observeOpenedFiles()) { _ in
+        // Files opened from another app go into Documents the way picked ones do, copied once: by the root list
+        guard model.libraryNode == .root else { return }
+        let alreadyExisting = model.handleFilePickerSelection(importManager.takeOpenedFiles())
+        alreadyExisting.forEach { importManager.process($0) }
+      }
   }
 
   @ViewBuilder

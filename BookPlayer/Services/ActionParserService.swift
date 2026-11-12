@@ -161,7 +161,7 @@ class ActionParserService {
       return
     }
 
-    let url = URL(fileURLWithPath: urlString)
+    let url = action.fileURL ?? URL(fileURLWithPath: urlString)
     self.removeAction(action)
     mainCoordinator.processFiles(urls: [url])
   }

@@ -226,6 +226,46 @@ class ImportOperationTests: XCTestCase {
   }
 }
 
+// MARK: - Files opened from other apps
+
+final class OpenedFileImportTests: XCTestCase {
+  private let file = URL(fileURLWithPath: "/private/var/mobile/Library/Mobile Documents/com~apple~CloudDocs/book.m4b")
+
+  /// The action keeps the URL the system handed over: only that one can read a file outside the app.
+  func testAnOpenedFileKeepsItsURL() throws {
+    let action = try XCTUnwrap(CommandParser.parse(file))
+
+    XCTAssertEqual(action.command, .fileImport)
+    XCTAssertEqual(action.fileURL, file)
+  }
+
+  func testOpenedFilesAreHandedOverOnce() {
+    let importManager = ImportManager(libraryService: LibraryServiceProtocolMock())
+    var deliveries = 0
+    let subscription = importManager.observeOpenedFiles().sink { _ in deliveries += 1 }
+    defer { subscription.cancel() }
+
+    importManager.receiveOpenedFiles([file])
+
+    XCTAssertEqual(deliveries, 1)
+    XCTAssertEqual(importManager.takeOpenedFiles(), [file])
+    XCTAssertEqual(importManager.takeOpenedFiles(), [])
+    XCTAssertEqual(deliveries, 1)
+  }
+
+  /// Opened at launch, before the library is listening: they wait for it.
+  func testFilesOpenedBeforeTheLibraryListensWaitForIt() {
+    let importManager = ImportManager(libraryService: LibraryServiceProtocolMock())
+    importManager.receiveOpenedFiles([file])
+
+    var received = [URL]()
+    let subscription = importManager.observeOpenedFiles().sink { received = $0 }
+    defer { subscription.cancel() }
+
+    XCTAssertEqual(received, [file])
+  }
+}
+
 // MARK: - Virtual import pipeline
 
 @MainActor
