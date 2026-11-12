@@ -14,7 +14,6 @@ import SwiftUI
 class PlayerControlsViewModel: PlayerControlsView.Model {
   let playerManager: PlayerManagerProtocol
   private var disposeBag = Set<AnyCancellable>()
-  private var boostVolumeObserver: NSKeyValueObservation?
 
   init(playerManager: PlayerManagerProtocol) {
     self.playerManager = playerManager
@@ -36,14 +35,13 @@ class PlayerControlsViewModel: PlayerControlsView.Model {
       }
       .store(in: &disposeBag)
 
-    boostVolumeObserver = UserDefaults.standard.observe(
-      \.userSettingsBoostVolume,
-      options: [.new]
-    ) { [weak self] _, change in
-      guard let newValue = change.newValue else { return }
-
-      self?.isBoostVolumeEnabled = newValue
-    }
+    /// The setting can also change in Settings or from CarPlay while the player is open
+    UserDefaults.standard.publisher(for: \.userSettingsBoostVolume, options: [.new])
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] isEnabled in
+        self?.isBoostVolumeEnabled = isEnabled
+      }
+      .store(in: &disposeBag)
   }
 
   override func handleSpeedChange(_ speed: Double) {
@@ -55,6 +53,8 @@ class PlayerControlsViewModel: PlayerControlsView.Model {
   }
 
   override func handleBoostVolumeToggle(_ enabled: Bool) {
+    /// At once, so the switch doesn't snap back until the setting's change arrives
+    isBoostVolumeEnabled = enabled
     UserDefaults.standard.set(enabled, forKey: Constants.UserDefaults.boostVolumeEnabled)
 
     playerManager.setBoostVolume(enabled)

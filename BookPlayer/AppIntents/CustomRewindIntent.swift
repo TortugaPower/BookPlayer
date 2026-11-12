@@ -24,6 +24,7 @@ struct CustomRewindIntent: AudioPlaybackIntent {
     Summary("Rewind \(\.$interval)")
   }
 
+  @MainActor
   func perform() async throws -> some IntentResult {
     let coreServices = try await AppServices.shared.awaitCoreServices()
     let playerLoaderService = coreServices.playerLoaderService
@@ -35,9 +36,7 @@ struct CustomRewindIntent: AudioPlaybackIntent {
       try await playerLoaderService.loadPlayer(book.relativePath, intent: .idle)
     }
 
-    await MainActor.run {
-      playerLoaderService.playerManager.directSkip(-seconds)
-    }
+    playerLoaderService.playerManager.directSkip(-seconds)
 
     return .result()
   }

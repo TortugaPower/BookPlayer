@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		84605C3CE34C41365FBD49FE /* PlayerControlsViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9970C339FBF5BE1DDA9874B8 /* PlayerControlsViewModelTests.swift */; };
+		9C5E6F67C0E67ABAE3A1D498 /* PhoneWatchConnectivityServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B262CE8950E6E778279016C2 /* PhoneWatchConnectivityServiceTests.swift */; };
 		D85B7285AB6D97A2751025E2 /* PlaybackErrorPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BACD9D14AE87FF19FAA75BD /* PlaybackErrorPresenter.swift */; };
 		1489CB59F05395D2324FA865 /* WatchPlayerPlatform.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F677104C2F59B4769F77508 /* WatchPlayerPlatform.swift */; };
 		32D9BAF0FC67D3432D92763D /* PlayerPlatform.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52E3D2B7BA665833A9CE2FD3 /* PlayerPlatform.swift */; };
@@ -1191,6 +1193,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		9970C339FBF5BE1DDA9874B8 /* PlayerControlsViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerControlsViewModelTests.swift; sourceTree = "<group>"; };
+		B262CE8950E6E778279016C2 /* PhoneWatchConnectivityServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneWatchConnectivityServiceTests.swift; sourceTree = "<group>"; };
 		0BACD9D14AE87FF19FAA75BD /* PlaybackErrorPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackErrorPresenter.swift; sourceTree = "<group>"; };
 		8F677104C2F59B4769F77508 /* WatchPlayerPlatform.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchPlayerPlatform.swift; sourceTree = "<group>"; };
 		9BD87531B9ABC0C9D654C2BF /* PhonePlayerPlatform.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhonePlayerPlatform.swift; sourceTree = "<group>"; };
@@ -3526,6 +3530,7 @@
 		69343D34213A079B000C425E /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				B262CE8950E6E778279016C2 /* PhoneWatchConnectivityServiceTests.swift */,
 				69343D35213A07B4000C425E /* VoiceOverServiceTest.swift */,
 				6906A54F21720FDF00A9E0B2 /* BookSortServiceTest.swift */,
 				62AAE230274ABB5D001EB9FF /* LibraryServiceTests.swift */,
@@ -3560,6 +3565,7 @@
 		730EC9788E81A550CC46D98C /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				9970C339FBF5BE1DDA9874B8 /* PlayerControlsViewModelTests.swift */,
 				6D0B3A0A85A80BE4BFD195A7 /* BookmarksViewModelTests.swift */,
 				32194561FB001A338C36005C /* ItemListViewModelTests.swift */,
 				F496A2BF4CBFFC745C453D42 /* ChaptersViewModelTests.swift */,
@@ -5440,6 +5446,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				84605C3CE34C41365FBD49FE /* PlayerControlsViewModelTests.swift in Sources */,
+				9C5E6F67C0E67ABAE3A1D498 /* PhoneWatchConnectivityServiceTests.swift in Sources */,
 				A64308C416AABB27C66476A5 /* SleepTimerOptionTests.swift in Sources */,
 				E79345DD00DC64A0F7E0939A /* SleepTimerOption.swift in Sources */,
 				9F1C30FC2A2E593300D5BC81 /* PlayableItemMock.swift in Sources */,
