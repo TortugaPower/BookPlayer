@@ -654,6 +654,64 @@ extension MissingItemsPassTests {
   }
 }
 
+// MARK: - Listings with rows the app can't fully read
+
+extension MissingItemsPassTests {
+  /// Folders the web app made before October 2026 have no file name on the server (NULL).
+  /// One of them used to fail the whole listing, so a first sync never brought any book
+  func testFirstSync_storesTheLibrary_whenAFolderHasNoFileName() async throws {
+    var folder = SyncResponseFixtures.itemJSON(relativePath: "Shelf", type: .folder)
+    folder["originalFileName"] = NSNull()
+    folder["title"] = NSNull()
+    folder["isFinished"] = NSNull()
+    client.setRootContent([folder, SyncResponseFixtures.itemJSON(relativePath: "Remote.m4b")])
+
+    try await sync.syncLibraryContents()
+
+    let shelf = libraryService.getSimpleItem(with: "Shelf")
+    XCTAssertEqual(shelf?.originalFileName, "Shelf")
+    XCTAssertEqual(shelf?.title, "Shelf")
+    XCTAssertEqual(shelf?.isFinished, false)
+    let remoteExists = await libraryService.itemExists(for: "Remote.m4b")
+    XCTAssertTrue(remoteExists)
+  }
+
+  /// An item that still can't be read is skipped and the rest syncs. The listing is then
+  /// incomplete, so a refresh deletes nothing against it: the skipped item may be here
+  func testListRefresh_skipsAnUnreadableItem_andDeletesNothing() async throws {
+    let local = rootBook("Local")
+    var unreadable = SyncResponseFixtures.itemJSON(relativePath: local.relativePath)
+    unreadable["type"] = NSNull()
+    client.setRootContent([unreadable, SyncResponseFixtures.itemJSON(relativePath: "Remote.m4b")])
+
+    try await sync.syncListContents(at: nil)
+
+    let localExists = await libraryService.itemExists(for: local.relativePath)
+    XCTAssertTrue(localExists, "an incomplete listing must not delete it")
+    let remoteExists = await libraryService.itemExists(for: "Remote.m4b")
+    XCTAssertTrue(remoteExists)
+  }
+
+  /// A book at the library root, where a listing of the root can delete it
+  private func rootBook(_ title: String) -> Book {
+    let book = book(title)
+    libraryService.getLibraryReference().addToItems(book)
+    dataManager.saveContext()
+    return book
+  }
+
+  /// A complete listing still deletes what the server no longer has
+  func testListRefresh_completeListing_stillDeletes() async throws {
+    let local = rootBook("Local")
+    client.setRootContent([SyncResponseFixtures.itemJSON(relativePath: "Remote.m4b")])
+
+    try await sync.syncListContents(at: nil)
+
+    let localExists = await libraryService.itemExists(for: local.relativePath)
+    XCTAssertFalse(localExists)
+  }
+}
+
 // MARK: - Download source: media server first, the cloud copy as the fallback
 
 extension MissingItemsPassTests {
