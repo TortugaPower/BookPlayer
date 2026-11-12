@@ -65,7 +65,7 @@ public protocol LibraryServiceProtocol: AnyObject {
   func getBookCount() -> Int
   /// Fetch the most recent played items
   func getLastPlayedItems(limit: Int?) -> [SimpleLibraryItem]?
-  /// Where the file of a book with the same file name is meant to be (case-insensitive), if any.
+  /// Where the file of a book with the same file name, in any folder and any case, is meant to be, if any.
   /// Safe off the main thread.
   func findBookFileURL(matching fileURL: URL) -> URL?
   /// Fetch a single item with properties loaded
@@ -1670,8 +1670,14 @@ extension LibraryService {
   }
 
   public func findBookFileURL(matching fileURL: URL) -> URL? {
+    let fileName = fileURL.lastPathComponent
     let fetch: NSFetchRequest<Book> = Book.fetchRequest()
-    fetch.predicate = NSPredicate(format: "relativePath ENDSWITH[C] %@", fileURL.lastPathComponent)
+    // The whole file name, at the root or in a folder: `book.m4a` mustn't match `mybook.m4a`
+    fetch.predicate = NSPredicate(
+      format: "%K ==[c] %@ OR %K ENDSWITH[c] %@",
+      #keyPath(LibraryItem.relativePath), fileName,
+      #keyPath(LibraryItem.relativePath), "/\(fileName)"
+    )
     fetch.fetchLimit = 1
     // The import asks from its own queue: the background context, waited on, never the main thread
     let context = dataManager.getBackgroundContext()

@@ -135,6 +135,21 @@ class LibraryServiceTests: XCTestCase {
     XCTAssertEqual(self.sut.findBookFileURL(matching: incomingURL), book.fileURL)
   }
 
+  /// A whole file name only, at the root or in a folder: `book.txt` isn't `mybook.txt`
+  func testFindBookFileURL_matchesWholeFileNamesOnly() {
+    _ = StubFactory.book(dataManager: self.sut.dataManager, title: "mybook", duration: 100)
+    let nested = StubFactory.book(dataManager: self.sut.dataManager, title: "other", duration: 100)
+    nested.relativePath = "folder/other.txt"
+    self.sut.dataManager.saveContext()
+    let inbox = DataManager.getInboxFolderURL()
+
+    XCTAssertNil(self.sut.findBookFileURL(matching: inbox.appendingPathComponent("book.txt")))
+    XCTAssertEqual(
+      self.sut.findBookFileURL(matching: inbox.appendingPathComponent("OTHER.txt")),
+      DataManager.getProcessedFolderURL().appendingPathComponent("folder/other.txt")
+    )
+  }
+
   /// The import asks from its own queue. The answer must not need the main thread, which this test holds
   func testFindBookFileURL_fromTheImportQueue_answersWithoutTheMainThread() {
     let book = StubFactory.book(dataManager: self.sut.dataManager, title: "test1-book", duration: 100)
