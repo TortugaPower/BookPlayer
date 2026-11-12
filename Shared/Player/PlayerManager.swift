@@ -158,7 +158,7 @@ public final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObj
 
   /// Runs `body` on the main actor: right away when already on main, so a change made there takes effect in
   /// that same turn (the end-of-chapter timer pausing as the chapter changes), otherwise on main's next turn
-  /// (Siri and Shortcuts set the sleep timer off main, and AVAudioSession doesn't promise main)
+  /// (AVAudioSession doesn't promise main; the sleep timer is set on main, the App Intents included)
   nonisolated private static func onMain(_ body: @escaping @MainActor () -> Void) {
     if Thread.isMainThread {
       MainActor.assumeIsolated(body)

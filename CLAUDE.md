@@ -226,6 +226,10 @@ first. Reordering boot risks a launch crash.
   `AppDependencyManager.shared.add(...)` in `setupCoreServices()`. The **extension** targets consume them with
   `@Dependency` (under `#if !MAIN_APP`); the **main app** instead resolves via
   `await AppServices.shared.awaitCoreServices()`. A new `@Dependency` type must be `add()`-ed or intents trap.
+  **Every App Intent's `perform()` is `@MainActor`, and so are `BookEntityQuery`'s methods** (Siri's book lookup
+  and the Shortcuts picker). The system calls them from the cooperative pool, and they read and write Core Data's
+  view context and set `SleepTimer.shared`, whose publishers make the player write its sleep bookmark: off main,
+  those crashed in `saveContext` and in the bookmark writes.
 
 ### Coordinators — `BookPlayer/Coordinators/`
 

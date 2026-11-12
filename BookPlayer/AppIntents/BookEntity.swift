@@ -48,6 +48,7 @@ struct BookEntity: AppEntity, Identifiable {
 @available(macOS 14.0, watchOS 10.0, *)
 struct BookEntityQuery: EntityStringQuery {
   /// Resolve specific books by their `relativePath` identifiers.
+  @MainActor
   func entities(for identifiers: [String]) async throws -> [BookEntity] {
     let coreServices = try await AppServices.shared.awaitCoreServices()
     let libraryService = coreServices.libraryService
@@ -58,6 +59,7 @@ struct BookEntityQuery: EntityStringQuery {
   }
 
   /// Match books by a typed/spoken query (title or author), powering Siri resolution.
+  @MainActor
   func entities(matching string: String) async throws -> [BookEntity] {
     let coreServices = try await AppServices.shared.awaitCoreServices()
     let items = coreServices.libraryService.searchAllBooks(
@@ -70,6 +72,7 @@ struct BookEntityQuery: EntityStringQuery {
   }
 
   /// Suggestions shown in the Shortcuts picker: most recently played books first.
+  @MainActor
   func suggestedEntities() async throws -> [BookEntity] {
     let coreServices = try await AppServices.shared.awaitCoreServices()
     let items = coreServices.libraryService.getLastPlayedItems(limit: 20) ?? []

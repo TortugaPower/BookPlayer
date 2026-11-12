@@ -14,11 +14,10 @@ import Foundation
 struct PausePlaybackIntent: AudioPlaybackIntent {
   static var title: LocalizedStringResource = "intent_playback_pause_title"
 
+  @MainActor
   func perform() async throws -> some IntentResult {
     let coreServices = try await AppServices.shared.awaitCoreServices()
-    await MainActor.run {
-      coreServices.playerLoaderService.playerManager.pause()
-    }
+    coreServices.playerLoaderService.playerManager.pause()
 
     return .result()
   }
