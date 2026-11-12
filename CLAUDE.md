@@ -767,7 +767,8 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
   Documents while their URLs still carry access, and the Documents watcher queues the copy. A file another app
   opens in place (iCloud Drive, On My iPhone) travels as the URL the system handed over (`Action.fileURL`; one
   rebuilt from its path can't read it) to `MainCoordinator.processFiles`, which copies it off the main thread
-  along with the system's temporary-folder copies.
+  along with the system's temporary-folder copies (`copyFile(_:into:)`: a coordinated read, so iCloud Drive and
+  other providers download the file first, staged in `tmp` and moved into Documents whole).
   `ImportOperation` (async `Operation`, thread-safe via a
   barrier `lockQueue`) detects folder organization, handles zip/lpf (SSZipArchive), collision-safe-copies into the
   Processed folder, and uses balanced `start/stopAccessingSecurityScopedResource`. **A copy failure

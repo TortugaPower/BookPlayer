@@ -230,6 +230,21 @@ class ImportOperationTests: XCTestCase {
 
 final class OpenedFileImportTests: XCTestCase {
   private let file = URL(fileURLWithPath: "/private/var/mobile/Library/Mobile Documents/com~apple~CloudDocs/book.m4b")
+  private var workFolder: URL!
+  private var sourceFolder: URL!
+  private var documentsFolder: URL!
+
+  override func setUpWithError() throws {
+    workFolder = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+    sourceFolder = workFolder.appendingPathComponent("Source", isDirectory: true)
+    documentsFolder = workFolder.appendingPathComponent("Documents", isDirectory: true)
+    try FileManager.default.createDirectory(at: sourceFolder, withIntermediateDirectories: true)
+    try FileManager.default.createDirectory(at: documentsFolder, withIntermediateDirectories: true)
+  }
+
+  override func tearDownWithError() throws {
+    try? FileManager.default.removeItem(at: workFolder)
+  }
 
   /// The action keeps the URL the system handed over: only that one can read a file outside the app.
   func testAnOpenedFileKeepsItsURL() throws {
@@ -237,6 +252,29 @@ final class OpenedFileImportTests: XCTestCase {
 
     XCTAssertEqual(action.command, .fileImport)
     XCTAssertEqual(action.fileURL, file)
+  }
+
+  /// The copy lands in Documents whole, and the original stays where the other app keeps it.
+  func testAnOpenedFileIsCopiedAndTheOriginalKept() throws {
+    let source = sourceFolder.appendingPathComponent("book.m4b")
+    try Data("audio".utf8).write(to: source)
+
+    try MainCoordinator.copyFile(source, into: documentsFolder)
+
+    XCTAssertEqual(try Data(contentsOf: documentsFolder.appendingPathComponent("book.m4b")), Data("audio".utf8))
+    XCTAssertTrue(FileManager.default.fileExists(atPath: source.path))
+  }
+
+  /// A file of that name already waiting in Documents is left as it is.
+  func testAFileOfTheSameNameIsNotOverwritten() throws {
+    let source = sourceFolder.appendingPathComponent("book.m4b")
+    try Data("audio".utf8).write(to: source)
+    let waiting = documentsFolder.appendingPathComponent("book.m4b")
+    try Data("waiting".utf8).write(to: waiting)
+
+    try MainCoordinator.copyFile(source, into: documentsFolder)
+
+    XCTAssertEqual(try Data(contentsOf: waiting), Data("waiting".utf8))
   }
 }
 

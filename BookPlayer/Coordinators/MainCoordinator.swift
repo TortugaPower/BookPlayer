@@ -226,7 +226,7 @@ class MainCoordinator: NSObject {
   /// Documents watcher queues the copy for import. The system's own copy sits in a temporary folder that
   /// may not last until the import is done (since iOS 17?), and a file another app opened in place
   /// (iCloud Drive, On My iPhone) can only be read while this URL's access is held. Off the main thread: a
-  /// file in iCloud Drive that isn't downloaded yet downloads during the copy.
+  /// file in iCloud Drive that isn't downloaded yet downloads before the copy.
   private func copyIntoDocuments(_ urls: [URL]) {
     guard !urls.isEmpty else { return }
 
@@ -234,32 +234,50 @@ class MainCoordinator: NSObject {
 
     Task.detached(priority: .userInitiated) { [weak self] in
       for url in urls {
-        let accessGranted = url.startAccessingSecurityScopedResource()
-        defer {
-          if accessGranted { url.stopAccessingSecurityScopedResource() }
-        }
-
-        let destinationURL = documentsFolder.appendingPathComponent(url.lastPathComponent)
-        guard !FileManager.default.fileExists(atPath: destinationURL.path) else { continue }
-
-        // Copied into a folder of its own first and moved into Documents whole. The Documents watcher
-        // reports a file once its size stops changing, which a copy stalled on a slow source (a download,
-        // a network drive) would fake.
-        let stagingFolder = FileManager.default.temporaryDirectory
-          .appendingPathComponent(UUID().uuidString, isDirectory: true)
-        defer { try? FileManager.default.removeItem(at: stagingFolder) }
-
         do {
-          try FileManager.default.createDirectory(at: stagingFolder, withIntermediateDirectories: true)
-          let stagedURL = stagingFolder.appendingPathComponent(url.lastPathComponent)
-          try FileManager.default.copyItem(at: url, to: stagedURL)
-          try FileManager.default.moveItem(at: stagedURL, to: destinationURL)
-          destinationURL.disableFileProtection()
+          try MainCoordinator.copyFile(url, into: documentsFolder)
         } catch {
           await self?.showAlert("error_title".localized, message: error.localizedDescription)
         }
       }
     }
+  }
+
+  /// Copies a file handed over from outside the app into `folder`, unless a file of that name is already
+  /// there. Blocks until the copy is done.
+  nonisolated static func copyFile(_ url: URL, into folder: URL) throws {
+    let accessGranted = url.startAccessingSecurityScopedResource()
+    defer {
+      if accessGranted { url.stopAccessingSecurityScopedResource() }
+    }
+
+    let destinationURL = folder.appendingPathComponent(url.lastPathComponent)
+    guard !FileManager.default.fileExists(atPath: destinationURL.path) else { return }
+
+    // Copied into a folder of its own first and moved in whole. The Documents watcher reports a file once
+    // its size stops changing, which a copy stalled on a slow source (a download, a network drive) would fake.
+    let stagingFolder = FileManager.default.temporaryDirectory
+      .appendingPathComponent(UUID().uuidString, isDirectory: true)
+    defer { try? FileManager.default.removeItem(at: stagingFolder) }
+
+    try FileManager.default.createDirectory(at: stagingFolder, withIntermediateDirectories: true)
+    let stagedURL = stagingFolder.appendingPathComponent(url.lastPathComponent)
+
+    // A coordinated read has the file's provider (iCloud Drive, another app's storage) download it first and
+    // waits for it. A plain read of a file that isn't downloaded yet times out on a slow download.
+    var coordinationError: NSError?
+    var copyError: Error?
+    NSFileCoordinator().coordinate(readingItemAt: url, options: .withoutChanges, error: &coordinationError) { readURL in
+      do {
+        try FileManager.default.copyItem(at: readURL, to: stagedURL)
+      } catch {
+        copyError = error
+      }
+    }
+    if let error = coordinationError ?? copyError { throw error }
+
+    try FileManager.default.moveItem(at: stagedURL, to: destinationURL)
+    destinationURL.disableFileProtection()
   }
 }
 
