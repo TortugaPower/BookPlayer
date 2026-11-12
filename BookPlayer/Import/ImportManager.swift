@@ -41,6 +41,14 @@ final class ImportManager: ObservableObject {
       return
     }
 
+    // One file can arrive under two spellings: the folder watchers and `notifyPendingFiles` give
+    // `/var/…`, a file of ours opened from the Files app gives `/private/var/…`. Queued twice, the
+    // import moved it on the first copy and crashed on the second.
+    let fileUrl = fileUrl.resolvingSymlinksInPath()
+
+    // A file that's gone or can't be read never reaches the import screen
+    guard Self.isImportable(fileUrl) else { return }
+
     self.files.value.insert(fileUrl)
   }
 
@@ -52,6 +60,12 @@ final class ImportManager: ObservableObject {
     return self.files
       .map({ Array($0) })
       .eraseToAnyPublisher()
+  }
+
+  /// Checked once when a file is queued and once more when the import takes it, never on every
+  /// change: a batch of a thousand files would check every file again for each one queued.
+  private static func isImportable(_ url: URL) -> Bool {
+    FileManager.default.isReadableFile(atPath: url.path)
   }
 
   public func removeFile(_ item: URL, updateCollection: Bool = true) throws {
@@ -79,22 +93,22 @@ final class ImportManager: ObservableObject {
   /// `operationPublisher`, once the import screen has closed: the library's placement prompt
   /// relies on every import being confirmed there.
   public func prepareOperation() -> ImportOperation? {
-    guard !self.files.value.isEmpty else {
+    // A file gone since it was listed is left out
+    let importableFiles = self.files.value.filter(Self.isImportable)
+    self.files.value = []
+
+    guard !importableFiles.isEmpty else {
       return nil
     }
 
     let sortDescriptor = NSSortDescriptor(key: "path", ascending: true, selector: #selector(NSString.localizedStandardCompare(_:)))
-    let orderedSet = NSOrderedSet(set: self.files.value)
+    let orderedSet = NSOrderedSet(set: importableFiles)
     // swiftlint:disable force_cast
     let sortedFiles = orderedSet.sortedArray(using: [sortDescriptor]) as! [URL]
     // swiftlint:enable force_cast
 
-    let operation = ImportOperation(files: sortedFiles,
-                                    libraryService: self.libraryService)
-
-    self.files.value = []
-
-    return operation
+    return ImportOperation(files: sortedFiles,
+                           libraryService: self.libraryService)
   }
 
   public func start(_ operation: Operation) {

@@ -108,7 +108,9 @@ public class ImportOperation: Operation {
     return finalInfo
   }
 
-  func handleZip(file: URL, remainingFiles: [URL]) {
+  /// Unpacks the archive into a temporary folder and removes it. Returns its top-level items, for the
+  /// import to take next.
+  func handleZip(file: URL) -> [URL] {
     self.suggestedFolderName = file.deletingPathExtension().lastPathComponent
 
     // Unzip to temporary directory
@@ -121,29 +123,25 @@ public class ImportOperation: Operation {
       create: true
     )
 
-    SSZipArchive.unzipFile(atPath: file.path, toDestination: tempDirectoryURL.path, progressHandler: nil) { _, success, error in
-      try? FileManager.default.removeItem(at: file)
+    let success = SSZipArchive.unzipFile(atPath: file.path, toDestination: tempDirectoryURL.path)
+    try? FileManager.default.removeItem(at: file)
 
-      guard success else {
-        self.processFile(from: remainingFiles)
-        return
-      }
+    guard success else { return [] }
 
-      let enumerator = FileManager.default.enumerator(
-        at: tempDirectoryURL,
-        includingPropertiesForKeys: [.isDirectoryKey],
-        options: [.skipsHiddenFiles, .skipsSubdirectoryDescendants], errorHandler: { (url, error) -> Bool in
-          print("directoryEnumerator error at \(url): ", error)
-          return true
-        })!
+    let enumerator = FileManager.default.enumerator(
+      at: tempDirectoryURL,
+      includingPropertiesForKeys: [.isDirectoryKey],
+      options: [.skipsHiddenFiles, .skipsSubdirectoryDescendants], errorHandler: { (url, error) -> Bool in
+        print("directoryEnumerator error at \(url): ", error)
+        return true
+      })!
 
-      var files = [URL]()
-      for case let fileURL as URL in enumerator {
-        files.append(fileURL)
-      }
-
-      self.processFile(from: remainingFiles + files)
+    var files = [URL]()
+    for case let fileURL as URL in enumerator {
+      files.append(fileURL)
     }
+
+    return files
   }
 
   func getNextAvailableURL(for url: URL) -> URL {
@@ -162,17 +160,37 @@ public class ImportOperation: Operation {
 
     while FileManager.default.fileExists(atPath: mutableURL.path) {
       counter += 1
-      newFileName = "\(filename)-\(counter)"
-
-      if !fileExt.isEmpty {
-        newFileName += ".\(fileExt)"
-      }
-
+      newFileName = Self.numberedFileName(stem: filename, counter: counter, fileExtension: fileExt)
       mutableURL = destinationBaseURL.appendingPathComponent(newFileName)
     }
 
     return mutableURL
   }
+
+  /// `<stem>-<counter>.<extension>`, within the file system's 255-byte limit on a name. A stem too long
+  /// for the suffix loses characters from its middle: its start, which sorting looks at, and its end,
+  /// where track numbers usually are, both stay.
+  static func numberedFileName(stem: String, counter: Int, fileExtension: String) -> String {
+    let suffix = "-\(counter)" + (fileExtension.isEmpty ? "" : ".\(fileExtension)")
+    let stemBudget = maxFileNameBytes - suffix.utf8.count
+    guard stem.utf8.count > stemBudget else { return stem + suffix }
+
+    var head = ""
+    for character in stem {
+      guard head.utf8.count + character.utf8.count <= stemBudget / 2 else { break }
+      head.append(character)
+    }
+
+    var tail = ""
+    for character in stem.reversed() {
+      guard head.utf8.count + tail.utf8.count + character.utf8.count <= stemBudget else { break }
+      tail.insert(character, at: tail.startIndex)
+    }
+
+    return head + tail + suffix
+  }
+
+  private static let maxFileNameBytes = 255
 
   private func hasExistingBook(_ fileURL: URL) -> Bool {
     guard
@@ -218,7 +236,18 @@ public class ImportOperation: Operation {
 
   public override func main() {
     self.detectFolderOrganization()
-    self.processFile(from: self.files)
+
+    // One file at a time in a loop: going on to the next file from the last one's call overflowed
+    // the operation thread's stack on batches of a few hundred files. An archive's items join the end.
+    var queue = self.files
+    var index = 0
+    while index < queue.count {
+      let file = queue[index]
+      index += 1
+      queue.append(contentsOf: autoreleasepool { self.processFile(file) })
+    }
+
+    self.finish()
   }
 
   private func detectFolderOrganization() {
@@ -246,23 +275,14 @@ public class ImportOperation: Operation {
     suggestedFolderName = folderName
   }
 
-  func processFile(from files: [URL]) {
-    var mutableFiles = files
-    guard !mutableFiles.isEmpty else {
-      return self.finish()
-    }
-
-    let currentFile = mutableFiles.removeFirst()
-
-    guard !self.hasExistingBook(currentFile) else {
-      return processFile(from: mutableFiles)
-    }
+  /// Imports one file. Returns the items it unpacked when it's an archive.
+  func processFile(_ currentFile: URL) -> [URL] {
+    guard !self.hasExistingBook(currentFile) else { return [] }
 
     NotificationCenter.default.post(name: .processingFile, object: nil, userInfo: ["filename": currentFile.lastPathComponent])
 
     if shouldUnzip(currentFile) {
-      self.handleZip(file: currentFile, remainingFiles: mutableFiles)
-      return
+      return self.handleZip(file: currentFile)
     }
 
     // Add support for iCloud documents
@@ -294,7 +314,7 @@ public class ImportOperation: Operation {
     }
 
     self.processedFiles.append(destinationURL)
-    self.processFile(from: mutableFiles)
+    return []
   }
 
   func shouldUnzip(_ file: URL) -> Bool {
