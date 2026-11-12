@@ -65,8 +65,9 @@ public protocol LibraryServiceProtocol: AnyObject {
   func getBookCount() -> Int
   /// Fetch the most recent played items
   func getLastPlayedItems(limit: Int?) -> [SimpleLibraryItem]?
-  /// Fetch the books that contain the file URL
-  func findBooks(containing fileURL: URL) -> [Book]?
+  /// Where the file of a book with the same file name, in any folder and any case, is meant to be, if any.
+  /// Safe off the main thread.
+  func findBookFileURL(matching fileURL: URL) -> URL?
   /// Fetch a single item with properties loaded
   func getSimpleItem(with relativePath: String) -> SimpleLibraryItem?
   /// Where the items with these uuids are now, in the uuids' order; uuids no item has are left out
@@ -1668,12 +1669,22 @@ extension LibraryService {
     return parseFetchedItems(from: results, context: context)
   }
 
-  public func findBooks(containing fileURL: URL) -> [Book]? {
+  public func findBookFileURL(matching fileURL: URL) -> URL? {
+    let fileName = fileURL.lastPathComponent
     let fetch: NSFetchRequest<Book> = Book.fetchRequest()
-    fetch.predicate = NSPredicate(format: "relativePath ENDSWITH[C] %@", fileURL.lastPathComponent)
-    let context = self.dataManager.getContext()
+    // The whole file name, at the root or in a folder: `book.m4a` mustn't match `mybook.m4a`
+    fetch.predicate = NSPredicate(
+      format: "%K ==[c] %@ OR %K ENDSWITH[c] %@",
+      #keyPath(LibraryItem.relativePath), fileName,
+      #keyPath(LibraryItem.relativePath), "/\(fileName)"
+    )
+    fetch.fetchLimit = 1
+    // The import asks from its own queue: the background context, waited on, never the main thread
+    let context = dataManager.getBackgroundContext()
 
-    return try? context.fetch(fetch)
+    return context.performAndWait {
+      (try? context.fetch(fetch))?.first?.fileURL
+    }
   }
 
   public func getSimpleItem(with relativePath: String) -> SimpleLibraryItem? {
@@ -2179,7 +2190,7 @@ extension LibraryService {
   /// `LibraryDao.existsWithFileName`.
   private func bookExists(withFileName fileName: String, context: NSManagedObjectContext) -> Bool {
     let fetchRequest: NSFetchRequest<LibraryItem> = LibraryItem.fetchRequest()
-    // Case-insensitive, as the restore-by-name lookup (`findBooks(containing:)`) is: a book
+    // Case-insensitive, as the restore-by-name lookup (`findBookFileURL(matching:)`) is: a book
     // differing only in case would be filled by the other's file. (Android's equality check is
     // case-sensitive; only its suffix match isn't.)
     fetchRequest.predicate = NSPredicate(
