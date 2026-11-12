@@ -242,8 +242,18 @@ class MainCoordinator: NSObject {
         let destinationURL = documentsFolder.appendingPathComponent(url.lastPathComponent)
         guard !FileManager.default.fileExists(atPath: destinationURL.path) else { continue }
 
+        // Copied into a folder of its own first and moved into Documents whole. The Documents watcher
+        // reports a file once its size stops changing, which a copy stalled on a slow source (a download,
+        // a network drive) would fake.
+        let stagingFolder = FileManager.default.temporaryDirectory
+          .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: stagingFolder) }
+
         do {
-          try FileManager.default.copyItem(at: url, to: destinationURL)
+          try FileManager.default.createDirectory(at: stagingFolder, withIntermediateDirectories: true)
+          let stagedURL = stagingFolder.appendingPathComponent(url.lastPathComponent)
+          try FileManager.default.copyItem(at: url, to: stagedURL)
+          try FileManager.default.moveItem(at: stagedURL, to: destinationURL)
           destinationURL.disableFileProtection()
         } catch {
           await self?.showAlert("error_title".localized, message: error.localizedDescription)
