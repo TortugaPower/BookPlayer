@@ -238,32 +238,6 @@ final class OpenedFileImportTests: XCTestCase {
     XCTAssertEqual(action.command, .fileImport)
     XCTAssertEqual(action.fileURL, file)
   }
-
-  func testOpenedFilesAreHandedOverOnce() {
-    let importManager = ImportManager(libraryService: LibraryServiceProtocolMock())
-    var deliveries = 0
-    let subscription = importManager.observeOpenedFiles().sink { _ in deliveries += 1 }
-    defer { subscription.cancel() }
-
-    importManager.receiveOpenedFiles([file])
-
-    XCTAssertEqual(deliveries, 1)
-    XCTAssertEqual(importManager.takeOpenedFiles(), [file])
-    XCTAssertEqual(importManager.takeOpenedFiles(), [])
-    XCTAssertEqual(deliveries, 1)
-  }
-
-  /// Opened at launch, before the library is listening: they wait for it.
-  func testFilesOpenedBeforeTheLibraryListensWaitForIt() {
-    let importManager = ImportManager(libraryService: LibraryServiceProtocolMock())
-    importManager.receiveOpenedFiles([file])
-
-    var received = [URL]()
-    let subscription = importManager.observeOpenedFiles().sink { received = $0 }
-    defer { subscription.cancel() }
-
-    XCTAssertEqual(received, [file])
-  }
 }
 
 // MARK: - Virtual import pipeline

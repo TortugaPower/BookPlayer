@@ -209,30 +209,46 @@ class MainCoordinator: NSObject {
   }
 
   func processFiles(urls: [URL]) {
-    let temporaryDirectoryPath = FileManager.default.temporaryDirectory.absoluteString
-    let documentsFolder = DataManager.getDocumentsFolderURL()
-    var openedFiles = [URL]()
+    var filesToCopy = [URL]()
 
     for url in urls {
-      /// At some point (iOS 17?), the OS stopped sending the picked files to the Documents/Inbox folder, instead
-      /// it's now sent to a temp folder that can't be relied on to keep the file existing until the import is finished
-      if url.absoluteString.contains(temporaryDirectoryPath) {
-        let destinationURL = documentsFolder.appendingPathComponent(url.lastPathComponent)
-        if !FileManager.default.fileExists(atPath: destinationURL.path) {
-          try! FileManager.default.copyItem(at: url, to: destinationURL)
-          destinationURL.disableFileProtection()
-        }
-      } else if DataManager.isAppManagedSource(url) {
+      if DataManager.isAppManagedSource(url) {
         importManager.process(url)
       } else {
-        // Opened in place from another app (iCloud Drive, On My iPhone): readable only through this
-        // URL's access, so the library copies it into Documents now, as it does with picked files
-        openedFiles.append(url)
+        filesToCopy.append(url)
       }
     }
 
-    if !openedFiles.isEmpty {
-      importManager.receiveOpenedFiles(openedFiles)
+    copyIntoDocuments(filesToCopy)
+  }
+
+  /// Files handed over from outside the app go into Documents now, as picked and dropped ones do, and the
+  /// Documents watcher queues the copy for import. The system's own copy sits in a temporary folder that
+  /// may not last until the import is done (since iOS 17?), and a file another app opened in place
+  /// (iCloud Drive, On My iPhone) can only be read while this URL's access is held. Off the main thread: a
+  /// file in iCloud Drive that isn't downloaded yet downloads during the copy.
+  private func copyIntoDocuments(_ urls: [URL]) {
+    guard !urls.isEmpty else { return }
+
+    let documentsFolder = DataManager.getDocumentsFolderURL()
+
+    Task.detached(priority: .userInitiated) { [weak self] in
+      for url in urls {
+        let accessGranted = url.startAccessingSecurityScopedResource()
+        defer {
+          if accessGranted { url.stopAccessingSecurityScopedResource() }
+        }
+
+        let destinationURL = documentsFolder.appendingPathComponent(url.lastPathComponent)
+        guard !FileManager.default.fileExists(atPath: destinationURL.path) else { continue }
+
+        do {
+          try FileManager.default.copyItem(at: url, to: destinationURL)
+          destinationURL.disableFileProtection()
+        } catch {
+          await self?.showAlert("error_title".localized, message: error.localizedDescription)
+        }
+      }
     }
   }
 }

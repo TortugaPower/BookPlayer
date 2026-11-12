@@ -24,10 +24,6 @@ final class ImportManager: ObservableObject {
   private var files = CurrentValueSubject<Set<URL>, Never>(Set())
 
   public var operationPublisher = PassthroughSubject<ImportOperation, Never>()
-  /// Files another app opened in BookPlayer, waiting for the library to copy them into Documents while
-  /// their URLs still carry access, as it does with the document picker's. Kept until taken, so ones
-  /// opened at launch wait for the library.
-  private let openedFiles = CurrentValueSubject<[URL], Never>([])
   /// The import screen is up, from when it starts appearing until it has disappeared, however it
   /// closes (set by the screen). The library's placement prompt waits for it: a presentation
   /// started under it is dropped.
@@ -46,23 +42,6 @@ final class ImportManager: ObservableObject {
     }
 
     self.files.value.insert(fileUrl)
-  }
-
-  public func receiveOpenedFiles(_ urls: [URL]) {
-    self.openedFiles.value.append(contentsOf: urls)
-  }
-
-  public func observeOpenedFiles() -> AnyPublisher<[URL], Never> {
-    return self.openedFiles
-      .filter { !$0.isEmpty }
-      .eraseToAnyPublisher()
-  }
-
-  /// Hands the opened files over once, to whichever list copies them
-  public func takeOpenedFiles() -> [URL] {
-    let urls = self.openedFiles.value
-    self.openedFiles.value = []
-    return urls
   }
 
   public func hasPendingFiles() -> Bool {
