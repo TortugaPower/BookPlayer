@@ -723,7 +723,9 @@
 		9911FBB22F71E54C00DC9A2B /* SyncQueueRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBB12F71E54600DC9A2B /* SyncQueueRepository.swift */; };
 		9911FBB32F71E54C00DC9A2B /* SyncQueueRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBB12F71E54600DC9A2B /* SyncQueueRepository.swift */; };
 		9911FBB52F72486D00DC9A2B /* ExternalUpdateProgressOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBB42F72486400DC9A2B /* ExternalUpdateProgressOperation.swift */; };
+		26A015B24668C88DFEFDE15D /* HardcoverProgressOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F98B386729C06D871C7A3A9B /* HardcoverProgressOperation.swift */; };
 		9911FBB62F72486D00DC9A2B /* ExternalUpdateProgressOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBB42F72486400DC9A2B /* ExternalUpdateProgressOperation.swift */; };
+		06594E7089B76D298F329188 /* HardcoverProgressOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F98B386729C06D871C7A3A9B /* HardcoverProgressOperation.swift */; };
 		9911FBB82F72F46900DC9A2B /* QueuedSyncTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBB72F72F46200DC9A2B /* QueuedSyncTask.swift */; };
 		A6E159ACC6815095CB182A05 /* TaskPause.swift in Sources */ = {isa = PBXBuildFile; fileRef = 099268746F86BD2193897F88 /* TaskPause.swift */; };
 		9911FBB92F72F46900DC9A2B /* QueuedSyncTask.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9911FBB72F72F46200DC9A2B /* QueuedSyncTask.swift */; };
@@ -1878,6 +1880,7 @@
 		9911FBAE2F71D03100DC9A2B /* SyncQueueService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncQueueService.swift; sourceTree = "<group>"; };
 		9911FBB12F71E54600DC9A2B /* SyncQueueRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncQueueRepository.swift; sourceTree = "<group>"; };
 		9911FBB42F72486400DC9A2B /* ExternalUpdateProgressOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExternalUpdateProgressOperation.swift; sourceTree = "<group>"; };
+		F98B386729C06D871C7A3A9B /* HardcoverProgressOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HardcoverProgressOperation.swift; sourceTree = "<group>"; };
 		9911FBB72F72F46200DC9A2B /* QueuedSyncTask.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QueuedSyncTask.swift; sourceTree = "<group>"; };
 		099268746F86BD2193897F88 /* TaskPause.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskPause.swift; sourceTree = "<group>"; };
 		9911FBBD2F74526F00DC9A2B /* SyncQueueProgressMonitor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncQueueProgressMonitor.swift; sourceTree = "<group>"; };
@@ -3635,6 +3638,7 @@
 				9911FBAE2F71D03100DC9A2B /* SyncQueueService.swift */,
 				9911FBAB2F71CD5F00DC9A2B /* AsyncOperation.swift */,
 				9911FBB42F72486400DC9A2B /* ExternalUpdateProgressOperation.swift */,
+				F98B386729C06D871C7A3A9B /* HardcoverProgressOperation.swift */,
 				9911FBC32F76121C00DC9A2B /* FileUploadOperation.swift */,
 				7CF4215FDCB8C2EA0F4A975D /* PartUploadTransport.swift */,
 			);
@@ -4994,6 +4998,7 @@
 				9F2E00932A568F800001FE20 /* ItemsStatusResponse.swift in Sources */,
 				4140EA7E227289CE0009F794 /* Library+CoreDataClass.swift in Sources */,
 				9911FBB62F72486D00DC9A2B /* ExternalUpdateProgressOperation.swift in Sources */,
+				06594E7089B76D298F329188 /* HardcoverProgressOperation.swift in Sources */,
 				41C233FE272E1958006BC7B8 /* SimpleLibraryItem.swift in Sources */,
 				996D4CD22F98A45300FC3B57 /* IntegrationError.swift in Sources */,
 				416AAC3523F515B0005AD04F /* String+BookPlayer.swift in Sources */,
@@ -5604,6 +5609,7 @@
 				62CADBA52725BCB200A4A98F /* AVAudioAssetImageDataProvider.swift in Sources */,
 				9FC1E4592814E0B000522FA8 /* NetworkUtils.swift in Sources */,
 				9911FBB52F72486D00DC9A2B /* ExternalUpdateProgressOperation.swift in Sources */,
+				26A015B24668C88DFEFDE15D /* HardcoverProgressOperation.swift in Sources */,
 				992D6E192FA98C8F0091849F /* AudiobookShelfLibraryLevelData.swift in Sources */,
 				99D995892F719E7E00BAF216 /* (null) in Sources */,
 				41C23403272E1965006BC7B8 /* PlaybackState.swift in Sources */,

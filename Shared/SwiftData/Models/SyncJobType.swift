@@ -34,6 +34,9 @@ public enum SyncJobType: String, CaseIterable, Codable {
 public enum TaskQueueKey {
   public static let sync = "sync"
   public static let uploadFile = "uploadFile"
+  /// Hardcover's progress, one `externalUpdate` task per book: a provider lane, so it runs on
+  /// every tier and never waits on the BookPlayer server
+  public static let hardcover = ExternalResource.ProviderName.hardcover.rawValue
 
   /// The lanes that talk to the BookPlayer server: gated on the sync entitlement, and held
   /// by an account-level pause
