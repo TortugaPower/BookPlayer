@@ -32,7 +32,7 @@ struct CustomRewindIntent: AudioPlaybackIntent {
     if !playerLoaderService.playerManager.hasLoadedBook(),
       let book = coreServices.libraryService.getLastPlayedItems(limit: 1)?.first
     {
-      try await playerLoaderService.loadPlayer(book.relativePath, autoplay: false)
+      try await playerLoaderService.loadPlayer(book.relativePath, intent: .idle)
     }
 
     await MainActor.run {

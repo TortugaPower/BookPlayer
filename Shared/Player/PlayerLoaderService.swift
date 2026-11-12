@@ -6,23 +6,18 @@
 //  Copyright © 2024 BookPlayer LLC. All rights reserved.
 //
 
-#if os(watchOS)
-  import BookPlayerWatchKit
-#else
-  import BookPlayerKit
-#endif
 import Foundation
 
 @Observable
-final class PlayerLoaderService: @unchecked Sendable {
-  var syncService: SyncService!
-  var libraryService: LibraryService!
-  var playbackService: PlaybackServiceProtocol!
-  var playerManager: PlayerManagerProtocol!
+public final class PlayerLoaderService: @unchecked Sendable {
+  public var syncService: SyncService!
+  public var libraryService: LibraryService!
+  public var playbackService: PlaybackServiceProtocol!
+  public var playerManager: PlayerManagerProtocol!
 
-  init() {}
+  public init() {}
 
-  func setup(
+  public func setup(
     syncService: SyncService,
     libraryService: LibraryService,
     playbackService: PlaybackServiceProtocol,
@@ -35,9 +30,9 @@ final class PlayerLoaderService: @unchecked Sendable {
   }
 
   @MainActor
-  func loadPlayer(
+  public func loadPlayer(
     _ relativePath: String,
-    autoplay: Bool,
+    intent: PlayIntent,
     recordAsLastBook: Bool = true
   ) async throws {
     // The loader's contract is a RELATIVE PATH — every launch surface speaks paths (App
@@ -68,8 +63,8 @@ final class PlayerLoaderService: @unchecked Sendable {
        Constants.isRealUuid(libraryItem.uuid),
        libraryItem.uuid == playerManager.currentItem?.uuid
     {
-      if autoplay {
-        playerManager.play()
+      if case .wantsToPlay(let origin) = intent {
+        playerManager.play(origin: origin)
       }
       return
     }
@@ -84,7 +79,7 @@ final class PlayerLoaderService: @unchecked Sendable {
     
     let item = try self.playbackService.getPlayableItem(from: libraryItem)
     
-    playerManager.load(item, autoplay: autoplay)
+    playerManager.load(item, intent: intent)
     
     if recordAsLastBook {
       libraryService.setLibraryLastBook(with: item.relativePath)

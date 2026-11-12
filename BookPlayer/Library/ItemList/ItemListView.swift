@@ -560,7 +560,7 @@ struct ItemListView: View {
         Text("playlist_add_title")
       }
     } label: {
-      Label("more_title".localized, systemImage: "ellipsis.circle")
+      Label("more_title".localized, systemImage: "ellipsis")
     }
   }
 
@@ -669,7 +669,7 @@ struct ItemListView: View {
   func loadPlayer(with relativePath: String) {
     Task {
       do {
-        try await playerLoaderService.loadPlayer(relativePath, autoplay: true)
+        try await playerLoaderService.loadPlayer(relativePath, intent: .wantsToPlay(.user))
         playerState.showPlayerBinding.wrappedValue = true
       } catch {
         loadingState.error = error

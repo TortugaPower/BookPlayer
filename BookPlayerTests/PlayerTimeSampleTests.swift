@@ -9,6 +9,7 @@
 import Foundation
 
 @testable import BookPlayer
+@testable import BookPlayerKit
 import XCTest
 
 class PlayerTimeSampleTests: XCTestCase {

@@ -7,16 +7,16 @@
 //
 
 import AVFoundation
-@preconcurrency import BookPlayerKit
 import Combine
 import Foundation
-import GroupActivities
 import MediaPlayer
-import Sentry
 
 // swiftlint:disable:next file_length
 
-final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
+/// Main-actor isolated: the load, the engine and every callback into them run on main. The protocol stays
+/// nonisolated until rework PR 6c. What the app supplies comes through `PlayerPlatform`
+@MainActor
+public final class PlayerManager: NSObject, @preconcurrency PlayerManagerProtocol, ObservableObject {
   private let libraryService: LibraryServiceProtocol
   private let playbackService: PlaybackServiceProtocol
   /// Narrow read of the streaming entitlement (pro or lite), not the whole account
@@ -29,42 +29,54 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   private let syncService: SyncServiceProtocol
   private let speedService: SpeedServiceProtocol
   private let userActivityManager: UserActivityManager
-  private let shakeMotionService: ShakeMotionServiceProtocol
+  /// What differs by platform, or what a Kit may not touch
+  private let platform: PlayerPlatform
   private let widgetReloadService: WidgetReloadServiceProtocol
 
-  /// Internal for tests, which install a player whose seeks land on demand
-  var audioPlayer = AVPlayer()
+  /// Drives the player. Only the engine and the video surfaces touch `AVPlayer`
+  private let engine: PlaybackEngine
 
-  // SharePlay session state
-  private var activeGroupSession: GroupSession<AudioBookActivity>?
-  private var coordinationContentIdentifier: String?
-  private var coordinatedItemRelativePath: String?
+  #if os(iOS)
+  /// The engine keeps its transport publisher across player rebuilds.
   private var groupPlaybackSubscription: AnyCancellable?
+  #endif
 
   private var fadeTimer: Timer?
 
-  private var timeControlPassthroughPublisher = CurrentValueSubject<AVPlayer.TimeControlStatus, Never>(.paused)
-  /// Named + cancelled-before-rebind: bound on every player recreation (init, .failed,
-  /// mediaServicesWereReset) — a disposeBag entry would accumulate one sink per recreation.
-  private var timeControlSubscription: AnyCancellable?
   /// Named + cancelled-before-rebind: bound on EVERY chapter/item load — a disposeBag entry
   /// leaks one KVO publisher (which retains its AVPlayerItem) per loaded chapter.
   private var playableChapterSubscription: AnyCancellable?
   private var isPlayingSubscription: AnyCancellable?
   /// Tracks the brief muted play used to claim Now Playing on CarPlay connect, so we can pause once it starts
   private var nowPlayingClaimSubscription: AnyCancellable?
-  private var periodicTimeObserver: Any?
+  /// The 1 s tick, which the engine keeps across rebuilds
+  private var tickObservation: EngineObservation?
+  /// The chapter ends inside the file in the player, which the engine reports as playback crosses them
+  private var chapterBoundaryObservation: EngineObservation?
   private var disposeBag = Set<AnyCancellable>()
-  /// Flag determining if it should resume playback after finishing up loading an item
-  @Published private var playbackQueued: Bool?
-  /// Flag determining if it's in the process of fetching the URL for playback
-  @Published private var isFetchingRemoteURL: Bool?
-  /// Prevent loop from automatic URL refreshes
-  private var canFetchRemoteURL = true
-  /// Set when audio-session activation fails in the current process, so a later
-  /// successful activation can tell whether recovery required an app relaunch.
-  private var audioSessionFailedThisSession = false
-  private var canFetchExternalURL = true
+  /// Observes `AVAudioSession.interruptionNotification` while playing, and through an interruption
+  private var interruptionSubscription: AnyCancellable?
+  /// Whether playback should start once the item can play, and who asked for it
+  @Published private var playIntent: PlayIntent = .idle
+  /// The chapter file going into the player. Leaving a state cancels what it holds: a resolve its task, a
+  /// load its engine observers. A resolve handing its file to the engine, and a load becoming ready, keep theirs
+  private var itemLoad: ItemLoad = .empty {
+    didSet {
+      switch oldValue {
+      case .resolving(_, let task):
+        if case .loading = itemLoad { break }
+        task.cancel()
+      case .loading(_, let load), .ready(_, let load):
+        if itemLoad.engineLoad !== load {
+          load.cancel()
+        }
+      case .empty, .failed:
+        break
+      }
+    }
+  }
+  /// The reloads a failed file gets before its failure is reported
+  private var retryBudget = RetryBudget()
   /// Asks an AudiobookShelf server for an item's files when one of its chapters loads.
   private let streamLookup: ExternalStreamLooking
   /// How the server item the current item streams from answered, asked once per item: a
@@ -75,94 +87,115 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   /// How long a failed lookup is reused: long enough for a volume's next files, short enough
   /// that a server back from an outage serves them again.
   private static let failedStreamLookupLifetime: TimeInterval = 120
-  private var hasObserverRegistered = false
   /// How far we trust the player's clock: the baseline for spotting moves the player makes on its own
   private var clockState: ClockState = .unknown
   /// The last seek started, as only its completion ends `ClockState.seeking`
   private var latestSeek = 0
-  private var observeStatus: Bool = false {
-    didSet {
-      guard oldValue != self.observeStatus else { return }
 
-      if self.observeStatus {
-        self.playerItem?.addObserver(self, forKeyPath: "status", options: .new, context: nil)
-        self.hasObserverRegistered = true
-      } else if self.hasObserverRegistered {
-        self.playerItem?.removeObserver(self, forKeyPath: "status")
-        self.hasObserverRegistered = false
-      }
-    }
-  }
-
-  weak var syncProgressDelegate: PlaybackSyncProgressDelegate?
+  public weak var syncProgressDelegate: PlaybackSyncProgressDelegate?
   /// Reference to the ongoing play task
   private var playTask: Task<(), Error>?
-  /// Internal for tests, which install an item that is ready to play
-  var playerItem: AVPlayerItem?
-  /// The chapter file `playerItem` plays. A chapter change moves `currentItem.currentChapter`
-  /// before its file loads, so a load cancelled midway (a pause) leaves the previous file's item
-  /// behind; `prepareForPlayback` reloads instead of playing it.
-  private var playerItemRelativePath: String?
-  private var loadChapterTask: Task<(), Never>?
-  @Published var currentItem: PlayableItem?
-  @Published var currentSpeed: Float = 1.0
+  @Published public var currentItem: PlayableItem? {
+    didSet {
+      #if os(iOS)
+      // Metadata can be re-parsed without replacing the engine's current player item.
+      engine.refreshPlaybackCoordination()
+      #endif
+    }
+  }
+  @Published public var currentSpeed: Float = 1.0
 
   var nowPlayingInfo = [String: Any]()
 
-  private let queue = OperationQueue()
+  /// The app's player, on an `AVPlayerEngine`
+  public convenience init(
+    libraryService: LibraryServiceProtocol,
+    playbackService: PlaybackServiceProtocol,
+    syncService: SyncServiceProtocol,
+    speedService: SpeedServiceProtocol,
+    platform: PlayerPlatform,
+    widgetReloadService: WidgetReloadServiceProtocol,
+    hasStreamingEnabled: @escaping () -> Bool,
+    presentFailure: @escaping (PlaybackFailure) -> Void,
+    streamLookup: ExternalStreamLooking = AudiobookShelfStreamLookup()
+  ) {
+    self.init(
+      libraryService: libraryService,
+      playbackService: playbackService,
+      syncService: syncService,
+      speedService: speedService,
+      platform: platform,
+      widgetReloadService: widgetReloadService,
+      hasStreamingEnabled: hasStreamingEnabled,
+      presentFailure: presentFailure,
+      streamLookup: streamLookup,
+      engine: nil
+    )
+  }
 
+  /// `engine` is the Kit's own seam, which tests drive; `nil` for an `AVPlayerEngine`
   init(
     libraryService: LibraryServiceProtocol,
     playbackService: PlaybackServiceProtocol,
     syncService: SyncServiceProtocol,
     speedService: SpeedServiceProtocol,
-    shakeMotionService: ShakeMotionServiceProtocol,
+    platform: PlayerPlatform,
     widgetReloadService: WidgetReloadServiceProtocol,
     hasStreamingEnabled: @escaping () -> Bool,
     presentFailure: @escaping (PlaybackFailure) -> Void,
-    streamLookup: ExternalStreamLooking = AudiobookShelfStreamLookup()
+    streamLookup: ExternalStreamLooking = AudiobookShelfStreamLookup(),
+    engine: PlaybackEngine?
   ) {
     self.libraryService = libraryService
     self.playbackService = playbackService
     self.syncService = syncService
     self.speedService = speedService
     self.userActivityManager = UserActivityManager(libraryService: libraryService)
-    self.shakeMotionService = shakeMotionService
+    self.platform = platform
     self.widgetReloadService = widgetReloadService
     self.hasStreamingEnabled = hasStreamingEnabled
     self.presentFailure = presentFailure
     self.streamLookup = streamLookup
+    self.engine = engine ?? AVPlayerEngine()
     super.init()
 
-    setupPlayerInstance()
+    /// The engine runs its observers on the main queue
+    tickObservation = self.engine.addPeriodicObserver(every: 1) { [weak self] in
+      MainActor.assumeIsolated {
+        self?.updateTime()
+      }
+    }
     bindObservers()
   }
 
-  func bindObservers() {
-    NotificationCenter.default.addObserver(
-      self,
-      selector: #selector(playerDidFinishPlaying(_:)),
-      name: .AVPlayerItemDidPlayToEndTime,
-      object: nil
-    )
+  /// Runs `body` on the main actor: right away when already on main, so a change made there takes effect in
+  /// that same turn (the end-of-chapter timer pausing as the chapter changes), otherwise on main's next turn
+  /// (Siri and Shortcuts set the sleep timer off main, and AVAudioSession doesn't promise main)
+  nonisolated private static func onMain(_ body: @escaping @MainActor () -> Void) {
+    if Thread.isMainThread {
+      MainActor.assumeIsolated(body)
+    } else {
+      Task { @MainActor in body() }
+    }
+  }
 
-    NotificationCenter.default.addObserver(
-      self,
-      selector: #selector(handleMediaServicesWereReset),
-      name: AVAudioSession.mediaServicesWereResetNotification,
-      object: nil
-    )
+  func bindObservers() {
+    NotificationCenter.default.publisher(for: AVAudioSession.mediaServicesWereResetNotification)
+      .sink { [weak self] _ in
+        Self.onMain { self?.handleMediaServicesWereReset() }
+      }
+      .store(in: &disposeBag)
 
     SleepTimer.shared.countDownThresholdPublisher.sink { [weak self] _ in
-      self?.handleSleepTimerThresholdEvent()
+      Self.onMain { self?.handleSleepTimerThresholdEvent() }
     }.store(in: &disposeBag)
 
     SleepTimer.shared.timerEndedPublisher.sink { [weak self] state in
-      self?.handleSleepTimerEndEvent(state)
+      Self.onMain { self?.handleSleepTimerEndEvent(state) }
     }.store(in: &disposeBag)
 
     SleepTimer.shared.timerTurnedOnPublisher.sink { [weak self] _ in
-      self?.handleSleepTimerTurnedOnEvent()
+      Self.onMain { self?.handleSleepTimerTurnedOnEvent() }
     }.store(in: &disposeBag)
 
     isPlayingPublisher()
@@ -181,59 +214,21 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   }
 
   func bindInterruptObserver() {
-    NotificationCenter.default.removeObserver(
-      self,
-      name: AVAudioSession.interruptionNotification,
-      object: nil
-    )
-    NotificationCenter.default.addObserver(
-      self,
-      selector: #selector(self.handleAudioInterruptions(_:)),
-      name: AVAudioSession.interruptionNotification,
-      object: nil
-    )
+    interruptionSubscription = NotificationCenter.default.publisher(for: AVAudioSession.interruptionNotification)
+      .sink { [weak self] notification in
+        Self.onMain { self?.handleAudioInterruptions(notification) }
+      }
   }
 
-  func setupPlayerInstance() {
-    if let observer = periodicTimeObserver {
-      audioPlayer.removeTimeObserver(observer)
-    }
-
-    audioPlayer = AVPlayer()
-
-    if let activeGroupSession, let coordinatedItemRelativePath {
-      coordinatePlayback(with: activeGroupSession, for: coordinatedItemRelativePath)
-    }
-
-    let interval = CMTime(seconds: 1.0, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
-    periodicTimeObserver = audioPlayer.addPeriodicTimeObserver(
-      forInterval: interval,
-      queue: DispatchQueue.main
-    ) { [weak self] _ in
-      guard let self = self else { return }
-
-      self.updateTime()
-    }
-
-    // Only route audio for AirPlay
-    audioPlayer.allowsExternalPlayback = false
-
-    bindTimeControlPassthroughPublisher()
-  }
-
-  func currentItemPublisher() -> AnyPublisher<PlayableItem?, Never> {
+  public func currentItemPublisher() -> AnyPublisher<PlayableItem?, Never> {
     return self.$currentItem.eraseToAnyPublisher()
   }
 
-  func hasLoadedBook() -> Bool {
-    if playerItem == nil {
-      return currentItem != nil
-    } else {
-      return true
-    }
+  /// An item never outlives its book: `stop()` drops both
+  public func hasLoadedBook() -> Bool {
+    currentItem != nil
   }
 
-  @MainActor
   func loadRemoteURLAsset(for chapter: PlayableChapter, forceRefresh: Bool) async throws -> AVURLAsset {
     let fileURL: URL
     if !forceRefresh,
@@ -241,7 +236,6 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     {
       fileURL = chapterURL
     } else {
-      isFetchingRemoteURL = true
       // For a bound book the chapter is a child file and `currentItem` is the parent:
       // sending the parent's uuid would make the API return the parent row (no file
       // URL) instead of this chapter, so resolve bound chapters by path only.
@@ -249,11 +243,10 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
       fileURL =
         try await syncService
         .getRemoteFileURLs(of: chapter.relativePath, for: itemUUID, type: .book)[0].url
-      /// Cancelled by a newer load or a pause, which own the flag now
+      /// Cancelled by a newer load or a pause
       guard !Task.isCancelled else {
         throw BookPlayerError.cancelledTask
       }
-      isFetchingRemoteURL = false
     }
 
     let asset = AVURLAsset(url: fileURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
@@ -306,8 +299,9 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     return asset
   }
 
-  @MainActor
-  func loadPlayerItem(for chapter: PlayableChapter, forceRefreshURL: Bool) async throws -> PlayableChapter {
+  /// Finds where `chapter`'s file is and prepares its asset for the engine: on disk, its media server's
+  /// stream, or the cloud copy
+  func resolveAsset(for chapter: PlayableChapter, forceRefresh forceRefreshURL: Bool) async throws -> AVURLAsset {
     let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(chapter.relativePath)
     let isMissingLocally = !FileManager.default.fileExists(atPath: fileURL.path)
 
@@ -347,22 +341,12 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
       asset = AVURLAsset(url: fileURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
     }
 
-    // A load that started after this one owns the player item now
+    // A load that started after this one, or a pause, owns the player now
     guard !Task.isCancelled else {
       throw BookPlayerError.cancelledTask
     }
 
-    // Clean just in case
-    if self.hasObserverRegistered {
-      self.playerItem?.removeObserver(self, forKeyPath: "status")
-      self.hasObserverRegistered = false
-    }
-
-    self.playerItem = AVPlayerItem(asset: asset)
-    self.playerItemRelativePath = chapter.relativePath
-    self.playerItem?.audioTimePitchAlgorithm = .timeDomain
-
-    return self.currentItem?.currentChapter ?? chapter
+    return asset
   }
 
   /// Why a media server didn't serve a chapter.
@@ -376,7 +360,6 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
 
   /// Where the media server serves `chapter`: Jellyfin's URL as it is, or the AudiobookShelf
   /// file its server lists right now. Only looked up when a chapter loads, never ahead of it.
-  @MainActor
   func streamURL(for chapter: PlayableChapter, forceRefresh: Bool) async throws -> Result<URL, StreamFailure> {
     if let externalUrl = chapter.externalUrl {
       return .success(externalUrl)
@@ -389,7 +372,6 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
       answer = cached.answer
     } else {
       cachedStreamFiles = nil
-      isFetchingRemoteURL = true
       answer = await streamLookup.files(
         ofItem: lookup.itemId,
         on: lookup.serverURL,
@@ -397,12 +379,11 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
         timeout: ExternalStreamLookupTimeout.playback
       )
 
-      /// Cancelled by a newer load (which owns the flags now) or by a pause (which reset them)
+      /// Cancelled by a newer load or a pause
       guard !Task.isCancelled else {
         throw BookPlayerError.cancelledTask
       }
 
-      isFetchingRemoteURL = false
       cachedStreamFiles = (key, answer, Date())
     }
 
@@ -430,7 +411,6 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
 
   /// The cloud copy of a streamed chapter its server didn't serve, if the account syncs and
   /// the cloud has one.
-  @MainActor
   private func cloudAssetIfAvailable(for chapter: PlayableChapter, forceRefresh: Bool) async throws -> AVURLAsset? {
     guard syncService.isActive else { return nil }
 
@@ -439,21 +419,19 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     } catch BookPlayerError.cancelledTask {
       throw BookPlayerError.cancelledTask
     } catch {
-      // A cancelled request fails as URLError(.cancelled): still a cancellation, and the flags
-      // belong to whatever cancelled it
+      // A cancelled request fails as URLError(.cancelled): still a cancellation
       if Task.isCancelled {
         throw BookPlayerError.cancelledTask
       }
-      isFetchingRemoteURL = false
       return nil
     }
   }
 
-  func load(_ item: PlayableItem, autoplay: Bool) {
-    load(item, autoplay: autoplay, forceRefreshURL: false)
+  public func load(_ item: PlayableItem, intent: PlayIntent) {
+    load(item, intent: intent, forceRefreshURL: false)
   }
 
-  func awaitCurrentLoad() async {
+  public func awaitCurrentLoad() async {
     await withCheckedContinuation { continuation in
       var playedObserver: NSObjectProtocol?
       var readyObserver: NSObjectProtocol?
@@ -490,23 +468,19 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     }
   }
 
-  private func load(_ item: PlayableItem, autoplay: Bool, forceRefreshURL: Bool) {
-    /// Cancel in case there's an ongoing load task
+  private func load(_ item: PlayableItem, intent: PlayIntent, forceRefreshURL: Bool) {
+    /// Cancel in case there's an ongoing play task
     playTask?.cancel()
-    loadChapterTask?.cancel()
     clockState = .unknown
 
     // Recover in case of failure
-    if audioPlayer.status == .failed {
-      setupPlayerInstance()
+    if engine.hasFailed {
+      engine.rebuild()
     }
 
     // Preload item
     if self.currentItem != nil {
       stopPlayback()
-      playerItem = nil
-      /// Clear out flag when `playerItem` is nulled out
-      hasObserverRegistered = false
       currentItem = nil
     }
 
@@ -514,7 +488,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
 
     bindPlayableChapterSubscription(to: item, dropInitialReplay: false)
 
-    loadChapterMetadata(item.currentChapter, autoplay: autoplay, forceRefreshURL: forceRefreshURL)
+    loadChapterMetadata(item.currentChapter, intent: intent, forceRefreshURL: forceRefreshURL)
     storeWidgetItem(item)
   }
 
@@ -621,17 +595,13 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     return String(format: "integration_error_missing_connection_address".localized, provider.displayName, address)
   }
 
-  /// The one way a failure leaves this class. Hops to main unconditionally, as the UIKit
-  /// presentation this replaced did: `PlayerManager` is not `@MainActor`, and the player-item
-  /// site is a raw KVO callback on `AVPlayerItem.status`, which AVFoundation does not promise
-  /// to deliver on the main thread — while every presenter writes `@Observable` state or puts
-  /// a template on screen. Keeping the hop here rather than in the injected closure means an
-  /// injector cannot forget it.
+  /// The one way a failure leaves this class. Presents on main's next turn, as the UIKit
+  /// presentation this replaced did, so a presenter never runs in the middle of a load's state
+  /// change. Every presenter writes `@Observable` state or puts a template on screen.
   ///
   /// It BUILDS the failure inside the hop, not just presents it: `playbackFailure` reaches
   /// `hasStreamingEnabled()`, which reads `donationMade` through `AccountService.getAccount()`
-  /// — a fetch on the VIEW context. Constructing at the call site would run that fetch on
-  /// whatever thread KVO happened to use. The caller still resolves `chapter` itself, so the
+  /// — a fetch on the VIEW context. The caller still resolves `chapter` itself, so the
   /// snapshot is taken when the failure occurs rather than a turn later.
   private func presentOnMain(
     for chapter: PlayableChapter?,
@@ -646,125 +616,177 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     }
   }
 
-  func loadChapterMetadata(_ chapter: PlayableChapter, autoplay: Bool? = nil, forceRefreshURL: Bool = false) {
-    if let autoplay {
-      playbackQueued = autoplay
+  /// Loads `chapter`'s file into the player, replacing any load under way
+  func loadChapterMetadata(_ chapter: PlayableChapter, intent: PlayIntent? = nil, forceRefreshURL: Bool = false) {
+    if let intent {
+      playIntent = intent
     }
 
-    /// A media-server chapter's load waits on its server: one still in flight for another
-    /// chapter must not land after this one
-    loadChapterTask?.cancel()
-    loadChapterTask = Task { @MainActor [unowned self] in
-      do {
-        let updatedChapter = try await self.loadPlayerItem(for: chapter, forceRefreshURL: forceRefreshURL)
-        self.loadChapterOperation(updatedChapter)
-      } catch BookPlayerError.cancelledTask {
-        /// Do nothing, as it was cancelled to load another item
-      } catch _ where Task.isCancelled {
-        /// Superseded by a newer load or a pause, whichever failed: the flags and the player
-        /// belong to it now
-      } catch let failure as StreamFailure {
-        /// Said only for a play the user started or one under way (a chapter skip while
-        /// playing): a silent load (the last book, at launch) stays quiet, and the next tap
-        /// loads it again (`reloadable`)
-        let userInitiated = self.playbackQueued == true || self.audioPlayer.rate != 0
-        let wasQueued = self.playbackQueued == true
-        self.playbackQueued = nil
-        self.isFetchingRemoteURL = nil
-        self.observeStatus = false
-        self.unloadPlayerItem(wasQueued: wasQueued)
-        if userInitiated {
-          self.presentOnMain(for: chapter, title: "error_title".localized, message: nil, streamFailure: failure)
-        }
-      } catch {
-        let wasQueued = self.playbackQueued == true
-        self.playbackQueued = nil
-        self.isFetchingRemoteURL = nil
-        self.observeStatus = false
-        self.unloadPlayerItem(wasQueued: wasQueued)
-        self.presentOnMain(
-          for: chapter,
-          title: "\("error_title".localized) Metadata",
-          message: error.localizedDescription
-        )
-        return
+    /// A media-server chapter's resolve waits on its server: one still in flight for another
+    /// chapter is cancelled, so it can't land after this one
+    itemLoad = .resolving(
+      chapter,
+      Task { [weak self] in
+        await self?.resolveAndLoad(chapter, forceRefresh: forceRefreshURL)
       }
+    )
+  }
+
+  /// `.resolving`'s task: finds the file, then hands it to the engine
+  private func resolveAndLoad(_ chapter: PlayableChapter, forceRefresh: Bool) async {
+    do {
+      let asset = try await resolveAsset(for: chapter, forceRefresh: forceRefresh)
+      /// The chapter as it is now: a cloud file's metadata can rebuild the item with its chapters
+      startLoading(asset, for: currentItem?.currentChapter ?? chapter)
+    } catch _ where Task.isCancelled {
+      /// Superseded by a newer load or a pause, whichever failed: the state belongs to it now
+    } catch BookPlayerError.cancelledTask {
+      /// A request cancelled underneath: nothing to say, and the next play finds the file again
+      itemLoad = .failed(chapter)
+    } catch let failure as StreamFailure {
+      /// Said only for a play that was asked for or one under way (a chapter skip while
+      /// playing): a silent load (the last book, at launch) stays quiet, and the next tap
+      /// loads it again (`reloadable`)
+      if unloadAfterFailing(chapter) {
+        presentOnMain(for: chapter, title: "error_title".localized, message: nil, streamFailure: failure)
+      }
+    } catch {
+      unloadAfterFailing(chapter)
+      presentOnMain(
+        for: chapter,
+        title: "\("error_title".localized) Metadata",
+        message: error.localizedDescription
+      )
     }
   }
 
-  /// Drops the player item after a chapter failed to load: on a chapter change inside a volume
-  /// the previous file's item is still loaded and ready, and the next tap would play it (and
-  /// save its time against the new chapter) instead of loading the chapter again. Called after
-  /// `observeStatus = false`, which removes the observer from this item.
+  /// Drops the player's item after `chapter`'s file couldn't be found: on a chapter change inside a
+  /// volume the previous file's item is still loaded, and playing it would save its time against the
+  /// new chapter. The next play loads the book again.
   ///
   /// Pauses first if it was playing (a chapter skip mid-playback) or about to (the next file of a
   /// volume, after the last one ended): the player keeps its rate with no item, and the session,
-  /// Now Playing and the interruption observer would go on as if it played.
-  private func unloadPlayerItem(wasQueued: Bool) {
-    if audioPlayer.rate != 0 || wasQueued {
+  /// Now Playing and the interruption observer would go on as if it played. Returns whether it was.
+  @discardableResult
+  private func unloadAfterFailing(_ chapter: PlayableChapter) -> Bool {
+    let playWanted = playIntent != .idle || engine.rate != 0
+    playIntent = .idle
+    itemLoad = .failed(chapter)
+    if playWanted {
       pause()
     }
-    audioPlayer.replaceCurrentItem(with: nil)
-    playerItem = nil
-    playerItemRelativePath = nil
+    engine.unload()
+
+    return playWanted
   }
 
-  func loadChapterOperation(_ chapter: PlayableChapter) {
-    self.queue.addOperation {
-      // try loading the player
-      // `duration > 0` is load-bearing for PLAYBACK, not just hygiene: failing it posts
-      // `.bookReady loaded:false`, which only CarPlay and the watch observe, so the user
-      // sees the spinner clear and nothing happen. Media-server rows can't land here with
-      // a 0 duration — `HydratedItem` refuses to import one — and that is what lets the
-      // external branch of `loadPlayerItem` skip loading metadata off the stream.
-      guard
-        let playerItem = self.playerItem,
-        chapter.duration > 0
-      else {
-        DispatchQueue.main.async { [weak self] in
-          self?.playbackQueued = nil
-          self?.isFetchingRemoteURL = nil
-          NotificationCenter.default.post(name: .bookReady, object: nil, userInfo: ["loaded": false])
-        }
-        return
+  /// Hands `chapter`'s file to the engine, and sets up Now Playing and the position for it
+  private func startLoading(_ asset: AVURLAsset, for chapter: PlayableChapter) {
+    // `duration > 0` is load-bearing for PLAYBACK, not just hygiene: failing it posts
+    // `.bookReady loaded:false`, which only CarPlay and the watch observe, so the user
+    // sees the spinner clear and nothing happen. Media-server rows can't land here with
+    // a 0 duration — `HydratedItem` refuses to import one — and that is what lets the
+    // external branch of `resolveAsset` skip loading metadata off the stream.
+    guard chapter.duration > 0 else {
+      playIntent = .idle
+      itemLoad = .failed(chapter)
+      NotificationCenter.default.post(name: .bookReady, object: nil, userInfo: ["loaded": false])
+      return
+    }
+
+    itemLoad = .loading(
+      chapter,
+      engine.load(asset) { [weak self] event in
+        self?.handle(event)
       }
+    )
+    observeChapterEnds(inFileOf: chapter)
+    clockState = .trusting(0)
 
-      self.audioPlayer.replaceCurrentItem(with: nil)
-      self.observeStatus = true
+    currentSpeed = speedService.getSpeed(relativePath: chapter.relativePath)
+    // Set book metadata for lockscreen and control center
+    nowPlayingInfo = [
+      MPNowPlayingInfoPropertyDefaultPlaybackRate: currentSpeed
+    ]
 
-      // Update UI on main thread
-      DispatchQueue.main.async {
-        self.isFetchingRemoteURL = nil
+    setNowPlayingBookTitle(chapter: chapter)
+    setNowPlayingBookTime()
+    setNowPlayingArtwork(chapter: chapter)
 
-        self.audioPlayer.replaceCurrentItem(with: playerItem)
-        self.clockState = .trusting(0)
+    MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
+    MPNowPlayingInfoCenter.default().playbackState = .playing
 
-        self.currentSpeed = self.speedService.getSpeed(relativePath: chapter.relativePath)
-        // Set book metadata for lockscreen and control center
-        self.nowPlayingInfo = [
-          MPNowPlayingInfoPropertyDefaultPlaybackRate: self.currentSpeed
-        ]
-
-        self.setNowPlayingBookTitle(chapter: chapter)
-        self.setNowPlayingBookTime()
-        self.setNowPlayingArtwork(chapter: chapter)
-
-        MPNowPlayingInfoCenter.default().nowPlayingInfo = self.nowPlayingInfo
-        MPNowPlayingInfoCenter.default().playbackState = .playing
-
-        if let currentItem = self.currentItem {
-          // if book is truly finished, start book again to avoid autoplaying next one
-          // add 1 second as a finished threshold
-          if currentItem.currentTime > 0.0 {
-            let time = (currentItem.currentTime + 1) >= currentItem.duration ? 0 : currentItem.currentTime
-            self.initializeChapterTime(time)
-          }
-        }
-
-        NotificationCenter.default.post(name: .bookReady, object: nil, userInfo: ["loaded": true])
-        self.widgetReloadService.reloadAllWidgets()
+    if let currentItem {
+      // if book is truly finished, start book again to avoid autoplaying next one
+      // add 1 second as a finished threshold
+      if currentItem.currentTime > 0.0 {
+        let time = (currentItem.currentTime + 1) >= currentItem.duration ? 0 : currentItem.currentTime
+        initializeChapterTime(time)
       }
     }
+
+    NotificationCenter.default.post(name: .bookReady, object: nil, userInfo: ["loaded": true])
+    widgetReloadService.reloadAllWidgets()
+  }
+
+  /// What the engine reports about the file it's loading, or loaded
+  private func handle(_ event: LoadEvent) {
+    switch event {
+    case .ready:
+      guard case .loading(let chapter, let load) = itemLoad else { return }
+
+      itemLoad = .ready(chapter, load)
+      /// The play keeps the origin it was asked with: one pressed during the load is still the user's
+      if case .wantsToPlay(let origin) = playIntent {
+        play(origin: origin)
+      }
+      // Clean up flag
+      playIntent = .idle
+    case .failed(let error):
+      handleLoadFailure(error)
+    case .ended:
+      playerDidFinishPlaying()
+    }
+  }
+
+  /// The file reached the engine but can't play: reloaded while the retry budget allows, else reported
+  private func handleLoadFailure(_ error: Error?) {
+    guard case .loading(let chapter, _) = itemLoad, let currentItem else { return }
+
+    if retryBudget.spend(on: error, for: chapter) {
+      loadAndRefreshURL(item: currentItem)
+      return
+    }
+
+    /// Avoid showing any alert if playback is not queued, this could be from the initial app launch
+    /// where we preload the player with the last played item
+    if playIntent != .idle {
+      if let nsError = error as? NSError {
+        let errorDescription = """
+          \(nsError.localizedDescription)
+
+          Error Domain
+          \(nsError.domain)
+
+          Additional Info
+          \(nsError.userInfo)
+          """
+        presentOnMain(
+          for: chapter,
+          title: "\("error_title".localized) \(nsError.code)",
+          message: errorDescription
+        )
+      } else {
+        presentOnMain(
+          for: chapter,
+          title: "error_title".localized,
+          message: error?.localizedDescription
+        )
+      }
+    }
+
+    playIntent = .idle
+    itemLoad = .failed(chapter)
   }
 
   func setNowPlayingArtwork(chapter: PlayableChapter) {
@@ -776,7 +798,6 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
       pathForArtwork = currentItem.relativePath
     }
 
-    let fallbackColor = MainActor.assumeIsolated { ThemeManager.shared.currentTheme.linkColor }
     ArtworkService.retrieveImageFromCache(for: pathForArtwork) { [weak self] result in
       guard let self else { return }
 
@@ -786,7 +807,9 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
       case .success(let value):
         image = value.image
       case .failure:
-        image = ArtworkService.generateDefaultArtwork(from: fallbackColor)!
+        /// A platform without a fallback shows no artwork
+        guard let fallback = self.platform.fallbackArtwork() else { return }
+        image = fallback
       }
 
       self.nowPlayingInfo[MPMediaItemPropertyArtwork] = MPMediaItemArtwork(
@@ -797,6 +820,67 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
       )
 
       MPNowPlayingInfoCenter.default().nowPlayingInfo = self.nowPlayingInfo
+    }
+  }
+
+  /// The chapter file going into the player, and how far it got
+  private enum ItemLoad {
+    case empty
+    /// Finding the file: a cloud URL, a media server's stream, or a cloud file's metadata
+    case resolving(PlayableChapter, Task<Void, Never>)
+    /// The engine is opening it
+    case loading(PlayableChapter, EngineLoad)
+    /// It can play; the engine still reports its end
+    case ready(PlayableChapter, EngineLoad)
+    /// The next play loads the book again
+    case failed(PlayableChapter)
+
+    /// The chapter whose file it is
+    var chapter: PlayableChapter? {
+      switch self {
+      case .empty:
+        return nil
+      case .resolving(let chapter, _), .loading(let chapter, _), .ready(let chapter, _), .failed(let chapter):
+        return chapter
+      }
+    }
+
+    /// Set once the file is in the engine
+    var engineLoad: EngineLoad? {
+      switch self {
+      case .loading(_, let load), .ready(_, let load):
+        return load
+      case .empty, .resolving, .failed:
+        return nil
+      }
+    }
+  }
+
+  /// The reloads a file that failed in the engine gets before the failure is reported. A play asked for
+  /// refills it, so automatic reloads can't loop
+  private struct RetryBudget {
+    /// A cloud file whose URL expired or was refused: fetch a new one
+    private var urlRefresh = true
+    /// A media-server stream: one retry for a transient failure. It replays the same item, so the auth
+    /// headers are the same; it recovers a blip, or an AudiobookShelf file replaced since its lookup,
+    /// never a rotated token (signing in again and tapping the book reloads it rebuilt, `reloadable`)
+    private var streamRetry = true
+
+    /// Whether `error` on `chapter`'s file gets a reload, spending it
+    mutating func spend(on error: Error?, for chapter: PlayableChapter) -> Bool {
+      let code = (error as? NSError)?.code
+
+      if urlRefresh, code == NSURLErrorResourceUnavailable || code == NSURLErrorNoPermissionsToReadFile {
+        urlRefresh = false
+        return true
+      }
+
+      if streamRetry, chapter.isStreamed {
+        streamRetry = false
+        return true
+      }
+
+      return false
     }
   }
 
@@ -844,14 +928,12 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   /// Every seek of ours goes through here. Readings before it lands are the position it's leaving:
   /// accepting one would make the landing look like the player moved on its own, and the clock
   /// recovery would undo the seek (GH #1641)
-  private func seekPlayer(to time: TimeInterval, recoveries: Int = 0) {
+  private func seekPlayer(to time: TimeInterval, recoveries: Int = 0, precisely: Bool = false) {
     clockState = .seeking(target: time, recoveries: recoveries)
     latestSeek += 1
     let seek = latestSeek
 
-    audioPlayer.seek(
-      to: CMTime(seconds: time, preferredTimescale: CMTimeScale(NSEC_PER_SEC))
-    ) { [weak self] _ in
+    engine.seek(to: time, precisely: precisely) { [weak self] _ in
       DispatchQueue.main.async {
         /// Unless a newer seek took over, or the item it was for is gone
         guard
@@ -873,7 +955,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   private func restorePlayerTimeIfNeeded() {
     guard
       case .tracking(let expected, _) = clockState,
-      PlayerTimeSample(playerTime: CMTimeGetSeconds(audioPlayer.currentTime()), expected: expected) == .recover
+      PlayerTimeSample(playerTime: engine.currentTime, expected: expected) == .recover
     else { return }
 
     seekPlayer(to: expected)
@@ -883,8 +965,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   func updateTime() {
     guard
       let currentItem,
-      let playerItem,
-      playerItem.status == .readyToPlay
+      case .ready = itemLoad
     else {
       return
     }
@@ -897,7 +978,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     var currentTime: TimeInterval
 
     switch PlayerTimeSample(
-      playerTime: CMTimeGetSeconds(self.audioPlayer.currentTime()),
+      playerTime: self.engine.currentTime,
       expected: clockState.expectedTime
     ) {
     case .valid(let playerTime):
@@ -936,62 +1017,39 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
 
   // MARK: - Player states
 
-  var isPlaying: Bool {
-    let controlStatusFlag = audioPlayer.timeControlStatus != .paused
-    let playbackQueuedFlag = playbackQueued == true
-
-    return controlStatusFlag
-      || playbackQueuedFlag
-      || (isFetchingRemoteURL == true && playbackQueuedFlag)
-  }
-
-  /// We need an intermediate publisher for the `timeControlStatus`, as the `AVPlayer` instance can be recreated,
-  /// thus invalidating the registered observers for `isPlaying`
-  func bindTimeControlPassthroughPublisher() {
-    timeControlSubscription?.cancel()
-    timeControlSubscription = audioPlayer.publisher(for: \.timeControlStatus)
-      .sink { [weak self] timeControlStatus in
-        self?.timeControlPassthroughPublisher.send(timeControlStatus)
-      }
+  public var isPlaying: Bool {
+    engine.status != .paused || playIntent != .idle
   }
 
   func bindPauseObserver() {
     self.isPlayingSubscription?.cancel()
     self.isPlayingSubscription =
-      timeControlPassthroughPublisher
+      engine.statusPublisher
       .delay(for: .seconds(0.1), scheduler: RunLoop.main, options: .none)
-      .sink { timeControlStatus in
-        if timeControlStatus == .paused {
-          try? AVAudioSession.sharedInstance().setActive(false)
+      .sink { status in
+        if status == .paused {
+          self.platform.deactivateAudioSession()
           self.isPlayingSubscription?.cancel()
         }
       }
   }
 
-  func isPlayingPublisher() -> AnyPublisher<Bool, Never> {
-    return Publishers.CombineLatest3(
-      timeControlPassthroughPublisher,
-      $playbackQueued,
-      $isFetchingRemoteURL
-    )
-    .map({ (timeControlStatus, playbackQueued, isFetchingRemoteURL) -> Bool in
-      let controlStatusFlag = timeControlStatus != .paused
-      let playbackQueuedFlag = playbackQueued == true
-      return controlStatusFlag
-        || playbackQueuedFlag
-        || (isFetchingRemoteURL == true && playbackQueuedFlag)
-    })
-    .eraseToAnyPublisher()
+  public func isPlayingPublisher() -> AnyPublisher<Bool, Never> {
+    return Publishers.CombineLatest(engine.statusPublisher, $playIntent)
+      .map { status, playIntent in
+        status != .paused || playIntent != .idle
+      }
+      .eraseToAnyPublisher()
   }
 
-  func currentProgressPublisher() -> AnyPublisher<(String, Double), Never> {
+  public func currentProgressPublisher() -> AnyPublisher<(String, Double), Never> {
     $currentItem
       .removeDuplicates(by: { lhs, rhs in
         lhs?.relativePath == rhs?.relativePath
       })
       .map { item -> AnyPublisher<(String, Double), Never> in
         guard let item = item else {
-          return Empty<(String, Double), Never>(completeImmediately: false)
+          return Combine.Empty<(String, Double), Never>(completeImmediately: false)
             .eraseToAnyPublisher()
         }
 
@@ -1009,14 +1067,14 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
 
   var boostVolume: Bool = false {
     didSet {
-      self.audioPlayer.volume =
+      self.engine.volume =
         self.boostVolume
         ? Constants.Volume.boosted
         : Constants.Volume.normal
     }
   }
 
-  static var rewindInterval: TimeInterval {
+  nonisolated public static var rewindInterval: TimeInterval {
     get {
       if UserDefaults.standard.object(forKey: Constants.UserDefaults.rewindInterval) == nil {
         return 30.0
@@ -1038,7 +1096,7 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     }
   }
 
-  static var forwardInterval: TimeInterval {
+  nonisolated public static var forwardInterval: TimeInterval {
     get {
       if UserDefaults.standard.object(forKey: Constants.UserDefaults.forwardInterval) == nil {
         return 30.0
@@ -1060,11 +1118,11 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
     }
   }
 
-  static var isRewindChapterSkip: Bool {
+  nonisolated public static var isRewindChapterSkip: Bool {
     rewindInterval == Constants.SkipInterval.chapterSkipValue
   }
 
-  static var isForwardChapterSkip: Bool {
+  nonisolated public static var isForwardChapterSkip: Bool {
     forwardInterval == Constants.SkipInterval.chapterSkipValue
   }
 
@@ -1128,12 +1186,11 @@ final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
 // MARK: - Seek Controls
 
 extension PlayerManager {
-  func jumpToChapter(_ chapter: PlayableChapter) {
+  public func jumpToChapter(_ chapter: PlayableChapter) {
     jumpTo(chapter.start + 0.1, recordBookmark: false)
   }
 
-  @MainActor
-  func reloadCurrentItem() {
+  public func reloadCurrentItem() {
     // Rebuild the in-memory item from storage so externally-changed data (e.g. re-parsed
     // chapters) takes effect. Playback position is preserved — it's persisted in Core Data and
     // re-seeded by time in `PlayableItem.init` — and the chapter-change subscription must be
@@ -1145,6 +1202,10 @@ extension PlayerManager {
     }
     currentItem = updatedItem
     bindPlayableChapterSubscription(to: updatedItem, dropInitialReplay: true)
+    /// The re-parsed chapters end elsewhere in the file playing
+    if itemLoad.engineLoad != nil, itemLoad.chapter?.relativePath == updatedItem.currentChapter.relativePath {
+      observeChapterEnds(inFileOf: updatedItem.currentChapter)
+    }
   }
 
   func initializeChapterTime(_ time: Double) {
@@ -1152,14 +1213,68 @@ extension PlayerManager {
 
     let boundedTime = min(max(time, 0), currentItem.duration)
 
-    let newTime =
-      currentItem.isBoundBook
-      ? currentItem.getChapterTime(in: currentItem.currentChapter, for: boundedTime)
-      : boundedTime
-    seekPlayer(to: newTime)
+    seekPlayer(to: fileTime(boundedTime, in: currentItem.currentChapter, of: currentItem))
   }
 
-  func jumpTo(_ time: Double, recordBookmark: Bool = true) {
+  /// Where `time` in the book falls in `chapter`'s file: a volume's files each start at 0
+  private func fileTime(_ time: TimeInterval, in chapter: PlayableChapter, of item: PlayableItem) -> TimeInterval {
+    item.isBoundBook ? item.getChapterTime(in: chapter, for: time) : time
+  }
+
+  /// Watches the ends of the chapters in `chapter`'s file, which just reached the player. Its last one
+  /// is left out: the file ends there, and `playerDidFinishPlaying` takes it
+  private func observeChapterEnds(inFileOf chapter: PlayableChapter) {
+    chapterBoundaryObservation = nil
+
+    guard let currentItem else { return }
+
+    let chaptersInFile = currentItem.chapters.filter { $0.relativePath == chapter.relativePath }
+    let endingAt = Dictionary(
+      chaptersInFile.dropLast().map { (fileTime($0.end, in: $0, of: currentItem), $0) },
+      uniquingKeysWith: { _, last in last }
+    )
+
+    guard !endingAt.isEmpty else { return }
+
+    /// The engine runs its observers on the main queue
+    chapterBoundaryObservation = engine.addBoundaryObserver(at: Array(endingAt.keys)) { [weak self] time in
+      guard let ended = endingAt[time] else { return }
+      MainActor.assumeIsolated {
+        self?.handleChapterEnd(ended)
+      }
+    }
+  }
+
+  /// How far into the next chapter an end-of-chapter pause parks. Exactly on its start is a tie: the
+  /// ended chapter's `start + duration` can round past it, so a book rebuilt from the saved time reopens
+  /// in the chapter that ended, and a precise seek reads back up to 1 ns early (measured on AAC, MP3,
+  /// FLAC, WAV and Opus files). 10 ms clears both and is shorter than any speech sound
+  private static let chapterParkLead: TimeInterval = 0.01
+
+  /// With the end-of-chapter timer on, park playback at the next chapter's start as the timer pauses: the
+  /// resume then begins at its first word, and Smart Rewind has nothing to rewind into the chapter that
+  /// ended (GH #1486)
+  private func handleChapterEnd(_ ended: PlayableChapter) {
+    guard
+      SleepTimer.shared.state == .endOfChapter,
+      let currentItem,
+      /// AVPlayer reports a crossing when playback starts exactly on a boundary, as after Smart Rewind
+      /// back to a chapter's start: only the chapter still playing can end, and re-setting
+      /// `currentChapter` would end the re-armed timer at once (the GH #1486 loop)
+      currentItem.currentChapter == ended,
+      let next = currentItem.nextChapter(after: ended)
+    else { return }
+
+    let parked = next.start + Self.chapterParkLead
+    updatePlaybackTime(item: currentItem, time: parked)
+    /// Its sink posts `.chapterChange`: the timer ends and pauses, in this same turn
+    currentItem.currentChapter = next
+    /// A default seek can land a few milliseconds early, back inside the chapter that ended, and the
+    /// resume would cross its end again
+    seekPlayer(to: fileTime(parked, in: next, of: currentItem), precisely: true)
+  }
+
+  public func jumpTo(_ time: Double, recordBookmark: Bool = true) {
     guard let currentItem = self.currentItem else { return }
 
     if recordBookmark {
@@ -1196,7 +1311,7 @@ extension PlayerManager {
     seekPlayer(to: newTime)
   }
 
-  func forward() {
+  public func forward() {
     if PlayerManager.isForwardChapterSkip {
       skipToNextChapter()
     } else {
@@ -1204,7 +1319,7 @@ extension PlayerManager {
     }
   }
 
-  func rewind() {
+  public func rewind() {
     if PlayerManager.isRewindChapterSkip {
       skipToPreviousChapter()
     } else {
@@ -1212,7 +1327,7 @@ extension PlayerManager {
     }
   }
 
-  func skipToNextChapter() {
+  public func skipToNextChapter() {
     if let currentChapter = currentItem?.currentChapter,
       let nextChapter = currentItem?.nextChapter(after: currentChapter)
     {
@@ -1223,7 +1338,7 @@ extension PlayerManager {
     NotificationCenter.default.post(name: .listeningProgressChanged, object: nil)
   }
 
-  func skipToPreviousChapter() {
+  public func skipToPreviousChapter() {
     defer { NotificationCenter.default.post(name: .listeningProgressChanged, object: nil) }
 
     guard let currentItem,
@@ -1244,7 +1359,7 @@ extension PlayerManager {
     }
   }
 
-  func skip(_ interval: TimeInterval) {
+  public func skip(_ interval: TimeInterval) {
     guard let currentItem = self.currentItem else { return }
 
     let newTime = currentItem.getInterval(from: interval) + currentItem.currentTime
@@ -1252,7 +1367,7 @@ extension PlayerManager {
   }
 
   /// Bypass checks on chapter limits
-  func directSkip(_ interval: TimeInterval) {
+  public func directSkip(_ interval: TimeInterval) {
     guard let currentItem = self.currentItem else { return }
 
     self.jumpTo(interval + currentItem.currentTime)
@@ -1262,51 +1377,40 @@ extension PlayerManager {
 // MARK: - Playback
 
 extension PlayerManager {
-  @MainActor
-  func prepareForPlayback(_ currentItem: PlayableItem) async -> Bool {
-    /// Allow refetching remote URL if the action was initiating by the user
-    canFetchRemoteURL = true
-    canFetchExternalURL = true
+  func prepareForPlayback(_ currentItem: PlayableItem, origin: PlayOrigin) async -> Bool {
+    /// A play asked for gets its reloads again
+    retryBudget = RetryBudget()
 
-    guard let playerItem else {
-      /// Check if the playbable item is in the process of being set
-      if observeStatus == false {
-        if isFetchingRemoteURL == true {
-          playbackQueued = true
-        } else {
-          load(reloadable(currentItem), autoplay: true)
-        }
-      }
+    let isThisFile = itemLoad.chapter?.relativePath == currentItem.currentChapter.relativePath
+
+    switch itemLoad {
+    case .empty, .failed:
+      load(reloadable(currentItem), intent: .wantsToPlay(origin))
       return false
-    }
-
-    /// A chapter change into another file whose load was cancelled (a pause): the item is the
-    /// previous file's, and playing it would save its time against the new chapter
-    if let playerItemRelativePath, playerItemRelativePath != currentItem.currentChapter.relativePath {
-      // Still loading it: play when it's ready, rather than starting over
-      if isFetchingRemoteURL == true {
-        playbackQueued = true
+    case .resolving, .loading:
+      if isThisFile {
+        /// Play when it's ready, rather than starting over
+        playIntent = .wantsToPlay(origin)
       } else {
-        loadChapterMetadata(currentItem.currentChapter, autoplay: true)
+        loadChapterMetadata(currentItem.currentChapter, intent: .wantsToPlay(origin))
       }
       return false
-    }
-
-    guard playerItem.status == .readyToPlay && playerItem.error == nil else {
-      /// Try to reload the item if it failed to load previously
-      if playerItem.status == .failed || playerItem.error != nil {
-        load(reloadable(currentItem), autoplay: true)
-      } else {
-        // queue playback
-        self.playbackQueued = true
-        self.observeStatus = true
+    case .ready:
+      /// The chapter moved to another file without loading it (re-parsed chapters): the item is the
+      /// previous file's, and playing it would save its time against the new chapter
+      guard isThisFile else {
+        loadChapterMetadata(currentItem.currentChapter, intent: .wantsToPlay(origin))
+        return false
       }
-
-      return false
+      /// A stream can fail after it was ready: load it again
+      guard !engine.itemHasFailed else {
+        load(reloadable(currentItem), intent: .wantsToPlay(origin))
+        return false
+      }
     }
 
     /// Update nowPlaying state so the UI displays correctly
-    playbackQueued = true
+    playIntent = .wantsToPlay(origin)
     await syncProgressDelegate?.waitForSyncInProgress()
 
     return true
@@ -1315,7 +1419,6 @@ extension PlayerManager {
   /// `item` rebuilt from the library when it plays from a media server: loading it again after
   /// a failure must use the connection as it's saved now (signed in again, or the missing
   /// server added since the alert said so), not the token and host it was built with.
-  @MainActor
   private func reloadable(_ item: PlayableItem) -> PlayableItem {
     guard
       item.chapters.contains(where: { $0.isStreamed || $0.hasUnresolvedExternalHost }),
@@ -1327,8 +1430,8 @@ extension PlayerManager {
     return rebuilt
   }
 
-  func play() {
-    play(autoPlayed: false)
+  public func play() {
+    play(origin: .user)
   }
 
   /// Take over the system Now Playing slot for CarPlay. iOS only designates the Now Playing app from
@@ -1345,16 +1448,15 @@ extension PlayerManager {
   /// Accepted edge: if the user taps play during the brief muted window, our `.first()` captures that
   /// `.playing` and pauses it — they'd tap again. Distinguishing their play from ours on the shared
   /// player isn't reliable, and the window is short, so we accept it. Returns whether attempted.
-  @MainActor
   @discardableResult
-  func claimNowPlayingThenPause() -> Bool {
+  public func claimNowPlayingThenPause() -> Bool {
     /// `nowPlayingClaimSubscription == nil` gates re-entrancy: a claim stays "in flight" (subscription
     /// non-nil) until its unmute completes below, so a second blip can't start mid-claim and get unmuted
     /// by this one's timer.
     guard currentItem != nil, !isPlaying, nowPlayingClaimSubscription == nil else { return false }
 
-    audioPlayer.isMuted = true
-    nowPlayingClaimSubscription = timeControlPassthroughPublisher
+    engine.isMuted = true
+    nowPlayingClaimSubscription = engine.statusPublisher
       .filter { $0 == .playing }
       .first()
       // DispatchQueue (not RunLoop) so the timeout still fires while the run loop is in tracking mode
@@ -1373,7 +1475,7 @@ extension PlayerManager {
           /// a new claim until we're fully done and this timer can't unmute someone else's blip.
           DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) { [weak self] in
             guard let self else { return }
-            self.audioPlayer.isMuted = false
+            self.engine.isMuted = false
             self.nowPlayingClaimSubscription = nil
           }
         },
@@ -1385,98 +1487,31 @@ extension PlayerManager {
         }
       )
 
-    play()
+    play(origin: .system)
     return true
   }
 
-  /// Persist a marker so the next successful activation can report whether — and how —
-  /// the audio session recovered. Beta builds only.
-  private func markAudioSessionFailure(_ error: NSError) {
-    let defaults = UserDefaults.standard
-    defaults.set(Date().timeIntervalSince1970, forKey: Constants.UserDefaults.audioSessionFailureTimestamp)
-    defaults.set(error.code, forKey: Constants.UserDefaults.audioSessionFailureCode)
-    audioSessionFailedThisSession = true
-  }
-
-  /// If a prior activation failure was recorded, report to Sentry that the session
-  /// recovered — including whether it took an app relaunch (force-quit / OS kill) to
-  /// get audio back. Beta builds only.
-  private func reportAudioSessionRecoveryIfNeeded() {
-    guard AppEnvironment.isTestFlight else { return }
-    let defaults = UserDefaults.standard
-    guard
-      let failedAt = defaults.object(forKey: Constants.UserDefaults.audioSessionFailureTimestamp) as? Double
-    else { return }
-
-    // A marker written in this same process means the session self-healed; a marker
-    // from a previous launch means audio only returned after the process restarted.
-    let requiredRelaunch = !audioSessionFailedThisSession
-
-    SentrySDK.capture(message: "Audio session recovered after activation failure") { scope in
-      scope.setLevel(.info)
-      scope.setFingerprint(["audio-session-recovery"])
-      scope.setTag(value: "audio_session_recovery", key: "playback_failure")
-      scope.setContext(value: [
-        "secondsSinceFailure": Int(Date().timeIntervalSince1970 - failedAt),
-        "requiredAppRelaunch": requiredRelaunch,
-        "previousErrorCode": defaults.integer(forKey: Constants.UserDefaults.audioSessionFailureCode),
-      ], key: "audio_session")
-    }
-
-    defaults.removeObject(forKey: Constants.UserDefaults.audioSessionFailureTimestamp)
-    defaults.removeObject(forKey: Constants.UserDefaults.audioSessionFailureCode)
-    audioSessionFailedThisSession = false
-  }
-
-  func play(autoPlayed: Bool) {
+  public func play(origin: PlayOrigin) {
     playTask?.cancel()
-    playTask = Task { @MainActor in
+    playTask = Task {
       /// Ignore play commands if there's no item loaded,
       /// and only continue if the item is loaded and ready
       guard
         let currentItem,
-        await prepareForPlayback(currentItem),
+        await prepareForPlayback(currentItem, origin: origin),
         !Task.isCancelled
       else { return }
 
       userActivityManager.resumePlaybackActivity()
 
-      do {
-        let audioSession = AVAudioSession.sharedInstance()
-        try audioSession.setCategory(
-          AVAudioSession.Category.playback,
-          mode: .spokenAudio,
-          options: []
-        )
-        try audioSession.setActive(true)
-        reportAudioSessionRecoveryIfNeeded()
-      } catch {
-        guard AppEnvironment.isTestFlight else {
-          fatalError("Failed to activate the audio session, \(error), description: \(error.localizedDescription)")
-        }
-        /// Beta-only: don't hard-crash when the audio session can't be activated.
-        /// This happens when another process holds the session in a stuck state
-        /// that (so far) only a force-quit clears. Report it to Sentry so we can
-        /// confirm whether the stuck state still occurs, and leave the play button
-        /// inert — a missed auto-play is strictly better than the app dying in the
-        /// background.
-        let nsError = error as NSError
-        SentrySDK.capture(error: error) { scope in
-          scope.setLevel(.error)
-          scope.setFingerprint(["audio-session-activation-failure"])
-          scope.setTag(value: "audio_session_activation", key: "playback_failure")
-          scope.setContext(value: [
-            "errorCode": nsError.code,
-            "errorDomain": nsError.domain,
-            "isOtherAudioPlaying": AVAudioSession.sharedInstance().isOtherAudioPlaying,
-            "applicationState": UIApplication.shared.applicationState == .active ? "active" : "background",
-            "autoPlayed": autoPlayed,
-            "relativePath": currentItem.relativePath,
-          ], key: "audio_session")
-        }
-        markAudioSessionFailure(nsError)
-        NSLog("[PlayerManager] Audio session activation failed: %@", error.localizedDescription)
-        playbackQueued = nil
+      guard await platform.activateAudioSession(for: currentItem, origin: origin) else {
+        playIntent = .idle
+        return
+      }
+      /// A platform can suspend while it activates (the watch's route picker): a pause in the meantime wins,
+      /// and ends the session the activation turned on after the pause's own deactivation ran
+      guard !Task.isCancelled else {
+        platform.deactivateAudioSession()
         return
       }
 
@@ -1487,29 +1522,41 @@ extension PlayerManager {
         type: .play
       )
 
-      // If book is completed, stop
-      let playerTime = CMTimeGetSeconds(audioPlayer.currentTime())
-      if playerTime.isFinite && Int(currentItem.duration) == Int(playerTime) { return }
+      /// A finished book still loaded: the user's play starts it over from the first chapter, while one
+      /// the system makes stops at the end
+      let playerTime = engine.currentTime
+      if playerTime.isFinite && Int(currentItem.duration) == Int(playerTime) {
+        guard origin == .user, let firstChapter = currentItem.chapters.first else {
+          playIntent = .idle
+          return
+        }
+        updatePlaybackTime(item: currentItem, time: 0)
+        currentItem.currentChapter = firstChapter
+        loadChapterMetadata(firstChapter, intent: .wantsToPlay(.user))
+        return
+      }
 
       restorePlayerTimeIfNeeded()
 
       // Skip smart rewind during SharePlay; the seek would drag every participant back
-      if activeGroupSession == nil {
+      if !isPlaybackCoordinated {
         handleSmartRewind(currentItem)
       }
 
-      if !autoPlayed {
+      /// Only a play the user asked for arms the remembered timer: a start the system makes
+      /// (the next book, the end of an interruption) leaves a running countdown alone
+      if origin == .user {
         handleAutoTimer()
       }
 
       fadeTimer?.invalidate()
-      shakeMotionService.stopMotionUpdates()
+      platform.stopShakeDetection()
       boostVolume = UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled)
       bindInterruptObserver()
       // Set play state on player and control center
-      audioPlayer.playImmediately(atRate: currentSpeed)
+      engine.play(atRate: currentSpeed)
       /// Clean up flag after player starts playing
-      playbackQueued = nil
+      playIntent = .idle
 
       setNowPlayingBookTitle(chapter: currentItem.currentChapter)
 
@@ -1536,8 +1583,11 @@ extension PlayerManager {
       let timeInChapter = item.currentTime - item.currentChapter.start
       let rewindTimeLimited = min(rewindTimeMin, timeInChapter, timePassed)
 
+      /// Too little to be worth a seek, as where an end-of-chapter pause parks, 10 ms into the chapter
+      guard rewindTimeLimited >= 0.1 else { return }
+
       /// Rewind from where we know playback is, not the raw player clock (see `PlayerTimeSample`)
-      let playerTime = clockState.expectedTime ?? CMTimeGetSeconds(self.audioPlayer.currentTime())
+      let playerTime = clockState.expectedTime ?? self.engine.currentTime
       let newPlayerTime = max(playerTime - rewindTimeLimited, 0)
 
       seekPlayer(to: newPlayerTime)
@@ -1566,110 +1616,24 @@ extension PlayerManager {
     SleepTimer.shared.restartTimer()
   }
 
-  func setSpeed(_ newValue: Float) {
+  public func setSpeed(_ newValue: Float) {
     self.speedService.setSpeed(newValue, relativePath: self.currentItem?.relativePath)
     self.currentSpeed = newValue
     if self.isPlaying {
-      self.audioPlayer.rate = newValue
+      self.engine.rate = newValue
     }
   }
 
-  func setBoostVolume(_ newValue: Bool) {
+  public func setBoostVolume(_ newValue: Bool) {
     self.boostVolume = newValue
   }
 
-  // swiftlint:disable block_based_kvo
-  // Using this instead of new form, because the new one wouldn't work properly on AVPlayerItem
-  override func observeValue(
-    forKeyPath keyPath: String?,
-    of object: Any?,
-    change: [NSKeyValueChangeKey: Any]?,
-    context: UnsafeMutableRawPointer?
-  ) {
-    guard let path = keyPath, path == "status", let item = object as? AVPlayerItem else {
-      super.observeValue(forKeyPath: keyPath, of: object, change: change, context: context)
-      return
-    }
-
-    switch item.status {
-    case .readyToPlay:
-      self.observeStatus = false
-
-      if self.playbackQueued == true {
-        self.play(autoPlayed: true)
-      }
-      // Clean up flag
-      self.playbackQueued = nil
-    case .failed:
-      if canFetchRemoteURL,
-        let nsError = item.error as? NSError,
-        nsError.code == NSURLErrorResourceUnavailable
-          || nsError.code == NSURLErrorNoPermissionsToReadFile,
-        let currentItem
-      {
-        loadAndRefreshURL(item: currentItem)
-        canFetchRemoteURL = false
-      } else if let currentItem,
-                currentItem.currentChapter.isStreamed,
-                canFetchExternalURL {
-        /// One retry for a transient stream failure. The reload replays the SAME item, so
-        /// the auth headers are identical — this recovers a blip or an AudiobookShelf file
-        /// replaced since its lookup (the retry asks for its files again), never a rotated
-        /// token. Signing in again and tapping the same book does: `play()` finds no
-        /// playable item and reloads it rebuilt from the library (`reloadable`).
-        loadAndRefreshURL(item: currentItem)
-        canFetchExternalURL = false
-      } else {
-        /// Avoid showing any alert if playback is not queued, this could be from the initial app launch
-        /// where we preload the player with the last played item
-        if playbackQueued == true {
-          let chapter = currentItem?.currentChapter
-
-          if let nsError = item.error as? NSError {
-            let errorDescription = """
-              \(nsError.localizedDescription)
-
-              Error Domain
-              \(nsError.domain)
-
-              Additional Info
-              \(nsError.userInfo)
-              """
-            presentOnMain(
-              for: chapter,
-              title: "\("error_title".localized) \(nsError.code)",
-              message: errorDescription
-            )
-          } else {
-            presentOnMain(
-              for: chapter,
-              title: "error_title".localized,
-              message: item.error?.localizedDescription
-            )
-          }
-        }
-
-        playbackQueued = nil
-        observeStatus = false
-        playerItem = nil
-      }
-    case .unknown:
-      /// Do not handle .unknown states, as we're only interested in the success and failure states
-      fallthrough
-    @unknown default:
-      break
-    }
-  }
-  // swiftlint:enable block_based_kvo
-
-  func pause() {
+  public func pause() {
     pause(removeInterruptObserver: true)
   }
 
   func pause(removeInterruptObserver: Bool) {
     guard self.currentItem != nil else { return }
-
-    self.observeStatus = false
 
     self.userActivityManager.stopPlaybackActivity()
 
@@ -1677,82 +1641,70 @@ extension PlayerManager {
 
     bindPauseObserver()
     // Set pause state on player and control center
-    audioPlayer.pause()
-    playbackQueued = nil
+    engine.pause()
+    playIntent = .idle
     playTask?.cancel()
-    loadChapterTask?.cancel()
-    /// A cancelled load leaves its flags alone (they could belong to a newer one): nothing is
-    /// fetching once this cancels it
-    isFetchingRemoteURL = nil
+    /// A pause cancels finding a file, and the next play starts over. A file already in the engine
+    /// finishes loading silently
+    if case .resolving = itemLoad {
+      itemLoad = .empty
+    }
     nowPlayingInfo[MPNowPlayingInfoPropertyPlaybackRate] = 0.0
     MPNowPlayingInfoCenter.default().playbackState = .paused
     setNowPlayingBookTime()
     MPNowPlayingInfoCenter.default().nowPlayingInfo = nowPlayingInfo
     if removeInterruptObserver {
-      NotificationCenter.default.removeObserver(
-        self,
-        name: AVAudioSession.interruptionNotification,
-        object: nil
-      )
+      interruptionSubscription = nil
     }
   }
 
   // Toggle play/pause of book
-  func playPause() {
+  public func playPause() {
     // Pause player if it's playing
-    if self.audioPlayer.timeControlStatus == .playing || playbackQueued == true {
+    if self.engine.status == .playing || playIntent != .idle {
       self.pause()
     } else {
       self.play()
     }
   }
 
-  /// Access to the underlying player for rendering video tracks.
+  /// Access to the underlying player for rendering video tracks; nil for an engine without one.
   /// Note: the instance can be recreated after a media-services reset, so
   /// consumers should re-attach on view updates rather than caching it.
-  func getAVPlayer() -> AVPlayer {
-    return audioPlayer
+  public func getAVPlayer() -> AVPlayer? {
+    return engine.videoPlayer
   }
 
-  func stop() {
+  public func stop() {
     stopPlayback()
     clockState = .unknown
 
     self.currentItem = nil
-    playerItem = nil
-    /// Clear out flag when `playerItem` is nulled out
-    hasObserverRegistered = false
     MPNowPlayingInfoCenter.default().playbackState = .stopped
   }
 
   private func stopPlayback() {
-    observeStatus = false
-    playbackQueued = nil
+    itemLoad = .empty
+    playIntent = .idle
 
-    audioPlayer.pause()
+    engine.pause()
     playTask?.cancel()
-    loadChapterTask?.cancel()
-    isFetchingRemoteURL = nil
 
     userActivityManager.stopPlaybackActivity()
-    NotificationCenter.default.removeObserver(
-      self,
-      name: AVAudioSession.interruptionNotification,
-      object: nil
-    )
+    interruptionSubscription = nil
   }
 
-  func markAsCompleted(_ flag: Bool) {
+  public func markAsCompleted(_ flag: Bool) {
     guard let currentItem = self.currentItem else { return }
 
     self.libraryService.markAsFinished(flag: flag, relativePath: currentItem.relativePath)
 
     if let parentFolderPath = currentItem.parentFolder {
-      if UIApplication.shared.applicationState == .active {
-        libraryService.recursiveFolderProgressUpdate(from: parentFolderPath)
-      } else {
+      if platform.defersFolderProgress {
         /// Defer all the folder progress updates until the user opens up the app again
         playbackService.markStaleProgress(folderPath: parentFolderPath)
+      } else {
+        libraryService.recursiveFolderProgressUpdate(from: parentFolderPath)
       }
     }
 
@@ -1761,11 +1713,11 @@ extension PlayerManager {
     NotificationCenter.default.post(name: .bookEnd, object: nil, userInfo: nil)
   }
 
-  func currentSpeedPublisher() -> AnyPublisher<Float, Never> {
+  public func currentSpeedPublisher() -> AnyPublisher<Float, Never> {
     return $currentSpeed.eraseToAnyPublisher()
   }
 
-  func playPreviousItem() {
+  public func playPreviousItem() {
     guard
       let currentItem = self.currentItem,
       let previousBook = self.playbackService.getPlayableItem(
@@ -1774,18 +1726,16 @@ extension PlayerManager {
       )
     else { return }
 
-    load(previousBook, autoplay: true)
+    load(previousBook, intent: .wantsToPlay(.user))
   }
 
-  func playNextItem(autoPlayed: Bool = false, shouldAutoplay: Bool = true) {
+  public func playNextItem(autoPlayed: Bool = false, shouldAutoplay: Bool = true) {
     /// If it's autoplayed, check if setting is enabled
-    if autoPlayed,
-      !UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayEnabled)
-    {
+    if autoPlayed, !platform.autoplaysNextBook {
       return
     }
 
-    let restartFinished = UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayRestartEnabled)
+    let restartFinished = platform.restartsFinishedBooks
 
     guard
       let currentItem = self.currentItem,
@@ -1804,7 +1754,8 @@ extension PlayerManager {
       updatePlaybackTime(item: nextBook, time: 0)
     }
 
-    load(nextBook, autoplay: shouldAutoplay)
+    /// Pressing next at the end of a book is the user's play; the next book after a finished one isn't
+    load(nextBook, intent: shouldAutoplay ? .wantsToPlay(autoPlayed ? .system : .user) : .idle)
     libraryService.setLibraryLastBook(with: nextBook.relativePath)
   }
 
@@ -1866,8 +1817,8 @@ extension PlayerManager {
     return nextChapter
   }
 
-  @objc
-  func playerDidFinishPlaying(_ notification: Notification) {
+  /// The engine's item reached its end
+  private func playerDidFinishPlaying() {
     guard let currentItem = self.currentItem else { return }
 
     let endOfChapterActive = SleepTimer.shared.state == .endOfChapter
@@ -1879,7 +1830,7 @@ extension PlayerManager {
         updatePlaybackTime(item: currentItem, time: 0)
         let firstChapter = currentItem.chapters.first!
         currentItem.currentChapter = firstChapter
-        loadChapterMetadata(firstChapter, autoplay: !endOfChapterActive)
+        loadChapterMetadata(firstChapter, intent: endOfChapterActive ? .idle : .wantsToPlay(.system))
       } else {
         self.libraryService.setLibraryLastBook(with: nil)
 
@@ -1902,7 +1853,7 @@ extension PlayerManager {
         )
       else { return }
       currentItem.currentChapter = nextChapter
-      loadChapterMetadata(nextChapter, autoplay: !endOfChapterActive)
+      loadChapterMetadata(nextChapter, intent: endOfChapterActive ? .idle : .wantsToPlay(.system))
     }
   }
 
@@ -1914,11 +1865,11 @@ extension PlayerManager {
 
     if previousPercentage != newPercentage {
       if let parentFolder = item.parentFolder {
-        if UIApplication.shared.applicationState == .active {
-          libraryService.recursiveFolderProgressUpdate(from: parentFolder)
-        } else {
+        if platform.defersFolderProgress {
           /// Defer all the folder progress updates until the user opens up the app again
           playbackService.markStaleProgress(folderPath: parentFolder)
+        } else {
+          libraryService.recursiveFolderProgressUpdate(from: parentFolder)
         }
       }
 
@@ -1927,10 +1878,10 @@ extension PlayerManager {
   }
 
   private func loadAndRefreshURL(item: PlayableItem) {
-    load(item, autoplay: playbackQueued == true, forceRefreshURL: true)
+    /// A retry plays only if the failed load was going to, for whoever asked
+    load(item, intent: playIntent, forceRefreshURL: true)
   }
 
-  @objc
   private func handleMediaServicesWereReset() {
     /// Playback should be stopped, and wait for the user to activate it again
     if isPlaying {
@@ -1943,11 +1894,14 @@ extension PlayerManager {
       options: []
     )
 
-    setupPlayerInstance()
+    engine.rebuild()
+    /// The new player has no item: drop the old one's load, which would still read as ready, so the
+    /// next play loads it again where it was instead of starting an empty player
+    itemLoad = .empty
+    clockState = .unknown
   }
 
   /// Playback may be interrupted by calls. Handle resuming the audio if needed
-  @objc
   func handleAudioInterruptions(_ notification: Notification) {
     guard
       let userInfo = notification.userInfo,
@@ -1966,7 +1920,7 @@ extension PlayerManager {
       }
       let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
       if options.contains(.shouldResume) {
-        play(autoPlayed: true)
+        play(origin: .system)
       }
     @unknown default:
       break
@@ -1976,7 +1930,7 @@ extension PlayerManager {
 
 // MARK: - BookMarks
 extension PlayerManager {
-  public func createOrUpdateAutomaticBookmark(at time: Double, relativePath: String, uuid: String, type: BookmarkType) {
+  func createOrUpdateAutomaticBookmark(at time: Double, relativePath: String, uuid: String, type: BookmarkType) {
     /// Clean up old bookmark
     if let bookmark = libraryService.getBookmarks(of: type, relativePath: relativePath)?.first {
       libraryService.deleteBookmark(bookmark)
@@ -1993,7 +1947,7 @@ extension PlayerManager {
 // MARK: - Sleep timer
 extension PlayerManager {
   private func handleSleepTimerThresholdEvent() {
-    fadeTimer = audioPlayer.fadeVolume(from: 1, to: 0, duration: 5, completion: {})
+    fadeTimer = engine.fadeVolume(from: 1, to: 0, duration: 5)
     bindShakeObserver()
   }
 
@@ -2017,113 +1971,62 @@ extension PlayerManager {
   }
 
   private func bindShakeObserver() {
-    shakeMotionService.observeFirstShake { [weak self] in
+    platform.observeFirstShake { [weak self] in
       SleepTimer.shared.restartTimer()
       self?.play()
     }
   }
 }
 
-// MARK: - SharePlay coordination
+// MARK: - Group playback coordination
 
-extension PlayerManager: SharePlayCoordinating {
-  /// Re-applied whenever `audioPlayer` is recreated (see `setupPlayerInstance`)
-  func coordinatePlayback(with session: GroupSession<AudioBookActivity>, for relativePath: String) {
-    activeGroupSession = session
-    coordinationContentIdentifier = session.activity.bookFingerprint.identifier
-    coordinatedItemRelativePath = relativePath
-    observeGroupTransportChanges()
-    audioPlayer.playbackCoordinator.delegate = self
-    audioPlayer.playbackCoordinator.coordinateWithSession(session)
+extension PlayerManager {
+  private var isPlaybackCoordinated: Bool {
+    #if os(iOS)
+    return engine.playbackCoordination != nil
+    #else
+    return false
+    #endif
   }
 
-  func stopCoordinatingPlayback() {
-    activeGroupSession = nil
-    coordinationContentIdentifier = nil
-    coordinatedItemRelativePath = nil
-    groupPlaybackSubscription = nil
-    // no explicit "uncoordinate" API; coordination tears down with the GroupSession
-    audioPlayer.playbackCoordinator.delegate = nil
-  }
-
-  /// Keep local speed state in sync when a remote participant changes the group's rate
+  /// Keep a remote participant's rate in session state, never in the user's saved speed.
   func reconcileGroupPlaybackRate() {
-    guard activeGroupSession != nil else { return }
+    guard isPlaybackCoordinated else { return }
 
-    let groupRate = audioPlayer.rate
+    let groupRate = engine.rate
     guard groupRate > 0, abs(groupRate - currentSpeed) > 0.01 else { return }
 
-    // session state only; deliberately not persisted through `SpeedService`
     currentSpeed = groupRate
   }
 
-  /// Remote participants resume playback without going through `play()`; restore
-  /// what it would have: cancel a sleep-timer fade and reactivate the audio session
-  private func observeGroupTransportChanges() {
-    guard groupPlaybackSubscription == nil else { return }
+  #if os(iOS)
+  /// App-owned coordination stays outside the shared player core. The engine reapplies it
+  /// whenever it replaces its AVPlayer, including after a media-services reset or failure.
+  public func setPlaybackCoordination(_ coordination: PlaybackCoordinating?) {
+    groupPlaybackSubscription?.cancel()
+    groupPlaybackSubscription = nil
+    engine.playbackCoordination = coordination
+    guard let coordination else { return }
 
-    groupPlaybackSubscription = timeControlPassthroughPublisher
+    groupPlaybackSubscription = engine.statusPublisher
       .removeDuplicates()
       .receive(on: DispatchQueue.main)
-      .sink { [weak self] timeControlStatus in
-        guard let self, self.activeGroupSession != nil, timeControlStatus != .paused else { return }
+      .sink { [weak self, weak coordination] status in
+        guard let self, let coordination,
+          self.engine.playbackCoordination === coordination,
+          status != .paused, self.engine.status != .paused
+        else { return }
 
+        // A remote resume bypasses play(). Restore its audio state without seeking,
+        // changing play intent, or rearming the user's remembered sleep timer.
+        self.isPlayingSubscription?.cancel()
+        self.isPlayingSubscription = nil
         self.fadeTimer?.invalidate()
+        self.platform.stopShakeDetection()
         self.boostVolume = UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled)
-        try? AVAudioSession.sharedInstance().setActive(true)
+        coordination.activateAudioSession()
         self.bindInterruptObserver()
       }
   }
-}
-
-extension PlayerManager: AVPlayerPlaybackCoordinatorDelegate {
-  func playbackCoordinator(
-    _ coordinator: AVPlayerPlaybackCoordinator,
-    identifierFor playerItem: AVPlayerItem
-  ) -> String {
-    // The pinned identifier keeps tolerance-matched copies reporting the same content,
-    // but only for the matched item; anything else must report its own identity
-    if let coordinationContentIdentifier,
-      let currentItem,
-      currentItem.relativePath == coordinatedItemRelativePath
-    {
-      return groupContentIdentifier(coordinationContentIdentifier, for: playerItem, in: currentItem)
-    }
-
-    return currentItem.map(BookFingerprint.init(from:))?.identifier
-      ?? (playerItem.asset as? AVURLAsset)?.url.absoluteString
-      ?? "bookplayer.shareplay.unidentified-content"
-  }
-
-  /// Bound books play one `AVPlayerItem` per file; append the file's ordinal so
-  /// participants on different files wait for each other instead of being seeked
-  /// onto another file's timeline. Ordinals, not paths: file names differ across devices
-  private func groupContentIdentifier(
-    _ baseIdentifier: String,
-    for playerItem: AVPlayerItem,
-    in item: PlayableItem
-  ) -> String {
-    var files = [String]()
-    for chapter in item.chapters where !files.contains(chapter.relativePath) {
-      files.append(chapter.relativePath)
-    }
-
-    guard files.count > 1 else { return baseIdentifier }
-
-    guard let ordinal = fileOrdinal(for: playerItem, files: files, in: item) else {
-      return baseIdentifier + "|file:unknown"
-    }
-
-    return baseIdentifier + "|file:\(ordinal)"
-  }
-
-  private func fileOrdinal(for playerItem: AVPlayerItem, files: [String], in item: PlayableItem) -> Int? {
-    if let assetURL = (playerItem.asset as? AVURLAsset)?.url,
-      let chapter = item.chapters.first(where: { $0.fileURL == assetURL || $0.remoteURL == assetURL })
-    {
-      return files.firstIndex(of: chapter.relativePath)
-    }
-
-    return files.firstIndex(of: item.currentChapter.relativePath)
-  }
+  #endif
 }

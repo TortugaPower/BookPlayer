@@ -10,7 +10,7 @@ import AVFoundation
 
 extension AVPlayer {
   // Pulled from: https://medium.com/@evandro.hoffmann/fading-volume-with-avplayer-in-swift-74cbcc6172c6
-  func fadeVolume(from: Float, to: Float, duration: Float, completion: (() -> Void)? = nil) -> Timer? {
+  public func fadeVolume(from: Float, to: Float, duration: Float, completion: (() -> Void)? = nil) -> Timer? {
     volume = from
 
     // skip if target volume is the same as initial

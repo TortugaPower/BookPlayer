@@ -91,7 +91,7 @@ struct SearchView: View {
   private func loadPlayer(with relativePath: String) {
     Task {
       do {
-        try await playerLoaderService.loadPlayer(relativePath, autoplay: true)
+        try await playerLoaderService.loadPlayer(relativePath, intent: .wantsToPlay(.user))
         playerState.showPlayerBinding.wrappedValue = true
       } catch {
         loadingState.error = error

@@ -9,6 +9,7 @@
 import BookPlayerWatchKit
 import Foundation
 
+@MainActor
 final class PlaybackFullControlsViewModel: ObservableObject {
   let playerManager: PlayerManager
 

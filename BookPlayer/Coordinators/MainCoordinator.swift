@@ -175,13 +175,13 @@ class MainCoordinator: NSObject {
       .store(in: &disposeBag)
   }
 
-  func loadPlayer(_ relativePath: String, autoplay: Bool, showPlayer: Bool) {
+  func loadPlayer(_ relativePath: String, intent: PlayIntent, showPlayer: Bool) {
     Task { @MainActor in
       let alertPresenter: AlertPresenter = self
       do {
         try await AppServices.shared.coreServices?.playerLoaderService.loadPlayer(
           relativePath,
-          autoplay: autoplay
+          intent: intent
         )
         if showPlayer {
           self.showPlayer()

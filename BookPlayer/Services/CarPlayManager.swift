@@ -96,7 +96,7 @@ class CarPlayManager: NSObject {
       do {
         try await coreServices.playerLoaderService.loadPlayer(
           lastItem.relativePath,
-          autoplay: false,
+          intent: .idle,
           recordAsLastBook: false
         )
       } catch {

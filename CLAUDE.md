@@ -377,35 +377,96 @@ CarPlay event bus. Declared in `Shared/Extensions/Notification+BookPlayerKit.swi
 
 ---
 
-## Player · audio · sleep timer — `BookPlayer/Player/`
+## Player · audio · sleep timer — `Shared/Player/`
 
-`PlayerManager.swift` is `final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject` (~1500
-lines). It is the highest-risk file in the app.
+`PlayerManager.swift` is `@MainActor public final class PlayerManager: NSObject, @preconcurrency
+PlayerManagerProtocol, ObservableObject` (~2000 lines), in both Kits: the phone and the watch play through the same
+core. It is the highest-risk file in the app. The load, the engine and every callback into them run on the main
+actor. The protocol, shared with the widget, stays nonisolated until rework PR 6c, and the four skip-interval statics
+are `nonisolated`.
 
-- **Exactly one `AVPlayer` at a time** (`var audioPlayer`). It is **recreated** via `setupPlayerInstance()` on
-  `mediaServicesWereReset` and on `.failed` status. Recreation must re-add the 1-second periodic time observer
-  (removed first, or it leaks onto an orphaned player) and re-bind the time-control passthrough.
+- **What each app supplies, behind `PlayerPlatform`** (`PhonePlayerPlatform` in the app target,
+  `WatchPlayerPlatform` in the watch app): starting and ending the audio session; whether folder progress waits
+  (the phone in the background, the watch always); the artwork for a book without a cover (the theme-coloured
+  default on the phone, none on the watch); shake to resume (the phone only); and the autoplay settings (the phone's
+  Settings › Autoplay, off while unset; the watch autoplays unless its player's toggle is off and always restarts
+  finished books). The Kits are extension-safe only, so `UIApplication`, `ThemeManager`, Sentry and
+  `ShakeMotionService` stay out of them. The watch passes `hasStreamingEnabled: { false }` (a media-server book
+  plays its cloud copy there), and its `presentFailure` fills the player screen's alert (`PlaybackErrorPresenter`,
+  with the phone's wording).
+- **Only the public API leaves the Kit.** The engine-taking initializer and `PlaybackEngine` are internal; tests
+  reach them through `@testable import BookPlayerKit`.
+
+- **Only the engine and the video surfaces touch `AVPlayer`.** `PlayerManager` drives playback through
+  `PlaybackEngine` (`AVPlayerEngine`): items (`load(_ asset:events:)`, `unload()`), play, pause, rate, seeks, the
+  clock, volume, the periodic and boundary time observers and the status publisher. A load reports `.ready` or
+  `.failed` once, then `.ended`, on the main queue and never before `load` returns, and only for the engine's own
+  item; cancelling or releasing its `EngineLoad` stops them. The engine makes **exactly one `AVPlayer` at a time** and replaces it with `rebuild()` on
+  `mediaServicesWereReset` and on `.failed`; it moves its time observers to the new player and keeps
+  `statusPublisher` the same, so subscribers survive. After a reset `PlayerManager` also drops the loaded item, which
+  the new player doesn't have, so the next play loads it again. Video gets the player from `getAVPlayer()`
+  (`engine.videoPlayer`) and re-attaches on view updates.
+- **SharePlay is an iOS app adapter**, `SharePlayPlaybackCoordination`, passed to the Kit through the
+  iOS-only `PlaybackCoordinating` seam. The engine retains it, gives it only its
+  `AVPlayerPlaybackCoordinator`, and reapplies it after every rebuild. GroupActivities, the session and
+  `BookFingerprint` stay in the app; neither shared Kit imports those app types. Content identity is
+  snapshotted on main before attachment, item loads and book-metadata replacement; the nonisolated AVFoundation
+  delegate reads only precomputed strings from a locked weak-key map, never the mutable book, manager or asset. The manager follows the
+  engine's persistent status publisher to restore audio after a remote resume, without calling `play()`
+  or rearming the remembered sleep timer. Group rates remain session-only and Smart Rewind is skipped
+  while coordinated. A session's pinned identity applies only to its matched item, with file ordinals for
+  bound books; switching to another book leaves the session.
 - **Named single-purpose cancellables**, each `.cancel()`'d before rebind (distinct from the multi-sink
-  `disposeBag`): `timeControlSubscription` (bridges the recreatable player's `timeControlStatus` into a stable
-  `CurrentValueSubject` so `isPlaying` observers survive recreation), `playableChapterSubscription`,
-  `isPlayingSubscription`, `nowPlayingClaimSubscription`. Match this pattern; don't convert a named rebind-able
-  subscription into a `disposeBag` entry.
+  `disposeBag`): `playableChapterSubscription`, `isPlayingSubscription`, `nowPlayingClaimSubscription`. Match this
+  pattern; don't convert a named rebind-able subscription into a `disposeBag` entry.
 - **Invariant — every `currentItem` reassignment must be followed by `bindPlayableChapterSubscription`** (3 call
   sites: `load`, `loadRemoteURLAsset`, `reloadCurrentItem`). Missing it silently breaks the end-of-chapter sleep
   timer and the Now Playing chapter title (the `.chapterChange` notification is posted from that sink).
-- **KVO on `AVPlayerItem.status`** is balanced via `observeStatus` didSet + a `hasObserverRegistered` guard;
-  nulling the player item resets the guard. An imbalance crashes on `removeObserver`.
-- **Invariant — every `PlayerManager` seek goes through `seekPlayer(to:recoveries:)`**, never `audioPlayer.seek`
+- **One `ItemLoad` state says how far the chapter file got:** `.empty`, `.resolving(chapter, task)` (finding a cloud
+  URL, a media server's stream or a cloud file's metadata, `resolveAsset(for:forceRefresh:)`), `.loading(chapter,
+  EngineLoad)`, `.ready(chapter, EngineLoad)`, `.failed(chapter)`. Leaving a state cancels what it holds (its
+  `didSet`), except a resolve handing its file to the engine and a load becoming ready. A play reloads the book on
+  `.empty`/`.failed` (and on a stream that failed after it was ready), waits on this chapter's file resolving or
+  loading, loads this chapter's file when the state holds another, and plays on `.ready`. A pause cancels a resolve
+  (back to `.empty`) and lets an engine load finish silently; stop, a new book and a media-services reset go to
+  `.empty`. `RetryBudget` (one cloud-URL refresh, one stream retry) is refilled by every play asked for. The 1 s tick
+  only counts in `.ready`.
+- **Invariant — every `PlayerManager` seek goes through `seekPlayer(to:recoveries:)`**, never `engine.seek`
   directly. Until the latest seek completes, `clockState` is `.seeking` and `updateTime()` drops readings, which
   are still the position being left. Recording one makes a landing near the file start look like the iOS 27
   snap-back (`PlayerTimeSample`), and the clock recovery seeks back over it (GH #1641). The completion then runs
   `updateTime()` once: a paused player sends its only tick for the seek before it lands, so without that call the
   player screen and Now Playing keep the old position.
-- **AVAudioSession:** activated in `play()` (`.playback` / `.spokenAudio`); deactivated ~0.1s after `.paused`
-  (delay avoids clipping). Interruption observer is **kept** on `.began` (so `.ended`+`.shouldResume` can resume)
-  and removed on user pause/stop. `mediaServicesWereReset` re-applies the category and recreates the player.
-  **Session-activation failure `fatalError`s in production** (only downgraded to a Sentry capture on TestFlight) —
-  a real crash surface.
+- **Characterization tests pin load and playback** (`PlayerManagerCharacterizationTests`). They inject
+  `ControlledPlayer` / `ControlledPlayerItem` (`BookPlayerTests/Support/PlayerTestDoubles.swift`) through the
+  `engine` init parameter (an `AVPlayerEngine(makePlayer:makePlayerItem:)`), and every test ends checking each item's
+  `status` observers were added and removed in pairs. Known bugs are asserted correct inside `XCTExpectFailure`; a fix makes
+  that expectation fail, so remove it in the same change.
+- **Chapter ends are observed, not polled.** When a file reaches the player, `observeChapterEnds(inFileOf:)`
+  registers engine boundary observers at the ends of the chapters in that file, all but its last, which
+  `playerDidFinishPlaying` takes. With the end-of-chapter timer on, a crossing (`handleChapterEnd`) saves the next
+  chapter's start plus 10 ms (`chapterParkLead`), moves `currentChapter` (which ends the timer and pauses) and parks
+  there with a **precise** seek. Exactly on the start is a tie: `start + duration` can round past the next start, so
+  a book rebuilt from the saved time reopens in the ended chapter, and a precise seek reads back up to 1 ns early; a
+  default seek can land milliseconds early. Any of those makes the resume cross the end again (GH #1486). AVPlayer
+  also reports a crossing when playback starts exactly on a boundary (after Smart Rewind back to a chapter's start),
+  so `handleChapterEnd` acts only while `currentChapter` is still the chapter that ended; re-setting `currentChapter`
+  publishes again and would end the re-armed timer at once. Smart Rewind skips rewinds under 0.1 s, and
+  `reloadCurrentItem` re-registers the ends. Chapter titles still follow the 1 s tick.
+- **Every play says who asked for it.** `load(_:intent:)` and `loadPlayer(_:intent:)` take a `PlayIntent`
+  (`.idle` or `.wantsToPlay(.user / .system)`), and the origin is kept through the load. Only a user play arms the
+  remembered sleep timer (`handleAutoTimer`), which restarts a running countdown; a start the system makes (the next
+  book, an interruption ending, a sync reload, the CarPlay Now Playing claim) passes `.system`. A user play on a
+  finished book that is still loaded (the player at its end) starts it over from the first chapter; a system play
+  leaves it at the end.
+- **AVAudioSession:** activated in `play()` through the platform (`.playback` / `.spokenAudio`; the watch adds
+  `.longFormAudio` and awaits `activate()`, which shows the route picker until Bluetooth headphones are chosen);
+  deactivated through the platform ~0.1s after `.paused` (delay avoids clipping). An activation that finishes after
+  its play was cancelled (a pause during the watch's picker, whose deactivation already ran) deactivates again.
+  Interruption observer is **kept** on `.began` (so `.ended`+`.shouldResume` can resume) and removed on user
+  pause/stop. `mediaServicesWereReset` re-applies the category and recreates the player.
+  **Session-activation failure `fatalError`s in production on the phone** (only downgraded to a Sentry capture on
+  TestFlight) — a real crash surface. On the watch a failure shows the error and the play goes on.
 - **Background task pairing** lives in `AppServices.loadAndKeepAlive(...)`:
   `beginBackgroundTask(withName: "streaming-playback")` must be matched by `endBackgroundTask` on **all three
   paths** — error, success, and the expiration handler — guarded by the `.invalid` sentinel to avoid a
@@ -417,7 +478,7 @@ lines). It is the highest-risk file in the app.
   Countdown uses a `Timer.publish` subscription; `.endOfChapter` observes `.chapterChange`/`.bookEnd`. `reset()`
   cancels the subscription and removes observers, and `setTimer` always resets first. It emits three publishers
   consumed by `PlayerManager` (threshold volume-fade, end→pause, turned-on→`.sleep` bookmark; shake-to-resume via
-  `ShakeMotionService`).
+  `PlayerPlatform`, `ShakeMotionService` on iOS, none on the watch).
 - **Playback suggestions** (what the Lock Screen, Control Center and Home app offer while nothing plays) come only
   from SiriKit media; App Intents, iOS 27's `.audio` schemas included, has no equivalent. `MediaSuggestionsController`
   (app target, owned by `AppServices`) donates an `INPlayMediaIntent` when a book starts (`.bookPlayed`, once per
@@ -659,7 +720,7 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
     volume's books share it), never ahead of time. It plays `api/items/{id}/file/{ino}` relative to the saved
     URL, token in the header. Time limits: 5 s on playback (an unreachable server falls through to the cloud
     copy), 30 s for downloads. Only a 401 is an expired session (its own `PlaybackFailure.Reason`, said only for
-    a play the user started and when no cloud copy plays the book); a 403 means this user can't open that item.
+    a play that was asked for or one under way, and when no cloud copy plays the book); a 403 means this user can't open that item.
   - **Multi-file items import as volumes** (`LibraryService.createExternalVolume`): a bound folder named after
     the title holding the link, one book per file named by its flattened path
     (`MediaServerFileNames.volumeChildFileNames`). The books have no link of their own: playback

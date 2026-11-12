@@ -8,7 +8,7 @@
 
 import Foundation
 
-enum BPPlayerError: Error {
+public enum BPPlayerError: Error {
   case fileMissing(relativePath: String)
 }
 

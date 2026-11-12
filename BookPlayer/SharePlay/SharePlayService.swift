@@ -125,7 +125,7 @@ final class SharePlayService: BPLogger {
     do {
       try await playerLoaderService.loadPlayer(
         match.relativePath,
-        autoplay: false,
+        intent: .idle,
         recordAsLastBook: false
       )
     } catch {
