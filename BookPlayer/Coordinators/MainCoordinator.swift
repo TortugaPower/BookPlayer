@@ -9,6 +9,7 @@
 import BookPlayerKit
 import Combine
 import RevenueCat
+import Sentry
 import SwiftUI
 import Themeable
 import UIKit
@@ -209,22 +210,81 @@ class MainCoordinator: NSObject {
   }
 
   func processFiles(urls: [URL]) {
-    let temporaryDirectoryPath = FileManager.default.temporaryDirectory.absoluteString
-    let documentsFolder = DataManager.getDocumentsFolderURL()
+    var filesToCopy = [URL]()
 
     for url in urls {
-      /// At some point (iOS 17?), the OS stopped sending the picked files to the Documents/Inbox folder, instead
-      /// it's now sent to a temp folder that can't be relied on to keep the file existing until the import is finished
-      if url.absoluteString.contains(temporaryDirectoryPath) {
-        let destinationURL = documentsFolder.appendingPathComponent(url.lastPathComponent)
-        if !FileManager.default.fileExists(atPath: destinationURL.path) {
-          try! FileManager.default.copyItem(at: url, to: destinationURL)
-          destinationURL.disableFileProtection()
-        }
-      } else {
+      if DataManager.isAppManagedSource(url) {
         importManager.process(url)
+      } else {
+        filesToCopy.append(url)
       }
     }
+
+    copyIntoDocuments(filesToCopy)
+  }
+
+  /// Files handed over from outside the app go into Documents now, as picked and dropped ones do, and the
+  /// Documents watcher queues the copy for import. The system's own copy sits in a temporary folder that
+  /// may not last until the import is done (since iOS 17?), and a file another app opened in place
+  /// (iCloud Drive, On My iPhone) can only be read while this URL's access is held. Off the main thread: a
+  /// file in iCloud Drive that isn't downloaded yet downloads before the copy. A file that can't be copied
+  /// is left out, with no alert: the import screen shows what is really imported. Sentry still gets it.
+  private func copyIntoDocuments(_ urls: [URL]) {
+    guard !urls.isEmpty else { return }
+
+    let documentsFolder = DataManager.getDocumentsFolderURL()
+
+    Task.detached(priority: .userInitiated) {
+      for url in urls {
+        do {
+          try MainCoordinator.copyFile(url, into: documentsFolder)
+        } catch {
+          SentrySDK.capture(error: error) { scope in
+            scope.setContext(value: [
+              "source": url.path,
+              "destination": documentsFolder.appendingPathComponent(url.lastPathComponent).path
+            ], key: "import")
+          }
+        }
+      }
+    }
+  }
+
+  /// Copies a file handed over from outside the app into `folder`, unless a file of that name is already
+  /// there. Blocks until the copy is done.
+  nonisolated static func copyFile(_ url: URL, into folder: URL) throws {
+    let accessGranted = url.startAccessingSecurityScopedResource()
+    defer {
+      if accessGranted { url.stopAccessingSecurityScopedResource() }
+    }
+
+    let destinationURL = folder.appendingPathComponent(url.lastPathComponent)
+    guard !FileManager.default.fileExists(atPath: destinationURL.path) else { return }
+
+    // Copied into a folder of its own first and moved in whole. The Documents watcher reports a file once
+    // its size stops changing, which a copy stalled on a slow source (a download, a network drive) would fake.
+    let stagingFolder = FileManager.default.temporaryDirectory
+      .appendingPathComponent(UUID().uuidString, isDirectory: true)
+    defer { try? FileManager.default.removeItem(at: stagingFolder) }
+
+    try FileManager.default.createDirectory(at: stagingFolder, withIntermediateDirectories: true)
+    let stagedURL = stagingFolder.appendingPathComponent(url.lastPathComponent)
+
+    // A coordinated read has the file's provider (iCloud Drive, another app's storage) download it first and
+    // waits for it. A plain read of a file that isn't downloaded yet times out on a slow download.
+    var coordinationError: NSError?
+    var copyError: Error?
+    NSFileCoordinator().coordinate(readingItemAt: url, options: .withoutChanges, error: &coordinationError) { readURL in
+      do {
+        try FileManager.default.copyItem(at: readURL, to: stagedURL)
+      } catch {
+        copyError = error
+      }
+    }
+    if let error = coordinationError ?? copyError { throw error }
+
+    try FileManager.default.moveItem(at: stagedURL, to: destinationURL)
+    destinationURL.disableFileProtection()
   }
 }
 
