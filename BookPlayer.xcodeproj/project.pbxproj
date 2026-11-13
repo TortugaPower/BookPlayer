@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		84605C3CE34C41365FBD49FE /* PlayerControlsViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9970C339FBF5BE1DDA9874B8 /* PlayerControlsViewModelTests.swift */; };
+		9C5E6F67C0E67ABAE3A1D498 /* PhoneWatchConnectivityServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B262CE8950E6E778279016C2 /* PhoneWatchConnectivityServiceTests.swift */; };
 		D85B7285AB6D97A2751025E2 /* PlaybackErrorPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BACD9D14AE87FF19FAA75BD /* PlaybackErrorPresenter.swift */; };
 		1489CB59F05395D2324FA865 /* WatchPlayerPlatform.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F677104C2F59B4769F77508 /* WatchPlayerPlatform.swift */; };
 		32D9BAF0FC67D3432D92763D /* PlayerPlatform.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52E3D2B7BA665833A9CE2FD3 /* PlayerPlatform.swift */; };
@@ -168,6 +170,7 @@
 		4163E313214AC43000072AA2 /* ImportOperationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4163E312214AC43000072AA2 /* ImportOperationTests.swift */; };
 		28EEB2588DE468A6B8C15272 /* RefreshTaskOperationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65962B5F03D221629A83C22C /* RefreshTaskOperationTests.swift */; };
 		3EBBB264D481A0F2DF48763E /* ListSyncRefreshServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 098A98893A8783E8BE1C5420 /* ListSyncRefreshServiceTests.swift */; };
+		E09F01272E54DE3E5DDA39BD /* SleepTimerIntentTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CA6C96817A7363C468C0305 /* SleepTimerIntentTests.swift */; };
 		A64308C416AABB27C66476A5 /* SleepTimerOptionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 288AB833FD0408AF95443752 /* SleepTimerOptionTests.swift */; };
 		B843F82DBB21978E66CC52BE /* SleepTimerOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = F272F6B4BD466581AA888D36 /* SleepTimerOption.swift */; };
 		CD5F28377EB6CA3A6D28FCAE /* TimeListenedConfigurationIntent.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5B7EA50469723CE6626EB2A /* TimeListenedConfigurationIntent.swift */; };
@@ -1199,6 +1202,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		9970C339FBF5BE1DDA9874B8 /* PlayerControlsViewModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayerControlsViewModelTests.swift; sourceTree = "<group>"; };
+		B262CE8950E6E778279016C2 /* PhoneWatchConnectivityServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneWatchConnectivityServiceTests.swift; sourceTree = "<group>"; };
 		0BACD9D14AE87FF19FAA75BD /* PlaybackErrorPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaybackErrorPresenter.swift; sourceTree = "<group>"; };
 		8F677104C2F59B4769F77508 /* WatchPlayerPlatform.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchPlayerPlatform.swift; sourceTree = "<group>"; };
 		9BD87531B9ABC0C9D654C2BF /* PhonePlayerPlatform.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhonePlayerPlatform.swift; sourceTree = "<group>"; };
@@ -1224,6 +1229,7 @@
 		22E85F55E03D1981F097661C /* PKCE.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PKCE.swift; sourceTree = "<group>"; };
 		2621E11ACFA5162D6D14CB7C /* MediaServerProgressPushTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MediaServerProgressPushTests.swift; sourceTree = "<group>"; };
 		269BB56618B150DCAA2CA5FB /* IntegrationConnectionStoreTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = IntegrationConnectionStoreTests.swift; sourceTree = "<group>"; };
+		7CA6C96817A7363C468C0305 /* SleepTimerIntentTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepTimerIntentTests.swift; sourceTree = "<group>"; };
 		288AB833FD0408AF95443752 /* SleepTimerOptionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepTimerOptionTests.swift; sourceTree = "<group>"; };
 		2AF448F75392B02FC5451289 /* SortIntegrationHarness.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SortIntegrationHarness.swift; sourceTree = "<group>"; };
 		2BB8BD2F5EC900DC51D5D02D /* IntegrationConnectionDataDecodingTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = IntegrationConnectionDataDecodingTests.swift; sourceTree = "<group>"; };
@@ -2658,6 +2664,7 @@
 				C8CAECAA7A5A1C6B83EF00EF /* ArtworkServiceLegacyCacheTests.swift */,
 				41C3CF7D20AEA5E5007C3EF4 /* DataManagerTests.swift */,
 				9F8A9A5D27AC3F8C0093AA1C /* PlayableItemTests.swift */,
+				7CA6C96817A7363C468C0305 /* SleepTimerIntentTests.swift */,
 				288AB833FD0408AF95443752 /* SleepTimerOptionTests.swift */,
 				689E2BCD29DC1D9253949A53 /* PlayableChapterTests.swift */,
 				9FB7C48C2835A2C1003B917E /* PlayerManagerTests.swift */,
@@ -3558,6 +3565,7 @@
 		69343D34213A079B000C425E /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				B262CE8950E6E778279016C2 /* PhoneWatchConnectivityServiceTests.swift */,
 				69343D35213A07B4000C425E /* VoiceOverServiceTest.swift */,
 				6906A54F21720FDF00A9E0B2 /* BookSortServiceTest.swift */,
 				62AAE230274ABB5D001EB9FF /* LibraryServiceTests.swift */,
@@ -3592,6 +3600,7 @@
 		730EC9788E81A550CC46D98C /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
+				9970C339FBF5BE1DDA9874B8 /* PlayerControlsViewModelTests.swift */,
 				6D0B3A0A85A80BE4BFD195A7 /* BookmarksViewModelTests.swift */,
 				32194561FB001A338C36005C /* ItemListViewModelTests.swift */,
 				F496A2BF4CBFFC745C453D42 /* ChaptersViewModelTests.swift */,
@@ -5479,6 +5488,9 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				84605C3CE34C41365FBD49FE /* PlayerControlsViewModelTests.swift in Sources */,
+				9C5E6F67C0E67ABAE3A1D498 /* PhoneWatchConnectivityServiceTests.swift in Sources */,
+				E09F01272E54DE3E5DDA39BD /* SleepTimerIntentTests.swift in Sources */,
 				A64308C416AABB27C66476A5 /* SleepTimerOptionTests.swift in Sources */,
 				E79345DD00DC64A0F7E0939A /* SleepTimerOption.swift in Sources */,
 				9F1C30FC2A2E593300D5BC81 /* PlayableItemMock.swift in Sources */,

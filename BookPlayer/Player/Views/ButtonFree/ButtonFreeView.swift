@@ -145,6 +145,7 @@ struct ButtonFreeView: View {
 }
 
 extension ButtonFreeView {
+  @MainActor
   class Model: ObservableObject {
     func playPause() -> String? { return "play" }
     func rewind() -> String? { return "rewind" }

@@ -228,6 +228,10 @@ first. Reordering boot risks a launch crash.
   `AppDependencyManager.shared.add(...)` in `setupCoreServices()`. The **extension** targets consume them with
   `@Dependency` (under `#if !MAIN_APP`); the **main app** instead resolves via
   `await AppServices.shared.awaitCoreServices()`. A new `@Dependency` type must be `add()`-ed or intents trap.
+  **Every App Intent's `perform()` is `@MainActor`, and so are `BookEntityQuery`'s methods** (Siri's book lookup
+  and the Shortcuts picker). The system calls them from the cooperative pool, and they read and write Core Data's
+  view context and set `SleepTimer.shared`, whose publishers make the player write its sleep bookmark: off main,
+  those crashed in `saveContext` and in the bookmark writes.
 
 ### Coordinators — `BookPlayer/Coordinators/`
 
@@ -262,6 +266,9 @@ CarPlay event bus. Declared in `Shared/Extensions/Notification+BookPlayerKit.swi
 
 - **`PlayerManager` is the dominant publisher** of playback events; `PhoneWatchConnectivityService` and
   `CarPlayManager` are the dominant cross-target subscribers; `AccountService` is the auth/account hub.
+  `PhoneWatchConnectivityService` is `@MainActor`: WatchConnectivity calls its delegate on a queue of its own, so
+  each `WCSessionDelegate` method is `nonisolated` and hops to main before reading the library, the account or the
+  player.
 - **`.logout`** (posted by `AccountService.logout()`) fans out teardown to `SyncService`,
   `PreferencesSyncService`, and Watch/Profile views. **`.accountUpdate`** propagates subscription state.
 - Because these names cross target/process boundaries, **renaming a name or its raw string silently breaks
@@ -381,11 +388,11 @@ CarPlay event bus. Declared in `Shared/Extensions/Notification+BookPlayerKit.swi
 
 ## Player · audio · sleep timer — `Shared/Player/`
 
-`PlayerManager.swift` is `@MainActor public final class PlayerManager: NSObject, @preconcurrency
-PlayerManagerProtocol, ObservableObject` (~2000 lines), in both Kits: the phone and the watch play through the same
-core. It is the highest-risk file in the app. The load, the engine and every callback into them run on the main
-actor. The protocol, shared with the widget, stays nonisolated until rework PR 6c, and the four skip-interval statics
-are `nonisolated`.
+`PlayerManager.swift` is `@MainActor public final class PlayerManager: NSObject, PlayerManagerProtocol,
+ObservableObject` (~2000 lines), in both Kits: the phone and the watch play through the same core. It is the
+highest-risk file in the app. The load, the engine and every callback into them run on the main actor, and so does
+`PlayerManagerProtocol`, which every caller (the widget and the App Intents included) reaches from the main actor.
+The four skip-interval statics are `nonisolated`.
 
 - **What each app supplies, behind `PlayerPlatform`** (`PhonePlayerPlatform` in the app target,
   `WatchPlayerPlatform` in the watch app): starting and ending the audio session; whether folder progress waits

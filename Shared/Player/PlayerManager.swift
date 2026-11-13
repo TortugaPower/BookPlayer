@@ -13,10 +13,10 @@ import MediaPlayer
 
 // swiftlint:disable:next file_length
 
-/// Main-actor isolated: the load, the engine and every callback into them run on main. The protocol stays
-/// nonisolated until rework PR 6c. What the app supplies comes through `PlayerPlatform`
+/// Main-actor isolated, like `PlayerManagerProtocol`: the load, the engine and every callback into them run on
+/// main. What the app supplies comes through `PlayerPlatform`
 @MainActor
-public final class PlayerManager: NSObject, @preconcurrency PlayerManagerProtocol, ObservableObject {
+public final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObject {
   private let libraryService: LibraryServiceProtocol
   private let playbackService: PlaybackServiceProtocol
   /// Narrow read of the streaming entitlement (pro or lite), not the whole account
@@ -185,7 +185,7 @@ public final class PlayerManager: NSObject, @preconcurrency PlayerManagerProtoco
 
   /// Runs `body` on the main actor: right away when already on main, so a change made there takes effect in
   /// that same turn (the end-of-chapter timer pausing as the chapter changes), otherwise on main's next turn
-  /// (Siri and Shortcuts set the sleep timer off main, and AVAudioSession doesn't promise main)
+  /// (AVAudioSession doesn't promise main; the sleep timer is set on main, the App Intents included)
   nonisolated private static func onMain(_ body: @escaping @MainActor () -> Void) {
     if Thread.isMainThread {
       MainActor.assumeIsolated(body)

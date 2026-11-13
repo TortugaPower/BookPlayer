@@ -180,6 +180,7 @@ struct BookmarksView: View {
 }
 
 extension BookmarksView {
+  @MainActor
   class Model: ObservableObject {
     @Published var automaticBookmarks = [SimpleBookmark]()
     @Published var userBookmarks = [SimpleBookmark]()

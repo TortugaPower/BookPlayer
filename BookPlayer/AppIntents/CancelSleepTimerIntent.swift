@@ -14,6 +14,7 @@ import BookPlayerKit
 struct CancelSleepTimerIntent: AppIntent {
   static var title: LocalizedStringResource = "intent_sleeptimer_cancel"
 
+  @MainActor
   func perform() async throws -> some IntentResult {
     SleepTimer.shared.setTimer(.off)
     return .result()
