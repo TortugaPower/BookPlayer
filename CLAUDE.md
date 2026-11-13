@@ -768,7 +768,8 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
   opens in place (iCloud Drive, On My iPhone) travels as the URL the system handed over (`Action.fileURL`; one
   rebuilt from its path can't read it) to `MainCoordinator.processFiles`, which copies it off the main thread
   along with the system's temporary-folder copies (`copyFile(_:into:)`: a coordinated read, so iCloud Drive and
-  other providers download the file first, staged in `tmp` and moved into Documents whole).
+  other providers download the file first, staged in `tmp` and moved into Documents whole). A file that fails to
+  copy is left out with no alert (the import screen shows what is really imported) and reported to Sentry.
   `ImportOperation` (async `Operation`, thread-safe via a
   barrier `lockQueue`) detects folder organization, handles zip/lpf (SSZipArchive), collision-safe-copies into the
   Processed folder, and uses balanced `start/stopAccessingSecurityScopedResource`. **A copy failure

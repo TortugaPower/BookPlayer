@@ -9,6 +9,7 @@
 import BookPlayerKit
 import Combine
 import RevenueCat
+import Sentry
 import SwiftUI
 import Themeable
 import UIKit
@@ -226,18 +227,24 @@ class MainCoordinator: NSObject {
   /// Documents watcher queues the copy for import. The system's own copy sits in a temporary folder that
   /// may not last until the import is done (since iOS 17?), and a file another app opened in place
   /// (iCloud Drive, On My iPhone) can only be read while this URL's access is held. Off the main thread: a
-  /// file in iCloud Drive that isn't downloaded yet downloads before the copy.
+  /// file in iCloud Drive that isn't downloaded yet downloads before the copy. A file that can't be copied
+  /// is left out, with no alert: the import screen shows what is really imported. Sentry still gets it.
   private func copyIntoDocuments(_ urls: [URL]) {
     guard !urls.isEmpty else { return }
 
     let documentsFolder = DataManager.getDocumentsFolderURL()
 
-    Task.detached(priority: .userInitiated) { [weak self] in
+    Task.detached(priority: .userInitiated) {
       for url in urls {
         do {
           try MainCoordinator.copyFile(url, into: documentsFolder)
         } catch {
-          await self?.showAlert("error_title".localized, message: error.localizedDescription)
+          SentrySDK.capture(error: error) { scope in
+            scope.setContext(value: [
+              "source": url.path,
+              "destination": documentsFolder.appendingPathComponent(url.lastPathComponent).path
+            ], key: "import")
+          }
         }
       }
     }
