@@ -18,6 +18,7 @@ struct CoreServices {
   let playerLoaderService: PlayerLoaderService
   let playerManager: PlayerManager
   let preferencesService: PreferencesSyncService
+  let sharePlayService: SharePlayService
   let syncService: SyncService
   let syncQueueService: SyncQueueService
   let mediaServerChapterService: MediaServerChapterRefreshService

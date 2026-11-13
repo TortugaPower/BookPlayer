@@ -64,10 +64,30 @@ final class EngineLoad {
   }
 }
 
+#if os(iOS)
+/// App-owned group coordination. The engine exposes only AVFoundation's coordinator, not
+/// its player; GroupActivities and the activity's content identity stay in the iOS app.
+@MainActor
+public protocol PlaybackCoordinating: AnyObject {
+  /// Captures this item's content identity on main before AVFoundation may ask for it off main.
+  func prepareForPlayback(of playerItem: AVPlayerItem?)
+  func coordinate(_ coordinator: AVPlayerPlaybackCoordinator)
+  func stopCoordinating(_ coordinator: AVPlayerPlaybackCoordinator)
+  /// Restores the audio session when the group resumes without a local play command.
+  func activateAudioSession()
+}
+#endif
+
 /// Drives playback of one item at a time. `PlayerManager` talks only to this: only an
 /// implementation and the video surfaces touch `AVPlayer`.
 @MainActor
 protocol PlaybackEngine: AnyObject {
+  #if os(iOS)
+  /// Held across rebuilds, and detached when cleared or replaced.
+  var playbackCoordination: PlaybackCoordinating? { get set }
+  /// Refreshes the identity after book metadata changes without replacing the player item.
+  func refreshPlaybackCoordination()
+  #endif
   /// The same publisher for the engine's whole life, across rebuilds
   var statusPublisher: AnyPublisher<EngineStatus, Never> { get }
   var status: EngineStatus { get }
