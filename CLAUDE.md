@@ -78,7 +78,9 @@ SiriKit **media** (`INPlayMediaIntent`) is still SiriKit, handled in the app (se
 RevenueCat (`purchases-ios`, ~5.78), Sentry (`sentry-cocoa`, **exact 8.36.0**), Kingfisher (~8.10),
 JellyfinAPI (`jellyfin-sdk-swift`, ~1.0), Get (~2.2), MarqueeLabel (~4.0.5), DeviceKit (~5.1),
 IDZSwiftCommonCrypto (~0.13.1), Themeable (~3.0), ZipArchive (~2.3), DirectoryWatcher (~2.8.6),
-BrowserDrop (`TortugaPower/SwiftBrowserDrop`, ~2.0; the Transfer from Computer server).
+BrowserDrop (`TortugaPower/SwiftBrowserDrop`, ~2.0; the Transfer from Computer server), Tar
+(`kateinoigakukun/swift-tar`, pinned to a revision as it has no tags; extracts `.tar`/`.tgz` imports, gzip is
+read through Apple Archive's `decompressionStream`).
 `BlurHashDecode.swift` is vendored (SwiftLint-excluded). RevenueCat + Kingfisher link into the **frameworks**;
 most others link into the **app**. JellyfinAPI and Get link into the app, both frameworks and `BookPlayerTests`, so
 Xcode builds each as one dynamic `…_PackageProduct.framework` that the app embeds: one copy of their types (an

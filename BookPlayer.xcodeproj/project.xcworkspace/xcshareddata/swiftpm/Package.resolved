@@ -1,5 +1,5 @@
 {
-  "originHash" : "3f1ce053f28ca579cd10f1de96200c41c8414098e0d3c0e5e4eb609b7794dd1b",
+  "originHash" : "729c3f6c7537b0c94aac4b5e8fb8dbe44f1be45d1600963ce61be2eadece6083",
   "pins" : [
     {
       "identity" : "devicekit",
@@ -80,6 +80,14 @@
       "state" : {
         "revision" : "5575af93efb776414f243e93d6af9f6258dc539a",
         "version" : "8.36.0"
+      }
+    },
+    {
+      "identity" : "swift-tar",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/kateinoigakukun/swift-tar",
+      "state" : {
+        "revision" : "f02d2b94452e2363bfdc56094f26c7450205c23e"
       }
     },
     {

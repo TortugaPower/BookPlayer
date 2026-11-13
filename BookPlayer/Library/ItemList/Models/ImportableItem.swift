@@ -21,6 +21,8 @@ struct ImportableItem: Transferable {
     FileRepresentation(importedContentType: .audio, importing: moveToDocuments)
     FileRepresentation(importedContentType: .movie, importing: moveToDocuments)
     FileRepresentation(importedContentType: .zip, importing: moveToDocuments)
+    FileRepresentation(importedContentType: .tarArchive, importing: moveToDocuments)
+    FileRepresentation(importedContentType: .gzip, importing: moveToDocuments)
   }
 
   /// Under the name it had. Something of that name already there (a file still being imported, or a

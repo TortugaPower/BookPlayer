@@ -6,10 +6,13 @@
 //  Copyright © 2018 BookPlayer LLC. All rights reserved.
 //
 
+import AppleArchive
 import BookPlayerKit
 import Foundation
 import IDZSwiftCommonCrypto
 import Sentry
+import System
+import Tar
 import ZipArchive
 
 /// Reference: https://www.avanderlee.com/swift/asynchronous-operations/
@@ -109,7 +112,12 @@ public class ImportOperation: Operation {
   }
 
   func handleZip(file: URL, remainingFiles: [URL]) {
-    self.suggestedFolderName = file.deletingPathExtension().lastPathComponent
+    var name = file.deletingPathExtension()
+    // "Book.tar.gz" suggests "Book", not "Book.tar"
+    if file.pathExtension.lowercased() == "gz", name.pathExtension.lowercased() == "tar" {
+      name = name.deletingPathExtension()
+    }
+    self.suggestedFolderName = name.lastPathComponent
 
     // Unzip to temporary directory
     let documentsURL = DataManager.getDocumentsFolderURL()
@@ -121,7 +129,17 @@ public class ImportOperation: Operation {
       create: true
     )
 
-    SSZipArchive.unzipFile(atPath: file.path, toDestination: tempDirectoryURL.path, progressHandler: nil) { _, success, error in
+    let extract: (@escaping (Bool) -> Void) -> Void = { completion in
+      if ["tar", "tgz", "gz"].contains(file.pathExtension.lowercased()) {
+        completion(Self.untarFile(at: file, to: tempDirectoryURL))
+      } else {
+        SSZipArchive.unzipFile(atPath: file.path, toDestination: tempDirectoryURL.path, progressHandler: nil) { _, success, _ in
+          completion(success)
+        }
+      }
+    }
+
+    extract { success in
       try? FileManager.default.removeItem(at: file)
 
       guard success else {
@@ -298,6 +316,41 @@ public class ImportOperation: Operation {
   }
 
   func shouldUnzip(_ file: URL) -> Bool {
-    return file.pathExtension == "zip" || file.pathExtension == "lpf"
+    return ["zip", "lpf", "tar", "tgz", "gz"].contains(file.pathExtension.lowercased())
+  }
+
+  /// Extracts a tar, gzipped or not (`.tgz`, `.tar.gz`), with swift-tar. It writes each file to disk as it
+  /// reads, and skips paths that would leave the destination. macOS's `._` metadata files are dropped.
+  static func untarFile(at source: URL, to destination: URL) -> Bool {
+    // Apple Archive recognizes gzip by itself, and passes a plain tar through unchanged
+    guard
+      let file = ArchiveByteStream.fileStream(
+        path: FilePath(source.path),
+        mode: .readOnly,
+        options: [],
+        permissions: []
+      ),
+      let input = ArchiveByteStream.decompressionStream(readingFrom: file)
+    else { return false }
+    defer {
+      try? input.close()
+      try? file.close()
+    }
+
+    do {
+      let configuration = TarExtractor(mergeMacMetadata: true, writeAppleDoubleSidecars: false)
+      var extractor = try configuration.streamingExtractor(to: destination.path)
+      var reader = TarReader(mergeMacMetadata: true)
+      var buffer = [UInt8](repeating: 0, count: 1 << 16)
+
+      while case let count = try buffer.withUnsafeMutableBytes({ try input.read(into: $0) }), count > 0 {
+        try extractor.consume(reader.append(buffer[..<count]))
+      }
+      try extractor.consume(reader.finish())
+      _ = try extractor.finish()
+      return true
+    } catch {
+      return false
+    }
   }
 }

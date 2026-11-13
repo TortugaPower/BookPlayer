@@ -571,6 +571,7 @@
 		63AD93DD2E3C7F5A0077E73A /* ProfileProCalloutSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63AD93DC2E3C7F5A0077E73A /* ProfileProCalloutSectionView.swift */; };
 		63AD93DF2E3C80B50077E73A /* ProfileSyncTasksSectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63AD93DE2E3C80B50077E73A /* ProfileSyncTasksSectionView.swift */; };
 		63AE44732E6161B60088668F /* DirectoryWatcher in Frameworks */ = {isa = PBXBuildFile; productRef = 63AE44722E6161B60088668F /* DirectoryWatcher */; };
+		5A7A2E0C2FF5000100C0FFEE /* Tar in Frameworks */ = {isa = PBXBuildFile; productRef = 5A7A2E0B2FF5000100C0FFEE /* Tar */; };
 		AF63FF5DBE1D839809595975 /* BrowserDrop in Frameworks */ = {isa = PBXBuildFile; productRef = 213243F8DE7EB7B54868D7C9 /* BrowserDrop */; };
 		63AE5A872E4C4329002531B8 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63AE5A862E4C4329002531B8 /* MainView.swift */; };
 		63AE5A8D2E4C59FE002531B8 /* AppHostingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63AE5A8C2E4C59FE002531B8 /* AppHostingViewController.swift */; };
@@ -2161,6 +2162,7 @@
 			files = (
 				41F1A204254B09C00043FCF3 /* Themeable in Frameworks */,
 				63AE44732E6161B60088668F /* DirectoryWatcher in Frameworks */,
+				5A7A2E0C2FF5000100C0FFEE /* Tar in Frameworks */,
 				AF63FF5DBE1D839809595975 /* BrowserDrop in Frameworks */,
 				41F1A20D254B0A0C0043FCF3 /* Sentry in Frameworks */,
 				41A1B0E7226E9BC500EA0400 /* BookPlayerKit.framework in Frameworks */,
@@ -4386,6 +4388,7 @@
 				41F1A227254B0C6C0043FCF3 /* ZipArchive */,
 				8A495CC52CC85D27001B4244 /* JellyfinAPI */,
 				63AE44722E6161B60088668F /* DirectoryWatcher */,
+				5A7A2E0B2FF5000100C0FFEE /* Tar */,
 				9907757F2FF33D5300E35FAE /* Get */,
 				213243F8DE7EB7B54868D7C9 /* BrowserDrop */,
 			);
@@ -4579,6 +4582,7 @@
 				9FE8188D2805BCE40089A41E /* XCRemoteSwiftPackageReference "purchases-ios" */,
 				8A495CC42CC8589F001B4244 /* XCRemoteSwiftPackageReference "jellyfin-sdk-swift" */,
 				63AE44712E6161B60088668F /* XCRemoteSwiftPackageReference "DirectoryWatcher" */,
+				5A7A2E0A2FF5000100C0FFEE /* XCRemoteSwiftPackageReference "swift-tar" */,
 				36A9F4BEB087DA6E3CDF1738 /* XCRemoteSwiftPackageReference "SwiftBrowserDrop" */,
 				990775752FF33BD700E35FAE /* XCRemoteSwiftPackageReference "Get" */,
 				9907757A2FF33C0C00E35FAE /* XCRemoteSwiftPackageReference "Kingfisher" */,
@@ -7300,6 +7304,14 @@
 				minimumVersion = 2.8.6;
 			};
 		};
+		5A7A2E0A2FF5000100C0FFEE /* XCRemoteSwiftPackageReference "swift-tar" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kateinoigakukun/swift-tar";
+			requirement = {
+				kind = revision;
+				revision = f02d2b94452e2363bfdc56094f26c7450205c23e;
+			};
+		};
 		8A495CC42CC8589F001B4244 /* XCRemoteSwiftPackageReference "jellyfin-sdk-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/jellyfin/jellyfin-sdk-swift.git";
@@ -7374,6 +7386,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 63AE44712E6161B60088668F /* XCRemoteSwiftPackageReference "DirectoryWatcher" */;
 			productName = DirectoryWatcher;
+		};
+		5A7A2E0B2FF5000100C0FFEE /* Tar */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5A7A2E0A2FF5000100C0FFEE /* XCRemoteSwiftPackageReference "swift-tar" */;
+			productName = Tar;
 		};
 		8A495CC52CC85D27001B4244 /* JellyfinAPI */ = {
 			isa = XCSwiftPackageProductDependency;

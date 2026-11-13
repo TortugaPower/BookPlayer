@@ -72,6 +72,8 @@
 			<key>LSItemContentTypes</key>
 			<array>
 				<string>com.pkware.zip-archive</string>
+				<string>public.tar-archive</string>
+				<string>org.gnu.gnu-zip-archive</string>
 			</array>
 		</dict>
 		<dict>
