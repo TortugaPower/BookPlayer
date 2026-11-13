@@ -772,8 +772,15 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
   copy is left out with no alert (the import screen shows what is really imported) and reported to Sentry.
   `ImportOperation` (async `Operation`, thread-safe via a
   barrier `lockQueue`) detects folder organization, handles zip/lpf (SSZipArchive), collision-safe-copies into the
-  Processed folder, and uses balanced `start/stopAccessingSecurityScopedResource`. **A copy failure
-  `SentrySDK.capture`s then `fatalError`s** — an intentional but real crash surface for bad imports. Book/folder
+  Processed folder (a taken name gets `-N`; a stem that would then pass the 255-byte name limit loses characters
+  from its middle, keeping its start and end), and uses balanced `start/stopAccessingSecurityScopedResource`. It
+  takes its files in a loop, an archive's items joining the end: a recursive call per file overflowed the operation
+  thread's stack on batches of a few hundred. **A copy failure `SentrySDK.capture`s then `fatalError`s** —
+  intentional (decided: the crash tells the user the batch isn't healthy), so fix what makes healthy batches fail
+  rather than removing it. `ImportManager` queues a file once by its resolved path (the folder watchers' `/var/…`
+  and the Files app's `/private/var/…` are one file). A file gone or unreadable when queued never reaches the import
+  screen, and one gone by the time Import is tapped is left out (checked at those two points only, not on every
+  change to the queue). Book/folder
   records are created via `LibraryService.createBook/createFolder`; artwork is extracted lazily by
   `ArtworkService`, not inline. App-managed source files are removed after copy.
   **The artwork cache** (`ArtworkService.cache`) is Kingfisher's disk cache in the App Group, keyed by the item's
