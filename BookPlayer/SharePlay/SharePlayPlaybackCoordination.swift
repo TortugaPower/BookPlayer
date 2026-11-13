@@ -1,5 +1,5 @@
 //
-//  SharePlayCoordinating.swift
+//  SharePlayPlaybackCoordination.swift
 //  BookPlayer
 //
 //  Created by dawsonamf on 6/28/26.
@@ -9,38 +9,13 @@
 import AVFoundation
 import BookPlayerKit
 import Foundation
-import GroupActivities
-
-/// iOS-only surface for handing SharePlay group sessions to the player.
-/// Lives outside `PlayerManagerProtocol` because that protocol is shared with
-/// the watch target, which has no GroupActivities support.
-@MainActor
-protocol SharePlayCoordinating: PlayerManagerProtocol {
-  /// `relativePath` is the local item matched to the session's book; coordination
-  /// is scoped to it so other content never reports the session's identity
-  func coordinatePlayback(with session: GroupSession<AudioBookActivity>, for relativePath: String)
-  func stopCoordinatingPlayback()
-}
-
-extension PlayerManager: SharePlayCoordinating {
-  func coordinatePlayback(with session: GroupSession<AudioBookActivity>, for relativePath: String) {
-    setPlaybackCoordination(SharePlayPlaybackCoordination(
-      contentIdentifier: session.activity.bookFingerprint.identifier,
-      relativePath: relativePath,
-      currentItem: { [weak self] in self?.currentItem },
-      coordinateSession: { $0.coordinateWithSession(session) }
-    ))
-  }
-
-  func stopCoordinatingPlayback() {
-    setPlaybackCoordination(nil)
-  }
-}
 
 /// Holds the session and its content identity in the app, not in either shared Kit.
 @MainActor
-final class SharePlayPlaybackCoordination: NSObject, PlaybackCoordinating, AVPlayerPlaybackCoordinatorDelegate {
+final class SharePlayPlaybackCoordination: NSObject, PlaybackCoordinating, AVPlayerPlaybackCoordinatorDelegate, BPLogger {
   private let contentIdentifier: String
+  /// The local item matched to the session's book; coordination is scoped to it so
+  /// other content never reports the session's identity
   private let relativePath: String
   private let currentItem: () -> PlayableItem?
   private let coordinateSession: (AVPlayerPlaybackCoordinator) -> Void
@@ -61,14 +36,8 @@ final class SharePlayPlaybackCoordination: NSObject, PlaybackCoordinating, AVPla
 
   func prepareForPlayback(of playerItem: AVPlayerItem?) {
     guard let playerItem else { return }
-    let item = currentItem()
-    let identifier: String
-    if let item, item.relativePath == relativePath {
-      identifier = groupContentIdentifier(contentIdentifier, for: playerItem, in: item)
-    } else {
-      identifier = item.map(BookFingerprint.init(from:))?.identifier
-        ?? (playerItem.asset as? AVURLAsset)?.url.absoluteString
-        ?? "bookplayer.shareplay.unidentified-content"
+    let identifier = currentItem().flatMap { item in
+      item.relativePath == relativePath ? groupContentIdentifier(contentIdentifier, for: playerItem, in: item) : nil
     }
     contentIdentity.update(identifier, for: playerItem)
   }
@@ -83,8 +52,17 @@ final class SharePlayPlaybackCoordination: NSObject, PlaybackCoordinating, AVPla
     coordinator.delegate = nil
   }
 
+  /// The session a play of ours gets from `PhonePlayerPlatform`, which may not start this one:
+  /// its failure is fatal, and the group can resume while the app is in the background.
+  /// A failure here is logged, and playback is left to the player.
   func activateAudioSession() {
-    try? AVAudioSession.sharedInstance().setActive(true)
+    do {
+      let audioSession = AVAudioSession.sharedInstance()
+      try audioSession.setCategory(.playback, mode: .spokenAudio, options: [])
+      try audioSession.setActive(true)
+    } catch {
+      Self.logger.error("Failed to activate the audio session for group playback: \(error)")
+    }
   }
 
   nonisolated func playbackCoordinator(
@@ -129,14 +107,24 @@ final class SharePlayPlaybackCoordination: NSObject, PlaybackCoordinating, AVPla
 private final class SharePlayContentIdentity: @unchecked Sendable {
   private let lock = NSLock()
   private let identifiers = NSMapTable<AVPlayerItem, NSString>(keyOptions: [.weakMemory, .objectPointerPersonality], valueOptions: .strongMemory)
+  /// What an item outside the session's book reports. This device's alone: no participant's content
+  /// matches it, another book with the same fingerprint as a group's included.
+  private let uncoordinatedIdentifier = "bookplayer.shareplay.uncoordinated." + UUID().uuidString
 
-  func update(_ identifier: String, for playerItem: AVPlayerItem) {
-    lock.withLock { identifiers.setObject(identifier as NSString, forKey: playerItem) }
+  /// `nil` for an item outside the session's book
+  func update(_ identifier: String?, for playerItem: AVPlayerItem) {
+    lock.withLock {
+      if let identifier {
+        identifiers.setObject(identifier as NSString, forKey: playerItem)
+      } else {
+        identifiers.removeObject(forKey: playerItem)
+      }
+    }
   }
 
   func identifier(for playerItem: AVPlayerItem) -> String {
     lock.withLock {
-      identifiers.object(forKey: playerItem) as String? ?? "bookplayer.shareplay.unidentified-content"
+      identifiers.object(forKey: playerItem) as String? ?? uncoordinatedIdentifier
     }
   }
 }

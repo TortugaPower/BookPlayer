@@ -603,6 +603,7 @@
 "shareplay_title" = "SharePlay";
 "shareplay_activity_title" = "Listen to \"%@\" together";
 "shareplay_book_subject_title" = "\"%@\" by %@";
+"shareplay_book_subject_no_author_title" = "\"%@\"";
 "shareplay_book_not_found_description" = "%@ isn't in your library yet. Import the same audiobook to listen together.";
 "shareplay_book_load_failed_description" = "%@ couldn't be loaded for SharePlay. Check that it's downloaded and try again.";
 "shareplay_leave_title" = "Leave SharePlay";

@@ -39,17 +39,12 @@ struct BookFingerprint: Codable, Hashable, Sendable {
 
 extension BookFingerprint {
   init(from item: PlayableItem) {
-    var seenFiles = Set<String>()
-    for chapter in item.chapters {
-      seenFiles.insert(chapter.relativePath)
-    }
-
     self.init(
       titleNormalized: Self.normalize(item.title),
       authorNormalized: Self.normalizeAuthor(item.author),
       durationRounded: item.duration.isFinite ? Int(item.duration.rounded()) : 0,
       chapterCount: item.chapters.count,
-      fileCount: max(seenFiles.count, 1)
+      fileCount: max(Set(item.chapters.map(\.relativePath)).count, 1)
     )
   }
 }

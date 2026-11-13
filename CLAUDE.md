@@ -19,7 +19,7 @@ The on-disk tree is deeply misleading. Before judging *where* code should live, 
 
 - **Main app source lives under the nested `BookPlayer/BookPlayer/`** directory: `Player/`, `Settings/`,
   `Profile/`, `Library/`, `Search/`, `Import/`, `Loading/`, `SecondOnboarding/`, `Coordinators/`, `Services/`,
-  `Utils/`, `AppIntents/`, and the media-server integrations `Jellyfin/`, `AudiobookShelf/`, `Hardcover/`.
+  `Utils/`, `AppIntents/`, `SharePlay/`, and the media-server integrations `Jellyfin/`, `AudiobookShelf/`, `Hardcover/`.
 - **The `BookPlayerKit` framework compiles the top-level `Shared/` folder.** The `BookPlayerKit/` directory
   itself only holds `BookPlayerKit.h` + `Info.plist`. Everything cross-target lives in `Shared/` and is `public`.
 - **`Shared/` is compiled into BOTH `BookPlayerKit` (iOS) and `BookPlayerWatchKit` (watchOS).** Every file in
@@ -177,19 +177,21 @@ first. Reordering boot risks a launch crash.
 
 - `@MainActor final class AppServices` with `static let shared` + `private init()`. Owns the async
   `setupCoreServicesTask`, the `DatabaseInitializer`, and a shared `PlayerState`.
-- `CoreServices` (`BookPlayer/Utils/CoreServices.swift`) is a struct of exactly **12 services**: `accountService`,
+- `CoreServices` (`BookPlayer/Utils/CoreServices.swift`) is a struct of exactly **13 services**: `accountService`,
   `syncQueueService`, `mediaServerChapterService` (`MediaServerChapterRefreshService`: fills in the chapters of
   streamed books that arrived through sync with none, for lite/pro accounts; `ListSyncRefreshService.syncList`
   drives it per level through the one-method `MediaServerChapterRefreshing` seam),
   `dataManager`, `hardcoverService`, `libraryService`, `playbackService`, `playerLoaderService`, `playerManager`,
-  `preferencesService` (`PreferencesSyncService`), `syncService`, `watchService` (`PhoneWatchConnectivityService`).
+  `preferencesService` (`PreferencesSyncService`), `sharePlayService` (`SharePlayService`: the SharePlay session,
+  its local book and the player's coordination), `syncService`, `watchService` (`PhoneWatchConnectivityService`).
 - **Two-step `init()` + `setup(...)` DI pattern:** services are created empty then configured, e.g.
   ```swift
   let service = LibraryService()
   service.setup(dataManager: dataManager, audioMetadataService: audioMetadataService)
   ```
   A new service should follow this pattern and be wired through `AppServices`/`CoreServices` — not instantiated
-  ad hoc in a view. (`PlayerManager` and `PhoneWatchConnectivityService` take everything via `init`.)
+  ad hoc in a view. (`PlayerManager`, `PhoneWatchConnectivityService` and `SharePlayService` take everything via `init`:
+  the last starts listening for sessions there, and has nothing to configure later.)
 - **Services → coordinators:** `CoreServices` is passed whole into `MainCoordinator.init(...)`, which also builds
   coordinator-scoped services (`ImportManager`, `ListSyncRefreshService`, `SingleFileDownloadService`,
   `JellyfinConnectionService`, `AudiobookShelfConnectionService`).
@@ -210,7 +212,7 @@ first. Reordering boot risks a launch crash.
   exhaustive "is this a media server" switch; `isMediaServer`, `SimpleExternalResource.mediaServer`, the SQL filter,
   and every server-only switch (stream source, host display, progress push, the library-row glyph) derive from it.
 - **Services → SwiftUI:** `ObservableObject`s (`playerManager`, `importManager`, `singleFileDownloadService`,
-  `listSyncRefreshService`) via `.environmentObject`, plus `externalImportEvents`, which `MainView` owns as a
+  `sharePlayService`, `listSyncRefreshService`) via `.environmentObject`, plus `externalImportEvents`, which `MainView` owns as a
   `@StateObject` and injects itself — the coordinator builds services, not SwiftUI-internal wires; the rest via `.environment(\.key, …)`.
   `ExternalImportEvents` is a stateless wire (integrations send confirmed virtual-import batches; `LibraryRootView`
   consumes and inserts) that conforms to `ObservableObject` solely for the loud-injection contract — `ImportManager`
@@ -407,18 +409,38 @@ are `nonisolated`.
   the new player doesn't have, so the next play loads it again. Video gets the player from `getAVPlayer()`
   (`engine.videoPlayer`) and re-attaches on view updates.
 - **SharePlay is an iOS app adapter**, `SharePlayPlaybackCoordination`, passed to the Kit through the
-  iOS-only `PlaybackCoordinating` seam. The engine retains it, gives it only its
-  `AVPlayerPlaybackCoordinator`, and reapplies it after every rebuild. GroupActivities, the session and
-  `BookFingerprint` stay in the app; neither shared Kit imports those app types. Content identity is
+  iOS-only `PlaybackCoordinating` seam. The engine retains it, gives it its `AVPlayerPlaybackCoordinator` and
+  each `AVPlayerItem` about to play, never the player, and reapplies it after every rebuild. GroupActivities, the
+  session and `BookFingerprint` stay in the app; neither shared Kit imports those app types. Content identity is
   snapshotted on main before attachment, item loads and book-metadata replacement; the nonisolated AVFoundation
-  delegate reads only precomputed strings from a locked weak-key map, never the mutable book, manager or asset. The manager follows the
-  engine's persistent status publisher to restore audio after a remote resume, without calling `play()`
-  or rearming the remembered sleep timer. Group rates remain session-only and Smart Rewind is skipped
-  while coordinated. A session's pinned identity applies only to its matched item, with file ordinals for
-  bound books; switching to another book leaves the session.
+  delegate reads only precomputed strings from a locked weak-key map, never the mutable book, manager or asset.
+  Only the session's matched book reports the group's identity, with file ordinals for bound books; anything else
+  reports an identifier unique to this device, so it matches no participant. The seam's test double is written by
+  hand (`TestPlaybackCoordination`): it has to be an `AVPlayerPlaybackCoordinatorDelegate`.
+  A group's plays and pauses reach the engine without `play()` or `pause()`: the manager follows the engine's
+  persistent status publisher (`groupPlaybackSubscription`) and, for a change it didn't make itself
+  (`isPlaybackUnderWay`), does what a play or pause does around the engine: listening time, the interruption
+  observer, `.bookPlayed` / `.bookPaused`, and on a resume the audio session (the adapter's own activation, never
+  fatal). It never sends the engine another play, pause or seek, which would go back to the group, never rearms the
+  remembered sleep timer, and keeps the audio session on a remote pause. The group owns the position and the speed
+  while coordinated: Smart Rewind and both clock recoveries (`PlayerTimeSample`) are skipped, since a seek back to
+  this device's position moves every participant; the group's speed is never saved, stays through a volume's file
+  loads (a play at the saved speed would change everyone's) and gives way to the saved one when coordination ends;
+  and the CarPlay Now Playing claim is skipped, as its muted play would reach the group.
+  `SharePlayService` owns the session, and `isInSession` is on from the moment it has one, joined or still loading,
+  so either can be left. One join at a time (`loadLocalCopy`, whose task a newer join or the session's end
+  cancels) starts from an uncoordinated player, matches the shared book (`BookLibraryMatcher`: same title, author
+  and number of files, length within 5 s, so an M4B and a folder of MP3s of one book don't match), loads it idle and
+  waits on `awaitItemLoad()`, so the saved position is restored before the session reaches the player. The book
+  already loaded is used as it is, and loaded again when its file isn't in the player; one that can't play never
+  joins. Afterwards the book loaded NOW decides: another book, or none, leaves the session, while a reload of the
+  same one (which publishes nil on its way) stays.
+  Not covered: the session carries no current file, so in a multi-file book a manual skip into another file, or a
+  joiner whose saved position is in another file, isn't followed by the others (each file's end still moves every
+  device on by itself). Nothing here has run against a live `GroupSession` in a test.
 - **Named single-purpose cancellables**, each `.cancel()`'d before rebind (distinct from the multi-sink
-  `disposeBag`): `playableChapterSubscription`, `isPlayingSubscription`, `nowPlayingClaimSubscription`. Match this
-  pattern; don't convert a named rebind-able subscription into a `disposeBag` entry.
+  `disposeBag`): `playableChapterSubscription`, `isPlayingSubscription`, `nowPlayingClaimSubscription`,
+  `groupPlaybackSubscription` (iOS only). Match this pattern; don't convert a named rebind-able subscription into a `disposeBag` entry.
 - **Invariant — every `currentItem` reassignment must be followed by `bindPlayableChapterSubscription`** (3 call
   sites: `load`, `loadRemoteURLAsset`, `reloadCurrentItem`). Missing it silently breaks the end-of-chapter sleep
   timer and the Now Playing chapter title (the `.chapterChange` notification is posted from that sink).
@@ -430,7 +452,9 @@ are `nonisolated`.
   loading, loads this chapter's file when the state holds another, and plays on `.ready`. A pause cancels a resolve
   (back to `.empty`) and lets an engine load finish silently; stop, a new book and a media-services reset go to
   `.empty`. `RetryBudget` (one cloud-URL refresh, one stream retry) is refilled by every play asked for. The 1 s tick
-  only counts in `.ready`.
+  only counts in `.ready`. `awaitItemLoad()` waits for a load to settle (`.ready`, or `.failed` / `.empty`, following
+  a reload through its `.empty`), until its task is cancelled or 30 s pass, neither of which touches the load;
+  `.bookReady` is posted earlier, as the file reaches the engine.
 - **Invariant — every `PlayerManager` seek goes through `seekPlayer(to:recoveries:)`**, never `engine.seek`
   directly. Until the latest seek completes, `clockState` is `.seeking` and `updateTime()` drops readings, which
   are still the position being left. Recording one makes a landing near the file start look like the iOS 27
@@ -882,7 +906,8 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
 - **Prefer native Apple / SwiftUI APIs** over custom implementations.
 - **Localization:** every user-facing string via `"key".localized`
   (`Shared/Extensions/String+BookPlayer.swift` → `NSLocalizedString`; no SwiftGen/`L10n`). New keys go in
-  `BookPlayer/Base.lproj/Localizable.strings`; ~27 locales are community-translated — flag a **missing Base key** or a
+  `BookPlayer/Base.lproj/Localizable.strings` and in every other `*.lproj` (in English until translated: a key
+  missing from the language in use shows as the raw key, with no fallback to Base); ~27 locales are community-translated — flag a **missing Base key** or a
   hardcoded literal, but do **not** nitpick the wording of existing translations.
 - **Accessibility is first-class** (audiobook app, many low-vision users). New interactive SwiftUI controls need
   `accessibilityLabel` (and `accessibilityValue` where stateful) and must respect Dynamic Type — use the

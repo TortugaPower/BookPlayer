@@ -13,17 +13,8 @@ import Foundation
 struct BookLibraryMatcher {
   let libraryService: LibraryServiceProtocol
   let playbackService: PlaybackServiceProtocol
-  let durationTolerance: Int
-
-  init(
-    libraryService: LibraryServiceProtocol,
-    playbackService: PlaybackServiceProtocol,
-    durationTolerance: Int = 5
-  ) {
-    self.libraryService = libraryService
-    self.playbackService = playbackService
-    self.durationTolerance = durationTolerance
-  }
+  /// Seconds two copies of a book may differ by
+  private static let durationTolerance = 5
 
   /// Same content within duration tolerance. Chapter count is intentionally not
   /// compared here; it only breaks ties between candidates (see `find`)
@@ -31,10 +22,11 @@ struct BookLibraryMatcher {
     candidate.titleNormalized == target.titleNormalized
       && candidate.authorNormalized == target.authorNormalized
       && candidate.fileCount == target.fileCount
-      && abs(candidate.durationRounded - target.durationRounded) <= durationTolerance
+      && abs(candidate.durationRounded - target.durationRounded) <= Self.durationTolerance
   }
 
-  func find(matching fingerprint: BookFingerprint) -> SimpleLibraryItem? {
+  /// The library's copy of the book, in the form the player loads
+  func find(matching fingerprint: BookFingerprint) -> PlayableItem? {
     let searchResults =
       libraryService.searchAllBooks(
         query: fingerprint.titleNormalized,
@@ -42,9 +34,9 @@ struct BookLibraryMatcher {
         offset: nil
       ) ?? []
 
-    let candidates: [(item: SimpleLibraryItem, fingerprint: BookFingerprint)] = searchResults.compactMap { item in
+    let candidates: [(item: PlayableItem, fingerprint: BookFingerprint)] = searchResults.compactMap { item in
       guard item.duration.isFinite,
-        abs(Int(item.duration.rounded()) - fingerprint.durationRounded) <= durationTolerance,
+        abs(Int(item.duration.rounded()) - fingerprint.durationRounded) <= Self.durationTolerance,
         BookFingerprint.normalize(item.title) == fingerprint.titleNormalized,
         let playable = try? playbackService.getPlayableItem(from: item)
       else { return nil }
@@ -54,7 +46,7 @@ struct BookLibraryMatcher {
 
       guard matches(candidateFingerprint, fingerprint) else { return nil }
 
-      return (item, candidateFingerprint)
+      return (playable, candidateFingerprint)
     }
 
     guard !candidates.isEmpty else { return nil }

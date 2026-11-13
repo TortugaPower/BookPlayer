@@ -32,7 +32,7 @@ class MainCoordinator: NSObject {
   let syncQueueService: SyncQueueService
   let hardcoverService: HardcoverService
   let preferencesService: PreferencesSyncService
-  let sharePlayCoordinator: SharePlayCoordinator
+  let sharePlayService: SharePlayService
 
   var playerState: PlayerState { AppServices.shared.playerState }
 
@@ -74,7 +74,7 @@ class MainCoordinator: NSObject {
 
     self.hardcoverService = coreServices.hardcoverService
     self.preferencesService = coreServices.preferencesService
-    self.sharePlayCoordinator = coreServices.sharePlayCoordinator
+    self.sharePlayService = coreServices.sharePlayService
 
     ThemeManager.shared.libraryService = libraryService
 
@@ -102,7 +102,7 @@ class MainCoordinator: NSObject {
       .environmentObject(singleFileDownloadService)
       .environmentObject(importManager)
       .environmentObject(playerManager)
-      .environmentObject(sharePlayCoordinator)
+      .environmentObject(sharePlayService)
       .environmentObject(listSyncRefreshService)
       .environment(\.libraryService, libraryService)
       .environment(\.accountService, accountService)

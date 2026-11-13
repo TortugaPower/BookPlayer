@@ -6,13 +6,15 @@
 //  Copyright © 2026 BookPlayer LLC. All rights reserved.
 //
 
+import AVFoundation
 import BookPlayerKit
 import Combine
 import Foundation
 import GroupActivities
+import UIKit
 
 /// Why the local device couldn't join playback for a shared book.
-enum SharePlayJoinFailure {
+enum SharePlayJoinFailure: Error {
   /// No matching book in the local library.
   case bookNotFound
   /// A matching book exists but its file couldn't be loaded (e.g. not downloaded).
@@ -20,158 +22,209 @@ enum SharePlayJoinFailure {
 }
 
 @MainActor
-final class SharePlayService: BPLogger {
-  private let playerManager: SharePlayCoordinating
-  private let matcher: BookLibraryMatcher
-  private let playerLoaderService: PlayerLoaderService
+final class SharePlayService: ObservableObject, BPLogger {
+  /// Whether this device holds a session, joined or still loading its book: either can be left
+  @Published private(set) var isInSession = false
 
-  var onSessionStateChange: ((Bool) -> Void)?
-  var onParticipantCountChange: ((Int) -> Void)?
-  var onJoinFailure: ((SharePlayJoinFailure, AudioBookActivity) -> Void)?
+  private let playerManager: PlayerManager
+  private let matcher: BookLibraryMatcher
+  private let groupStateObserver = GroupStateObserver()
 
   private var currentSession: GroupSession<AudioBookActivity>?
-  /// The local library item the current session is coordinated against.
+  /// The local library item the current session is coordinated against; nil while a join
+  /// loads it, which keeps the current-item observer quiet while this service swaps books.
   private var coordinatedRelativePath: String?
-  /// Suppresses the current-item observer while this service itself swaps books.
-  private var isReconfiguring = false
   private var sessionsTask: Task<Void, Never>?
+  /// The one join waiting on its book. A newer join, or the session ending, cancels it.
+  private var joinTask: Task<Void, Never>?
   private var sessionObservers = Set<AnyCancellable>()
+  private var currentItemObserver: AnyCancellable?
 
   init(
-    playerManager: SharePlayCoordinating,
+    playerManager: PlayerManager,
     libraryService: LibraryServiceProtocol,
-    playbackService: PlaybackServiceProtocol,
-    playerLoaderService: PlayerLoaderService
+    playbackService: PlaybackServiceProtocol
   ) {
     self.playerManager = playerManager
-    self.playerLoaderService = playerLoaderService
     self.matcher = BookLibraryMatcher(
       libraryService: libraryService,
       playbackService: playbackService
     )
+
+    sessionsTask = Task { [weak self] in
+      for await session in AudioBookActivity.sessions() {
+        self?.configure(session)
+      }
+    }
+
+    // if this device stops playing the coordinated book (switch, stop, delete), exit the session
+    // instead of silently coordinating other content. The book loaded now decides, not the one
+    // delivered: a reload of the same book publishes nil on its way
+    currentItemObserver = playerManager.currentItemPublisher()
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self] _ in
+        guard let self,
+          let coordinatedRelativePath = self.coordinatedRelativePath,
+          self.playerManager.currentItem?.relativePath != coordinatedRelativePath
+        else { return }
+
+        self.leaveSession()
+      }
   }
 
   deinit {
     sessionsTask?.cancel()
   }
 
-  func startListening() {
-    guard sessionsTask == nil else { return }
+  // MARK: - Starting and leaving
 
-    sessionsTask = Task { [weak self] in
-      for await session in AudioBookActivity.sessions() {
-        await self?.configure(session)
-      }
-    }
+  func makeActivity(for item: PlayableItem) -> AudioBookActivity {
+    AudioBookActivity(
+      bookFingerprint: BookFingerprint(from: item),
+      bookTitle: item.title,
+      bookAuthor: BookFingerprint.normalizeAuthor(item.author).isEmpty ? "" : item.author
+    )
   }
 
-  func leaveCurrentSession() {
+  /// Shares `item` with the FaceTime call or Messages conversation under way. False when
+  /// there's none to activate into: offer the system sharing sheet instead.
+  func startSession(for item: PlayableItem) async -> Bool {
+    guard groupStateObserver.isEligibleForGroupSession else { return false }
+
+    let activity = makeActivity(for: item)
+
+    if case .activationPreferred = await activity.prepareForActivation() {
+      do {
+        _ = try await activity.activate()
+      } catch {
+        Self.logger.error("Failed to activate the activity: \(error)")
+      }
+    }
+
+    return true
+  }
+
+  func leaveSession() {
     currentSession?.leave()
     handleSessionEnded()
   }
 
-  func endCurrentSession() {
+  func endSession() {
     currentSession?.end()
     handleSessionEnded()
   }
 
   // MARK: - Session handling
 
-  private func configure(_ session: GroupSession<AudioBookActivity>) async {
-    // a new session supersedes the previous one
+  private func configure(_ session: GroupSession<AudioBookActivity>) {
+    // a new session supersedes the previous one, which is left before its coordination
+    // goes: the player's own speed coming back is no business of that group's
     if let previousSession = currentSession, previousSession !== session {
-      playerManager.stopCoordinatingPlayback()
       if case .invalidated = previousSession.state {} else {
         previousSession.leave()
       }
+      playerManager.setPlaybackCoordination(nil)
     }
 
-    teardownSessionObservers()
+    sessionObservers.removeAll()
     currentSession = session
-    coordinatedRelativePath = nil
+    isInSession = true
 
     observe(session)
 
-    await joinPlayback(of: session.activity, in: session)
+    join(session.activity, in: session)
   }
 
-  /// Matches the activity's book locally, loads it if needed, and hands the session
-  /// to the playback coordinator. Re-runs when the group switches books mid-session
-  private func joinPlayback(of activity: AudioBookActivity, in session: GroupSession<AudioBookActivity>) async {
-    let fingerprint = activity.bookFingerprint
+  /// Hands the session to the player once the activity's book is loaded locally.
+  /// Re-runs when the group switches books mid-session
+  private func join(_ activity: AudioBookActivity, in session: GroupSession<AudioBookActivity>) {
+    loadLocalCopy(of: activity.bookFingerprint) { [weak self] result in
+      guard let self else { return }
 
-    // fast path: the book is already loaded (typical for the session initiator)
+      switch result {
+      case .success(let relativePath):
+        self.coordinate(relativePath, as: activity.bookFingerprint.identifier) {
+          $0.coordinateWithSession(session)
+        }
+
+        if case .waiting = session.state {
+          session.join()
+        }
+      case .failure(let reason):
+        // notify, then leave so the group isn't waiting on a participant that will never join
+        self.presentJoinFailure(reason, for: activity)
+        self.leaveSession()
+      }
+    }
+  }
+
+  /// Attaches the session to the player for the book at `relativePath`, which reports
+  /// `contentIdentifier` to the group; any other book leaves the session
+  func coordinate(
+    _ relativePath: String,
+    as contentIdentifier: String,
+    with coordinateSession: @escaping (AVPlayerPlaybackCoordinator) -> Void
+  ) {
+    coordinatedRelativePath = relativePath
+    playerManager.setPlaybackCoordination(SharePlayPlaybackCoordination(
+      contentIdentifier: contentIdentifier,
+      relativePath: relativePath,
+      currentItem: { [weak playerManager] in playerManager?.currentItem },
+      coordinateSession: coordinateSession
+    ))
+  }
+
+  /// Matches `fingerprint`'s book locally and loads it if needed, then hands `completion` its
+  /// path once it can play. One at a time: a newer call, or the session ending, drops an
+  /// earlier one's completion
+  func loadLocalCopy(
+    of fingerprint: BookFingerprint,
+    completion: @escaping (Result<String, SharePlayJoinFailure>) -> Void
+  ) {
+    joinTask?.cancel()
+    // a join starts from an uncoordinated player: the book it loads seeks to its saved position,
+    // and the current-item observer stays quiet while this service swaps books
+    coordinatedRelativePath = nil
+    playerManager.setPlaybackCoordination(nil)
+
+    let book: PlayableItem
+    // typical for the session initiator
+    let isAlreadyLoaded: Bool
+
     if let current = playerManager.currentItem,
       matcher.matches(BookFingerprint(from: current), fingerprint)
     {
-      startCoordinating(session, relativePath: current.relativePath)
+      book = current
+      isAlreadyLoaded = true
+    } else if let match = matcher.find(matching: fingerprint) {
+      book = match
+      isAlreadyLoaded = false
+      playerManager.load(match, intent: .idle)
+    } else {
+      Self.logger.info("No local match for the shared book")
+      completion(.failure(.bookNotFound))
       return
     }
 
-    guard let match = matcher.find(matching: fingerprint) else {
-      Self.logger.info("SharePlay: no local match for shared book")
-      abandon(session, reason: .bookNotFound, activity: activity)
-      return
-    }
+    // wait for the file itself, not its load being under way: the seek to the saved position
+    // must land before the session reaches the player, or it goes out to the group
+    joinTask = Task { [playerManager] in
+      var canPlay = await playerManager.awaitItemLoad()
 
-    isReconfiguring = true
-    defer { isReconfiguring = false }
+      // the loaded book's file can be out of the player (a failed load, a media-services reset):
+      // its next play would load it, and seek, with the session attached
+      if !canPlay, isAlreadyLoaded, !Task.isCancelled, playerManager.currentItem === book {
+        playerManager.load(book, intent: .idle)
+        canPlay = await playerManager.awaitItemLoad()
+      }
 
-    // `loadPlayer` returns before the item is attached and the saved position
-    // restored; wait for the next `.bookReady` so both happen while the player
-    // is still uncoordinated and doesn't broadcast its old position to the group
-    let loadSignal = nextBookReadySignal()
+      guard !Task.isCancelled else { return }
 
-    do {
-      try await playerLoaderService.loadPlayer(
-        match.relativePath,
-        intent: .idle,
-        recordAsLastBook: false
-      )
-    } catch {
-      loadSignal.cancel()
-      Self.logger.error("SharePlay: failed to load matched book: \(error)")
-      guard currentSession === session else { return }
-      abandon(session, reason: .loadFailed, activity: activity)
-      return
-    }
-
-    let loaded = await loadSignal.value
-
-    // the session can be invalidated while the book is loading
-    guard currentSession === session else { return }
-
-    guard loaded, playerManager.currentItem?.relativePath == match.relativePath else {
-      abandon(session, reason: .loadFailed, activity: activity)
-      return
-    }
-
-    startCoordinating(session, relativePath: match.relativePath)
-  }
-
-  private func startCoordinating(_ session: GroupSession<AudioBookActivity>, relativePath: String) {
-    coordinatedRelativePath = relativePath
-    playerManager.coordinatePlayback(with: session, for: relativePath)
-
-    if case .waiting = session.state {
-      session.join()
-    }
-  }
-
-  /// Notify, then leave so the group isn't waiting on a participant that will never join
-  private func abandon(
-    _ session: GroupSession<AudioBookActivity>,
-    reason: SharePlayJoinFailure,
-    activity: AudioBookActivity
-  ) {
-    onJoinFailure?(reason, activity)
-
-    if case .invalidated = session.state {} else {
-      session.leave()
-    }
-
-    if currentSession === session {
-      handleSessionEnded()
+      if canPlay, playerManager.currentItem?.relativePath == book.relativePath {
+        completion(.success(book.relativePath))
+      } else {
+        completion(.failure(.loadFailed))
+      }
     }
   }
 
@@ -179,14 +232,11 @@ final class SharePlayService: BPLogger {
     session.$state
       .receive(on: DispatchQueue.main)
       .sink { [weak self] state in
-        self?.handle(state: state, for: session)
-      }
-      .store(in: &sessionObservers)
+        guard let self, self.currentSession === session else { return }
 
-    session.$activeParticipants
-      .receive(on: DispatchQueue.main)
-      .sink { [weak self] participants in
-        self?.onParticipantCountChange?(participants.count)
+        if case .invalidated = state {
+          self.handleSessionEnded()
+        }
       }
       .store(in: &sessionObservers)
 
@@ -197,92 +247,38 @@ final class SharePlayService: BPLogger {
       .dropFirst()
       .sink { [weak self] activity in
         guard let self, self.currentSession === session else { return }
-        Task {
-          await self.joinPlayback(of: activity, in: session)
-        }
+
+        self.join(activity, in: session)
       }
       .store(in: &sessionObservers)
-
-    // if this device stops playing the coordinated book (switch, stop, delete),
-    // exit the session instead of silently coordinating other content
-    playerManager.currentItemPublisher()
-      .receive(on: DispatchQueue.main)
-      .dropFirst()
-      .sink { [weak self] item in
-        guard let self,
-          !self.isReconfiguring,
-          self.currentSession === session,
-          let coordinatedRelativePath = self.coordinatedRelativePath,
-          item?.relativePath != coordinatedRelativePath
-        else { return }
-
-        self.leaveCurrentSession()
-      }
-      .store(in: &sessionObservers)
-  }
-
-  private func handle(state: GroupSession<AudioBookActivity>.State, for session: GroupSession<AudioBookActivity>) {
-    switch state {
-    case .waiting:
-      break
-    case .joined:
-      guard currentSession === session else { return }
-      onSessionStateChange?(true)
-    case .invalidated:
-      guard currentSession === session else { return }
-      handleSessionEnded()
-    @unknown default:
-      break
-    }
   }
 
   private func handleSessionEnded() {
-    playerManager.stopCoordinatingPlayback()
+    joinTask?.cancel()
+    playerManager.setPlaybackCoordination(nil)
     currentSession = nil
     coordinatedRelativePath = nil
-    teardownSessionObservers()
-    onParticipantCountChange?(0)
-    onSessionStateChange?(false)
-  }
-
-  private func teardownSessionObservers() {
     sessionObservers.removeAll()
+    isInSession = false
   }
 
-  /// One-shot await for the player's next `.bookReady`. Subscribes synchronously,
-  /// so create it *before* triggering the load or a fast load can slip past it
-  private func nextBookReadySignal() -> Task<Bool, Never> {
-    let stream = AsyncStream<Bool> { continuation in
-      let observer = NotificationCenter.default.addObserver(
-        forName: .bookReady,
-        object: nil,
-        queue: .main
-      ) { notification in
-        continuation.yield(notification.userInfo?["loaded"] as? Bool == true)
-        continuation.finish()
-      }
-      continuation.onTermination = { _ in
-        NotificationCenter.default.removeObserver(observer)
-      }
+  private func presentJoinFailure(_ reason: SharePlayJoinFailure, for activity: AudioBookActivity) {
+    let author = activity.bookAuthor.trimmingCharacters(in: .whitespacesAndNewlines)
+    let subject =
+      author.isEmpty
+      ? String(format: "shareplay_book_subject_no_author_title".localized, activity.bookTitle)
+      : String(format: "shareplay_book_subject_title".localized, activity.bookTitle, author)
+
+    let message: String
+    switch reason {
+    case .bookNotFound:
+      message = String(format: "shareplay_book_not_found_description".localized, subject)
+    case .loadFailed:
+      message = String(format: "shareplay_book_load_failed_description".localized, subject)
     }
 
-    return Task {
-      await withTaskGroup(of: Bool.self) { group in
-        group.addTask {
-          for await loaded in stream {
-            return loaded
-          }
-          return false
-        }
-        // safety net: don't hang the join if the load dies without notifying
-        group.addTask {
-          try? await Task.sleep(nanoseconds: 30_000_000_000)
-          return false
-        }
-        let result = await group.next() ?? false
-        group.cancelAll()
-        return result
-      }
-    }
+    WindowHelper.activeWindow?.rootViewController?
+      .getTopVisibleViewController()?
+      .showAlert("shareplay_title".localized, message: message)
   }
 }
