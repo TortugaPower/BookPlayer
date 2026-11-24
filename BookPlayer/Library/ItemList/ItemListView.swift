@@ -65,12 +65,13 @@ struct ItemListView: View {
   @Environment(\.playerState) private var playerState
   @Environment(\.loadingState) private var loadingState
   @Environment(\.importOperationState) private var importOperationState
-  @Environment(\.scenePhase) private var scenePhase
   @EnvironmentObject private var importManager: ImportManager
   @EnvironmentObject private var theme: ThemeViewModel
 
   /// A parked task in the sync lane: the blocked-refresh alert says sync is paused
   @State private var syncLanePaused = false
+  /// On screen, not behind another list pushed over it or under another tab
+  @State private var isOnScreen = false
 
   init(initModel: @escaping () -> ItemListViewModel) {
     self._model = .init(wrappedValue: initModel())
@@ -345,13 +346,18 @@ struct ItemListView: View {
     .task(id: playerState.loadedBookRelativePath) {
       playingItemParentPath = model.getPathForParentOfPlayingItem(playerState.loadedBookRelativePath)
     }
-    .onChange(of: scenePhase) {
-      guard scenePhase == .active else { return }
+    // Coming back to the app syncs the list on screen, not the ones behind it in the navigation stack, as the
+    // Android app does. UIKit's notification, not `scenePhase`: the app hosts SwiftUI in a `UIHostingController`,
+    // where `scenePhase` doesn't change when the app goes to the background.
+    .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
+      guard isOnScreen else { return }
 
       Task {
         await model.syncList()
       }
     }
+    .onAppear { isOnScreen = true }
+    .onDisappear { isOnScreen = false }
     .onChange(of: listState.token(for: .all), initial: false) {
       let padding = listState.padding(for: .all)
       model.reloadItems(with: padding)

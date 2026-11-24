@@ -194,7 +194,8 @@ first. Reordering boot risks a launch crash.
   coordinator-scoped services (`ImportManager`, `ListSyncRefreshService`, `SingleFileDownloadService`,
   `JellyfinConnectionService`, `AudiobookShelfConnectionService`).
   `ListSyncRefreshService.syncList(at:)` is the ONE list-refresh entry point (list appear, pull-to-refresh, sync
-  activation, CarPlay): cloud contents for the level → the level's media-server chapter refresh → preferences
+  activation, CarPlay, and returning to the app for the list on screen only, as on Android; decided, through the
+  same once-a-minute-per-level throttle): cloud contents for the level → the level's media-server chapter refresh → preferences
   pull. Media-server positions are never pulled (decided; Android never had it): progress only goes out, and a
   streamed book starts at zero.
   A folder's cloud step is skipped until the first sync has run (`SyncService.hasRunFirstSync`, backed by
@@ -917,6 +918,11 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
   is the norm — match it. A sink that touches UI needs `.receive(on: DispatchQueue.main)`.
 - **`@MainActor` is the UI/service isolation convention.** Off-main → main hops are explicit
   (`Task { @MainActor in … }` / `.receive(on:)`).
+- **Coming back to the foreground: UIKit's notifications, never `scenePhase`.** The app hosts SwiftUI in a
+  `UIHostingController` (`AppHostingViewController`), where `scenePhase` doesn't change when the app goes to the
+  background or comes back, so an `onChange(of: scenePhase)` never runs (checked 2026-11-24 on both tabs).
+  Use `UIApplication.didBecomeActiveNotification` (or `willEnterForeground…`/`didEnterBackground…`) through
+  `.onReceive(NotificationCenter.default.publisher(for:))`.
 - **Crash fixes carry a Sentry trailer.** When a commit fixes a crash tracked in Sentry, put
   `Fixes BOOKPLAYER-<id>` on its own line in the **commit message** (the short id is in the Sentry issue URL; one
   per line). Sentry's GitHub integration then resolves the issue in the release that ships the commit, so a crash
