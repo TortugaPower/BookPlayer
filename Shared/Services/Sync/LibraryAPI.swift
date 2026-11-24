@@ -13,6 +13,9 @@ public enum LibraryAPI {
   /// local library, which the server has never seen and which are books without a file in S3
   case itemsStatus(uuids: [String])
   case contents(path: String)
+  /// One item itself (no trailing slash, so not its contents), without the last-played book:
+  /// the play-time check before a play
+  case item(path: String, uuid: String)
   case upload(params: [String: Any])
   case externalResource(params: [String: Any])
   case update(params: [String: Any])
@@ -46,7 +49,7 @@ extension LibraryAPI: Endpoint {
     switch self {
     case .itemsStatus:
       return "/v1/library/status"
-    case .contents:
+    case .contents, .item:
       return "/v1/library"
     case .upload:
       return "/v1/library"
@@ -91,7 +94,7 @@ extension LibraryAPI: Endpoint {
     switch self {
     case .itemsStatus:
       return .post
-    case .contents:
+    case .contents, .item:
       return .get
     case .upload:
       return .put
@@ -136,6 +139,12 @@ extension LibraryAPI: Endpoint {
       return [
         "relativePath": path,
         "sign": true
+      ]
+    case .item(let path, let uuid):
+      return [
+        "relativePath": path,
+        "uuid": uuid,
+        "noLastItemPlayed": true
       ]
     case .upload(let params):
       return params

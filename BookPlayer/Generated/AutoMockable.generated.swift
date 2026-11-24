@@ -2004,6 +2004,26 @@ class SyncServiceProtocolMock: SyncServiceProtocol {
         syncListContentsAtReceivedInvocations.append(relativePath)
         try await syncListContentsAtClosure?(relativePath)
     }
+    //MARK: - adoptNewerPlay
+
+    var adoptNewerPlayOfUuidPlayedAtCallsCount = 0
+    var adoptNewerPlayOfUuidPlayedAtCalled: Bool {
+        return adoptNewerPlayOfUuidPlayedAtCallsCount > 0
+    }
+    var adoptNewerPlayOfUuidPlayedAtReceivedArguments: (relativePath: String, uuid: String, lastPlayDate: Date?)?
+    var adoptNewerPlayOfUuidPlayedAtReceivedInvocations: [(relativePath: String, uuid: String, lastPlayDate: Date?)] = []
+    var adoptNewerPlayOfUuidPlayedAtReturnValue: Bool!
+    var adoptNewerPlayOfUuidPlayedAtClosure: ((String, String, Date?) async -> Bool)?
+    func adoptNewerPlay(of relativePath: String, uuid: String, playedAt lastPlayDate: Date?) async -> Bool {
+        adoptNewerPlayOfUuidPlayedAtCallsCount += 1
+        adoptNewerPlayOfUuidPlayedAtReceivedArguments = (relativePath: relativePath, uuid: uuid, lastPlayDate: lastPlayDate)
+        adoptNewerPlayOfUuidPlayedAtReceivedInvocations.append((relativePath: relativePath, uuid: uuid, lastPlayDate: lastPlayDate))
+        if let adoptNewerPlayOfUuidPlayedAtClosure = adoptNewerPlayOfUuidPlayedAtClosure {
+            return await adoptNewerPlayOfUuidPlayedAtClosure(relativePath, uuid, lastPlayDate)
+        } else {
+            return adoptNewerPlayOfUuidPlayedAtReturnValue
+        }
+    }
     //MARK: - syncLibraryContents
 
     var syncLibraryContentsThrowableError: Error?

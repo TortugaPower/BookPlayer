@@ -276,6 +276,8 @@ final class TestPlayerPlatform: PlayerPlatform {
   private(set) var shakeStops = 0
   var autoplaysNextBook = false
   var restartsFinishedBooks = false
+  /// Off: the play-time check tests turn it on
+  var asksServerBeforePlaying = false
 
   /// On: activation waits for `finishActivation()`, as a platform that suspends there does
   var holdsActivation = false

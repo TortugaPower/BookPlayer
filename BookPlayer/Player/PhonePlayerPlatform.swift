@@ -15,12 +15,14 @@ import UIKit
 @MainActor
 final class PhonePlayerPlatform: PlayerPlatform {
   private let shakeMotionService: ShakeMotionServiceProtocol
+  private let networkMonitor: NetworkMonitor
   /// Set when audio-session activation fails in the current process, so a later
   /// successful activation can tell whether recovery required an app relaunch.
   private var audioSessionFailedThisSession = false
 
-  init(shakeMotionService: ShakeMotionServiceProtocol) {
+  init(shakeMotionService: ShakeMotionServiceProtocol, networkMonitor: NetworkMonitor) {
     self.shakeMotionService = shakeMotionService
+    self.networkMonitor = networkMonitor
   }
 
   func activateAudioSession(for item: PlayableItem, origin: PlayOrigin) async -> Bool {
@@ -91,6 +93,11 @@ final class PhonePlayerPlatform: PlayerPlatform {
 
   var restartsFinishedBooks: Bool {
     UserDefaults.standard.bool(forKey: Constants.UserDefaults.autoplayRestartEnabled)
+  }
+
+  /// Not offline: the play would only wait out the limit
+  var asksServerBeforePlaying: Bool {
+    networkMonitor.isConnected
   }
 
   /// Persist a marker so the next successful activation can report whether — and how —

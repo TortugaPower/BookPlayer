@@ -40,7 +40,7 @@ final class AppServices: BPLogger {
   let uploadContinuation = UploadContinuationController()
   /// Feeds the playback suggestions the system shows while nothing plays
   let mediaSuggestions = MediaSuggestionsController()
-  /// The Wi-Fi-only transfer setting needs to know the current network
+  /// The Wi-Fi-only transfer setting and the play-time check need to know the current network
   private let networkMonitor = NetworkMonitor()
 
   private init() {
@@ -137,7 +137,7 @@ final class AppServices: BPLogger {
         playbackService: playbackService,
         syncService: syncService,
         speedService: SpeedService(libraryService: libraryService),
-        platform: PhonePlayerPlatform(shakeMotionService: ShakeMotionService()),
+        platform: PhonePlayerPlatform(shakeMotionService: ShakeMotionService(), networkMonitor: networkMonitor),
         widgetReloadService: WidgetReloadService(),
         hasStreamingEnabled: { accountService.hasStreamingEnabled() },
         /// Already on main: `PlayerManager` routes every failure through `presentOnMain`.

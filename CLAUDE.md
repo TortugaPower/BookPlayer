@@ -395,9 +395,10 @@ The four skip-interval statics are `nonisolated`.
 - **What each app supplies, behind `PlayerPlatform`** (`PhonePlayerPlatform` in the app target,
   `WatchPlayerPlatform` in the watch app): starting and ending the audio session; whether folder progress waits
   (the phone in the background, the watch always); the artwork for a book without a cover (the theme-coloured
-  default on the phone, none on the watch); shake to resume (the phone only); and the autoplay settings (the phone's
+  default on the phone, none on the watch); shake to resume (the phone only); the autoplay settings (the phone's
   Settings › Autoplay, off while unset; the watch autoplays unless its player's toggle is off and always restarts
-  finished books). The Kits are extension-safe only, so `UIApplication`, `ThemeManager`, Sentry and
+  finished books); and whether a play asks the server first (`asksServerBeforePlaying`: the phone while
+  `NetworkMonitor` says online, never the watch). The Kits are extension-safe only, so `UIApplication`, `ThemeManager`, Sentry and
   `ShakeMotionService` stay out of them. The watch passes `hasStreamingEnabled: { false }` (a media-server book
   plays its cloud copy there), and its `presentFailure` fills the player screen's alert (`PlaybackErrorPresenter`,
   with the phone's wording).
@@ -456,6 +457,17 @@ The four skip-interval statics are `nonisolated`.
   book, an interruption ending, a sync reload, the CarPlay Now Playing claim) passes `.system`. A user play on a
   finished book that is still loaded (the player at its end) starts it over from the first chapter; a system play
   leaves it at the end.
+- **A play waits on the server for at most 1.5 s** (`serverWaitLimit`, from `prepareForPlayback` on `.ready`): the
+  list's fetch in flight (`syncProgressDelegate`) and, for a user play with sync on and online, the **play-time
+  check** (decided 2026-11-21; the web ships it, Android to follow): `SyncService.adoptNewerPlay` asks
+  `GET /v1/library?relativePath&uuid&noLastItemPlayed=true` (no trailing slash: the item itself) and, when the
+  server's `lastPlayDateTimestamp` is strictly newer than the book's play time **when play was pressed** (whole
+  seconds, truncated as the server stores them), stores the server's play with `updateInfo(for:)` and the player
+  reloads the book from the library before starting. The press-time date is taken in `load(_:intent:)` and
+  `play(origin:)` (`requestedPlay`), never at `prepareForPlayback`: by then a load can have stamped the book
+  played now (`setLibraryLastBook`, a cloud file's rebuilt item). An answer after the limit moves the book
+  mid-playback (`moveToNewerPlay`, as `ListSyncRefreshService.reloadLastBook` does). It never changes which book
+  plays; a system play (autoplay, an interruption ending, a reload) doesn't ask, and a failure plays from here.
 - **AVAudioSession:** activated in `play()` through the platform (`.playback` / `.spokenAudio`; the watch adds
   `.longFormAudio` and awaits `activate()`, which shows the route picker until Bluetooth headphones are chosen);
   deactivated through the platform ~0.1s after `.paused` (delay avoids clipping). An activation that finishes after

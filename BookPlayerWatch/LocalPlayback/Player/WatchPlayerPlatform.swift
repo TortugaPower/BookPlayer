@@ -58,4 +58,7 @@ final class WatchPlayerPlatform: PlayerPlatform {
   }
 
   let restartsFinishedBooks = true
+
+  /// The play-time check is the phone's: the watch starts from its own spot
+  let asksServerBeforePlaying = false
 }

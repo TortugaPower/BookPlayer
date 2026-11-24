@@ -28,4 +28,7 @@ public protocol PlayerPlatform: AnyObject {
   var autoplaysNextBook: Bool { get }
   /// Whether a finished book that autoplay reaches starts over, instead of being skipped
   var restartsFinishedBooks: Bool { get }
+  /// Whether a play the user asks for first asks the server if another device played the book since (the
+  /// play-time check). Read as each play starts
+  var asksServerBeforePlaying: Bool { get }
 }

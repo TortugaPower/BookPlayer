@@ -88,6 +88,13 @@ public final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObj
   private var latestSeek = 0
 
   public weak var syncProgressDelegate: PlaybackSyncProgressDelegate?
+  /// The play the user asked for, with its book's play time then: what the play-time check compares the
+  /// server's with. Taken as the play is asked for, since loading the book can stamp it played now before
+  /// the play starts (a cloud file's item is rebuilt from the library after `setLibraryLastBook`)
+  private var requestedPlay: RequestedPlay?
+  /// The longest a play waits on the server: the list's fetch in flight and the play-time check, together.
+  /// A check answering later still moves the book (`moveToNewerPlay`)
+  var serverWaitLimit: Duration = .milliseconds(1500)
   /// Reference to the ongoing play task
   private var playTask: Task<(), Error>?
   @Published public var currentItem: PlayableItem?
@@ -416,6 +423,7 @@ public final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObj
   }
 
   public func load(_ item: PlayableItem, intent: PlayIntent) {
+    requestedPlay = intent == .wantsToPlay(.user) ? RequestedPlay(of: item) : nil
     load(item, intent: intent, forceRefreshURL: false)
   }
 
@@ -726,7 +734,7 @@ public final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObj
       itemLoad = .ready(chapter, load)
       /// The play keeps the origin it was asked with: one pressed during the load is still the user's
       if case .wantsToPlay(let origin) = playIntent {
-        play(origin: origin)
+        startPlay(origin: origin)
       }
       // Clean up flag
       playIntent = .idle
@@ -841,6 +849,17 @@ public final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObj
       case .empty, .resolving, .failed:
         return nil
       }
+    }
+  }
+
+  /// A play the user asked for: the book, and its play time when they did
+  private struct RequestedPlay {
+    let uuid: String
+    let lastPlayDate: Date?
+
+    init(of item: PlayableItem) {
+      uuid = item.uuid
+      lastPlayDate = item.lastPlayDate
     }
   }
 
@@ -1397,9 +1416,95 @@ extension PlayerManager {
 
     /// Update nowPlaying state so the UI displays correctly
     playIntent = .wantsToPlay(origin)
-    await syncProgressDelegate?.waitForSyncInProgress()
 
-    return true
+    /// The server first, for at most `serverWaitLimit` from here: the list's fetch in flight, whose last
+    /// played book can reload this one (`ListSyncRefreshService.reloadLastBook`), and alongside it, for a
+    /// play the user asked for, the play-time check
+    let deadline = ContinuousClock.now.advanced(by: serverWaitLimit)
+    let check = origin == .user ? startPlayTimeCheck(for: currentItem) : nil
+    let checkInTime = check.map { check in
+      Task { await Self.value(of: check, before: deadline) }
+    }
+    if let syncProgressDelegate {
+      _ = await Self.value(of: Task { await syncProgressDelegate.waitForSyncInProgress() }, before: deadline)
+    }
+
+    guard let check, let checkInTime else { return true }
+
+    guard let adopted = await checkInTime.value else {
+      /// Starts from here, and moves once the server answers
+      let uuid = currentItem.uuid
+      Task { [weak self] in
+        guard await check.value else { return }
+        self?.moveToNewerPlay(of: uuid)
+      }
+      return true
+    }
+
+    /// Another device played it since: start where that device stopped. Not for a play dropped meanwhile
+    /// (a pause, another book): the book's row has the newer play, and the next press asks again
+    guard
+      adopted,
+      !Task.isCancelled,
+      self.currentItem?.uuid == currentItem.uuid,
+      let rebuilt = rebuiltFromLibrary(currentItem)
+    else { return true }
+
+    load(rebuilt, intent: .wantsToPlay(origin), forceRefreshURL: false)
+    return false
+  }
+
+  /// The play-time check for a play the user asked for: whether another device played `item` after this one
+  /// last did, by the time play was pressed. Stores that play when it did. Nothing to ask without sync,
+  /// offline, or on the watch
+  private func startPlayTimeCheck(for item: PlayableItem) -> Task<Bool, Never>? {
+    guard let requested = requestedPlay, requested.uuid == item.uuid else { return nil }
+
+    /// One check per press
+    requestedPlay = nil
+
+    guard platform.asksServerBeforePlaying, syncService.isActive else { return nil }
+
+    let syncService = syncService
+    let relativePath = item.relativePath
+    return Task {
+      await syncService.adoptNewerPlay(of: relativePath, uuid: requested.uuid, playedAt: requested.lastPlayDate)
+    }
+  }
+
+  /// A play-time check that answered once playback had started from here: move to the newer play, as a list
+  /// fetch finding one does (`ListSyncRefreshService.reloadLastBook`)
+  private func moveToNewerPlay(of uuid: String) {
+    guard
+      let currentItem,
+      currentItem.uuid == uuid,
+      let rebuilt = rebuiltFromLibrary(currentItem)
+    else { return }
+
+    /// Keeps playing as it was: a system start, so a running sleep timer isn't restarted
+    load(rebuilt, intent: isPlaying ? .wantsToPlay(.system) : .idle)
+  }
+
+  /// `item` as the library has it now
+  private func rebuiltFromLibrary(_ item: PlayableItem) -> PlayableItem? {
+    guard let libraryItem = libraryService.getSimpleItem(with: item.relativePath) else { return nil }
+
+    return try? playbackService.getPlayableItem(from: libraryItem)
+  }
+
+  /// `task`'s value, or nil once `deadline` passes first. The task runs on either way
+  private static func value<T>(of task: Task<T, Never>, before deadline: ContinuousClock.Instant) async -> T? {
+    await withCheckedContinuation { continuation in
+      let answer = FirstAnswer(continuation)
+      let timeout = Task {
+        try? await Task.sleep(until: deadline, clock: .continuous)
+        answer.give(nil)
+      }
+      Task {
+        answer.give(await task.value)
+        timeout.cancel()
+      }
+    }
   }
 
   /// `item` rebuilt from the library when it plays from a media server: loading it again after
@@ -1478,6 +1583,16 @@ extension PlayerManager {
   }
 
   public func play(origin: PlayOrigin) {
+    /// A second press while the first still loads keeps the first's play time: by now the load may have
+    /// stamped the book played now
+    if origin == .user, let currentItem, requestedPlay?.uuid != currentItem.uuid {
+      requestedPlay = RequestedPlay(of: currentItem)
+    }
+    startPlay(origin: origin)
+  }
+
+  /// Starts a play already asked for: by `play(origin:)`, or by a load now ready
+  private func startPlay(origin: PlayOrigin) {
     playTask?.cancel()
     playTask = Task {
       /// Ignore play commands if there's no item loaded,
@@ -1660,6 +1775,7 @@ extension PlayerManager {
   public func stop() {
     stopPlayback()
     clockState = .unknown
+    requestedPlay = nil
 
     self.currentItem = nil
     MPNowPlayingInfoCenter.default().playbackState = .stopped
@@ -1957,5 +2073,20 @@ extension PlayerManager {
       SleepTimer.shared.restartTimer()
       self?.play()
     }
+  }
+}
+
+/// Resumes its continuation once, with the first value it's given
+@MainActor
+private final class FirstAnswer<T> {
+  private var continuation: CheckedContinuation<T?, Never>?
+
+  init(_ continuation: CheckedContinuation<T?, Never>) {
+    self.continuation = continuation
+  }
+
+  func give(_ value: T?) {
+    continuation?.resume(returning: value)
+    continuation = nil
   }
 }

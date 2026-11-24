@@ -46,6 +46,11 @@ public protocol SyncServiceProtocol {
   /// Fetch the contents at the relativePath and override local contents with the remote repsonse
   func syncListContents(at relativePath: String?) async throws
 
+  /// The play-time check, as a play the user asked for starts: stores the server's play of the book when
+  /// another device played it after `lastPlayDate`, this device's play time for the book when play was
+  /// pressed. True when it did; false otherwise and on any failure, and the play goes on from here
+  func adoptNewerPlay(of relativePath: String, uuid: String, playedAt lastPlayDate: Date?) async -> Bool
+
   /// The first sync: registers what the server is missing (the missing-items pass), then
   /// reconciles the library root without deleting anything. Runs after signing in and on
   /// coming back from a lapse
@@ -483,6 +488,43 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
   public func setLibraryLastBook(with relativePath: String?) async {
     await libraryService.updateLibraryLastBook(with: relativePath)
+  }
+
+  /// Asks for this one book (decided 2026-11-21; the web does the same), so pressing play right
+  /// after another device listened starts where that device stopped, instead of sending this device's older
+  /// spot as the newest. Only a strictly newer play counts, and it moves position, progress, finished and
+  /// play date whichever way: the other device may have rewound
+  public func adoptNewerPlay(of relativePath: String, uuid: String, playedAt lastPlayDate: Date?) async -> Bool {
+    guard isActive else { return false }
+
+    let server: SyncableItem
+    do {
+      let response: ContentsResponse = try await provider.request(.item(path: relativePath, uuid: uuid))
+      guard let item = response.content.first else { return false }
+      server = item
+    } catch {
+      Self.logger.trace("Play-time check failed: \(error.localizedDescription)")
+      return false
+    }
+
+    /// `updateInfo` finds the row by path
+    guard
+      server.uuid == uuid,
+      server.relativePath == relativePath,
+      Self.isNewerPlay(server.lastPlayDateTimestamp, than: lastPlayDate)
+    else { return false }
+
+    await libraryService.updateInfo(for: server)
+    return true
+  }
+
+  /// Whether the server's play is newer than `localPlayDate`, in whole seconds. Both are truncated, as the
+  /// server stores what it's sent (`parseInt`): this device's own play read back is never newer
+  static func isNewerPlay(_ serverTimestamp: Double?, than localPlayDate: Date?) -> Bool {
+    guard let serverTimestamp else { return false }
+    guard let localPlayDate else { return true }
+
+    return Int(serverTimestamp) > Int(localPlayDate.timeIntervalSince1970)
   }
 
   public func syncBookmarksList(relativePath: String) async throws -> [SimpleBookmark]? {
