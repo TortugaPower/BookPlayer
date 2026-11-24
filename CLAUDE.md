@@ -763,7 +763,12 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
 
 - **Import** (`Import/`): files enter from the document picker / drag-drop, the **share extension** (writes into
   the App Group folder, picked up by a `DirectoryWatcher`), URL-open/intents, and remote downloads — all
-  converging on `ImportManager` (`ObservableObject`). Picked, dropped and opened files are first copied into
+  converging on `ImportManager` (`ObservableObject`). The folder watchers miss what arrives while the app is
+  suspended, so `LibraryRootView` also scans Documents, the shared folder and the Inbox
+  (`ImportManager.notifyPendingFiles()`) at launch, whenever the app becomes active (UIKit's
+  `didBecomeActiveNotification`: `scenePhase` doesn't change in the app's `UIHostingController`), and on
+  pull-to-refresh.
+  Picked, dropped and opened files are first copied into
   Documents while their URLs still carry access, and the Documents watcher queues the copy. A file another app
   opens in place (iCloud Drive, On My iPhone) travels as the URL the system handed over (`Action.fileURL`; one
   rebuilt from its path can't read it) to `MainCoordinator.processFiles`, which copies it off the main thread
