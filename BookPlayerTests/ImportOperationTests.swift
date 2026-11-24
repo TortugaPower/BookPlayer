@@ -224,6 +224,144 @@ class ImportOperationTests: XCTestCase {
 
     wait(for: [promise], timeout: 15)
   }
+
+  /// A big batch imports to the end on an import queue thread: going from file to file by recursion
+  /// overflowed that thread's stack after a few hundred files.
+  func testABigBatchImportsEveryFile() throws {
+    let source = FileManager.default.temporaryDirectory.appendingPathComponent("import-batch-\(UUID().uuidString)")
+    try FileManager.default.createDirectory(at: source, withIntermediateDirectories: true)
+    defer {
+      try? FileManager.default.removeItem(at: source)
+      DataTestUtils.clearFolderContents(url: DataManager.getProcessedFolderURL())
+    }
+    let files = (1...1_000).map {
+      DataTestUtils.generateTestFile(
+        name: String(format: "track-%04d.mp3", $0),
+        contents: Data("audio".utf8),
+        destinationFolder: source
+      )
+    }
+    let operation = ImportOperation(files: files, libraryService: LibraryServiceProtocolMock())
+
+    let queue = OperationQueue()
+    queue.addOperation(operation)
+    queue.waitUntilAllOperationsAreFinished()
+
+    XCTAssertEqual(operation.processedFiles.count, 1_000)
+  }
+
+  /// A name already taken in Processed gets "-1". On a 255-byte name that passed the file system's
+  /// limit and the copy failed; now the stem gives up characters instead.
+  func testATakenLongNameImportsWithinTheNameLimit() throws {
+    let name = "Long Audiobook Title " + String(repeating: "x", count: 230) + ".m4a"
+    XCTAssertEqual(name.utf8.count, 255)
+    _ = DataTestUtils.generateTestFile(
+      name: name,
+      contents: Data("taken".utf8),
+      destinationFolder: DataManager.getProcessedFolderURL()
+    )
+    let source = DataTestUtils.generateTestFile(
+      name: name,
+      contents: Data("new".utf8),
+      destinationFolder: DataManager.getDocumentsFolderURL()
+    )
+    let operation = ImportOperation(files: [source], libraryService: LibraryServiceProtocolMock())
+
+    operation.start()
+
+    let imported = try XCTUnwrap(operation.processedFiles.first)
+    XCTAssertLessThanOrEqual(imported.lastPathComponent.utf8.count, 255)
+    XCTAssertTrue(imported.lastPathComponent.hasPrefix("Long Audiobook Title "))
+    XCTAssertTrue(imported.lastPathComponent.hasSuffix("-1.m4a"))
+    XCTAssertEqual(FileManager.default.contents(atPath: imported.path), Data("new".utf8))
+  }
+
+  func testNumberedNameKeepsAShortName() {
+    XCTAssertEqual(ImportOperation.numberedFileName(stem: "Book", counter: 2, fileExtension: "m4a"), "Book-2.m4a")
+    XCTAssertEqual(ImportOperation.numberedFileName(stem: "Book", counter: 1, fileExtension: ""), "Book-1")
+  }
+
+  /// Too long for "-1": the middle goes, while the start (what sorting looks at) and the end (where
+  /// track numbers are) stay.
+  func testNumberedNameCutsTheMiddleOfALongStem() {
+    let stem = "Start of the title " + String(repeating: "x", count: 240) + " Part 001"
+
+    let name = ImportOperation.numberedFileName(stem: stem, counter: 1, fileExtension: "m4a")
+
+    XCTAssertEqual(name.utf8.count, 255)
+    XCTAssertTrue(name.hasPrefix("Start of the title "))
+    XCTAssertTrue(name.hasSuffix(" Part 001-1.m4a"))
+  }
+
+  /// The cut never splits a character, whatever its size in bytes.
+  func testNumberedNameNeverSplitsACharacter() {
+    let stem = String(repeating: "😀", count: 100)
+
+    let name = ImportOperation.numberedFileName(stem: stem, counter: 1, fileExtension: "m4a")
+
+    XCTAssertLessThanOrEqual(name.utf8.count, 255)
+    XCTAssertTrue(name.hasSuffix("-1.m4a"))
+    XCTAssertTrue(name.dropLast("-1.m4a".count).allSatisfy { $0 == "😀" })
+  }
+}
+
+// MARK: - Import queue
+
+final class ImportManagerQueueTests: XCTestCase {
+  private var root: URL!
+
+  override func setUpWithError() throws {
+    root = FileManager.default.temporaryDirectory.appendingPathComponent("import-queue-\(UUID().uuidString)")
+    try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
+  }
+
+  override func tearDown() {
+    try? FileManager.default.removeItem(at: root)
+    super.tearDown()
+  }
+
+  /// On a device the folder watchers name a file in Documents `/var/…`, while the same file opened
+  /// from the Files app arrives as `/private/var/…`. A symlinked folder gives the same two spellings.
+  func testTheSameFileUnderTwoSpellingsIsQueuedOnce() throws {
+    let folder = root.appendingPathComponent("real")
+    try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+    let alias = root.appendingPathComponent("alias")
+    try FileManager.default.createSymbolicLink(at: alias, withDestinationURL: folder)
+    let file = DataTestUtils.generateTestFile(name: "book.mp3", contents: Data("audio".utf8), destinationFolder: folder)
+    let importManager = ImportManager(libraryService: LibraryServiceProtocolMock())
+
+    importManager.process(file)
+    importManager.process(alias.appendingPathComponent("book.mp3"))
+
+    XCTAssertEqual(importManager.prepareOperation()?.files.count, 1)
+  }
+
+  /// A file that's gone by the time it's queued never reaches the import screen.
+  func testAFileThatIsGoneIsNotListed() {
+    let importManager = ImportManager(libraryService: LibraryServiceProtocolMock())
+    var listed = [URL]()
+    let subscription = importManager.observeFiles().sink { listed = $0 }
+    defer { subscription.cancel() }
+
+    importManager.process(root.appendingPathComponent("gone.mp3"))
+
+    XCTAssertEqual(listed, [])
+    XCTAssertFalse(importManager.hasPendingFiles())
+    XCTAssertNil(importManager.prepareOperation())
+  }
+
+  /// One that goes after the screen listed it is left out when Import is tapped.
+  func testAFileGoneAfterItIsListedIsLeftOutOfTheImport() throws {
+    let file = DataTestUtils.generateTestFile(name: "book.mp3", contents: Data("audio".utf8), destinationFolder: root)
+    let gone = DataTestUtils.generateTestFile(name: "gone.mp3", contents: Data("audio".utf8), destinationFolder: root)
+    let importManager = ImportManager(libraryService: LibraryServiceProtocolMock())
+    importManager.process(file)
+    importManager.process(gone)
+
+    try FileManager.default.removeItem(at: gone)
+
+    XCTAssertEqual(importManager.prepareOperation()?.files.map(\.lastPathComponent), ["book.mp3"])
+  }
 }
 
 // MARK: - Files opened from other apps
