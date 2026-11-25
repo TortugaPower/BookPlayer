@@ -937,21 +937,19 @@ extension SyncService {
 }
 
 extension SyncService {
-  /// What a stopped download carries on from. Only a download the system stopped has it (a
-  /// force-quit, background updates turned off, too few resources): a background session already
-  /// carries one through a dropped connection by itself. Nil for the user's cancel (`cancel()`,
-  /// which gives no reason) and for a download that can't carry on: an error answer, a server
-  /// that can't send part of a file, a partial file the system deleted.
+  /// What a download the system cancelled carries on from: a force-quit, background updates
+  /// turned off, too few resources (the system says why). A background session already carries
+  /// a download through a dropped connection by itself. Nil for every other failure, the user's
+  /// cancel (`cancel()`, which gives no reason) included (decided): one that also comes with resume
+  /// data, like a write the full disk refused, would fail the same way again and again.
   static func resumeData(afterFailure error: Error?) -> Data? {
-    guard let error = error as? URLError, let resumeData = error.downloadTaskResumeData else { return nil }
+    guard
+      let error = error as? URLError,
+      error.code == .cancelled,
+      (error as NSError).userInfo[NSURLErrorBackgroundTaskCancelledReasonKey] != nil
+    else { return nil }
 
-    if error.code == .cancelled,
-      (error as NSError).userInfo[NSURLErrorBackgroundTaskCancelledReasonKey] == nil
-    {
-      return nil
-    }
-
-    return resumeData
+    return error.downloadTaskResumeData
   }
 
   func handleFinishedDownload(

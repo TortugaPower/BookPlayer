@@ -634,15 +634,16 @@ The four skip-interval statics are `nonisolated`.
 - **Download verification:** `verifyDownloadedFile` rejects truncated files by comparing `AVURLAsset` duration to
   the stored duration (tolerance `max(2, expected*0.02)`); completion is broadcast only after verification.
   Don't skip it — it prevents promoting a truncated book.
-- **Stopped downloads carry on** (`SyncService.handleFinishedDownload` → `resumeDownload`). A background session
-  already carries a download through a dropped connection by itself; what reaches the app with
-  `downloadTaskResumeData` is a download the system stopped: a force-quit (delivered at the next launch, after the
-  session's restore has listed the stopped task), background updates turned off, too few resources. It resumes
-  under a new task (`NetworkClient.download(resumeData:)`) in the stopped one's place, with no error published,
-  after a force-quit too (decided, as on Android). The user's cancel (`.cancelled` without
-  `NSURLErrorBackgroundTaskCancelledReasonKey`) and failures without resume data (error answers, an expired link, a
-  partial file the system deleted) fail as before. A resumed task's byte counts and `didWriteData` totals cover the
-  whole file, so `verifyDownloadIsComplete` and the progress % hold (checked in the simulator).
+- **Downloads the system cancelled carry on** (`SyncService.handleFinishedDownload` → `resumeDownload`). A
+  background session already carries a download through a dropped connection by itself. A download the system
+  cancels — `.cancelled` with `NSURLErrorBackgroundTaskCancelledReasonKey`: a force-quit (delivered at the next
+  launch, after the session's restore has listed the stopped task), background updates turned off, too few
+  resources — resumes from its `downloadTaskResumeData` under a new task (`NetworkClient.download(resumeData:)`)
+  in the stopped one's place, with no error published, after a force-quit too (decided, as on Android). Every
+  other failure fails as before, even one that carries resume data (decided: a write a full disk refused would fail
+  again on every resume, with the row stuck on downloading), and so does the user's cancel (no reason key). A
+  resumed task's byte counts and `didWriteData` totals cover the whole file, so `verifyDownloadIsComplete` and the
+  progress % hold (checked in the simulator).
 
 ---
 

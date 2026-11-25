@@ -13,9 +13,9 @@ import XCTest
 @testable import BookPlayer
 @testable import BookPlayerKit
 
-/// A cloud download the system stops (a force-quit, or the system cancelling it) carries on from
-/// where it stopped under a new task, with no error shown. The user's own cancel, and a download
-/// that can't carry on, fail as before.
+/// A cloud download the system cancels (a force-quit, background updates turned off, too few
+/// resources) carries on from where it stopped under a new task, with no error shown. Every other
+/// failure, the user's own cancel included, fails as before.
 final class DownloadResumeTests: XCTestCase {
   private let folderPath = "Book Folder"
   private let bookPath = "Book Folder/book.opus"
@@ -64,14 +64,24 @@ final class DownloadResumeTests: XCTestCase {
 
   // MARK: - Which stops carry on
 
-  func testOnlyADownloadTheSystemStoppedCarriesOn() {
+  func testOnlyADownloadTheSystemCancelledCarriesOn() {
     XCTAssertEqual(SyncService.resumeData(afterFailure: forceQuit()), resumeData)
     XCTAssertEqual(
-      SyncService.resumeData(afterFailure: URLError(.timedOut, userInfo: [NSURLSessionDownloadTaskResumeData: resumeData])),
+      SyncService.resumeData(afterFailure: URLError(.cancelled, userInfo: [
+        NSURLSessionDownloadTaskResumeData: resumeData,
+        NSURLErrorBackgroundTaskCancelledReasonKey: NSURLErrorCancelledReasonBackgroundUpdatesDisabled,
+      ])),
       resumeData
     )
 
     XCTAssertNil(SyncService.resumeData(afterFailure: usersCancel()), "the user's cancel stays cancelled")
+    XCTAssertNil(
+      SyncService.resumeData(afterFailure: URLError(.cannotWriteToFile, userInfo: [NSURLSessionDownloadTaskResumeData: resumeData])),
+      "a write the full disk refused would fail again on every resume"
+    )
+    XCTAssertNil(
+      SyncService.resumeData(afterFailure: URLError(.timedOut, userInfo: [NSURLSessionDownloadTaskResumeData: resumeData]))
+    )
     XCTAssertNil(
       SyncService.resumeData(afterFailure: URLError(.cancelled, userInfo: [
         NSURLErrorBackgroundTaskCancelledReasonKey: NSURLErrorCancelledReasonInsufficientSystemResources,
