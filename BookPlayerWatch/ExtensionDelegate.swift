@@ -21,8 +21,25 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate, ObservableObject {
   /// Reference to the task that creates the core services
   var setupCoreServicesTask: Task<(), Error>?
   var errorCoreServicesSetup: Error?
+  /// Answers watchOS's wakes for the downloads session once each finished or stopped download is
+  /// handled (moved and verified, or resumed), as the phone does, so it happens while the app is
+  /// closed (decided). The download session comes with the core services; the watch uploads nothing.
+  private lazy var backgroundSessionWakes = BackgroundSessionWakeCoordinator(dependencies: .init(
+    activateSessions: { _ in },
+    settleUploads: {},
+    settleDownloads: { [weak self] in
+      _ = try? await self?.setupCoreServicesTask?.value
+      await self?.coreServices?.syncService.settleDownloads()
+    },
+    // The wake itself is the time
+    beginBackgroundTime: { _ in nil },
+    // Well inside a background task's time on the watch
+    timeout: .seconds(10)
+  ))
 
   func applicationDidFinishLaunching() {
+    // Before anything can wake a session, so a "finished events" that comes first isn't missed
+    _ = backgroundSessionWakes
     setupRevenueCat()
     setupCoreServices()
     setupMPRemoteCommands()
@@ -165,8 +182,9 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate, ObservableObject {
         // Be sure to complete the connectivity task once you’re done.
         connectivityTask.setTaskCompletedWithSnapshot(false)
       case let urlSessionTask as WKURLSessionRefreshBackgroundTask:
-        // Be sure to complete the URL session task once you’re done.
-        urlSessionTask.setTaskCompletedWithSnapshot(false)
+        backgroundSessionWakes.handleEvents(forSession: urlSessionTask.sessionIdentifier) {
+          urlSessionTask.setTaskCompletedWithSnapshot(false)
+        }
       case let relevantShortcutTask as WKRelevantShortcutRefreshBackgroundTask:
         // Be sure to complete the relevant-shortcut task once you're done.
         relevantShortcutTask.setTaskCompletedWithSnapshot(false)

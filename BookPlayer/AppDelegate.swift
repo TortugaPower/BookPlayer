@@ -49,7 +49,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, BPLogger {
   private lazy var databaseBackupTaskIdentifier =
     "\(Bundle.main.configurationString(for: .bundleIdentifier)).background.database.backup"
   /// Answers iOS's relaunches and wakes for the background transfer sessions
-  private lazy var backgroundSessionWakes = BackgroundSessionWakeCoordinator()
+  private lazy var backgroundSessionWakes = BackgroundSessionWakeCoordinator(dependencies: .live)
 
   func application(
     _ application: UIApplication,

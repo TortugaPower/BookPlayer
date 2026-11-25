@@ -262,22 +262,29 @@ public final class SyncService: SyncServiceProtocol, BPLogger {
 
     self.downloadURLSession.backgroundSession.getTasksWithCompletionHandler { _, _, downloadTasks in
       for task in downloadTasks {
-        guard let relativePath = task.taskDescription else { continue }
-
-        let paths: [String] = relativePath.allRanges(of: "/")
-          .map { String(relativePath.prefix(upTo: $0.lowerBound)) }
-          .reversed()
-        let parentFolder = paths.last
-
-        let initiatingPath = parentFolder ?? relativePath
-
-        var tasksArray = self.downloadTasksDictionary[initiatingPath] ?? []
-        tasksArray.append(task)
-        self.downloadTasksDictionary[initiatingPath] = tasksArray
-        self.ongoingTasksParentReference[relativePath] = initiatingPath
-        self.initiatingFolderReference[relativePath] = paths.count > 1 ? parentFolder : nil
+        self.trackDownloadFromAnEarlierLaunch(task)
       }
     }
+  }
+
+  /// Tracks a download this launch didn't start under the top-level item it belongs to: one the
+  /// session restored (it lists a stopped one too, until its outcome is delivered), or the resume
+  /// of one stopped before this launch
+  func trackDownloadFromAnEarlierLaunch(_ task: URLSessionTask) {
+    guard let relativePath = task.taskDescription else { return }
+
+    let paths: [String] = relativePath.allRanges(of: "/")
+      .map { String(relativePath.prefix(upTo: $0.lowerBound)) }
+      .reversed()
+    let parentFolder = paths.last
+
+    let initiatingPath = parentFolder ?? relativePath
+
+    var tasksArray = downloadTasksDictionary[initiatingPath] ?? []
+    tasksArray.append(task)
+    downloadTasksDictionary[initiatingPath] = tasksArray
+    ongoingTasksParentReference[relativePath] = initiatingPath
+    initiatingFolderReference[relativePath] = paths.count > 1 ? parentFolder : nil
   }
 
   func bindObservers() {
@@ -930,7 +937,24 @@ extension SyncService {
 }
 
 extension SyncService {
-  private func handleFinishedDownload(
+  /// What a stopped download carries on from. Only a download the system stopped has it (a
+  /// force-quit, background updates turned off, too few resources): a background session already
+  /// carries one through a dropped connection by itself. Nil for the user's cancel (`cancel()`,
+  /// which gives no reason) and for a download that can't carry on: an error answer, a server
+  /// that can't send part of a file, a partial file the system deleted.
+  static func resumeData(afterFailure error: Error?) -> Data? {
+    guard let error = error as? URLError, let resumeData = error.downloadTaskResumeData else { return nil }
+
+    if error.code == .cancelled,
+      (error as NSError).userInfo[NSURLErrorBackgroundTaskCancelledReasonKey] == nil
+    {
+      return nil
+    }
+
+    return resumeData
+  }
+
+  func handleFinishedDownload(
     task: URLSessionTask,
     location: URL?,
     error: Error?
@@ -976,6 +1000,13 @@ extension SyncService {
       return
     case .none:
       break
+    }
+
+    // Carries on from where it stopped, with no tap and no error shown; after a force-quit, at
+    // the next launch (decided, as on Android)
+    if location == nil, let resumeData = Self.resumeData(afterFailure: error) {
+      resumeDownload(of: task, relativePath: relativePath, resumeData: resumeData)
+      return
     }
 
     var finalError = error
@@ -1044,6 +1075,25 @@ extension SyncService {
         _ = self.finalizeLock.withLock { self.finalizeTasks.removeValue(forKey: id) }
       }
     }
+  }
+
+  /// Carries a stopped download on under a new task, in the stopped one's place. On the delegate
+  /// queue, where the bookkeeping lives.
+  private func resumeDownload(of failedTask: URLSessionTask, relativePath: String, resumeData: Data) {
+    Self.logger.info("Resuming the download of \(relativePath)")
+    let task = provider.client.download(
+      resumeData: resumeData,
+      taskDescription: relativePath,
+      session: downloadURLSession.backgroundSession
+    )
+
+    guard let startingItemPath = ongoingTasksParentReference[relativePath] else {
+      trackDownloadFromAnEarlierLaunch(task)
+      return
+    }
+
+    downloadTasksDictionary[startingItemPath] = (downloadTasksDictionary[startingItemPath] ?? [])
+      .filter { $0 != failedTask } + [task]
   }
 
   /// Looks a media-server file up again after its download's 404 and downloads it once more,

@@ -528,10 +528,14 @@ The four skip-interval statics are `nonisolated`.
   delivered parts and queued the next ones (`FileUploadOperation.settle()`) — under `beginBackgroundTask`, with a
   25 s cap; calling the handler earlier suspends the app mid-request. The downloads session waits the same way
   for `SyncService.settleDownloads()` (each finished download's follow-up: chapters, verification, scheduling —
-  Core Data in the App Group container); any other session (single-file media-server downloads) is answered right
-  away. Both delegates post `.backgroundSessionFinishedEvents` from SERIAL delegate queues (so it follows the last
-  completion); either order of handler and events works. The coordinator is created in `didFinishLaunching`, before
-  anything can wake a session. These session names are NOT `BGTaskSchedulerPermittedIdentifiers`.
+  Core Data in the App Group container — or the resume of a stopped one); any other session (single-file
+  media-server downloads) is answered right away. Both delegates post `.backgroundSessionFinishedEvents` from SERIAL
+  delegate queues (so it follows the last completion); either order of handler and events works. The coordinator is
+  created in `didFinishLaunching`, before anything can wake a session. These session names are NOT
+  `BGTaskSchedulerPermittedIdentifiers`. The coordinator lives in `Shared/` and each app supplies its `Dependencies`:
+  the phone's `.live` (app target: a UIKit background task, 25 s) and the watch's in `ExtensionDelegate`, which
+  completes its `WKURLSessionRefreshBackgroundTask` through it (downloads only, no background task, 10 s), so a
+  download finishes or resumes while the watch app is closed (decided).
   **Continued task:** `UploadContinuationController` (app target, owned by `AppServices`, registered at launch as
   `<bundle>.uploads.continued`) runs ONE `BGContinuedProcessingTask` for the whole upload queue, so uploads keep
   full speed in the background (Live Activity "Uploading files", "(x / n) <file name>", progress in bytes). It is
@@ -630,6 +634,15 @@ The four skip-interval statics are `nonisolated`.
 - **Download verification:** `verifyDownloadedFile` rejects truncated files by comparing `AVURLAsset` duration to
   the stored duration (tolerance `max(2, expected*0.02)`); completion is broadcast only after verification.
   Don't skip it — it prevents promoting a truncated book.
+- **Stopped downloads carry on** (`SyncService.handleFinishedDownload` → `resumeDownload`). A background session
+  already carries a download through a dropped connection by itself; what reaches the app with
+  `downloadTaskResumeData` is a download the system stopped: a force-quit (delivered at the next launch, after the
+  session's restore has listed the stopped task), background updates turned off, too few resources. It resumes
+  under a new task (`NetworkClient.download(resumeData:)`) in the stopped one's place, with no error published,
+  after a force-quit too (decided, as on Android). The user's cancel (`.cancelled` without
+  `NSURLErrorBackgroundTaskCancelledReasonKey`) and failures without resume data (error answers, an expired link, a
+  partial file the system deleted) fail as before. A resumed task's byte counts and `didWriteData` totals cover the
+  whole file, so `verifyDownloadIsComplete` and the progress % hold (checked in the simulator).
 
 ---
 
