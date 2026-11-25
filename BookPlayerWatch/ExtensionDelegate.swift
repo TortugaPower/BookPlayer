@@ -182,9 +182,14 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate, ObservableObject {
         // Be sure to complete the connectivity task once you’re done.
         connectivityTask.setTaskCompletedWithSnapshot(false)
       case let urlSessionTask as WKURLSessionRefreshBackgroundTask:
-        backgroundSessionWakes.handleEvents(forSession: urlSessionTask.sessionIdentifier) {
-          urlSessionTask.setTaskCompletedWithSnapshot(false)
-        }
+        // watchOS doesn't say how long the wake lasts: if it ends before the coordinator answers,
+        // the wake is completed then
+        let completion = WakeCompletion(urlSessionTask)
+        urlSessionTask.expirationHandler = { completion.complete() }
+        backgroundSessionWakes.handleEvents(
+          forSession: urlSessionTask.sessionIdentifier,
+          completionHandler: { completion.complete() }
+        )
       case let relevantShortcutTask as WKRelevantShortcutRefreshBackgroundTask:
         // Be sure to complete the relevant-shortcut task once you're done.
         relevantShortcutTask.setTaskCompletedWithSnapshot(false)
@@ -347,5 +352,24 @@ extension ExtensionDelegate: PurchasesDelegate {
     // and posts .accountUpdate, which SyncService observes (for the queue's policy too) —
     // this replaced a hand-rolled entitlement parse forwarded manually to the queue.
     coreServices?.accountService.updateAccount(from: customerInfo)
+  }
+}
+
+/// Completes a background wake once: when the coordinator answers, or when watchOS's time for it
+/// runs out, whichever comes first
+private final class WakeCompletion: @unchecked Sendable {
+  private let lock = NSLock()
+  private var task: WKRefreshBackgroundTask?
+
+  init(_ task: WKRefreshBackgroundTask) {
+    self.task = task
+  }
+
+  func complete() {
+    let task = lock.withLock {
+      defer { self.task = nil }
+      return self.task
+    }
+    task?.setTaskCompletedWithSnapshot(false)
   }
 }
