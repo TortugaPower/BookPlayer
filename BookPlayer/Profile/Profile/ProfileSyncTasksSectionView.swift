@@ -23,7 +23,6 @@ struct ProfileSyncTasksSectionView: View {
 
   @Environment(\.syncQueueService) private var syncQueueService
   @Environment(\.uploadContinuation) private var uploadContinuation
-  @Environment(\.scenePhase) private var scenePhase
   /// Read so the button follows the setting (the offer checks it, but can't observe it)
   @AppStorage(Constants.UserDefaults.allowCellularData) private var allowsCellularData = false
   @EnvironmentObject private var theme: ThemeViewModel
@@ -60,9 +59,9 @@ struct ProfileSyncTasksSectionView: View {
       }
     }
     .task { await uploadContinuation.refreshState() }
-    // iOS may drop the request while the app is away
-    .onChange(of: scenePhase) { _, phase in
-      guard phase == .active else { return }
+    // iOS may drop the request while the app is away. UIKit's notification, not `scenePhase`: the app hosts
+    // SwiftUI in a `UIHostingController`, where `scenePhase` doesn't change when the app goes to the background.
+    .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
       Task { await uploadContinuation.refreshState() }
     }
   }

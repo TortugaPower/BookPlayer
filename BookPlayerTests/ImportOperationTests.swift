@@ -336,6 +336,25 @@ final class ImportManagerQueueTests: XCTestCase {
     XCTAssertEqual(importManager.prepareOperation()?.files.count, 1)
   }
 
+  /// Coming back to the app looks in the folders again, since the folder watchers miss what arrives while
+  /// it's suspended. A file waiting there is queued once, however often that happens.
+  @MainActor
+  func testAWaitingFileIsQueuedOnceHoweverOftenTheFoldersAreScanned() throws {
+    let file = DataTestUtils.generateTestFile(
+      name: "shared-\(UUID().uuidString).mp3",
+      contents: Data("audio".utf8),
+      destinationFolder: DataManager.getSharedFilesFolderURL()
+    )
+    defer { try? FileManager.default.removeItem(at: file) }
+    let importManager = ImportManager(libraryService: LibraryServiceProtocolMock())
+
+    importManager.notifyPendingFiles()
+    importManager.notifyPendingFiles()
+
+    let queued = importManager.prepareOperation()?.files ?? []
+    XCTAssertEqual(queued.filter { $0.lastPathComponent == file.lastPathComponent }.count, 1)
+  }
+
   /// A file that's gone by the time it's queued never reaches the import screen.
   func testAFileThatIsGoneIsNotListed() {
     let importManager = ImportManager(libraryService: LibraryServiceProtocolMock())

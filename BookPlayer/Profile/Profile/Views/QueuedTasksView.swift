@@ -35,7 +35,6 @@ struct QueuedTasksView: View, BPLogger {
   @Environment(\.accountService) private var accountService
   @Environment(\.uploadContinuation) private var uploadContinuation
   @Environment(\.accessibilityVoiceOverEnabled) private var voiceOverEnabled
-  @Environment(\.scenePhase) private var scenePhase
   @EnvironmentObject private var theme: ThemeViewModel
 
   private var sections: [QueuedTaskSection] { tasks.groupedByLane() }
@@ -111,9 +110,9 @@ struct QueuedTasksView: View, BPLogger {
         .presentationDetents([.medium, .large])
     }
     .task { await uploadContinuation.refreshState() }
-    // iOS may drop the request while the app is away
-    .onChange(of: scenePhase) { _, phase in
-      guard phase == .active else { return }
+    // iOS may drop the request while the app is away. UIKit's notification, not `scenePhase`: the app hosts
+    // SwiftUI in a `UIHostingController`, where `scenePhase` doesn't change when the app goes to the background.
+    .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
       Task { await uploadContinuation.refreshState() }
     }
     // Subscribed once while the screen is up, not in `.onReceive`: `observeQueueCounts()` is a

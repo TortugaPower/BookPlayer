@@ -48,7 +48,6 @@ struct LibraryRootView: View {
   @Environment(\.playbackService) private var playbackService
   @Environment(\.syncService) private var syncService
   @Environment(\.hardcoverService) private var hardcoverService
-  @Environment(\.scenePhase) private var scenePhase
 
   var body: some View {
     NavigationStack(path: $path) {
@@ -93,8 +92,14 @@ struct LibraryRootView: View {
           await handleLibraryLoaded()
         }
       }
-      .onChange(of: scenePhase) {
-        guard scenePhase == .active else { return }
+      // The folder watchers miss what arrives while the app is suspended, like a file shared from another
+      // app (the share extension writes it into the shared folder), so look in the folders again. UIKit's
+      // notification, not `scenePhase`: the app hosts SwiftUI in a `UIHostingController`, where `scenePhase`
+      // doesn't change when the app goes to the background.
+      .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
+        importManager.notifyPendingFiles()
+        // As below: a download still writing into Documents is offered once it has finished
+        guard !singleFileDownloadService.isDownloading else { return }
         showImport()
       }
       .onReceive(syncService.downloadErrorPublisher) { (relativePath, error) in
