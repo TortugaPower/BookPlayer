@@ -672,6 +672,10 @@ private final class CountingNetworkClient: NetworkClientProtocol {
   func download(request: URLRequest, taskDescription: String?, session: URLSession) async -> URLSessionTask {
     URLSession.shared.downloadTask(with: request)
   }
+
+  func download(resumeData: Data, taskDescription: String?, session: URLSession) -> URLSessionTask {
+    URLSession.shared.downloadTask(with: URL(string: "https://example.com")!)
+  }
 }
 
 /// Inline `AccountServiceProtocol` stub that lets each test flip

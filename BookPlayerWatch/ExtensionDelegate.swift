@@ -21,8 +21,25 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate, ObservableObject {
   /// Reference to the task that creates the core services
   var setupCoreServicesTask: Task<(), Error>?
   var errorCoreServicesSetup: Error?
+  /// Answers watchOS's wakes for the downloads session once each finished or stopped download is
+  /// handled (moved and verified, or resumed), as the phone does, so it happens while the app is
+  /// closed (decided). The download session comes with the core services; the watch uploads nothing.
+  private lazy var backgroundSessionWakes = BackgroundSessionWakeCoordinator(dependencies: .init(
+    activateSessions: { _ in },
+    settleUploads: {},
+    settleDownloads: { [weak self] in
+      _ = try? await self?.setupCoreServicesTask?.value
+      await self?.coreServices?.syncService.settleDownloads()
+    },
+    // The wake itself is the time
+    beginBackgroundTime: { _ in nil },
+    // Well inside a background task's time on the watch
+    timeout: .seconds(10)
+  ))
 
   func applicationDidFinishLaunching() {
+    // Before anything can wake a session, so a "finished events" that comes first isn't missed
+    _ = backgroundSessionWakes
     setupRevenueCat()
     setupCoreServices()
     setupMPRemoteCommands()
@@ -165,8 +182,14 @@ class ExtensionDelegate: NSObject, WKApplicationDelegate, ObservableObject {
         // Be sure to complete the connectivity task once you’re done.
         connectivityTask.setTaskCompletedWithSnapshot(false)
       case let urlSessionTask as WKURLSessionRefreshBackgroundTask:
-        // Be sure to complete the URL session task once you’re done.
-        urlSessionTask.setTaskCompletedWithSnapshot(false)
+        // watchOS doesn't say how long the wake lasts: if it ends before the coordinator answers,
+        // the wake is completed then
+        let completion = WakeCompletion(urlSessionTask)
+        urlSessionTask.expirationHandler = { completion.complete() }
+        backgroundSessionWakes.handleEvents(
+          forSession: urlSessionTask.sessionIdentifier,
+          completionHandler: { completion.complete() }
+        )
       case let relevantShortcutTask as WKRelevantShortcutRefreshBackgroundTask:
         // Be sure to complete the relevant-shortcut task once you're done.
         relevantShortcutTask.setTaskCompletedWithSnapshot(false)
@@ -329,5 +352,24 @@ extension ExtensionDelegate: PurchasesDelegate {
     // and posts .accountUpdate, which SyncService observes (for the queue's policy too) —
     // this replaced a hand-rolled entitlement parse forwarded manually to the queue.
     coreServices?.accountService.updateAccount(from: customerInfo)
+  }
+}
+
+/// Completes a background wake once: when the coordinator answers, or when watchOS's time for it
+/// runs out, whichever comes first
+private final class WakeCompletion: @unchecked Sendable {
+  private let lock = NSLock()
+  private var task: WKRefreshBackgroundTask?
+
+  init(_ task: WKRefreshBackgroundTask) {
+    self.task = task
+  }
+
+  func complete() {
+    let task = lock.withLock {
+      defer { self.task = nil }
+      return self.task
+    }
+    task?.setTaskCompletedWithSnapshot(false)
   }
 }

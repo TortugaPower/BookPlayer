@@ -48,6 +48,13 @@ public protocol NetworkClientProtocol {
     taskDescription: String?,
     session: URLSession
   ) async -> URLSessionTask
+
+  /// Carries a stopped download on from where it stopped
+  func download(
+    resumeData: Data,
+    taskDescription: String?,
+    session: URLSession
+  ) -> URLSessionTask
 }
 
 public class NetworkClient: NetworkClientProtocol, BPLogger {
@@ -130,6 +137,20 @@ public class NetworkClient: NetworkClientProtocol, BPLogger {
 
       return task
     }
+  }
+
+  public func download(
+    resumeData: Data,
+    taskDescription: String?,
+    session: URLSession
+  ) -> URLSessionTask {
+    Self.logger.trace("[Request] Resume download: \(taskDescription ?? "")")
+
+    let task = session.downloadTask(withResumeData: resumeData)
+    task.taskDescription = taskDescription
+    task.resume()
+
+    return task
   }
 
   public func upload(

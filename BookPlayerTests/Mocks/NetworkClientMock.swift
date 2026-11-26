@@ -65,4 +65,14 @@ class NetworkClientMock: NetworkClientProtocol {
   func download(request: URLRequest, taskDescription: String?, session: URLSession) async -> URLSessionTask {
     return URLSession.shared.downloadTask(with: request)
   }
+
+  /// The resume data each resumed download was given, in order
+  var resumedDownloads = [(resumeData: Data, taskDescription: String?)]()
+
+  func download(resumeData: Data, taskDescription: String?, session: URLSession) -> URLSessionTask {
+    resumedDownloads.append((resumeData, taskDescription))
+    let task = URLSession.shared.downloadTask(with: URL(string: "https://example.com/resumed")!)
+    task.taskDescription = taskDescription
+    return task
+  }
 }

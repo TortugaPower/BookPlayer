@@ -558,6 +558,8 @@
 		6399F94D2AA03C6C00A5C8EA /* BPSKANManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6399F94C2AA03C6C00A5C8EA /* BPSKANManager.swift */; };
 		639AC9892AD9F1D50053AFC6 /* BPDownloadURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639AC9882AD9F1D50053AFC6 /* BPDownloadURLSession.swift */; };
 		639AC98A2AD9F1D50053AFC6 /* BPDownloadURLSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639AC9882AD9F1D50053AFC6 /* BPDownloadURLSession.swift */; };
+		B79A2A4F8E397FD9FBC0AB69 /* BackgroundSessionWakeCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B7FE4D07FE189989A4D1998 /* BackgroundSessionWakeCoordinator.swift */; };
+		ACA7F6CE94359BFCF69B1001 /* BackgroundSessionWakeCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B7FE4D07FE189989A4D1998 /* BackgroundSessionWakeCoordinator.swift */; };
 		639AC98B2AD9F2840053AFC6 /* BPTaskDownloadDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB20EA229A1BB750021663B /* BPTaskDownloadDelegate.swift */; };
 		639AC98C2AD9F2840053AFC6 /* BPTaskDownloadDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9FB20EA229A1BB750021663B /* BPTaskDownloadDelegate.swift */; };
 		639DF4982E634C8600B29BBB /* MiniPlayerArtworkView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 639DF4972E634C8600B29BBB /* MiniPlayerArtworkView.swift */; };
@@ -592,7 +594,7 @@
 		4907B9D7B059A2A93D35AAE0 /* UploadContinuationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7DAECA780F8170162DAD1492 /* UploadContinuationController.swift */; };
 		1D47F44E80E286D1F4C38E6B /* PlayMediaIntentHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16176761AC691D74A66F5B8C /* PlayMediaIntentHandler.swift */; };
 		F19A7E432C07A9154CA8293F /* MediaSuggestionsController.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB523142CB957F688D6423B2 /* MediaSuggestionsController.swift */; };
-		AD7114A34343C516BD1890E2 /* BackgroundSessionWakeCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EEA5B438944574494C5385F /* BackgroundSessionWakeCoordinator.swift */; };
+		AD7114A34343C516BD1890E2 /* BackgroundSessionWakeCoordinator+Live.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EEA5B438944574494C5385F /* BackgroundSessionWakeCoordinator+Live.swift */; };
 		D071ABD44684949C58C7D8D0 /* PromptSurfaceArbiter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 42B6A047D0689D9E2E2D9749 /* PromptSurfaceArbiter.swift */; };
 		9AB6B44F84D195FCCF7A4F9F /* PromptSurfaceArbiterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3D4833D717C7B97F7B5DFDC5 /* PromptSurfaceArbiterTests.swift */; };
 		C0C40794A90EEED394B4C957 /* PlaybackAlerts.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3B31C1E62A380C33C60FF9B /* PlaybackAlerts.swift */; };
@@ -1007,6 +1009,7 @@
 		C972F5D6BD6375832F59BF7E /* IntegrationHTTPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5265B16421BFC176BFFE4EA5 /* IntegrationHTTPClient.swift */; };
 		CA3B408256F8458669106CF9 /* IntegrationConnectionViewModelProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4D91D6855100BD1823B2674F /* IntegrationConnectionViewModelProtocol.swift */; };
 		50EEEAE96509B6867FC9180B /* BackgroundSessionWakeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83C482DCC8DC2DF811A3C7BC /* BackgroundSessionWakeTests.swift */; };
+		CFBAB33EF861E37A5FEA658C /* DownloadResumeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 342255443A6CCDA1761803BA /* DownloadResumeTests.swift */; };
 		AD29E50C515772ADFB03CBB0 /* StreamingLinkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18DA84E07E6A2BDD5CF760F8 /* StreamingLinkTests.swift */; };
 		6C5741E68D44175ECF900294 /* UploadContinuationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04EDE7B20E949F916D8ECA2D /* UploadContinuationTests.swift */; };
 		B6E617DFC7B576657E50C24B /* MediaSuggestionsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FB309B6C798D1FC126254DAC /* MediaSuggestionsTests.swift */; };
@@ -1761,7 +1764,8 @@
 		7DAECA780F8170162DAD1492 /* UploadContinuationController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UploadContinuationController.swift; sourceTree = "<group>"; };
 		16176761AC691D74A66F5B8C /* PlayMediaIntentHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlayMediaIntentHandler.swift; sourceTree = "<group>"; };
 		BB523142CB957F688D6423B2 /* MediaSuggestionsController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MediaSuggestionsController.swift; sourceTree = "<group>"; };
-		5EEA5B438944574494C5385F /* BackgroundSessionWakeCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundSessionWakeCoordinator.swift; sourceTree = "<group>"; };
+		3B7FE4D07FE189989A4D1998 /* BackgroundSessionWakeCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundSessionWakeCoordinator.swift; sourceTree = "<group>"; };
+		5EEA5B438944574494C5385F /* BackgroundSessionWakeCoordinator+Live.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BackgroundSessionWakeCoordinator+Live.swift"; sourceTree = "<group>"; };
 		42B6A047D0689D9E2E2D9749 /* PromptSurfaceArbiter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptSurfaceArbiter.swift; sourceTree = "<group>"; };
 		3D4833D717C7B97F7B5DFDC5 /* PromptSurfaceArbiterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptSurfaceArbiterTests.swift; sourceTree = "<group>"; };
 		F272F6B4BD466581AA888D36 /* SleepTimerOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepTimerOption.swift; sourceTree = "<group>"; };
@@ -2107,6 +2111,7 @@
 		FEEDBABE0000000000000001 /* SharedWidgetStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedWidgetStore.swift; sourceTree = "<group>"; };
 		FEEDBABE0000000000000004 /* SharedWidgetStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedWidgetStoreTests.swift; sourceTree = "<group>"; };
 		FF75FEB4DEC37DBE232CD140 /* SyncQueueTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SyncQueueTests.swift; sourceTree = "<group>"; };
+		342255443A6CCDA1761803BA /* DownloadResumeTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = DownloadResumeTests.swift; sourceTree = "<group>"; };
 		18DA84E07E6A2BDD5CF760F8 /* StreamingLinkTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StreamingLinkTests.swift; sourceTree = "<group>"; };
 		04EDE7B20E949F916D8ECA2D /* UploadContinuationTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UploadContinuationTests.swift; sourceTree = "<group>"; };
 		FB309B6C798D1FC126254DAC /* MediaSuggestionsTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MediaSuggestionsTests.swift; sourceTree = "<group>"; };
@@ -3523,7 +3528,7 @@
 				7DAECA780F8170162DAD1492 /* UploadContinuationController.swift */,
 				16176761AC691D74A66F5B8C /* PlayMediaIntentHandler.swift */,
 				BB523142CB957F688D6423B2 /* MediaSuggestionsController.swift */,
-				5EEA5B438944574494C5385F /* BackgroundSessionWakeCoordinator.swift */,
+				5EEA5B438944574494C5385F /* BackgroundSessionWakeCoordinator+Live.swift */,
 				42B6A047D0689D9E2E2D9749 /* PromptSurfaceArbiter.swift */,
 				8A9D0D2F2CD0E06F007A924D /* SingleFileDownloadService.swift */,
 			);
@@ -3561,6 +3566,7 @@
 				C64E54AA0319D8F687DFB6E4 /* SyncPauseReportingTests.swift */,
 				B2339A98D9659EA78CB738CF /* TasksDataManagerStoreTests.swift */,
 				18DA84E07E6A2BDD5CF760F8 /* StreamingLinkTests.swift */,
+				342255443A6CCDA1761803BA /* DownloadResumeTests.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -4009,6 +4015,7 @@
 				9FC1E4492814C4DE00522FA8 /* NetworkClient.swift */,
 				6357F1182A8BA084007947FC /* BPURLSession.swift */,
 				639AC9882AD9F1D50053AFC6 /* BPDownloadURLSession.swift */,
+				3B7FE4D07FE189989A4D1998 /* BackgroundSessionWakeCoordinator.swift */,
 				9FC1E45B2814E6A500522FA8 /* NetworkProvider.swift */,
 				9FC1E4582814E0B000522FA8 /* NetworkUtils.swift */,
 			);
@@ -4891,6 +4898,7 @@
 				4140EA78227289BC0009F794 /* PlaybackRecord+CoreDataClass.swift in Sources */,
 				4140EA79227289BF0009F794 /* PlaybackRecord+CoreDataProperties.swift in Sources */,
 				639AC98A2AD9F1D50053AFC6 /* BPDownloadURLSession.swift in Sources */,
+				B79A2A4F8E397FD9FBC0AB69 /* BackgroundSessionWakeCoordinator.swift in Sources */,
 				63CD851F2CE2EEE200EDBEA8 /* Fonts.swift in Sources */,
 				99F3C1FB2F5F873900AC91A2 /* UUIDMigrationPolicy.swift in Sources */,
 				9961DA72E9D53B8DA131BEB2 /* BPFont.swift in Sources */,
@@ -5391,7 +5399,7 @@
 				4907B9D7B059A2A93D35AAE0 /* UploadContinuationController.swift in Sources */,
 				1D47F44E80E286D1F4C38E6B /* PlayMediaIntentHandler.swift in Sources */,
 				F19A7E432C07A9154CA8293F /* MediaSuggestionsController.swift in Sources */,
-				AD7114A34343C516BD1890E2 /* BackgroundSessionWakeCoordinator.swift in Sources */,
+				AD7114A34343C516BD1890E2 /* BackgroundSessionWakeCoordinator+Live.swift in Sources */,
 				D071ABD44684949C58C7D8D0 /* PromptSurfaceArbiter.swift in Sources */,
 				634BA5A52C176B5A0015314D /* StoryActionView.swift in Sources */,
 				8A9D0D302CD0E074007A924D /* SingleFileDownloadService.swift in Sources */,
@@ -5520,6 +5528,7 @@
 				3F058A74415A3AF6C17DA8F4 /* IntegrationHostResolverTests.swift in Sources */,
 				CB3844DD8C695EAD32A4A811 /* SyncQueueTests.swift in Sources */,
 				AD29E50C515772ADFB03CBB0 /* StreamingLinkTests.swift in Sources */,
+				CFBAB33EF861E37A5FEA658C /* DownloadResumeTests.swift in Sources */,
 				6C5741E68D44175ECF900294 /* UploadContinuationTests.swift in Sources */,
 				B6E617DFC7B576657E50C24B /* MediaSuggestionsTests.swift in Sources */,
 				AD8D09AF57F6C7799943EA1F /* MissingItemsPassTests.swift in Sources */,
@@ -5666,6 +5675,7 @@
 				9F7B64712803216100895ECC /* Account+CoreDataProperties.swift in Sources */,
 				992D6E1D2FA98E1A0091849F /* AudiobookShelfAudiobookDetailsData.swift in Sources */,
 				639AC9892AD9F1D50053AFC6 /* BPDownloadURLSession.swift in Sources */,
+				ACA7F6CE94359BFCF69B1001 /* BackgroundSessionWakeCoordinator.swift in Sources */,
 				9F7B64742803217400895ECC /* Account+CoreDataClass.swift in Sources */,
 				9911FBB02F71D03800DC9A2B /* SyncQueueService.swift in Sources */,
 				63E1FF922E6C8C2000F2E003 /* SyncJobType.swift in Sources */,

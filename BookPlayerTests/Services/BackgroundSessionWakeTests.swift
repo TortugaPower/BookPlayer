@@ -36,11 +36,10 @@ final class BackgroundSessionWakeTests: XCTestCase {
         await withCheckedContinuation { self.settleRelease = $0 }
       },
       settleDownloads: { [unowned self] in self.downloadSettleCalls += 1 },
-      beginBackgroundTask: { [unowned self] _ in
+      beginBackgroundTime: { [unowned self] _ in
         self.began += 1
-        return UIBackgroundTaskIdentifier(rawValue: 42)
+        return { [unowned self] in self.ended += 1 }
       },
-      endBackgroundTask: { [unowned self] _ in self.ended += 1 },
       timeout: timeout,
       staleEventsAfter: staleEventsAfter
     ))
