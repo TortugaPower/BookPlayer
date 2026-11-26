@@ -182,6 +182,7 @@ private struct PlayerContentView: View {
             title: viewModel.title,
             author: viewModel.author,
             imagePath: viewModel.relativePath,
+            sharePlayItem: viewModel.playerManager.currentItem,
             alignment: artworkAlignment
           )
           .simultaneousGesture(

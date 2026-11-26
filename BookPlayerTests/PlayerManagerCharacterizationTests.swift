@@ -26,6 +26,7 @@ import XCTest
 final class PlayerManagerCharacterizationTests: XCTestCase {
   private var libraryService: LibraryServiceProtocolMock!
   private var playbackService: PlaybackServiceProtocolMock!
+  private var speedService: SpeedServiceProtocolMock!
   private var coreDataStack: CoreDataStack!
   private var players: [ControlledPlayer] = []
   private var items: [ControlledPlayerItem] = []
@@ -41,6 +42,8 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
   /// Settings on the play path that tests turn on, restored after each test
   private let touchedDefaults = [
     Constants.UserDefaults.smartRewindEnabled,
+    Constants.UserDefaults.smartRewindMaxInterval,
+    Constants.UserDefaults.boostVolumeEnabled,
     Constants.UserDefaults.autoTimerEnabled,
     Constants.UserDefaults.lastEnabledTimer,
     /// Armed when a book finishes
@@ -81,7 +84,7 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
   ) -> PlayerManager {
     let syncService = SyncServiceProtocolMock()
     syncService.isActive = false
-    let speedService = SpeedServiceProtocolMock()
+    speedService = SpeedServiceProtocolMock()
     speedService.getSpeedRelativePathReturnValue = 1
     let platform = TestPlayerPlatform()
     self.platform = platform
@@ -112,6 +115,7 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
   }
 
   override func tearDown() {
+    sut.setPlaybackCoordination(nil)
     sut.stop()
 
     /// Scenario 13: whatever the test did, the `status` observer was added and removed in pairs
@@ -151,6 +155,348 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
     failures = []
     savedDefaults = [:]
     super.tearDown()
+  }
+
+  // MARK: - SharePlay across the shared playback engine
+
+  func testCoordinationReattachesAfterResetAndStaysDetachedAfterTeardown() {
+    let coordination = TestPlaybackCoordination()
+    let original = player.playbackCoordinator
+    sut.setPlaybackCoordination(coordination)
+    XCTAssertEqual(coordination.attached.count, 1)
+    XCTAssertTrue(original.delegate === coordination)
+
+    NotificationCenter.default.post(name: AVAudioSession.mediaServicesWereResetNotification, object: nil)
+
+    let replacement = player.playbackCoordinator
+    XCTAssertEqual(players.count, 2)
+    XCTAssertEqual(coordination.attached.count, 2)
+    XCTAssertTrue(coordination.attached.last === replacement)
+    XCTAssertTrue(coordination.detached.first === original)
+    XCTAssertNil(original.delegate)
+    XCTAssertTrue(replacement.delegate === coordination)
+
+    sut.setPlaybackCoordination(nil)
+    XCTAssertEqual(coordination.detached.count, 2)
+    XCTAssertNil(replacement.delegate)
+    NotificationCenter.default.post(name: AVAudioSession.mediaServicesWereResetNotification, object: nil)
+    XCTAssertEqual(coordination.attached.count, 2, "a cleared session never reaches later players")
+    XCTAssertNil(player.playbackCoordinator.delegate)
+  }
+
+  func testRemoteResumeCancelsDelayedPauseWithoutRearmingTheRememberedTimer() async throws {
+    try await loadAndPlay(singleFileBook(currentTime: 30))
+    rememberEndOfChapterTimer()
+    UserDefaults.standard.set(true, forKey: Constants.UserDefaults.boostVolumeEnabled)
+    let coordination = TestPlaybackCoordination()
+    sut.setPlaybackCoordination(coordination)
+    await settle()
+    let activationCount = coordination.activations
+    let deactivationCount = platform.deactivations
+    let playCount = player.playCalls.count
+    let seekCount = player.seekTargets.count
+
+    sut.pause()
+    let played = posts(of: .bookPlayed)
+    let recordReads = libraryService.getCurrentPlaybackRecordCallsCount
+    player.playImmediately(atRate: 1.5)
+    await settle()
+
+    XCTAssertEqual(played.books.count, 1, "the watch, Now Playing suggestions and a pending failure follow a play")
+    XCTAssertTrue(played.books.first === sut.currentItem)
+    XCTAssertGreaterThan(libraryService.getCurrentPlaybackRecordCallsCount, recordReads, "listening time counts again")
+    XCTAssertEqual(coordination.activations, activationCount + 1)
+    XCTAssertEqual(platform.deactivations, deactivationCount, "the delayed local pause must not end resumed group audio")
+    XCTAssertEqual(player.playCalls.count, playCount + 1, "only the simulated remote play reached the engine")
+    XCTAssertEqual(player.seekTargets.count, seekCount)
+    XCTAssertEqual(SleepTimer.shared.state, .off)
+    XCTAssertEqual(player.volume, Constants.Volume.boosted)
+  }
+
+  func testARemotePauseEndsWhatAPlayStartedWithoutPausingTheEngineAgain() async throws {
+    try await loadAndPlay(singleFileBook(currentTime: 30))
+    sut.setPlaybackCoordination(TestPlaybackCoordination())
+    await settle()
+    let paused = posts(of: .bookPaused)
+    let deactivations = platform.deactivations
+
+    player.pause()
+    await settle()
+
+    XCTAssertEqual(paused.count, 1)
+    XCTAssertEqual(player.pauseCalls, 1, "a pause of ours would be sent back to the group")
+    XCTAssertEqual(platform.deactivations, deactivations, "the group can resume at any moment")
+    let recorded = libraryService.recordTimeCallsCount
+    player.fireTick()
+    XCTAssertEqual(libraryService.recordTimeCallsCount, recorded, "no listening time while the group is paused")
+
+    postInterruption(.ended, options: .shouldResume)
+    await settle()
+    XCTAssertEqual(player.playCalls.count, 1, "an interruption ending must not resume a group that paused")
+  }
+
+  func testOurOwnPlayAndPauseAreNotRepeatedAsTheGroups() async throws {
+    let item = try await loadUntilInPlayer(singleFileBook(), intent: .idle)
+    item.become(.readyToPlay)
+    await settle()
+    let coordination = TestPlaybackCoordination()
+    sut.setPlaybackCoordination(coordination)
+    let played = posts(of: .bookPlayed)
+    let paused = posts(of: .bookPaused)
+
+    sut.play()
+    await waitUntil("playback starts") { self.player.playCalls.count == 1 }
+    await settle()
+    XCTAssertEqual(played.count, 1)
+    XCTAssertEqual(coordination.activations, 0, "the play activated the session through the platform")
+
+    postInterruption(.began)
+    await settle()
+    XCTAssertEqual(paused.count, 1)
+
+    postInterruption(.ended, options: .shouldResume)
+    await waitUntil("the interruption's end still resumes our own pause") { self.player.playCalls.count == 2 }
+  }
+
+  func testTheGroupsMoveToTheFileStartIsNotUndoneAsAClockFault() async throws {
+    try await loadAndPlay(singleFileBook(currentTime: 40))
+    sut.setPlaybackCoordination(TestPlaybackCoordination())
+    await settle()
+    let seeks = player.seekTargets
+
+    player.reportedTime = 0.2
+    player.fireTick()
+    await settle()
+
+    XCTAssertEqual(player.seekTargets, seeks, "a seek back to our position would move every participant")
+    XCTAssertEqual(sut.currentItem?.currentTime, 0.2)
+  }
+
+  func testAPlayDoesNotPutOurPositionBackOverTheGroups() async throws {
+    let item = try await loadUntilInPlayer(singleFileBook(currentTime: 40), intent: .idle)
+    item.become(.readyToPlay)
+    await settle()
+    sut.setPlaybackCoordination(TestPlaybackCoordination())
+    let seeks = player.seekTargets
+
+    /// The group is at the start, and no tick has reported it yet
+    player.reportedTime = 0
+    sut.play()
+    await waitUntil("coordinated playback starts") { self.player.playCalls.count == 1 }
+    await settle()
+
+    XCTAssertEqual(player.seekTargets, seeks)
+  }
+
+  func testAQueuedRemoteResumeDoesNotReactivateAfterAPause() async throws {
+    let item = try await loadUntilInPlayer(singleFileBook(), intent: .idle)
+    item.become(.readyToPlay)
+    await settle()
+    let coordination = TestPlaybackCoordination()
+    sut.setPlaybackCoordination(coordination)
+
+    player.playImmediately(atRate: 1)
+    player.pause()
+    await settle()
+
+    XCTAssertEqual(coordination.activations, 0)
+  }
+
+  func testAQueuedRemoteResumeDoesNotReactivateAfterCoordinationEnds() async throws {
+    let item = try await loadUntilInPlayer(singleFileBook(), intent: .idle)
+    item.become(.readyToPlay)
+    await settle()
+    let coordination = TestPlaybackCoordination()
+    sut.setPlaybackCoordination(coordination)
+
+    player.playImmediately(atRate: 1)
+    sut.setPlaybackCoordination(nil)
+    await settle()
+
+    XCTAssertEqual(coordination.activations, 0)
+    XCTAssertNil(player.playbackCoordinator.delegate)
+  }
+
+  func testSmartRewindIsSkippedWhileCoordinatedAndRestoredAfterLeaving() async throws {
+    UserDefaults.standard.set(true, forKey: Constants.UserDefaults.smartRewindEnabled)
+    UserDefaults.standard.set(30.0, forKey: Constants.UserDefaults.smartRewindMaxInterval)
+    let item = try await loadUntilInPlayer(singleFileBook(currentTime: 30), intent: .idle)
+    item.become(.readyToPlay)
+    await settle()
+    sut.setPlaybackCoordination(TestPlaybackCoordination())
+    sut.currentItem?.lastPlayDate = Date().addingTimeInterval(-86_400)
+    let initialSeeks = player.seekTargets
+
+    sut.play()
+    await waitUntil("coordinated playback starts") { self.player.playCalls.count == 1 }
+    await settle()
+    XCTAssertEqual(player.seekTargets, initialSeeks, "local smart rewind would seek the whole group")
+
+    sut.pause()
+    sut.setPlaybackCoordination(nil)
+    sut.currentItem?.lastPlayDate = Date().addingTimeInterval(-86_400)
+    sut.play()
+    await waitUntil("ordinary playback resumes") { self.player.playCalls.count == 2 }
+    await settle()
+    XCTAssertEqual(player.seekTargets.count, initialSeeks.count + 1)
+    XCTAssertLessThan(try XCTUnwrap(player.seekTargets.last), 30)
+  }
+
+  func testRemoteRateIsSessionOnlyIncludingDuringAnInFlightSeek() async throws {
+    let item = try await loadUntilInPlayer(singleFileBook(currentTime: 30), intent: .idle)
+    item.become(.readyToPlay)
+    await settle()
+    sut.setPlaybackCoordination(TestPlaybackCoordination())
+    player.rate = 1.5
+    sut.updateTime()
+    XCTAssertEqual(sut.currentSpeed, 1.5)
+
+    player.landsSeeksImmediately = false
+    sut.jumpTo(10, recordBookmark: false)
+    let expectedTime = try XCTUnwrap(sut.currentItem).currentTime
+    player.rate = 2
+    sut.updateTime()
+    XCTAssertEqual(sut.currentSpeed, 2, "a pending seek must not suppress group-rate reconciliation")
+    XCTAssertEqual(sut.currentItem?.currentTime, expectedTime, "the old engine position must not overwrite the seek target")
+    XCTAssertEqual(player.reportedTime, 30)
+    XCTAssertFalse(speedService.setSpeedRelativePathCalled)
+    player.finishSeek()
+    await settle()
+
+    player.rate = 0
+    sut.updateTime()
+    XCTAssertEqual(sut.currentSpeed, 2, "a group pause is not a new playback speed")
+    sut.setPlaybackCoordination(nil)
+    XCTAssertEqual(sut.currentSpeed, 1, "the saved speed comes back with the session gone")
+    XCTAssertEqual(player.rate, 0, "and leaves a paused player paused")
+    player.rate = 3
+    sut.updateTime()
+    XCTAssertEqual(sut.currentSpeed, 1, "an uncoordinated engine rate must not replace the user's speed")
+    XCTAssertFalse(speedService.setSpeedRelativePathCalled)
+  }
+
+  func testTheGroupsSpeedStaysThroughAVolumesFilesAndTheSavedOneReturnsOnLeaving() async throws {
+    let first = try await loadAndPlay(boundBook())
+    sut.setPlaybackCoordination(TestPlaybackCoordination())
+    player.rate = 1.5
+    sut.updateTime()
+    XCTAssertEqual(sut.currentSpeed, 1.5)
+
+    player.reportedTime = 50
+    player.stopAtItemEnd()
+    NotificationCenter.default.post(name: .AVPlayerItemDidPlayToEndTime, object: first)
+    let second = try await nextItemInPlayer(after: 1)
+    second.become(.readyToPlay)
+    await waitUntil("the next file plays") { self.player.playCalls.count == 2 }
+
+    XCTAssertEqual(player.playCalls.last, 1.5, "a play at the saved speed would change every participant's")
+    XCTAssertEqual(sut.currentSpeed, 1.5)
+
+    sut.setPlaybackCoordination(nil)
+    XCTAssertEqual(sut.currentSpeed, 1)
+    XCTAssertEqual(player.rate, 1, "playback goes on at the saved speed")
+    XCTAssertFalse(speedService.setSpeedRelativePathCalled, "the group's speed was never saved")
+  }
+
+  func testClaimingNowPlayingIsSkippedInAGroup() async throws {
+    let item = try await loadUntilInPlayer(singleFileBook(), intent: .idle)
+    item.become(.readyToPlay)
+    await settle()
+    sut.setPlaybackCoordination(TestPlaybackCoordination())
+
+    XCTAssertFalse(sut.claimNowPlayingThenPause(), "its muted play and pause would reach every participant")
+    await settle()
+    XCTAssertTrue(player.playCalls.isEmpty)
+  }
+
+  func testBoundBookCoordinationUsesFileOrdinalsAndNotChapterOrdinals() {
+    let book = nestedVolume()
+    var attachments = 0
+    let coordination = SharePlayPlaybackCoordination(
+      contentIdentifier: "shared-book", relativePath: book.relativePath,
+      currentItem: { book }, coordinateSession: { _ in attachments += 1 }
+    )
+    let coordinator = player.playbackCoordinator
+    coordination.coordinate(coordinator)
+    XCTAssertEqual(attachments, 1)
+    XCTAssertTrue(coordinator.delegate === coordination)
+    for (index, chapter) in book.chapters.enumerated() {
+      let item = AVPlayerItem(asset: AVURLAsset(url: chapter.fileURL))
+      coordination.prepareForPlayback(of: item)
+      XCTAssertEqual(
+        coordination.playbackCoordinator(coordinator, identifierFor: item),
+        "shared-book|file:\(index == 0 ? 0 : 1)"
+      )
+    }
+    coordination.stopCoordinating(coordinator)
+    XCTAssertNil(coordinator.delegate)
+  }
+
+  func testContentOutsideTheSessionsBookMatchesNoParticipants() {
+    var current: PlayableItem? = singleFileBook("different.m4b")
+    let coordination = SharePlayPlaybackCoordination(
+      contentIdentifier: BookFingerprint(from: current!).identifier, relativePath: "matched.m4b",
+      currentItem: { current }, coordinateSession: { _ in }
+    )
+    let other = SharePlayPlaybackCoordination(
+      contentIdentifier: "shared-book", relativePath: "matched.m4b",
+      currentItem: { current }, coordinateSession: { _ in }
+    )
+    let item = AVPlayerItem(asset: AVURLAsset(url: URL(fileURLWithPath: "/unmatched/audio.m4b")))
+    let coordinator = player.playbackCoordinator
+    coordination.prepareForPlayback(of: item)
+    other.prepareForPlayback(of: item)
+
+    let identifier = coordination.playbackCoordinator(coordinator, identifierFor: item)
+    XCTAssertNotEqual(
+      identifier, BookFingerprint(from: current!).identifier,
+      "another book with the group's fingerprint must not report the group's identity"
+    )
+    XCTAssertNotEqual(identifier, other.playbackCoordinator(coordinator, identifierFor: item), "nor any device's")
+
+    current = nil
+    coordination.prepareForPlayback(of: item)
+    XCTAssertEqual(coordination.playbackCoordinator(coordinator, identifierFor: item), identifier)
+    let unprepared = AVPlayerItem(asset: AVURLAsset(url: URL(fileURLWithPath: "/unprepared/audio.m4b")))
+    XCTAssertEqual(coordination.playbackCoordinator(coordinator, identifierFor: unprepared), identifier)
+  }
+
+  func testCoordinationRefreshesIdentityWhenTheBookChangesWithoutReloadingThePlayer() async throws {
+    let matched = singleFileBook("matched.m4b")
+    let item = try await loadUntilInPlayer(matched, intent: .idle)
+    item.become(.readyToPlay)
+    await settle()
+    let coordination = SharePlayPlaybackCoordination(
+      contentIdentifier: "shared-book", relativePath: matched.relativePath,
+      currentItem: { [weak sut] in sut?.currentItem }, coordinateSession: { _ in }
+    )
+    sut.setPlaybackCoordination(coordination)
+    let coordinator = player.playbackCoordinator
+    let replacements = player.replacedItems.count
+    XCTAssertEqual(coordination.playbackCoordinator(coordinator, identifierFor: item), "shared-book")
+
+    /// The book rebuilt from the library, as after its chapters are re-parsed
+    sut.currentItem = singleFileBook("matched.m4b")
+    XCTAssertEqual(coordination.playbackCoordinator(coordinator, identifierFor: item), "shared-book")
+
+    sut.currentItem = singleFileBook("different.m4b")
+    XCTAssertNotEqual(coordination.playbackCoordinator(coordinator, identifierFor: item), "shared-book")
+    XCTAssertEqual(player.replacedItems.count, replacements, "identity refresh doesn't require replacing the player item")
+  }
+
+  func testCoordinationIdentityCanBeReadOffTheMainActor() async {
+    let book = nestedVolume()
+    let coordination = SharePlayPlaybackCoordination(
+      contentIdentifier: "shared-book", relativePath: book.relativePath,
+      currentItem: { book }, coordinateSession: { _ in }
+    )
+    let coordinator = player.playbackCoordinator
+    let item = AVPlayerItem(asset: AVURLAsset(url: book.chapters[1].fileURL))
+    coordination.prepareForPlayback(of: item)
+    let identifier = await Task.detached {
+      coordination.playbackCoordinator(coordinator, identifierFor: item)
+    }.value
+    XCTAssertEqual(identifier, "shared-book|file:1")
   }
 
   // MARK: - 1–5: loading and queued playback
@@ -773,6 +1119,77 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
     await waitUntil("playback starts") { !self.player.playCalls.isEmpty }
   }
 
+  func testAwaitingALoadWaitsForTheItemItselfNotForBookReady() async throws {
+    let ready = expectation(forNotification: .bookReady, object: nil)
+    let item = try await loadUntilInPlayer(singleFileBook(), intent: .idle)
+    var outcome: Bool?
+    let waiting = Task { outcome = await self.sut.awaitItemLoad() }
+    await fulfillment(of: [ready], timeout: 2)
+    await settle()
+    XCTAssertNil(outcome, "the file reached the engine, which hasn't opened it yet")
+
+    item.become(.readyToPlay)
+    await waiting.value
+
+    XCTAssertEqual(outcome, true)
+    XCTAssertTrue(player.playCalls.isEmpty)
+  }
+
+  func testAwaitingALoadFollowsItsReloadAndEndsOnTheFailure() async throws {
+    let unavailable = NSError(domain: NSURLErrorDomain, code: NSURLErrorResourceUnavailable)
+    let first = try await loadUntilInPlayer(singleFileBook(), intent: .idle)
+    var outcome: Bool?
+    let waiting = Task { outcome = await self.sut.awaitItemLoad() }
+
+    first.become(.failed, error: unavailable)
+    let second = try await nextItemInPlayer(after: 1)
+    await settle()
+    XCTAssertNil(outcome, "the reload is the same load")
+
+    second.become(.failed, error: unavailable)
+    await waiting.value
+
+    XCTAssertEqual(outcome, false)
+  }
+
+  func testAwaitingALoadEndsWithItsTaskWhileTheLoadGoesOn() async throws {
+    let item = try await loadUntilInPlayer(singleFileBook(), intent: .idle)
+    let waiting = Task { await self.sut.awaitItemLoad() }
+    await settle()
+
+    waiting.cancel()
+    let outcome = await waiting.value
+    XCTAssertFalse(outcome, "a cancelled wait must not stay suspended until the load settles")
+
+    item.become(.readyToPlay)
+    let loaded = await sut.awaitItemLoad()
+    XCTAssertTrue(loaded, "the load itself wasn't cancelled")
+  }
+
+  func testAwaitingALoadGivesUpOnOneThatStalls() async throws {
+    let item = try await loadUntilInPlayer(singleFileBook(), intent: .idle)
+
+    let stalled = await sut.awaitItemLoad(timeout: 0.05)
+    XCTAssertFalse(stalled)
+
+    item.become(.readyToPlay)
+    let loaded = await sut.awaitItemLoad(timeout: 0.05)
+    XCTAssertTrue(loaded)
+  }
+
+  func testAwaitingALoadEndsWhenItIsDropped() async throws {
+    let none = await sut.awaitItemLoad()
+    XCTAssertFalse(none, "nothing is loading")
+
+    _ = try await loadUntilInPlayer(singleFileBook(), intent: .idle)
+    let waiting = Task { await self.sut.awaitItemLoad() }
+    await settle()
+    sut.stop()
+
+    let outcome = await waiting.value
+    XCTAssertFalse(outcome)
+  }
+
   // MARK: - The platform
 
   /// The platform couldn't activate the audio session: the play stops there, and isn't left pending
@@ -1132,12 +1549,67 @@ final class PlayerManagerCharacterizationTests: XCTestCase {
     )
   }
 
+  /// Counts the posts of `name` from now on, keeping the book each carries
+  private func posts(of name: Notification.Name) -> NotificationPosts {
+    NotificationPosts(of: name)
+  }
+
   /// The auto timer on, with the end-of-chapter timer as the one it remembers but not running
   private func rememberEndOfChapterTimer() {
     UserDefaults.standard.set(true, forKey: Constants.UserDefaults.autoTimerEnabled)
     SleepTimer.shared.setTimer(.endOfChapter)
     /// Ends it the way a chapter change does, which keeps it as the remembered one
     NotificationCenter.default.post(name: .chapterChange, object: nil)
+  }
+}
+
+/// The posts of one notification while it's held
+private final class NotificationPosts {
+  private(set) var count = 0
+  private(set) var books: [PlayableItem] = []
+  private var observer: NSObjectProtocol?
+
+  init(of name: Notification.Name) {
+    observer = NotificationCenter.default.addObserver(forName: name, object: nil, queue: nil) { [weak self] post in
+      self?.count += 1
+      if let book = post.userInfo?["book"] as? PlayableItem {
+        self?.books.append(book)
+      }
+    }
+  }
+
+  deinit {
+    if let observer {
+      NotificationCenter.default.removeObserver(observer)
+    }
+  }
+}
+
+/// Exercises core coordination without a live GroupSession or real audio-session activation.
+@MainActor
+private final class TestPlaybackCoordination: NSObject, PlaybackCoordinating, AVPlayerPlaybackCoordinatorDelegate {
+  private(set) var attached: [AVPlayerPlaybackCoordinator] = []
+  private(set) var detached: [AVPlayerPlaybackCoordinator] = []
+  private(set) var activations = 0
+
+  func prepareForPlayback(of playerItem: AVPlayerItem?) {}
+
+  func coordinate(_ coordinator: AVPlayerPlaybackCoordinator) {
+    attached.append(coordinator)
+    coordinator.delegate = self
+  }
+
+  func stopCoordinating(_ coordinator: AVPlayerPlaybackCoordinator) {
+    detached.append(coordinator)
+    coordinator.delegate = nil
+  }
+
+  func activateAudioSession() {
+    activations += 1
+  }
+
+  nonisolated func playbackCoordinator(_ coordinator: AVPlayerPlaybackCoordinator, identifierFor playerItem: AVPlayerItem) -> String {
+    "test-book"
   }
 }
 

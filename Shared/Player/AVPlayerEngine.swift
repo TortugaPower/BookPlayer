@@ -20,6 +20,20 @@ final class AVPlayerEngine: PlaybackEngine {
   private let statusSubject = CurrentValueSubject<EngineStatus, Never>(.paused)
   private var statusSubscription: AnyCancellable?
 
+  #if os(iOS)
+  var playbackCoordination: PlaybackCoordinating? {
+    didSet {
+      oldValue?.stopCoordinating(player.playbackCoordinator)
+      refreshPlaybackCoordination()
+      playbackCoordination?.coordinate(player.playbackCoordinator)
+    }
+  }
+
+  func refreshPlaybackCoordination() {
+    playbackCoordination?.prepareForPlayback(of: player.currentItem)
+  }
+  #endif
+
   /// What callers registered, so a rebuild can add it to the new player
   private struct TimeObserver {
     enum Kind {
@@ -120,6 +134,9 @@ final class AVPlayerEngine: PlaybackEngine {
   func load(_ asset: AVURLAsset, events: @escaping (LoadEvent) -> Void) -> EngineLoad {
     let item = makePlayerItem(asset)
     item.audioTimePitchAlgorithm = .timeDomain
+    #if os(iOS)
+    playbackCoordination?.prepareForPlayback(of: item)
+    #endif
 
     let observers = ItemObservers(observing: item, events: events)
     player.replaceCurrentItem(with: item)
@@ -132,12 +149,21 @@ final class AVPlayerEngine: PlaybackEngine {
   }
 
   func rebuild() {
+    #if os(iOS)
+    playbackCoordination?.stopCoordinating(player.playbackCoordinator)
+    #endif
+
     for observer in timeObservers.values {
       player.removeTimeObserver(observer.token)
     }
 
     player = makePlayer()
     configure(player)
+
+    #if os(iOS)
+    refreshPlaybackCoordination()
+    playbackCoordination?.coordinate(player.playbackCoordinator)
+    #endif
 
     for (id, observer) in timeObservers {
       timeObservers[id]?.token = add(observer.kind, to: player)

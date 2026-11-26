@@ -156,6 +156,11 @@ final class AppServices: BPLogger {
         playbackService: playbackService,
         playerManager: playerManager
       )
+      let sharePlayService = SharePlayService(
+        playerManager: playerManager,
+        libraryService: libraryService,
+        playbackService: playbackService
+      )
       let hardcoverService = makeHardcoverService(libraryService: libraryService, syncService: syncService)
 
       let preferencesService = PreferencesSyncService()
@@ -178,6 +183,7 @@ final class AppServices: BPLogger {
         playerLoaderService: playerLoaderService,
         playerManager: playerManager,
         preferencesService: preferencesService,
+        sharePlayService: sharePlayService,
         syncService: syncService,
         syncQueueService: syncQueueService,
         mediaServerChapterService: mediaServerChapterService,

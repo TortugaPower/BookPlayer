@@ -36,6 +36,11 @@ public final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObj
   /// Drives the player. Only the engine and the video surfaces touch `AVPlayer`
   private let engine: PlaybackEngine
 
+  #if os(iOS)
+  /// The engine keeps its transport publisher across player rebuilds.
+  private var groupPlaybackSubscription: AnyCancellable?
+  #endif
+
   private var fadeTimer: Timer?
 
   /// Named + cancelled-before-rebind: bound on EVERY chapter/item load — a disposeBag entry
@@ -68,8 +73,20 @@ public final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObj
       case .empty, .failed:
         break
       }
+
+      switch itemLoad {
+      case .empty, .ready, .failed:
+        /// They read the state again: a reload passes through `.empty`
+        let waiters = itemLoadWaiters.values
+        itemLoadWaiters = [:]
+        waiters.forEach { $0.resume() }
+      case .resolving, .loading:
+        break
+      }
     }
   }
+  /// The callers of `awaitItemLoad`, woken as a load settles, and each as its wait is cancelled or runs out
+  private var itemLoadWaiters: [UUID: CheckedContinuation<Void, Never>] = [:]
   /// The reloads a failed file gets before its failure is reported
   private var retryBudget = RetryBudget()
   /// Asks an AudiobookShelf server for an item's files when one of its chapters loads.
@@ -86,11 +103,21 @@ public final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObj
   private var clockState: ClockState = .unknown
   /// The last seek started, as only its completion ends `ClockState.seeking`
   private var latestSeek = 0
+  /// Whether a play was followed through and no pause has come since. A group's plays and pauses reach the
+  /// engine without ours: this tells them apart (see `setPlaybackCoordination`)
+  private var isPlaybackUnderWay = false
 
   public weak var syncProgressDelegate: PlaybackSyncProgressDelegate?
   /// Reference to the ongoing play task
   private var playTask: Task<(), Error>?
-  @Published public var currentItem: PlayableItem?
+  @Published public var currentItem: PlayableItem? {
+    didSet {
+      #if os(iOS)
+      // Metadata can be re-parsed without replacing the engine's current player item.
+      engine.refreshPlaybackCoordination()
+      #endif
+    }
+  }
   @Published public var currentSpeed: Float = 1.0
 
   var nowPlayingInfo = [String: Any]()
@@ -456,6 +483,57 @@ public final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObj
     }
   }
 
+  /// Waits for the chapter file on its way into the player. True once it can play; false when it failed or
+  /// was dropped (a stop, a pause while finding it), when none is loaded, and when the wait itself ends
+  /// first: the calling task cancelled, or `timeout` over a load that stalls (the load carries on). A reload
+  /// after a failure is waited on too. Unlike `.bookReady`, which is posted as the file reaches the engine,
+  /// still unopened, and `awaitCurrentLoad`, which waits for playback to start
+  public func awaitItemLoad(timeout: TimeInterval = 30) async -> Bool {
+    let deadline = Date().addingTimeInterval(timeout)
+
+    while !Task.isCancelled {
+      switch itemLoad {
+      case .ready:
+        return true
+      case .empty, .failed:
+        return false
+      case .resolving, .loading:
+        let remaining = deadline.timeIntervalSinceNow
+        guard remaining > 0 else { return false }
+
+        await waitForItemLoadToSettle(atMost: remaining)
+      }
+    }
+
+    return false
+  }
+
+  /// Suspends until a load settles, the calling task is cancelled, or `seconds` pass
+  private func waitForItemLoadToSettle(atMost seconds: TimeInterval) async {
+    let id = UUID()
+    let timeout = Task { [weak self] in
+      try? await Task.sleep(nanoseconds: UInt64(seconds * 1_000_000_000))
+      guard !Task.isCancelled else { return }
+
+      self?.itemLoadWaiters.removeValue(forKey: id)?.resume()
+    }
+    defer { timeout.cancel() }
+
+    await withTaskCancellationHandler {
+      await withCheckedContinuation { continuation in
+        if Task.isCancelled {
+          continuation.resume()
+        } else {
+          itemLoadWaiters[id] = continuation
+        }
+      }
+    } onCancel: {
+      Task { @MainActor [weak self] in
+        self?.itemLoadWaiters.removeValue(forKey: id)?.resume()
+      }
+    }
+  }
+
   private func load(_ item: PlayableItem, intent: PlayIntent, forceRefreshURL: Bool) {
     /// Cancel in case there's an ongoing play task
     playTask?.cancel()
@@ -691,7 +769,10 @@ public final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObj
     observeChapterEnds(inFileOf: chapter)
     clockState = .trusting(0)
 
-    currentSpeed = speedService.getSpeed(relativePath: chapter.relativePath)
+    /// A group's speed stays through its files: the saved one would go to every participant with the play
+    if !isPlaybackCoordinated {
+      currentSpeed = speedService.getSpeed(relativePath: chapter.relativePath)
+    }
     // Set book metadata for lockscreen and control center
     nowPlayingInfo = [
       MPNowPlayingInfoPropertyDefaultPlaybackRate: currentSpeed
@@ -958,6 +1039,8 @@ public final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObj
       return
     }
 
+    reconcileGroupPlaybackRate()
+
     /// A seek is in flight, and its target is the position we already hold
     if case .seeking = clockState { return }
 
@@ -965,7 +1048,8 @@ public final class PlayerManager: NSObject, PlayerManagerProtocol, ObservableObj
 
     switch PlayerTimeSample(
       playerTime: self.engine.currentTime,
-      expected: clockState.expectedTime
+      /// A group moves the clock too: a jump to the file start is where it went, not a fault to seek back from
+      expected: isPlaybackCoordinated ? nil : clockState.expectedTime
     ) {
     case .valid(let playerTime):
       clockState = .trusting(playerTime)
@@ -1439,7 +1523,10 @@ extension PlayerManager {
     /// `nowPlayingClaimSubscription == nil` gates re-entrancy: a claim stays "in flight" (subscription
     /// non-nil) until its unmute completes below, so a second blip can't start mid-claim and get unmuted
     /// by this one's timer.
-    guard currentItem != nil, !isPlaying, nowPlayingClaimSubscription == nil else { return false }
+    /// Nor in a group, whose every participant the muted play and its pause would reach
+    guard currentItem != nil, !isPlaying, nowPlayingClaimSubscription == nil, !isPlaybackCoordinated else {
+      return false
+    }
 
     engine.isMuted = true
     nowPlayingClaimSubscription = engine.statusPublisher
@@ -1522,8 +1609,11 @@ extension PlayerManager {
         return
       }
 
-      restorePlayerTimeIfNeeded()
-      handleSmartRewind(currentItem)
+      // The group owns the position during SharePlay; a seek of ours would drag every participant with it
+      if !isPlaybackCoordinated {
+        restorePlayerTimeIfNeeded()
+        handleSmartRewind(currentItem)
+      }
 
       /// Only a play the user asked for arms the remembered timer: a start the system makes
       /// (the next book, the end of an interruption) leaves a running countdown alone
@@ -1535,6 +1625,7 @@ extension PlayerManager {
       platform.stopShakeDetection()
       boostVolume = UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled)
       bindInterruptObserver()
+      isPlaybackUnderWay = true
       // Set play state on player and control center
       engine.play(atRate: currentSpeed)
       /// Clean up flag after player starts playing
@@ -1617,6 +1708,7 @@ extension PlayerManager {
   func pause(removeInterruptObserver: Bool) {
     guard self.currentItem != nil else { return }
 
+    isPlaybackUnderWay = false
     self.userActivityManager.stopPlaybackActivity()
 
     NotificationCenter.default.post(name: .bookPaused, object: nil)
@@ -1668,6 +1760,7 @@ extension PlayerManager {
   private func stopPlayback() {
     itemLoad = .empty
     playIntent = .idle
+    isPlaybackUnderWay = false
 
     engine.pause()
     playTask?.cancel()
@@ -1958,4 +2051,96 @@ extension PlayerManager {
       self?.play()
     }
   }
+}
+
+// MARK: - Group playback coordination
+
+extension PlayerManager {
+  private var isPlaybackCoordinated: Bool {
+    #if os(iOS)
+    return engine.playbackCoordination != nil
+    #else
+    return false
+    #endif
+  }
+
+  /// Keep a remote participant's rate in session state, never in the user's saved speed.
+  func reconcileGroupPlaybackRate() {
+    guard isPlaybackCoordinated else { return }
+
+    let groupRate = engine.rate
+    guard groupRate > 0, abs(groupRate - currentSpeed) > 0.01 else { return }
+
+    currentSpeed = groupRate
+  }
+
+  #if os(iOS)
+  /// App-owned coordination stays outside the shared player core. The engine reapplies it
+  /// whenever it replaces its AVPlayer, including after a media-services reset or failure.
+  public func setPlaybackCoordination(_ coordination: PlaybackCoordinating?) {
+    groupPlaybackSubscription?.cancel()
+    groupPlaybackSubscription = nil
+    let wasCoordinated = isPlaybackCoordinated
+    engine.playbackCoordination = coordination
+    guard let coordination else {
+      if wasCoordinated {
+        /// The group's speed was the session's alone: back to the one saved for the book
+        currentSpeed = speedService.getSpeed(relativePath: currentItem?.currentChapter.relativePath)
+        if engine.rate > 0 {
+          engine.rate = currentSpeed
+        }
+      }
+      return
+    }
+
+    groupPlaybackSubscription = engine.statusPublisher
+      .map { $0 != .paused }
+      .removeDuplicates()
+      .receive(on: DispatchQueue.main)
+      .sink { [weak self, weak coordination] isPlaying in
+        guard let self, let coordination,
+          self.engine.playbackCoordination === coordination,
+          /// Still what the engine is doing, and not what a play or pause of ours already set up
+          isPlaying == (self.engine.status != .paused),
+          isPlaying != self.isPlaybackUnderWay
+        else { return }
+
+        if isPlaying {
+          self.groupDidResume(coordination)
+        } else {
+          self.groupDidPause()
+        }
+      }
+  }
+
+  /// A remote resume bypasses play(). Does what a play does around the engine, without seeking,
+  /// changing play intent, or rearming the user's remembered sleep timer.
+  private func groupDidResume(_ coordination: PlaybackCoordinating) {
+    isPlaybackUnderWay = true
+    userActivityManager.resumePlaybackActivity()
+    /// A pause of ours just before would still end the audio session
+    isPlayingSubscription?.cancel()
+    isPlayingSubscription = nil
+    fadeTimer?.invalidate()
+    platform.stopShakeDetection()
+    boostVolume = UserDefaults.standard.bool(forKey: Constants.UserDefaults.boostVolumeEnabled)
+    coordination.activateAudioSession()
+    bindInterruptObserver()
+
+    if let currentItem {
+      NotificationCenter.default.post(name: .bookPlayed, object: nil, userInfo: ["book": currentItem])
+    }
+  }
+
+  /// A remote pause bypasses pause(), as does a file reaching its end. Does what a pause does around
+  /// the engine, but keeps the audio session: the group can resume at any moment, and a volume's next
+  /// file plays right after.
+  private func groupDidPause() {
+    isPlaybackUnderWay = false
+    userActivityManager.stopPlaybackActivity()
+    NotificationCenter.default.post(name: .bookPaused, object: nil)
+    /// An interruption ending must not resume a group that paused
+    interruptionSubscription = nil
+  }
+  #endif
 }
