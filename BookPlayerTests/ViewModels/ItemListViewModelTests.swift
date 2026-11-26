@@ -61,14 +61,19 @@ final class ItemListViewModelTests: XCTestCase {
 
   // MARK: - Redrawing for download events
 
-  /// A download ending redraws the list that shows the item, so its menus offer the right action
-  func testADownloadEventConcernsTheListShowingItsItem() {
-    let items = [item("The Housemaid.m4b", type: .book), item("Volume", type: .bound)]
+  /// A download ending redraws the lists that show its file, so their menus offer the right action
+  func testADownloadedFileConcernsTheListsShowingIt() {
+    let root = [item("The Housemaid.m4b", type: .book), item("Volume", type: .bound), item("Folder", type: .folder)]
 
-    XCTAssertTrue(ItemListViewModel.listShows("The Housemaid.m4b", in: items))
-    XCTAssertTrue(ItemListViewModel.listShows("Volume/part 1.mp3", in: items), "a bound book's part")
-    XCTAssertFalse(ItemListViewModel.listShows("Volume 2/part 1.mp3", in: items), "only a real path prefix")
-    XCTAssertFalse(ItemListViewModel.listShows("Elsewhere/The Housemaid.m4b", in: items))
+    XCTAssertTrue(ItemListViewModel.listShows("The Housemaid.m4b", in: root))
+    XCTAssertTrue(ItemListViewModel.listShows("Volume/part 1.mp3", in: root), "a bound book's part")
+    XCTAssertTrue(ItemListViewModel.listShows("Folder/Book.m4b", in: root), "a folder's book")
+    XCTAssertFalse(ItemListViewModel.listShows("Volume 2/part 1.mp3", in: root), "only a real path prefix")
+    XCTAssertFalse(ItemListViewModel.listShows("Elsewhere/The Housemaid.m4b", in: root))
+
+    // The folder's own list, which a download resumed after a relaunch doesn't name (it's filed under
+    // the top-level folder): matched by the file's path
+    XCTAssertTrue(ItemListViewModel.listShows("Folder/Book.m4b", in: [item("Folder/Book.m4b", type: .book)]))
   }
 
   private func item(_ relativePath: String, type: SimpleItemType) -> SimpleLibraryItem {

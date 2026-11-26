@@ -863,7 +863,8 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
   UI reads on `viewContext`, background on `backgroundContext`, only `Simple*` snapshots cross back to UI.
   **The item menus read the download state as the list draws.** A tile's long-press menu and a row's swipe
   actions ask `syncService.getDownloadState`, which SwiftUI can't observe, so `ItemListViewModel` sends
-  `objectWillChange` when one of its items finishes, fails or cancels a download (`bindDownloadStateChanges`) and
+  `objectWillChange` when one of its items finishes, fails or cancels a download (`bindDownloadStateChanges`,
+  matched by the file's own path: a download resumed after a relaunch is filed under its top-level folder) and
   when it offloads one; without that the menu kept a stale action ("Cancel download" on a downloaded book, "Remove
   from device" on an offloaded one) until something else redrew the list. The tile's badge follows the download
   publishers on its own (`ItemArtworkView`).
