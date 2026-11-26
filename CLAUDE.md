@@ -861,6 +861,12 @@ data, and share the error type `MediaServerIntegration/IntegrationError.swift` (
   `PreferencesSyncService` freezes automatically-sorted locations into ranks before wiping `library_sort:*`,
   so sign-out doesn't visibly re-scramble the library.
   UI reads on `viewContext`, background on `backgroundContext`, only `Simple*` snapshots cross back to UI.
+  **The item menus read the download state as the list draws.** A tile's long-press menu and a row's swipe
+  actions ask `syncService.getDownloadState`, which SwiftUI can't observe, so `ItemListViewModel` sends
+  `objectWillChange` when one of its items finishes, fails or cancels a download (`bindDownloadStateChanges`) and
+  when it offloads one; without that the menu kept a stale action ("Cancel download" on a downloaded book, "Remove
+  from device" on an offloaded one) until something else redrew the list. The tile's badge follows the download
+  publishers on its own (`ItemArtworkView`).
   **A move never lands on a taken name** (as on Android): `LibraryService.moveItems` moves each item under its
   current name (its path's last component, at the root too) and leaves one whose name another item or a file
   already has at the destination where it is, returning it (a streamed item has no file, so the library is
