@@ -7,6 +7,7 @@
 //
 
 import BookPlayerKit
+import Combine
 import SwiftUI
 
 @MainActor
@@ -25,7 +26,8 @@ final class ItemListViewModel: ObservableObject, BPLogger {
   let singleFileDownloadService: SingleFileDownloadService
   /// Reference to ongoing library fetch task
   var contentsFetchTask: Task<(), Error>?
-  
+  private var disposeBag = Set<AnyCancellable>()
+
   @Published var items: [SimpleLibraryItem] = []
   @Published var isLoading: Bool = false
   @Published var canLoadMore: Bool = true
@@ -126,6 +128,34 @@ final class ItemListViewModel: ObservableObject, BPLogger {
     if libraryNode == .root {
       playerManager.syncProgressDelegate = self
     }
+
+    bindDownloadStateChanges()
+  }
+
+  /// A tile's long-press menu and a row's swipe actions read the item's download state from
+  /// `syncService` while the list draws, and nothing about a download ending changes what the list
+  /// observes: without this, the menu kept offering "Cancel download" on a book that finished (or
+  /// resumed and finished) downloading until something else redrew the list
+  private func bindDownloadStateChanges() {
+    // By the file's own path, not where its download started: a download resumed after a relaunch
+    // is filed under its top-level folder, which a folder's own list doesn't show
+    Publishers.Merge3(
+      syncService.downloadCompletedPublisher.map { $0.0 },
+      syncService.downloadCancelledPublisher.map { $0.0 },
+      syncService.downloadErrorPublisher.map { $0.0 }
+    )
+    .receive(on: DispatchQueue.main)
+    .sink { [weak self] relativePath in
+      guard let self, Self.listShows(relativePath, in: self.items) else { return }
+
+      self.objectWillChange.send()
+    }
+    .store(in: &disposeBag)
+  }
+
+  /// Whether a downloaded file is one of `items`, or inside one (a folder's book, a bound book's part)
+  nonisolated static func listShows(_ relativePath: String, in items: [SimpleLibraryItem]) -> Bool {
+    items.contains { relativePath == $0.relativePath || relativePath.hasPrefix($0.relativePath + "/") }
   }
 
   // MARK: - Infinite list
@@ -775,6 +805,8 @@ extension ItemListViewModel {
       }
 
       ArtworkService.artworkUpdatePublisher.send(item.relativePath)
+      // The menus read the download state while the list draws (`bindDownloadStateChanges`)
+      objectWillChange.send()
     } catch {
       loadingState.error = error
     }
