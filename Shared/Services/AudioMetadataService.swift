@@ -92,9 +92,17 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
 
   public init() {}
   
+  /// An asset whose `duration` matches what `PlayerManager` (which always requests precise
+  /// timing) will play. Without it, AVFoundation estimates the duration of files with no
+  /// reliable duration header (VBR Opus/Ogg, VBR MP3 without a Xing header, raw AAC) from
+  /// the first frames' bitrate: 88.8s for a 60s VBR Opus file. Files that do have one read
+  /// it either way, so the precise scan only costs time where the estimate would be wrong.
+  public static func durationAccurateAsset(for fileURL: URL) -> AVURLAsset {
+    AVURLAsset(url: fileURL, options: [AVURLAssetPreferPreciseDurationAndTimingKey: true])
+  }
+
   public func extractMetadata(from fileURL: URL) async -> AudioMetadata? {
-    let asset = AVURLAsset(url: fileURL)
-    return await extractMetadata(from: asset)
+    return await extractMetadata(from: Self.durationAccurateAsset(for: fileURL))
   }
   
   public func extractMetadata(from asset: AVAsset) async -> AudioMetadata? {
@@ -232,7 +240,7 @@ public class AudioMetadataService: BPLogger, AudioMetadataServiceProtocol {
   }
 
   public func extractManualChapters(from fileURL: URL) async -> [ChapterMetadata]? {
-    let asset = AVURLAsset(url: fileURL)
+    let asset = Self.durationAccurateAsset(for: fileURL)
     do {
       let metadata = try await asset.load(.metadata)
       let duration = CMTimeGetSeconds(try await asset.load(.duration))

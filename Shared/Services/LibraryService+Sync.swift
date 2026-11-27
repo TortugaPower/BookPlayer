@@ -738,6 +738,9 @@ extension LibraryService: LibrarySyncProtocol {
   public func loadChaptersIfNeeded(relativePath: String) async {
     let fileURL = DataManager.getProcessedFolderURL().appendingPathComponent(relativePath)
 
-    await loadChaptersIfNeeded(relativePath: relativePath, asset: AVAsset(url: fileURL))
+    await loadChaptersIfNeeded(
+      relativePath: relativePath,
+      asset: AudioMetadataService.durationAccurateAsset(for: fileURL)
+    )
   }
 }
