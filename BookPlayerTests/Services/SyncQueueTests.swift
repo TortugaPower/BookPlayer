@@ -465,6 +465,74 @@ extension SyncQueueTests {
     XCTAssertFalse(service.serverLanesEnabled)
   }
 
+  // MARK: - Hardcover lane
+
+  /// Queued through the app's protocol, run through the app's service once it's wired in
+  func testHardcoverLane_runsItsTasksThroughTheAppsService() async throws {
+    let service = makeGatedEngine()
+    service.scheduleHardcoverProgress(uuid: "uuid-1", relativePath: "book.m4b", hardcoverBookId: 7, percentCompleted: 42)
+    try await waitForTaskCount(exactly: 1)
+
+    let syncer = HardcoverSyncerStub(failures: 0)
+    service.setHardcoverSyncer(syncer)
+    try await waitForEmptyQueue()
+
+    XCTAssertEqual(syncer.calls.count, 1)
+    XCTAssertEqual(syncer.calls.first?.uuid, "uuid-1")
+    XCTAssertEqual(syncer.calls.first?.relativePath, "book.m4b")
+    XCTAssertEqual(syncer.calls.first?.percent, 42)
+  }
+
+  /// A failure the app throws (no connection, a busy server) keeps the task, which runs again
+  /// after the first backoff step (5 s)
+  func testHardcoverLane_retriesAFailureAfterBackingOff() async throws {
+    let service = makeGatedEngine()
+    var waits = [Int]()
+    service.hardcoverBackoff = { attempt in
+      waits.append(attempt)
+      return 0.05
+    }
+    service.scheduleHardcoverProgress(uuid: "uuid-1", relativePath: "book.m4b", hardcoverBookId: 7, percentCompleted: 42)
+    try await waitForTaskCount(exactly: 1)
+
+    let syncer = HardcoverSyncerStub(failures: 1)
+    service.setHardcoverSyncer(syncer)
+    try await waitForEmptyQueue()
+
+    XCTAssertEqual(waits, [1])
+
+    XCTAssertEqual(syncer.calls.count, 2)
+  }
+
+  /// One waiting task per book: a newer percentage replaces the one still waiting
+  func testHardcoverLane_keepsOneWaitingTaskPerBook() async throws {
+    let service = makeGatedEngine()
+    service.scheduleHardcoverProgress(uuid: "uuid-1", relativePath: "book.m4b", hardcoverBookId: 7, percentCompleted: 42)
+    try await waitForTaskCount(exactly: 1)
+    service.scheduleHardcoverProgress(uuid: "uuid-1", relativePath: "book.m4b", hardcoverBookId: 7, percentCompleted: 50)
+    service.scheduleHardcoverProgress(uuid: "uuid-2", relativePath: "other.m4b", hardcoverBookId: 8, percentCompleted: 10)
+    try await waitForTaskCount(exactly: 2)
+
+    let tasks = await repository.getAllTasksWithParams(in: TaskQueueKey.hardcover)
+    let percents = Dictionary(uniqueKeysWithValues: tasks.map {
+      ($0.parameters["providerId"] as? String ?? "", $0.parameters["percentCompleted"] as? Double)
+    })
+    XCTAssertEqual(percents["7"], 50)
+    XCTAssertEqual(percents["8"], 10)
+  }
+
+  func testHardcoverLane_clearsForAnotherAccount() async throws {
+    let service = makeGatedEngine()
+    service.scheduleHardcoverProgress(uuid: "uuid-1", relativePath: "book.m4b", hardcoverBookId: 7, percentCompleted: 42)
+    service.scheduleHardcoverProgress(uuid: "uuid-2", relativePath: "other.m4b", hardcoverBookId: 8, percentCompleted: 10)
+    try await waitForTaskCount(exactly: 2)
+
+    await service.clearHardcoverProgress()
+
+    let tasks = await repository.getAllTasks()
+    XCTAssertTrue(tasks.isEmpty)
+  }
+
   /// SyncService is the one writer: setup seeds the gate from `isActive`, and every
   /// enable/disable and logout moves it with the flag.
   @MainActor
@@ -1592,6 +1660,36 @@ extension SyncQueueTests {
         canUploadFiles ? ["PUT /v1/library", "POST /v1/library"] : ["PUT /v1/library"],
         "canUploadFiles: \(canUploadFiles)"
       )
+    }
+  }
+}
+
+/// The app's Hardcover service as the lane sees it: fails the first `failures` runs with no
+/// connection, then succeeds
+private final class HardcoverSyncerStub: HardcoverProgressSyncing, @unchecked Sendable {
+  struct Call {
+    let uuid: String
+    let relativePath: String
+    let percent: Double
+  }
+
+  private let lock = NSLock()
+  private var remainingFailures: Int
+  private var _calls = [Call]()
+  var calls: [Call] { lock.withLock { _calls } }
+
+  init(failures: Int) {
+    remainingFailures = failures
+  }
+
+  func syncProgress(uuid: String, relativePath: String, percentCompleted: Double) async throws {
+    let fails = lock.withLock {
+      _calls.append(Call(uuid: uuid, relativePath: relativePath, percent: percentCompleted))
+      remainingFailures -= 1
+      return remainingFailures >= 0
+    }
+    if fails {
+      throw URLError(.notConnectedToInternet)
     }
   }
 }
